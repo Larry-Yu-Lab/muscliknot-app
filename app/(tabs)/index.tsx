@@ -1,98 +1,156 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
-
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons'; // Built-in icons for the "intricate" look
+import React from 'react';
+import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function HomeScreen() {
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+    <SafeAreaView style={styles.container}>
+      {/* Header Area */}
+      <View style={styles.header}>
+        <View>
+          <Text style={styles.brandText}>MUSCLIKNOT</Text>
+          <Text style={styles.welcomeText}>Hello, Founder</Text>
+        </View>
+        <TouchableOpacity style={styles.profileButton}>
+          <Ionicons name="person-circle" size={32} color="#ff9500" />
+        </TouchableOpacity>
+      </View>
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+
+        {/* Intricate Muscle Map Container */}
+        <View style={styles.mapContainer}>
+          <View style={styles.mapHeader}>
+            <Text style={styles.mapTitle}>Body Analysis</Text>
+            <View style={styles.liveIndicator}>
+              <View style={styles.dot} />
+              <Text style={styles.liveText}>LIVE</Text>
+            </View>
+          </View>
+
+          <View style={styles.mapPlaceholder}>
+            <Ionicons name="body-outline" size={120} color="rgba(255, 149, 0, 0.2)" />
+            <Text style={styles.placeholderText}>3D Muscle Model Rendering...</Text>
+          </View>
+        </View>
+
+        {/* Quick Select Buttons */}
+        <Text style={styles.sectionTitle}>Focus Areas</Text>
+        <View style={styles.grid}>
+          <TouchableOpacity style={styles.gridItem}>
+            <Ionicons name="fitness" size={24} color="#ff9500" />
+            <Text style={styles.gridText}>Upper Back</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.gridItem}>
+            <Ionicons name="walk" size={24} color="#ff9500" />
+            <Text style={styles.gridText}>Lower Body</Text>
+          </TouchableOpacity>
+        </View>
+
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
+  container: {
+    flex: 1,
+    backgroundColor: '#0a0a0a', // Your Deep Charcoal
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 10,
+  },
+  brandText: {
+    color: '#ff9500', // Your Orange
+    fontSize: 12,
+    fontWeight: '900',
+    letterSpacing: 2,
+  },
+  welcomeText: {
+    color: '#ffffff',
+    fontSize: 24,
+    fontWeight: '700',
+  },
+  profileButton: {
+    padding: 5,
+  },
+  scrollContent: {
+    padding: 20,
+  },
+  mapContainer: {
+    backgroundColor: '#161616',
+    borderRadius: 30,
+    height: 400,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: '#222',
+  },
+  mapHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  mapTitle: {
+    color: '#fff',
+    fontWeight: '600',
+  },
+  liveIndicator: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    backgroundColor: 'rgba(255, 0, 0, 0.1)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  dot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#ff4444',
+    marginRight: 6,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  liveText: {
+    color: '#ff4444',
+    fontSize: 10,
+    fontWeight: 'bold',
+  },
+  mapPlaceholder: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  placeholderText: {
+    color: '#444',
+    marginTop: 10,
+    fontSize: 12,
+  },
+  sectionTitle: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: '700',
+    marginTop: 30,
+    marginBottom: 15,
+  },
+  grid: {
+    flexDirection: 'row',
+    gap: 15,
+  },
+  gridItem: {
+    flex: 1,
+    backgroundColor: '#161616',
+    padding: 20,
+    borderRadius: 20,
+    alignItems: 'center',
+    borderBottomWidth: 2,
+    borderBottomColor: '#ff9500',
+  },
+  gridText: {
+    color: '#fff',
+    marginTop: 10,
+    fontWeight: '600',
   },
 });
