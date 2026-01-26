@@ -221,7 +221,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
     padding: 16,
     borderRadius: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.05)', // glass
+    backgroundColor: '#292929', // Custom dark grey
     borderWidth: 1,
     borderColor: 'rgba(249, 115, 22, 0.05)', // primary/5
     alignItems: 'center',
