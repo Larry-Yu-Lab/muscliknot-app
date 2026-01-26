@@ -65,10 +65,6 @@ export default function HomeScreen() {
               style={styles.bodyImage}
               contentFit="contain"
             />
-            {/* Pulse Dots (Absolute) matching HTML positions approx */}
-            <View style={[styles.pulseDot, { top: '42%', left: '50%', marginLeft: -8 }]} />
-            <View style={[styles.staticDot, { top: '42%', left: '34%' }]} />
-            <View style={[styles.staticDot, { top: '48%', right: '40%' }]} />
           </View>
         </View>
 
