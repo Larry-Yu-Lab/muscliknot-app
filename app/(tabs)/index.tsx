@@ -61,7 +61,7 @@ export default function HomeScreen() {
           {/* Image Area */}
           <View style={styles.bodyImageContainer}>
             <Image
-              source={{ uri: "https://lh3.googleusercontent.com/aida-public/AB6AXuDAk-UF0WSacioRYvkrHxCkJL-itbNieGbN_sUZWqd8COBT2aFXZ2FTJ4RHOjeHh7wpcO-oe5PbVLdymAojMLyFS2SxRVy73EJSBHregjYg1bq4hR3TfI-9LY4G6i42BbeKFA5NZDCNM5gVLhD-UG91ssp_wHn4j1d90C2j9Z971SRNvFUyFStILENckA-pgVPwEiRcqP2DCi0P1De74gFMy8kIpx4N1iQ5qCB8d64DLPVAye8E4jPoVEYYAbq0mURzd6545cvSQF4B" }}
+              source={view === 'Front' ? require('../../assets/images/front_muscle.png') : require('../../assets/images/back_muscle.png')}
               style={styles.bodyImage}
               contentFit="contain"
             />
