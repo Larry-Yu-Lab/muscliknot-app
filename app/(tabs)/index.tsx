@@ -1,51 +1,128 @@
-import { Ionicons } from '@expo/vector-icons'; // Built-in icons for the "intricate" look
-import React from 'react';
-import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { Image } from 'expo-image';
+import React, { useState } from 'react';
+import { SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 export default function HomeScreen() {
+  const [view, setView] = useState('Front'); // 'Front' or 'Back'
+
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header Area */}
-      <View style={styles.header}>
-        <View>
-          <Text style={styles.brandText}>MUSCLIKNOT</Text>
-          <Text style={styles.welcomeText}>Hello, Founder</Text>
-        </View>
-        <TouchableOpacity style={styles.profileButton}>
-          <Ionicons name="person-circle" size={32} color="#ff9500" />
-        </TouchableOpacity>
-      </View>
-
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
 
-        {/* Intricate Muscle Map Container */}
-        <View style={styles.mapContainer}>
-          <View style={styles.mapHeader}>
-            <Text style={styles.mapTitle}>Body Analysis</Text>
-            <View style={styles.liveIndicator}>
-              <View style={styles.dot} />
-              <Text style={styles.liveText}>LIVE</Text>
+        {/* Header */}
+        <View style={styles.header}>
+          <View style={styles.headerLeft}>
+            <Image
+              source={{ uri: "https://lh3.googleusercontent.com/aida-public/AB6AXuATfKINBnYddwALYOWgnuRoHefSk8YUwGzzqj09-y9OuUOYSlHWWTUDnJ-ATViJk106sgPtrQ7TGy5HW82D9CW8zxe4GUAvHl7Yv2kpQUMKw8UyP3fEk87uibvOm8nOTMzJQ0Joy_l7k3uN4g4B5gOO4GPpj7iMDX55B2u0lQXz-SR1fnS_PzRZShxB4XFzO8nPITSCqGOHZic_6yrSbnBTSwfP6YAh_977r7ima5hru3ocwA6w4pwZNSguCa_wBXPsBNyeyHUrU75c" }}
+              style={styles.avatar}
+            />
+            <View>
+              <Text style={styles.greetingSub}>Good morning</Text>
+              <Text style={styles.greetingTitle}>Hello, Alex</Text>
             </View>
           </View>
+          <TouchableOpacity style={styles.notificationButton}>
+            <Ionicons name="notifications-outline" size={24} color="#fff" />
+            <View style={styles.notificationDot} />
+          </TouchableOpacity>
+        </View>
 
-          <View style={styles.mapPlaceholder}>
-            <Ionicons name="body-outline" size={120} color="rgba(255, 149, 0, 0.2)" />
-            <Text style={styles.placeholderText}>3D Muscle Model Rendering...</Text>
+        {/* Search */}
+        <View style={styles.searchContainer}>
+          <View style={styles.searchIconContainer}>
+            <Ionicons name="search" size={20} color="#fff" />
+          </View>
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Where does it hurt?"
+            placeholderTextColor="#71717a" // zinc-500
+          />
+        </View>
+
+        {/* Body Visualizer */}
+        <View style={styles.bodyVisualizerContainer}>
+          {/* Toggle */}
+          <View style={styles.toggleContainer}>
+            <TouchableOpacity
+              style={[styles.toggleButton, view === 'Front' && styles.toggleButtonActive]}
+              onPress={() => setView('Front')}
+            >
+              <Text style={[styles.toggleText, view === 'Front' && styles.toggleTextActive]}>FRONT</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.toggleButton, view === 'Back' && styles.toggleButtonActive]}
+              onPress={() => setView('Back')}
+            >
+              <Text style={[styles.toggleText, view === 'Back' && styles.toggleTextActive]}>BACK</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Image Area */}
+          <View style={styles.bodyImageContainer}>
+            <Image
+              source={{ uri: "https://lh3.googleusercontent.com/aida-public/AB6AXuDAk-UF0WSacioRYvkrHxCkJL-itbNieGbN_sUZWqd8COBT2aFXZ2FTJ4RHOjeHh7wpcO-oe5PbVLdymAojMLyFS2SxRVy73EJSBHregjYg1bq4hR3TfI-9LY4G6i42BbeKFA5NZDCNM5gVLhD-UG91ssp_wHn4j1d90C2j9Z971SRNvFUyFStILENckA-pgVPwEiRcqP2DCi0P1De74gFMy8kIpx4N1iQ5qCB8d64DLPVAye8E4jPoVEYYAbq0mURzd6545cvSQF4B" }}
+              style={styles.bodyImage}
+              contentFit="contain"
+            />
+            {/* Pulse Dots (Absolute) matching HTML positions approx */}
+            <View style={[styles.pulseDot, { top: '42%', left: '50%', marginLeft: -8 }]} />
+            <View style={[styles.staticDot, { top: '42%', left: '34%' }]} />
+            <View style={[styles.staticDot, { top: '48%', right: '40%' }]} />
           </View>
         </View>
 
-        {/* Quick Select Buttons */}
-        <Text style={styles.sectionTitle}>Focus Areas</Text>
-        <View style={styles.grid}>
-          <TouchableOpacity style={styles.gridItem}>
-            <Ionicons name="fitness" size={24} color="#ff9500" />
-            <Text style={styles.gridText}>Upper Back</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.gridItem}>
-            <Ionicons name="walk" size={24} color="#ff9500" />
-            <Text style={styles.gridText}>Lower Body</Text>
+        {/* Quick Fix */}
+        <View style={styles.quickFixHeader}>
+          <Text style={styles.sectionTitle}>Quick Fix</Text>
+          <TouchableOpacity>
+            <Text style={styles.seeAllText}>See all</Text>
           </TouchableOpacity>
         </View>
+
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.cardsScroll}>
+          {/* Card 1 */}
+          <TouchableOpacity style={styles.card}>
+            <View style={styles.cardIcon}>
+              <Ionicons name="medkit-outline" size={24} color="#f97316" />
+            </View>
+            <View>
+              <Text style={styles.cardTitle}>Stiff Neck</Text>
+              <Text style={styles.cardSubtitle}>3 MIN ROUTINE</Text>
+            </View>
+            <View style={styles.cardArrow}>
+              <Ionicons name="chevron-forward" size={20} color="#f97316" />
+            </View>
+          </TouchableOpacity>
+
+          {/* Card 2 */}
+          <TouchableOpacity style={styles.card}>
+            <View style={styles.cardIcon}>
+              <Ionicons name="hand-left-outline" size={24} color="#f97316" />
+            </View>
+            <View>
+              <Text style={styles.cardTitle}>Lower Back Pain</Text>
+              <Text style={styles.cardSubtitle}>5 MIN RELIEF</Text>
+            </View>
+            <View style={styles.cardArrow}>
+              <Ionicons name="chevron-forward" size={20} color="#f97316" />
+            </View>
+          </TouchableOpacity>
+
+          {/* Card 3 */}
+          <TouchableOpacity style={styles.card}>
+            <View style={styles.cardIcon}>
+              <Ionicons name="body-outline" size={24} color="#f97316" />
+            </View>
+            <View>
+              <Text style={styles.cardTitle}>Shoulder Tension</Text>
+              <Text style={styles.cardSubtitle}>4 MIN FLOW</Text>
+            </View>
+            <View style={styles.cardArrow}>
+              <Ionicons name="chevron-forward" size={20} color="#f97316" />
+            </View>
+          </TouchableOpacity>
+        </ScrollView>
 
       </ScrollView>
     </SafeAreaView>
@@ -55,102 +132,218 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0a0a0a', // Your Deep Charcoal
+    backgroundColor: '#121212', // background-dark
+  },
+  scrollContent: {
+    paddingBottom: 100, // Matching pb-24
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 10,
+    paddingHorizontal: 24,
+    paddingTop: 24,
+    paddingBottom: 8,
   },
-  brandText: {
-    color: '#ff9500', // Your Orange
-    fontSize: 12,
-    fontWeight: '900',
-    letterSpacing: 2,
-  },
-  welcomeText: {
-    color: '#ffffff',
-    fontSize: 24,
-    fontWeight: '700',
-  },
-  profileButton: {
-    padding: 5,
-  },
-  scrollContent: {
-    padding: 20,
-  },
-  mapContainer: {
-    backgroundColor: '#161616',
-    borderRadius: 30,
-    height: 400,
-    padding: 20,
-    borderWidth: 1,
-    borderColor: '#222',
-  },
-  mapHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  mapTitle: {
-    color: '#fff',
-    fontWeight: '600',
-  },
-  liveIndicator: {
+  headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 0, 0, 0.1)',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
+    gap: 12,
   },
-  dot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: '#ff4444',
-    marginRight: 6,
+  avatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    borderWidth: 2,
+    borderColor: 'rgba(249, 115, 22, 0.3)', // primary/30
   },
-  liveText: {
-    color: '#ff4444',
-    fontSize: 10,
-    fontWeight: 'bold',
-  },
-  mapPlaceholder: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  placeholderText: {
-    color: '#444',
-    marginTop: 10,
+  greetingSub: {
+    color: '#71717a', // zinc-500
     fontSize: 12,
+    fontWeight: '500',
   },
-  sectionTitle: {
+  greetingTitle: {
     color: '#fff',
     fontSize: 18,
     fontWeight: '700',
-    marginTop: 30,
-    marginBottom: 15,
+    lineHeight: 22,
   },
-  grid: {
-    flexDirection: 'row',
-    gap: 15,
-  },
-  gridItem: {
-    flex: 1,
-    backgroundColor: '#161616',
-    padding: 20,
+  notificationButton: {
+    width: 40,
+    height: 40,
     borderRadius: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)', // glass
     alignItems: 'center',
-    borderBottomWidth: 2,
-    borderBottomColor: '#ff9500',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
   },
-  gridText: {
+  notificationDot: {
+    position: 'absolute',
+    top: 8,
+    right: 10,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#f97316', // primary
+  },
+  searchContainer: {
+    marginHorizontal: 24,
+    marginVertical: 16,
+    height: 56,
+    borderRadius: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)', // glass
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    gap: 12,
+  },
+  searchIconContainer: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#f97316', // primary
+    alignItems: 'center',
+    justifyContent: 'center',
+    // Pulse effect simulated with shadow
+    shadowColor: '#f97316',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.7,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 16,
     color: '#fff',
-    marginTop: 10,
-    fontWeight: '600',
+    fontWeight: '500',
+  },
+  bodyVisualizerContainer: {
+    marginHorizontal: 24,
+    marginTop: 8,
+    padding: 16,
+    borderRadius: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)', // glass
+    borderWidth: 1,
+    borderColor: 'rgba(249, 115, 22, 0.05)', // primary/5
+    alignItems: 'center',
+    gap: 16,
+  },
+  toggleContainer: {
+    flexDirection: 'row',
+    width: '100%',
+    height: 44,
+    borderRadius: 12,
+    backgroundColor: 'rgba(24, 24, 27, 0.5)', // zinc-900/50
+    padding: 4,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.05)',
+  },
+  toggleButton: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 8,
+  },
+  toggleButtonActive: {
+    backgroundColor: '#FACC15', // solar
+  },
+  toggleText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#a1a1aa', // zinc-400
+  },
+  toggleTextActive: {
+    color: '#000',
+  },
+  bodyImageContainer: {
+    width: '100%',
+    aspectRatio: 0.8, // 4/5
+    borderRadius: 12,
+    overflow: 'hidden',
+    position: 'relative',
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+  },
+  bodyImage: {
+    flex: 1,
+    width: '100%',
+    height: '100%',
+  },
+  pulseDot: {
+    position: 'absolute',
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: 'rgba(249, 115, 22, 0.4)',
+    borderWidth: 1,
+    borderColor: '#f97316',
+    // Animation is harder in standard StyleSheet without Reanimated. static for now.
+  },
+  staticDot: {
+    position: 'absolute',
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.4)',
+  },
+  quickFixHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+    marginTop: 24,
+    marginBottom: 12,
+  },
+  sectionTitle: {
+    color: '#fff',
+    fontSize: 20,
+    fontWeight: '800',
+  },
+  seeAllText: {
+    color: '#f97316',
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  cardsScroll: {
+    paddingHorizontal: 24,
+    paddingBottom: 16,
+    gap: 16,
+  },
+  card: {
+    width: 160,
+    padding: 16,
+    borderRadius: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderLeftWidth: 4,
+    borderLeftColor: '#f97316',
+    gap: 16,
+  },
+  cardIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 8,
+    backgroundColor: 'rgba(249, 115, 22, 0.2)', // primary/20
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  cardTitle: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '700',
+    lineHeight: 18,
+  },
+  cardSubtitle: {
+    color: '#a1a1aa', // zinc-400
+    fontSize: 10,
+    fontWeight: '700',
+    marginTop: 4,
+    letterSpacing: 0.5,
+  },
+  cardArrow: {
+    alignItems: 'flex-end',
   },
 });
