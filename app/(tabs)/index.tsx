@@ -283,7 +283,13 @@ const styles = StyleSheet.create({
   toggleTextActive: {
     color: '#000',
   },
-  bodyImageContainer: { \n    width: '100%', \n    aspectRatio: 0.65, \n    borderRadius: 12, \n    overflow: 'hidden', \n    position: 'relative', \n },
+  bodyImageContainer: {
+    width: '100%',
+    aspectRatio: 0.65,
+    borderRadius: 12,
+    overflow: 'hidden',
+    position: 'relative',
+  },
   bodyImage: {
     flex: 1,
     width: '100%',
