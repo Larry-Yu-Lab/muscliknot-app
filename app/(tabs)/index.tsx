@@ -252,7 +252,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
     padding: 16,
     borderRadius: 16,
-    backgroundColor: '#292929', // Custom dark grey
+    backgroundColor: '#272727', // Custom dark grey
     alignItems: 'center',
     gap: 16,
   },
@@ -289,7 +289,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     overflow: 'hidden',
     position: 'relative',
-    backgroundColor: '#292929',
   },
   bodyImage: {
     flex: 1,
