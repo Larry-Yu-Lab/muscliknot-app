@@ -289,6 +289,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     overflow: 'hidden',
     position: 'relative',
+    backgroundColor: '#292929',
   },
   bodyImage: {
     flex: 1,
