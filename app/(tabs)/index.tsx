@@ -3,8 +3,39 @@ import { Image } from 'expo-image';
 import React, { useState } from 'react';
 import { SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
+const MUSCLE_POINTS = {
+  Front: [
+    { top: '18%', left: '48%', label: 'Neck' },
+    { top: '23%', left: '35%', label: 'Right Shoulder' },
+    { top: '23%', left: '61%', label: 'Left Shoulder' },
+    { top: '30%', left: '48%', label: 'Chest' },
+    { top: '45%', left: '48%', label: 'Abs' },
+    { top: '35%', left: '25%', label: 'Right Bicep' },
+    { top: '35%', left: '71%', label: 'Left Bicep' },
+    { top: '55%', left: '40%', label: 'Right Quads' },
+    { top: '55%', left: '56%', label: 'Left Quads' },
+    { top: '75%', left: '42%', label: 'Right Shin' },
+    { top: '75%', left: '54%', label: 'Left Shin' },
+  ],
+  Back: [
+    { top: '18%', left: '48%', label: 'Neck' },
+    { top: '25%', left: '35%', label: 'Right Shoulder Blade' },
+    { top: '25%', left: '61%', label: 'Left Shoulder Blade' },
+    { top: '35%', left: '48%', label: 'Upper Back' },
+    { top: '45%', left: '48%', label: 'Lower Back' },
+    { top: '55%', left: '40%', label: 'Right Glute' },
+    { top: '55%', left: '56%', label: 'Left Glute' },
+    { top: '65%', left: '38%', label: 'Right Hamstring' },
+    { top: '65%', left: '58%', label: 'Left Hamstring' },
+    { top: '80%', left: '40%', label: 'Right Calf' },
+    { top: '80%', left: '56%', label: 'Left Calf' },
+  ],
+};
+
+type ViewState = 'Front' | 'Back';
+
 export default function HomeScreen() {
-  const [view, setView] = useState('Front'); // 'Front' or 'Back'
+  const [view, setView] = useState<ViewState>('Front'); // 'Front' or 'Back'
 
   return (
     <SafeAreaView style={styles.container}>
@@ -65,6 +96,16 @@ export default function HomeScreen() {
               style={styles.bodyImage}
               contentFit="contain"
             />
+            {MUSCLE_POINTS[view].map((point: { top: any; left: any; label: any; }, index: React.Key | null | undefined) => (
+              <TouchableOpacity
+                key={index}
+                style={[
+                  styles.pulseDot, // Using pulseDot for all for now to make them visible
+                  { top: point.top as any, left: point.left as any }
+                ]}
+                onPress={() => console.log(`Selected: ${point.label}`)}
+              />
+            ))}
           </View>
         </View>
 
