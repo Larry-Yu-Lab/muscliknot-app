@@ -96,16 +96,6 @@ export default function HomeScreen() {
               style={styles.bodyImage}
               contentFit="contain"
             />
-            {MUSCLE_POINTS[view].map((point: { top: any; left: any; label: any; }, index: React.Key | null | undefined) => (
-              <TouchableOpacity
-                key={index}
-                style={[
-                  styles.pulseDot, // Using pulseDot for all for now to make them visible
-                  { top: point.top as any, left: point.left as any }
-                ]}
-                onPress={() => console.log(`Selected: ${point.label}`)}
-              />
-            ))}
           </View>
         </View>
 
@@ -293,14 +283,7 @@ const styles = StyleSheet.create({
   toggleTextActive: {
     color: '#000',
   },
-  bodyImageContainer: {
-    width: '100%',
-    aspectRatio: 0.8, // 4/5
-    borderRadius: 12,
-    overflow: 'hidden',
-    position: 'relative',
-    // backgroundColor: 'rgba(255, 255, 255, 0.05)',
-  },
+  bodyImageContainer: { \n    width: '100%', \n    aspectRatio: 0.65, \n    borderRadius: 12, \n    overflow: 'hidden', \n    position: 'relative', \n },
   bodyImage: {
     flex: 1,
     width: '100%',
