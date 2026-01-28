@@ -1,21 +1,453 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { Image } from 'expo-image';
+import React, { useState } from 'react';
+import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function FindReliefScreen() {
+    const [painLevel, setPainLevel] = useState(6);
+
+    const instructions = [
+        {
+            step: 1,
+            title: 'Setup',
+            description: 'Position your foam roller horizontally beneath your shoulder blades. Support your head with your hands.',
+        },
+        {
+            step: 2,
+            title: 'Movement',
+            description: 'Lift your hips slightly and slowly roll upwards toward the top of your shoulders, then back to the mid-back.',
+        },
+        {
+            step: 3,
+            title: 'Hold',
+            description: 'When you find a tight spot (knot), pause and hold for 30 seconds while breathing deeply.',
+        },
+    ];
+
     return (
-        <View style={styles.container}>
-            <Text style={styles.text}>Find Relief Screen</Text>
-        </View>
+        <SafeAreaView style={styles.container}>
+            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+                {/* Header */}
+                <View style={styles.header}>
+                    <TouchableOpacity style={styles.backButton}>
+                        <Ionicons name="arrow-back" size={24} color="#fff" />
+                    </TouchableOpacity>
+                    <Text style={styles.headerTitle}>Follow Along</Text>
+                    <View style={styles.headerSpacer} />
+                </View>
+
+                {/* Video Player */}
+                <View style={styles.videoContainer}>
+                    <Image
+                        source={{ uri: "https://lh3.googleusercontent.com/aida-public/AB6AXuAQvExJHNf-gPBvV9mafHYX_QH4RDM2a10DReFfan-2uta-tGIgoYLy2YcqV88Fw966WlK2bhvku-3_4e5f88wGpuO0qaD_Yr1qPxSQtigGhxM0Sq6uOtWbw-JV0RDp_0RmODacO147g0dvAY693HSe3XPVdm2eTzs6ER9VAKERpdSDpdD1MgVcJ8HJCDesjsxF-hhw0aRZc-sY0sB3sHox58BbJ7vYjkyyLq8KDnpbu4x0PolLYeNnsL3Q3fcRFHU5BkgY0KWaZ8NP" }}
+                        style={styles.videoThumbnail}
+                        contentFit="cover"
+                    />
+                    <View style={styles.videoOverlay} />
+                    <TouchableOpacity style={styles.playButton}>
+                        <Ionicons name="play" size={32} color="#000" />
+                    </TouchableOpacity>
+                    <View style={styles.progressContainer}>
+                        <View style={styles.progressBar}>
+                            <View style={styles.progressFill} />
+                            <View style={styles.progressThumb} />
+                        </View>
+                        <View style={styles.timeContainer}>
+                            <Text style={styles.timeText}>0:37</Text>
+                            <Text style={styles.timeText}>2:23</Text>
+                        </View>
+                    </View>
+                </View>
+
+                {/* Exercise Info Badges */}
+                <View style={styles.badgeContainer}>
+                    <View style={styles.badge}>
+                        <Ionicons name="timer-outline" size={20} color="#FF9D42" />
+                        <Text style={styles.badgeText}>30s Hold</Text>
+                    </View>
+                    <View style={styles.badge}>
+                        <Ionicons name="repeat-outline" size={20} color="#FF9D42" />
+                        <Text style={styles.badgeText}>3 Reps</Text>
+                    </View>
+                </View>
+
+                {/* Pain Assessment */}
+                <View style={styles.assessmentCard}>
+                    <View style={styles.assessmentHeader}>
+                        <Ionicons name="analytics-outline" size={24} color="#FF9D42" />
+                        <Text style={styles.assessmentTitle}>Pain Assessment</Text>
+                    </View>
+                    <View style={styles.assessmentContent}>
+                        <View style={styles.scaleHeader}>
+                            <Text style={styles.scaleLabel}>Rate your intensity</Text>
+                            <View style={styles.scaleBadge}>
+                                <Text style={styles.scaleBadgeText}>1-10 SCALE</Text>
+                            </View>
+                        </View>
+                        <View style={styles.sliderContainer}>
+                            <View style={styles.sliderTrack}>
+                                <View style={[styles.sliderFill, { width: `${painLevel * 10}%` }]} />
+                                <View style={[styles.sliderThumb, { left: `${painLevel * 10}%` }]} />
+                            </View>
+                            <Text style={styles.painNumber}>{painLevel}</Text>
+                        </View>
+                        <View style={styles.sliderLabels}>
+                            <Text style={styles.sliderLabel}>Mild</Text>
+                            <Text style={styles.sliderLabel}>Moderate</Text>
+                            <Text style={styles.sliderLabel}>Severe</Text>
+                        </View>
+                    </View>
+                </View>
+
+                {/* Stretch Instructions */}
+                <View style={styles.instructionsSection}>
+                    <Text style={styles.instructionsTitle}>Stretch Instructions</Text>
+                    {instructions.map((item) => (
+                        <View key={item.step} style={styles.instructionCard}>
+                            <View style={styles.stepNumber}>
+                                <Text style={styles.stepNumberText}>{item.step}</Text>
+                            </View>
+                            <View style={styles.stepContent}>
+                                <Text style={styles.stepTitle}>{item.title}</Text>
+                                <Text style={styles.stepDescription}>{item.description}</Text>
+                            </View>
+                        </View>
+                    ))}
+                </View>
+            </ScrollView>
+
+            {/* Fixed Bottom Button */}
+            <View style={styles.bottomContainer}>
+                <TouchableOpacity style={styles.completeButton}>
+                    <Text style={styles.completeButtonText}>MARK AS COMPLETE</Text>
+                </TouchableOpacity>
+            </View>
+        </SafeAreaView>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#121212',
+        backgroundColor: '#000', // background-dark
+    },
+    scrollContent: {
+        paddingBottom: 120,
+    },
+    header: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    },
+    backButton: {
+        width: 48,
+        height: 48,
         alignItems: 'center',
         justifyContent: 'center',
     },
-    text: {
+    headerTitle: {
         color: '#fff',
+        fontSize: 18,
+        fontWeight: '800',
+        letterSpacing: -0.3,
+        textAlign: 'center',
+    },
+    headerSpacer: {
+        width: 48,
+    },
+    videoContainer: {
+        marginHorizontal: 16,
+        marginTop: 8,
+        aspectRatio: 16 / 9,
+        borderRadius: 16,
+        overflow: 'hidden',
+        backgroundColor: '#18181b',
+        position: 'relative',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.5,
+        shadowRadius: 16,
+        elevation: 10,
+    },
+    videoThumbnail: {
+        width: '100%',
+        height: '100%',
+    },
+    videoOverlay: {
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    },
+    playButton: {
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: [{ translateX: -32 }, { translateY: -32 }],
+        width: 64,
+        height: 64,
+        borderRadius: 32,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#FF9D42',
+        shadowColor: '#FF6B00',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+        elevation: 5,
+    },
+    progressContainer: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        paddingHorizontal: 16,
+        paddingBottom: 16,
+        paddingTop: 24,
+        backgroundColor: 'transparent',
+        // Gradient effect simulated
+    },
+    progressBar: {
+        height: 10,
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 8,
+    },
+    progressFill: {
+        width: '33%',
+        height: 10,
+        borderRadius: 5,
+        backgroundColor: '#FF9D42',
+    },
+    progressThumb: {
+        width: 20,
+        height: 20,
+        borderRadius: 10,
+        backgroundColor: '#fff',
+        marginLeft: -10,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.3,
+        shadowRadius: 4,
+        elevation: 3,
+    },
+    timeContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+    },
+    timeText: {
+        color: '#fff',
+        fontSize: 12,
+        fontWeight: '700',
+    },
+    badgeContainer: {
+        flexDirection: 'row',
+        gap: 12,
+        paddingHorizontal: 16,
+        marginTop: 16,
+        marginBottom: 8,
+    },
+    badge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+        backgroundColor: '#1A1A1A',
+        paddingHorizontal: 16,
+        paddingVertical: 10,
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.1)',
+    },
+    badgeText: {
+        color: '#fff',
+        fontSize: 14,
+        fontWeight: '700',
+    },
+    assessmentCard: {
+        marginHorizontal: 16,
+        marginTop: 8,
+        backgroundColor: '#1A1A1A',
+        borderRadius: 16,
+        padding: 24,
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.1)',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.3,
+        shadowRadius: 16,
+        elevation: 8,
+    },
+    assessmentHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
+        marginBottom: 24,
+    },
+    assessmentTitle: {
+        color: '#fff',
+        fontSize: 18,
+        fontWeight: '700',
+    },
+    assessmentContent: {
+        gap: 20,
+    },
+    scaleHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    scaleLabel: {
+        color: '#71717a',
+        fontSize: 16,
+        fontWeight: '500',
+    },
+    scaleBadge: {
+        backgroundColor: 'rgba(255, 107, 0, 0.2)',
+        paddingHorizontal: 12,
+        paddingVertical: 4,
+        borderRadius: 4,
+        borderWidth: 1,
+        borderColor: 'rgba(255, 107, 0, 0.2)',
+    },
+    scaleBadgeText: {
+        color: '#FF9D42',
+        fontSize: 10,
+        fontWeight: '900',
+        letterSpacing: 1,
+    },
+    sliderContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 16,
+    },
+    sliderTrack: {
+        flex: 1,
+        height: 16,
+        backgroundColor: '#27272a',
+        borderRadius: 8,
+        position: 'relative',
+    },
+    sliderFill: {
+        height: '100%',
+        backgroundColor: '#FF9D42',
+        borderRadius: 8,
+    },
+    sliderThumb: {
+        position: 'absolute',
+        top: -8,
+        width: 32,
+        height: 32,
+        borderRadius: 16,
+        backgroundColor: '#fff',
+        borderWidth: 6,
+        borderColor: '#FF9D42',
+        marginLeft: -16,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+        elevation: 5,
+    },
+    painNumber: {
+        color: '#FF9D42',
+        fontSize: 32,
+        fontWeight: '900',
+        width: 40,
+        textAlign: 'right',
+    },
+    sliderLabels: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        paddingHorizontal: 4,
+    },
+    sliderLabel: {
+        color: '#52525b',
+        fontSize: 10,
+        fontWeight: '800',
+        textTransform: 'uppercase',
+        letterSpacing: 2,
+    },
+    instructionsSection: {
+        paddingHorizontal: 16,
+        marginTop: 16,
+    },
+    instructionsTitle: {
+        color: '#fff',
+        fontSize: 18,
+        fontWeight: '800',
+        marginBottom: 16,
+    },
+    instructionCard: {
+        flexDirection: 'row',
+        gap: 16,
+        padding: 20,
+        backgroundColor: '#1A1A1A',
+        borderRadius: 16,
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.1)',
+        marginBottom: 16,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.2,
+        shadowRadius: 8,
+        elevation: 5,
+    },
+    stepNumber: {
+        width: 44,
+        height: 44,
+        borderRadius: 12,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#FF9D42',
+    },
+    stepNumberText: {
+        color: '#000',
+        fontSize: 18,
+        fontWeight: '900',
+    },
+    stepContent: {
+        flex: 1,
+        gap: 6,
+    },
+    stepTitle: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: '700',
+    },
+    stepDescription: {
+        color: '#71717a',
+        fontSize: 14,
+        lineHeight: 22,
+    },
+    bottomContainer: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.95)',
+        paddingHorizontal: 16,
+        paddingTop: 24,
+        paddingBottom: 32,
+        borderTopWidth: 1,
+        borderTopColor: 'rgba(255, 255, 255, 0.1)',
+    },
+    completeButton: {
+        height: 64,
+        borderRadius: 16,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#FF9D42',
+        shadowColor: '#FF6B00',
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.4,
+        shadowRadius: 16,
+        elevation: 10,
+    },
+    completeButtonText: {
+        color: '#000',
+        fontSize: 18,
+        fontWeight: '900',
+        letterSpacing: 2,
     },
 });
