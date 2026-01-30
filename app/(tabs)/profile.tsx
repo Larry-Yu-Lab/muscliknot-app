@@ -1,10 +1,41 @@
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import React, { useState } from 'react';
-import { Dimensions, SafeAreaView, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
+import { Animated, Dimensions, Easing, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Svg, { Circle, Path } from 'react-native-svg';
 
 const { width } = Dimensions.get('window');
+
+function CustomSwitch({ value, onValueChange }: { value: boolean; onValueChange: (val: boolean) => void }) {
+    const animatedValue = React.useRef(new Animated.Value(value ? 1 : 0)).current;
+
+    React.useEffect(() => {
+        Animated.timing(animatedValue, {
+            toValue: value ? 1 : 0,
+            duration: 200,
+            easing: Easing.inOut(Easing.ease),
+            useNativeDriver: false,
+        }).start();
+    }, [value]);
+
+    const translateX = animatedValue.interpolate({
+        inputRange: [0, 1],
+        outputRange: [2, 22], // 2px padding start, total width 50, thumb 26 -> 50-26-2 = 22
+    });
+
+    const backgroundColor = animatedValue.interpolate({
+        inputRange: [0, 1],
+        outputRange: ['#222222', '#f96b06'],
+    });
+
+    return (
+        <Pressable onPress={() => onValueChange(!value)}>
+            <Animated.View style={[styles.switchTrack, { backgroundColor }]}>
+                <Animated.View style={[styles.switchThumb, { transform: [{ translateX }] }]} />
+            </Animated.View>
+        </Pressable>
+    );
+}
 
 export default function ProfileScreen() {
     const [activeTab, setActiveTab] = useState<'profile' | 'plans'>('profile');
@@ -128,35 +159,27 @@ export default function ProfileScreen() {
                                 <Text style={styles.cardLabel}>INJURY HISTORY</Text>
                                 <Text style={styles.cardTitle}>Recovery Track</Text>
                             </View>
-                            {/* Mini Graph */}
                             <View style={styles.miniGraphContainer}>
-                                <View style={styles.graphYAxis}>
-                                    <Text style={styles.graphYLabel}>100</Text>
-                                    <Text style={styles.graphYLabel}>50</Text>
-                                    <Text style={styles.graphYLabel}>0</Text>
-                                </View>
-                                <View style={styles.graphArea}>
-                                    <Svg width="100%" height={48} viewBox="0 0 100 30" preserveAspectRatio="none">
-                                        <Path
-                                            d="M0 25 Q 25 25, 50 15 T 100 5"
-                                            fill="none"
-                                            stroke="#f96b06"
-                                            strokeWidth="2.5"
-                                            strokeLinecap="round"
-                                        />
-                                        <Circle cx="100" cy="5" r="3" fill="#f96b06" />
-                                    </Svg>
-                                    <Text style={styles.graphXLabel}>7d</Text>
-                                </View>
+                                <Svg width="100%" height={60} viewBox="0 0 100 40" preserveAspectRatio="none">
+                                    <Path
+                                        d="M0 35 Q 30 35, 60 25 T 100 10"
+                                        fill="none"
+                                        stroke="#f96b06"
+                                        strokeWidth="3"
+                                        strokeLinecap="round"
+                                    />
+                                    <Circle cx="100" cy="10" r="4" fill="#f96b06" />
+                                </Svg>
                             </View>
                         </View>
 
                         {/* Fitness Level Card */}
                         <View style={[styles.glassCard, styles.fitnessCard]}>
                             <View style={styles.cardHeader}>
-                                <View style={styles.cardIconOrange}>
-                                    <MaterialCommunityIcons name="dumbbell" size={20} color="#f96b06" />
+                                <View style={styles.cardIconGreen}>
+                                    <MaterialCommunityIcons name="dumbbell" size={20} color="#22c55e" />
                                 </View>
+                                <Text style={styles.levelTextSimple}>LVL 8</Text>
                             </View>
                             {/* Circular Progress */}
                             <View style={styles.circularProgressContainer}>
@@ -165,7 +188,7 @@ export default function ProfileScreen() {
                                         cx="40"
                                         cy="40"
                                         r="32"
-                                        stroke="rgba(255,255,255,0.05)"
+                                        stroke="#1a1a1a"
                                         strokeWidth="6"
                                         fill="transparent"
                                     />
@@ -187,12 +210,7 @@ export default function ProfileScreen() {
                             </View>
                             <View style={styles.fitnessInfo}>
                                 <Text style={styles.cardLabel}>FITNESS LEVEL</Text>
-                                <View style={styles.fitnessLevelRow}>
-                                    <Text style={styles.fitnessLevelText}>ADVANCED</Text>
-                                    <View style={styles.levelBadge}>
-                                        <Text style={styles.levelBadgeText}>LVL 8</Text>
-                                    </View>
-                                </View>
+                                <Text style={styles.fitnessLevelText}>ADVANCED</Text>
                             </View>
                         </View>
                     </View>
@@ -211,11 +229,9 @@ export default function ProfileScreen() {
                                 </View>
                                 <Text style={styles.settingsItemText}>Notifications</Text>
                             </View>
-                            <Switch
+                            <CustomSwitch
                                 value={notificationsEnabled}
                                 onValueChange={setNotificationsEnabled}
-                                trackColor={{ false: '#222222', true: '#f96b06' }}
-                                thumbColor="#fff"
                             />
                         </View>
 
@@ -227,11 +243,9 @@ export default function ProfileScreen() {
                                 </View>
                                 <Text style={styles.settingsItemText}>Dark Mode</Text>
                             </View>
-                            <Switch
+                            <CustomSwitch
                                 value={darkModeEnabled}
                                 onValueChange={setDarkModeEnabled}
-                                trackColor={{ false: '#222222', true: '#f96b06' }}
-                                thumbColor="#fff"
                             />
                         </View>
 
@@ -517,39 +531,14 @@ const styles = StyleSheet.create({
         marginTop: 2,
     },
     miniGraphContainer: {
-        flexDirection: 'row',
-        marginTop: 8,
-        height: 48,
-    },
-    graphYAxis: {
-        justifyContent: 'space-between',
-        paddingRight: 4,
-        borderRightWidth: 1,
-        borderRightColor: 'rgba(255,255,255,0.05)',
-    },
-    graphYLabel: {
-        color: 'rgba(255,255,255,0.2)',
-        fontSize: 7,
-        fontWeight: '700',
-    },
-    graphArea: {
-        flex: 1,
-        paddingLeft: 8,
-        position: 'relative',
-    },
-    graphXLabel: {
-        position: 'absolute',
-        bottom: 0,
-        right: 0,
-        color: 'rgba(255,255,255,0.3)',
-        fontSize: 8,
-        fontWeight: '700',
-        letterSpacing: -0.5,
+        marginTop: 24,
+        height: 60,
+        justifyContent: 'flex-end',
     },
 
     // Fitness Card
     fitnessCard: {
-        alignItems: 'center',
+        // alignItems: 'center', // Remove this to allow header flex-between
     },
     circularProgressContainer: {
         position: 'relative',
@@ -578,16 +567,10 @@ const styles = StyleSheet.create({
         fontSize: 14,
         fontWeight: '700',
     },
-    levelBadge: {
-        backgroundColor: '#f96b06',
-        paddingHorizontal: 6,
-        paddingVertical: 2,
-        borderRadius: 4,
-    },
-    levelBadgeText: {
-        color: '#fff',
-        fontSize: 9,
-        fontWeight: '900',
+    levelTextSimple: {
+        color: 'rgba(255,255,255,0.3)',
+        fontSize: 10,
+        fontWeight: '700',
     },
 
     // Settings Section
@@ -667,5 +650,18 @@ const styles = StyleSheet.create({
         color: '#ef4444',
         fontSize: 14,
         fontWeight: '600',
+    },
+    // Custom Switch Styles
+    switchTrack: {
+        width: 50,
+        height: 30,
+        borderRadius: 15,
+        justifyContent: 'center',
+    },
+    switchThumb: {
+        width: 26,
+        height: 26,
+        borderRadius: 13,
+        backgroundColor: '#fff',
     },
 });
