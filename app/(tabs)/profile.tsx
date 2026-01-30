@@ -1,4 +1,4 @@
-import { Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import React, { useState } from 'react';
 import { Dimensions, SafeAreaView, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
@@ -75,10 +75,6 @@ export default function ProfileScreen() {
                             source={{ uri: "https://lh3.googleusercontent.com/aida-public/AB6AXuBNnzd-GV3B24Bcd6xHjlfFuasANL03ODkk-uPd2oMVJxTUGZ9UP425kJTEiSa54sI4kiDChYi_6GpkJMzmV3izbk6t50URWJE21zP0gZvRu_S8HMBYJBCb3U_7bXD7zGKsva8EppfGZqYDZjX4_txR-_COedD6zdQQzdy3HyR1ofKmgdwZ-fmRN5yohGUtr3UGE3cVqifwpGTOKYdJ1KD7FmKgHWgkFl3qu9qvMFiPEDFRAx9JTIcsRjcHGcwwV2ca8Z4sS-H4rZWc" }}
                             style={styles.avatar}
                         />
-                        {/* Verified Badge */}
-                        <View style={styles.verifiedBadge}>
-                            <MaterialIcons name="verified" size={12} color="#fff" />
-                        </View>
                     </View>
 
                     {/* Name and Status */}
@@ -158,8 +154,8 @@ export default function ProfileScreen() {
                         {/* Fitness Level Card */}
                         <View style={[styles.glassCard, styles.fitnessCard]}>
                             <View style={styles.cardHeader}>
-                                <View style={styles.cardIconGreen}>
-                                    <MaterialCommunityIcons name="dumbbell" size={20} color="#22c55e" />
+                                <View style={styles.cardIconOrange}>
+                                    <MaterialCommunityIcons name="dumbbell" size={20} color="#f96b06" />
                                 </View>
                             </View>
                             {/* Circular Progress */}
