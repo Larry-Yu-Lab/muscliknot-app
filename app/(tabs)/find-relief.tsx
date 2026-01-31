@@ -1,9 +1,12 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function FindReliefScreen() {
+    const router = useRouter();
+    const params = useLocalSearchParams(); // { x, y, view, timestamp }
     const [painLevel, setPainLevel] = useState(6);
 
     const instructions = [
@@ -29,10 +32,10 @@ export default function FindReliefScreen() {
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
                 {/* Header */}
                 <View style={styles.header}>
-                    <TouchableOpacity style={styles.backButton}>
+                    <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
                         <Ionicons name="arrow-back" size={24} color="#fff" />
                     </TouchableOpacity>
-                    <Text style={styles.headerTitle}>Follow Along</Text>
+                    <Text style={styles.headerTitle}>Personalized Relief</Text>
                     <View style={styles.headerSpacer} />
                 </View>
 

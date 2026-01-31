@@ -1,41 +1,34 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
+import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-
-const MUSCLE_POINTS = {
-  Front: [
-    { top: '18%', left: '48%', label: 'Neck' },
-    { top: '23%', left: '35%', label: 'Right Shoulder' },
-    { top: '23%', left: '61%', label: 'Left Shoulder' },
-    { top: '30%', left: '48%', label: 'Chest' },
-    { top: '45%', left: '48%', label: 'Abs' },
-    { top: '35%', left: '25%', label: 'Right Bicep' },
-    { top: '35%', left: '71%', label: 'Left Bicep' },
-    { top: '55%', left: '40%', label: 'Right Quads' },
-    { top: '55%', left: '56%', label: 'Left Quads' },
-    { top: '75%', left: '42%', label: 'Right Shin' },
-    { top: '75%', left: '54%', label: 'Left Shin' },
-  ],
-  Back: [
-    { top: '18%', left: '48%', label: 'Neck' },
-    { top: '25%', left: '35%', label: 'Right Shoulder Blade' },
-    { top: '25%', left: '61%', label: 'Left Shoulder Blade' },
-    { top: '35%', left: '48%', label: 'Upper Back' },
-    { top: '45%', left: '48%', label: 'Lower Back' },
-    { top: '55%', left: '40%', label: 'Right Glute' },
-    { top: '55%', left: '56%', label: 'Left Glute' },
-    { top: '65%', left: '38%', label: 'Right Hamstring' },
-    { top: '65%', left: '58%', label: 'Left Hamstring' },
-    { top: '80%', left: '40%', label: 'Right Calf' },
-    { top: '80%', left: '56%', label: 'Left Calf' },
-  ],
-};
+import { GestureResponderEvent, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 type ViewState = 'Front' | 'Back';
 
 export default function HomeScreen() {
+  const router = useRouter();
   const [view, setView] = useState<ViewState>('Front'); // 'Front' or 'Back'
+  const [selectedPoint, setSelectedPoint] = useState<{ x: number; y: number } | null>(null);
+
+  const handleBodyTap = (event: GestureResponderEvent) => {
+    const { locationX, locationY } = event.nativeEvent;
+    setSelectedPoint({ x: locationX, y: locationY });
+  };
+
+  const handleFindRelief = () => {
+    if (selectedPoint) {
+      router.push({
+        pathname: '/(tabs)/find-relief',
+        params: {
+          x: selectedPoint.x,
+          y: selectedPoint.y,
+          view,
+          timestamp: Date.now() // Force refresh/unique
+        }
+      });
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -49,8 +42,8 @@ export default function HomeScreen() {
               style={styles.avatar}
             />
             <View>
-              <Text style={styles.greetingSub}>Good morning</Text>
-              <Text style={styles.greetingTitle}>Hello, Alex</Text>
+              <Text style={styles.greetingSub}>Let's recover</Text>
+              <Text style={styles.greetingTitle}>Welcome Back</Text>
             </View>
           </View>
           <TouchableOpacity style={styles.notificationButton}>
@@ -66,8 +59,9 @@ export default function HomeScreen() {
           </View>
           <TextInput
             style={styles.searchInput}
-            placeholder="Where does it hurt?"
+            placeholder={selectedPoint ? "Pain point selected" : "Tap on the body model to select"}
             placeholderTextColor="#71717a" // zinc-500
+            editable={false}
           />
         </View>
 
@@ -77,45 +71,62 @@ export default function HomeScreen() {
           <View style={styles.toggleContainer}>
             <TouchableOpacity
               style={[styles.toggleButton, view === 'Front' && styles.toggleButtonActive]}
-              onPress={() => setView('Front')}
+              onPress={() => { setView('Front'); setSelectedPoint(null); }}
             >
               <Text style={[styles.toggleText, view === 'Front' && styles.toggleTextActive]}>FRONT</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.toggleButton, view === 'Back' && styles.toggleButtonActive]}
-              onPress={() => setView('Back')}
+              onPress={() => { setView('Back'); setSelectedPoint(null); }}
             >
               <Text style={[styles.toggleText, view === 'Back' && styles.toggleTextActive]}>BACK</Text>
             </TouchableOpacity>
           </View>
 
-          {/* Image Area */}
+          {/* Image Area with Inteaction */}
           <View style={styles.bodyImageContainer}>
-            <Image
-              source={view === 'Front' ? require('../../assets/images/front_muscle.png') : require('../../assets/images/back_muscle.png')}
-              style={styles.bodyImage}
-              contentFit="contain"
-            />
+            <Pressable style={{ flex: 1 }} onPress={handleBodyTap}>
+              <Image
+                source={view === 'Front' ? require('../../assets/images/front_muscle.png') : require('../../assets/images/back_muscle.png')}
+                style={styles.bodyImage}
+                contentFit="contain"
+              />
+              {selectedPoint && (
+                <View style={[styles.painMarker, { top: selectedPoint.y - 16, left: selectedPoint.x - 16 }]} />
+              )}
+            </Pressable>
           </View>
+
+          {/* Contextual Action Button */}
+          {selectedPoint && (
+            <TouchableOpacity style={styles.generateButton} onPress={handleFindRelief}>
+              <Text style={styles.generateButtonText}>GENERATE RELIEF PLAN</Text>
+              <Ionicons name="arrow-forward" size={20} color="#000" />
+            </TouchableOpacity>
+          )}
         </View>
 
         {/* Quick Fix */}
         <View style={styles.quickFixHeader}>
-          <Text style={styles.sectionTitle}>Quick Fix</Text>
+          <Text style={styles.sectionTitle}>Recent Plans</Text>
           <TouchableOpacity>
-            <Text style={styles.seeAllText}>See all</Text>
+            <Text style={styles.seeAllText}>History</Text>
           </TouchableOpacity>
         </View>
 
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.cardsScroll}>
+          {/* Placeholder for 'No recent plans' could go here if we wanted strict 'Remove all', 
+               but keeping the cards as 'Recent' examples for UI structure makes sense unless strictly forbidden.
+               I'll keep them but rename to be generic */}
+
           {/* Card 1 */}
           <TouchableOpacity style={styles.card}>
             <View style={styles.cardIcon}>
               <Ionicons name="medkit-outline" size={24} color="#f97316" />
             </View>
             <View>
-              <Text style={styles.cardTitle}>Stiff Neck</Text>
-              <Text style={styles.cardSubtitle}>3 MIN ROUTINE</Text>
+              <Text style={styles.cardTitle}>Neck Relief</Text>
+              <Text style={styles.cardSubtitle}>YESTERDAY</Text>
             </View>
             <View style={styles.cardArrow}>
               <Ionicons name="chevron-forward" size={20} color="#f97316" />
@@ -125,25 +136,11 @@ export default function HomeScreen() {
           {/* Card 2 */}
           <TouchableOpacity style={styles.card}>
             <View style={styles.cardIcon}>
-              <Ionicons name="hand-left-outline" size={24} color="#f97316" />
+              <Ionicons name="fitness-outline" size={24} color="#f97316" />
             </View>
             <View>
-              <Text style={styles.cardTitle}>Lower Back Pain</Text>
-              <Text style={styles.cardSubtitle}>5 MIN RELIEF</Text>
-            </View>
-            <View style={styles.cardArrow}>
-              <Ionicons name="chevron-forward" size={20} color="#f97316" />
-            </View>
-          </TouchableOpacity>
-
-          {/* Card 3 */}
-          <TouchableOpacity style={styles.card}>
-            <View style={styles.cardIcon}>
-              <Ionicons name="body-outline" size={24} color="#f97316" />
-            </View>
-            <View>
-              <Text style={styles.cardTitle}>Shoulder Tension</Text>
-              <Text style={styles.cardSubtitle}>4 MIN FLOW</Text>
+              <Text style={styles.cardTitle}>Lower Back</Text>
+              <Text style={styles.cardSubtitle}>2 DAYS AGO</Text>
             </View>
             <View style={styles.cardArrow}>
               <Ionicons name="chevron-forward" size={20} color="#f97316" />
@@ -369,5 +366,42 @@ const styles = StyleSheet.create({
   },
   cardArrow: {
     alignItems: 'flex-end',
+  },
+  painMarker: {
+    position: 'absolute',
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    borderWidth: 2,
+    borderColor: '#fff',
+    backgroundColor: 'rgba(249, 115, 22, 0.6)', // primary with opacity
+    // Pulse animation would go here
+    shadowColor: '#f97316',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 10,
+    elevation: 8,
+  },
+  generateButton: {
+    marginTop: 16,
+    width: '100%',
+    height: 56,
+    backgroundColor: '#f96b06',
+    borderRadius: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    shadowColor: '#f96b06',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  generateButtonText: {
+    color: '#000',
+    fontSize: 14,
+    fontWeight: '800',
+    letterSpacing: 1,
   },
 });
