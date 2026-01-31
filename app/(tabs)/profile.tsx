@@ -287,16 +287,17 @@ export default function ProfileScreen() {
                         {/* Billing Toggle */}
                         <View style={styles.billingToggleWrapper}>
                             <View style={styles.billingToggleBg}>
-                                {/* Animated active background could go here, simulated with simple logic for now */}
                                 <View style={[styles.billingToggleActive, billingCycle === 'monthly' ? { left: 4 } : { left: '50%' }]} />
                                 <TouchableOpacity style={styles.billingToggleOption} onPress={() => setBillingCycle('monthly')}>
                                     <Text style={[styles.billingToggleText, billingCycle === 'monthly' ? styles.billingTextActive2 : styles.billingTextActive]}>MONTHLY</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity style={styles.billingToggleOption} onPress={() => setBillingCycle('annual')}>
                                     <Text style={[styles.billingToggleText, billingCycle === 'annual' ? styles.billingTextActive2 : styles.billingTextActive]}>ANNUAL</Text>
-                                    <View style={styles.saveBadge}>
-                                        <Text style={styles.saveBadgeText}>SAVE 20%</Text>
-                                    </View>
+                                    {billingCycle === 'annual' && (
+                                        <View style={styles.saveBadge}>
+                                            <Text style={styles.saveBadgeText}>SAVE 20%</Text>
+                                        </View>
+                                    )}
                                 </TouchableOpacity>
                             </View>
                         </View>
@@ -310,10 +311,12 @@ export default function ProfileScreen() {
                                     <View>
                                         <Text style={styles.planTitleElite}>ELITE PLAN</Text>
                                         <View style={styles.priceContainer}>
-                                            <Text style={styles.priceBig}>$7.99</Text>
+                                            <Text style={styles.priceBig}>{billingCycle === 'annual' ? '$7.99' : '$9.99'}</Text>
                                             <Text style={styles.pricePeriod}>/mo</Text>
                                         </View>
-                                        <Text style={styles.billedText}>Billed annually ($95.88/yr)</Text>
+                                        {billingCycle === 'annual' && (
+                                            <Text style={styles.billedText}>Billed annually ($95.88/yr)</Text>
+                                        )}
                                     </View>
                                     <View style={styles.bestValueBadge}>
                                         <Text style={styles.bestValueText}>BEST VALUE</Text>
@@ -335,7 +338,9 @@ export default function ProfileScreen() {
                                     </View>
                                 </View>
                                 <TouchableOpacity style={styles.eliteButton}>
-                                    <Text style={styles.eliteButtonText}>UPGRADE & SAVE 20%</Text>
+                                    <Text style={styles.eliteButtonText}>
+                                        {billingCycle === 'annual' ? 'UPGRADE & SAVE 20%' : 'UPGRADE TO ELITE'}
+                                    </Text>
                                 </TouchableOpacity>
                             </View>
                         </View>
@@ -346,10 +351,12 @@ export default function ProfileScreen() {
                                 <View>
                                     <Text style={styles.planTitlePro}>PRO PLAN</Text>
                                     <View style={styles.priceContainer}>
-                                        <Text style={styles.priceBigPro}>$4.15</Text>
+                                        <Text style={styles.priceBigPro}>{billingCycle === 'annual' ? '$4.15' : '$4.99'}</Text>
                                         <Text style={styles.pricePeriod}>/mo</Text>
                                     </View>
-                                    <Text style={styles.billedTextPro}>Billed annually ($49.90/yr)</Text>
+                                    {billingCycle === 'annual' && (
+                                        <Text style={styles.billedTextPro}>Billed annually ($49.90/yr)</Text>
+                                    )}
                                 </View>
                             </View>
                             <TouchableOpacity style={styles.proButton}>
@@ -388,21 +395,22 @@ export default function ProfileScreen() {
                                 <View style={styles.tableRow}>
                                     <Text style={styles.colFeature}>Monthly Savings</Text>
                                     <Text style={[styles.colValue, styles.textSub]}>-</Text>
-                                    <Text style={styles.colValue}>$0.84</Text>
-                                    <Text style={styles.colValueElite}>$2.00</Text>
+                                    <Text style={styles.colValue}>{billingCycle === 'annual' ? '$0.84' : '-'}</Text>
+                                    <Text style={styles.colValueElite}>{billingCycle === 'annual' ? '$2.00' : '-'}</Text>
                                 </View>
                                 {/* Row 4 */}
                                 <View style={styles.tableRowBorderNone}>
                                     <Text style={styles.colFeature}>Annual Total</Text>
                                     <Text style={[styles.colValue, styles.textSub]}>$0</Text>
-                                    <Text style={styles.colValue}>$49.90</Text>
-                                    <Text style={styles.colValueElite}>$95.88</Text>
+                                    <Text style={styles.colValue}>{billingCycle === 'annual' ? '$49.90' : '$59.88'}</Text>
+                                    <Text style={styles.colValueElite}>{billingCycle === 'annual' ? '$95.88' : '$119.88'}</Text>
                                 </View>
                             </View>
                             <View style={styles.tableFooter}>
                                 <Text style={styles.footerNote}>
-                                    *Savings calculated based on annual vs monthly subscription prices.
-                                    Transparent pricing with no hidden activation fees.
+                                    {billingCycle === 'annual'
+                                        ? '*Savings calculated based on annual vs monthly subscription prices. Transparent pricing with no hidden activation fees.'
+                                        : '*Pricing reflects standard monthly billing rates. Transparent pricing with no hidden activation fees.'}
                                 </Text>
                             </View>
                         </View>
