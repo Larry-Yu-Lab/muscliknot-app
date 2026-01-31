@@ -1,30 +1,101 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
-import { GestureResponderEvent, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import Animated, { runOnJS, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
 
 type ViewState = 'Front' | 'Back';
 
+interface MarkerProps {
+  initialX: number;
+  initialY: number;
+  initialRadius: number;
+  onUpdate: (x: number, y: number, radius: number) => void;
+}
+
+const DraggableMarker = ({ initialX, initialY, initialRadius, onUpdate }: MarkerProps) => {
+  // We use top/left for positioning to ensure it works reliably in absolute containers
+  const top = useSharedValue(initialY);
+  const left = useSharedValue(initialX);
+  const scale = useSharedValue(initialRadius);
+  const context = useSharedValue({ x: 0, y: 0, scale: 1 });
+
+  useEffect(() => {
+    top.value = initialY;
+    left.value = initialX;
+    scale.value = initialRadius;
+  }, [initialX, initialY, initialRadius]);
+
+  const pan = Gesture.Pan()
+    .onStart(() => {
+      context.value = { x: left.value, y: top.value, scale: scale.value };
+    })
+    .onUpdate((event) => {
+      left.value = context.value.x + event.translationX;
+      top.value = context.value.y + event.translationY;
+    })
+    .onEnd(() => {
+      runOnJS(onUpdate)(left.value, top.value, scale.value);
+    });
+
+  const pinch = Gesture.Pinch()
+    .onStart(() => {
+      context.value = { ...context.value, scale: scale.value };
+    })
+    .onUpdate((event) => {
+      scale.value = context.value.scale * event.scale;
+    })
+    .onEnd(() => {
+      runOnJS(onUpdate)(left.value, top.value, scale.value);
+    });
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    top: top.value - 16, // Center offset
+    left: left.value - 16,
+    transform: [
+      { scale: scale.value },
+    ],
+  }));
+
+  const composed = Gesture.Simultaneous(pan, pinch);
+
+  return (
+    <GestureDetector gesture={composed}>
+      <Animated.View style={[styles.painMarker, animatedStyle]} />
+    </GestureDetector>
+  );
+};
+
 export default function HomeScreen() {
   const router = useRouter();
-  const [view, setView] = useState<ViewState>('Front'); // 'Front' or 'Back'
-  const [selectedPoint, setSelectedPoint] = useState<{ x: number; y: number } | null>(null);
+  const [view, setView] = useState<ViewState>('Front');
+  const [activePoint, setActivePoint] = useState<{ x: number; y: number; radius: number } | null>(null);
 
-  const handleBodyTap = (event: GestureResponderEvent) => {
-    const { locationX, locationY } = event.nativeEvent;
-    setSelectedPoint({ x: locationX, y: locationY });
+  const tapGesture = Gesture.Tap()
+    .onStart((event) => {
+      runOnJS(setActivePoint)({
+        x: event.x,
+        y: event.y,
+        radius: 1
+      });
+    });
+
+  const updatePoint = (x: number, y: number, radius: number) => {
+    setActivePoint({ x, y, radius });
   };
 
   const handleFindRelief = () => {
-    if (selectedPoint) {
+    if (activePoint) {
       router.push({
         pathname: '/(tabs)/find-relief',
         params: {
-          x: selectedPoint.x,
-          y: selectedPoint.y,
+          x: activePoint.x,
+          y: activePoint.y,
+          radius: activePoint.radius,
           view,
-          timestamp: Date.now() // Force refresh/unique
+          timestamp: Date.now()
         }
       });
     }
@@ -38,7 +109,7 @@ export default function HomeScreen() {
         <View style={styles.header}>
           <View style={styles.headerLeft}>
             <Image
-              source={{ uri: "https://lh3.googleusercontent.com/aida-public/AB6AXuATfKINBnYddwALYOWgnuRoHefSk8YUwGzzqj09-y9OuUOYSlHWWTUDnJ-ATViJk106sgPtrQ7TGy5HW82D9CW8zxe4GUAvHl7Yv2kpQUMKw8UyP3fEk87uibvOm8nOTMzJQ0Joy_l7k3uN4g4B5gOO4GPpj7iMDX55B2u0lQXz-SR1fnS_PzRZShxB4XFzO8nPITSCqGOHZic_6yrSbnBTSwfP6YAh_977r7ima5hru3ocwA6w4pwZNSguCa_wBXPsBNyeyHUrU75c" }}
+              source={{ uri: "https://lh3.googleusercontent.com/aida-public/AB6AXuATfKINBnYddwALYOWgnuRoHefSk8YUwGzzqj09-y9OuUOYSlHWWTUDnJ-ATViJk106sgPtrQ7TGy5HW82D9CW8zxe4GUAvHl7Yv2kpQUMKw3UyP3fEk87uibvOm8nOTMzJQ0Joy_l7k3uN4g4B5gOO4GPpj7iMDX55B2u0lQXz-SR1fnS_PzRZShxB4XFzO8nPITSCqGOHZic_6yrSbnBTSwfP6YAh_977r7ima5hru3ocwA6w4pwZNSguCa_wBXPsBNyeyHUrU75c" }}
               style={styles.avatar}
             />
             <View>
@@ -59,7 +130,7 @@ export default function HomeScreen() {
           </View>
           <TextInput
             style={styles.searchInput}
-            placeholder={selectedPoint ? "Pain point selected" : "Tap on the body model to select"}
+            placeholder={activePoint ? "Pain point selected" : "Tap on the body model to select"}
             placeholderTextColor="#71717a" // zinc-500
             editable={false}
           />
@@ -71,13 +142,13 @@ export default function HomeScreen() {
           <View style={styles.toggleContainer}>
             <TouchableOpacity
               style={[styles.toggleButton, view === 'Front' && styles.toggleButtonActive]}
-              onPress={() => { setView('Front'); setSelectedPoint(null); }}
+              onPress={() => { setView('Front'); setActivePoint(null); }}
             >
               <Text style={[styles.toggleText, view === 'Front' && styles.toggleTextActive]}>FRONT</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.toggleButton, view === 'Back' && styles.toggleButtonActive]}
-              onPress={() => { setView('Back'); setSelectedPoint(null); }}
+              onPress={() => { setView('Back'); setActivePoint(null); }}
             >
               <Text style={[styles.toggleText, view === 'Back' && styles.toggleTextActive]}>BACK</Text>
             </TouchableOpacity>
@@ -85,20 +156,32 @@ export default function HomeScreen() {
 
           {/* Image Area with Inteaction */}
           <View style={styles.bodyImageContainer}>
-            <Pressable style={{ flex: 1 }} onPress={handleBodyTap}>
-              <Image
-                source={view === 'Front' ? require('../../assets/images/front_muscle.png') : require('../../assets/images/back_muscle.png')}
-                style={styles.bodyImage}
-                contentFit="contain"
-              />
-              {selectedPoint && (
-                <View style={[styles.painMarker, { top: selectedPoint.y - 16, left: selectedPoint.x - 16 }]} />
-              )}
-            </Pressable>
+            {/* Gesture Detector for Tapping Background */}
+            <GestureDetector gesture={tapGesture}>
+              <View style={{ flex: 1 }}>
+                <Image
+                  source={view === 'Front' ? require('../../assets/images/front_muscle.png') : require('../../assets/images/back_muscle.png')}
+                  style={styles.bodyImage}
+                  contentFit="contain"
+                />
+                {/* Render Marker ON TOP if active */}
+              </View>
+            </GestureDetector>
+
+            {activePoint && (
+              <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
+                <DraggableMarker
+                  initialX={activePoint.x}
+                  initialY={activePoint.y}
+                  initialRadius={activePoint.radius}
+                  onUpdate={updatePoint}
+                />
+              </View>
+            )}
           </View>
 
           {/* Contextual Action Button */}
-          {selectedPoint && (
+          {activePoint && (
             <TouchableOpacity style={styles.generateButton} onPress={handleFindRelief}>
               <Text style={styles.generateButtonText}>GENERATE RELIEF PLAN</Text>
               <Ionicons name="arrow-forward" size={20} color="#000" />
