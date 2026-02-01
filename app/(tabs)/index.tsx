@@ -181,7 +181,7 @@ export default function HomeScreen() {
           {/* Image Area with Inteaction */}
           <View style={styles.bodyImageContainer}>
             {/* Center constrained area to match muscle width and avoid side-background taps */}
-            <View style={{ width: '85%', height: '100%', alignSelf: 'center', position: 'relative' }}>
+            <View style={{ width: '65%', height: '100%', alignSelf: 'center', position: 'relative' }}>
               {/* Gesture Detector for Creating on Background */}
               <GestureDetector gesture={creationGesture}>
                 <View style={{ flex: 1, backgroundColor: 'transparent' }}>
