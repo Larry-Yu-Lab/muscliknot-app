@@ -180,17 +180,18 @@ export default function HomeScreen() {
 
           {/* Image Area with Inteaction */}
           <View style={styles.bodyImageContainer}>
-            {/* Center constrained area to match muscle width and avoid side-background taps */}
+            {/* 1. Underlying Visual Layer - Full Width/Height */}
+            <Image
+              source={view === 'Front' ? require('../../assets/images/front_muscle.png') : require('../../assets/images/back_muscle.png')}
+              style={[StyleSheet.absoluteFill, { width: '100%', height: '100%' }]}
+              contentFit="contain"
+            />
+
+            {/* 2. Interaction Layer - Restricted to Center 65% */}
             <View style={{ width: '65%', height: '100%', alignSelf: 'center', position: 'relative' }}>
-              {/* Gesture Detector for Creating on Background */}
               <GestureDetector gesture={creationGesture}>
-                <View style={{ flex: 1, backgroundColor: 'transparent' }}>
-                  <Image
-                    source={view === 'Front' ? require('../../assets/images/front_muscle.png') : require('../../assets/images/back_muscle.png')}
-                    style={styles.bodyImage}
-                    contentFit="contain"
-                  />
-                </View>
+                {/* Transparent touch target */}
+                <View style={{ flex: 1, backgroundColor: 'transparent' }} />
               </GestureDetector>
 
               {/* Render Marker ON TOP of the constrained view (same coordinate system) */}
