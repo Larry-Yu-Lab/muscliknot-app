@@ -180,29 +180,32 @@ export default function HomeScreen() {
 
           {/* Image Area with Inteaction */}
           <View style={styles.bodyImageContainer}>
-            {/* Gesture Detector for Creating on Background */}
-            <GestureDetector gesture={creationGesture}>
-              <View style={{ flex: 1, backgroundColor: 'transparent' }}>
-                <Image
-                  source={view === 'Front' ? require('../../assets/images/front_muscle.png') : require('../../assets/images/back_muscle.png')}
-                  style={styles.bodyImage}
-                  contentFit="contain"
-                />
-              </View>
-            </GestureDetector>
+            {/* Center constrained area to match muscle width and avoid side-background taps */}
+            <View style={{ width: '85%', height: '100%', alignSelf: 'center', position: 'relative' }}>
+              {/* Gesture Detector for Creating on Background */}
+              <GestureDetector gesture={creationGesture}>
+                <View style={{ flex: 1, backgroundColor: 'transparent' }}>
+                  <Image
+                    source={view === 'Front' ? require('../../assets/images/front_muscle.png') : require('../../assets/images/back_muscle.png')}
+                    style={styles.bodyImage}
+                    contentFit="contain"
+                  />
+                </View>
+              </GestureDetector>
 
-            {/* Render Marker ON TOP if active */}
-            {activePoint && (
-              <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
-                <DraggableOval
-                  initialX={activePoint.x}
-                  initialY={activePoint.y}
-                  initialWidth={activePoint.width}
-                  initialHeight={activePoint.height}
-                  onUpdate={updatePoint}
-                />
-              </View>
-            )}
+              {/* Render Marker ON TOP of the constrained view (same coordinate system) */}
+              {activePoint && (
+                <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
+                  <DraggableOval
+                    initialX={activePoint.x}
+                    initialY={activePoint.y}
+                    initialWidth={activePoint.width}
+                    initialHeight={activePoint.height}
+                    onUpdate={updatePoint}
+                  />
+                </View>
+              )}
+            </View>
           </View>
 
           {/* Contextual Action Button */}
