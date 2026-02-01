@@ -1,14 +1,11 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { EXERCISES } from '../data/exercises';
 
-const categories = ['All', 'Neck', 'Shoulders', 'Upper Back', 'Lower Back', 'Legs'];
-
-// Derived data
-const recommendedExercises = EXERCISES.slice(0, 3);
-const newRoutines = EXERCISES.slice(3, 6);
+const categories = ['All', 'Relief', 'Warm-ups', 'Yoga', 'Posture', 'Strength'];
+const reliefMuscleGroups = ['All', 'Neck', 'Shoulders', 'Upper Back', 'Lower Back', 'Glutes', 'Legs'];
 
 type ExerciseCardProps = {
     title: string;
@@ -46,7 +43,31 @@ const ExerciseCard = ({ title, duration, target, image }: ExerciseCardProps) => 
 
 export default function LibraryScreen() {
     const [activeCategory, setActiveCategory] = useState('All');
+    const [activeMuscleGroup, setActiveMuscleGroup] = useState('All');
     const [searchQuery, setSearchQuery] = useState('');
+
+    const filteredExercises = useMemo(() => {
+        return EXERCISES.filter(ex => {
+            // 1. Search Query
+            if (searchQuery && !ex.title.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+
+            // 2. Category Filter
+            if (activeCategory !== 'All' && ex.category !== activeCategory) return false;
+
+            // 3. Sub-category (Muscle Group) for Relief
+            if (activeCategory === 'Relief' && activeMuscleGroup !== 'All') {
+                if (ex.muscleGroup !== activeMuscleGroup) return false;
+            }
+
+            return true;
+        });
+    }, [activeCategory, activeMuscleGroup, searchQuery]);
+
+    // Split into "Recommended" (random subset) and "All Results" for better UX?
+    // Or just show one list since filtering is active. Let's show one consolidated list when filtering.
+    // But initially show the split sections if 'All' is selected.
+
+    const isFiltering = activeCategory !== 'All' || searchQuery.length > 0;
 
     return (
         <SafeAreaView style={styles.container}>
@@ -73,7 +94,7 @@ export default function LibraryScreen() {
             </View>
 
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-                {/* Categories */}
+                {/* Main Categories */}
                 <ScrollView
                     horizontal
                     showsHorizontalScrollIndicator={false}
@@ -86,7 +107,10 @@ export default function LibraryScreen() {
                                 styles.categoryButton,
                                 activeCategory === category && styles.categoryButtonActive,
                             ]}
-                            onPress={() => setActiveCategory(category)}
+                            onPress={() => {
+                                setActiveCategory(category);
+                                setActiveMuscleGroup('All'); // Reset sub-filter
+                            }}
                         >
                             <Text
                                 style={[
@@ -100,47 +124,98 @@ export default function LibraryScreen() {
                     ))}
                 </ScrollView>
 
-                {/* Recommended Section */}
-                <View style={styles.section}>
-                    <View style={styles.sectionHeader}>
-                        <Text style={styles.sectionTitle}>Recommended for You</Text>
-                        <TouchableOpacity>
-                            <Text style={styles.seeAllText}>SEE ALL</Text>
-                        </TouchableOpacity>
-                    </View>
-                    <View style={styles.exerciseList}>
-                        {recommendedExercises.map((exercise) => (
-                            <ExerciseCard
-                                key={exercise.id}
-                                title={exercise.title}
-                                duration={exercise.duration}
-                                target={exercise.muscleGroup}
-                                image={exercise.image}
-                            />
+                {/* Sub-Category (Muscle Group) - Only visible for Relief */}
+                {activeCategory === 'Relief' && (
+                    <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        contentContainerStyle={[styles.categoriesContainer, { paddingTop: 0, paddingBottom: 16 }]}
+                    >
+                        {reliefMuscleGroups.map((group) => (
+                            <TouchableOpacity
+                                key={group}
+                                style={[
+                                    styles.subCategoryButton,
+                                    activeMuscleGroup === group && styles.subCategoryButtonActive,
+                                ]}
+                                onPress={() => setActiveMuscleGroup(group)}
+                            >
+                                <Text
+                                    style={[
+                                        styles.subCategoryText,
+                                        activeMuscleGroup === group && styles.subCategoryTextActive,
+                                    ]}
+                                >
+                                    {group}
+                                </Text>
+                            </TouchableOpacity>
                         ))}
-                    </View>
-                </View>
+                    </ScrollView>
+                )}
 
-                {/* New Routines Section */}
-                <View style={styles.section}>
-                    <View style={styles.sectionHeader}>
-                        <Text style={styles.sectionTitle}>New Routines</Text>
-                        <TouchableOpacity>
-                            <Text style={styles.seeAllText}>EXPLORE</Text>
-                        </TouchableOpacity>
+                {/* Content */}
+                {isFiltering ? (
+                    <View style={styles.section}>
+                        <Text style={styles.sectionTitle}>
+                            {filteredExercises.length} Result{filteredExercises.length !== 1 ? 's' : ''}
+                        </Text>
+                        <View style={styles.exerciseList}>
+                            {filteredExercises.map((exercise) => (
+                                <ExerciseCard
+                                    key={exercise.id}
+                                    title={exercise.title}
+                                    duration={exercise.duration}
+                                    target={exercise.muscleGroup}
+                                    image={exercise.image}
+                                />
+                            ))}
+                        </View>
                     </View>
-                    <View style={styles.exerciseList}>
-                        {newRoutines.map((exercise) => (
-                            <ExerciseCard
-                                key={exercise.id}
-                                title={exercise.title}
-                                duration={exercise.duration}
-                                target={exercise.muscleGroup}
-                                image={exercise.image}
-                            />
-                        ))}
-                    </View>
-                </View>
+                ) : (
+                    <>
+                        {/* Recommended Section (Default View) */}
+                        <View style={styles.section}>
+                            <View style={styles.sectionHeader}>
+                                <Text style={styles.sectionTitle}>Recommended for You</Text>
+                                <TouchableOpacity onPress={() => setActiveCategory('Relief')}>
+                                    <Text style={styles.seeAllText}>SEE ALL</Text>
+                                </TouchableOpacity>
+                            </View>
+                            <View style={styles.exerciseList}>
+                                {EXERCISES.slice(0, 3).map((exercise) => (
+                                    <ExerciseCard
+                                        key={exercise.id}
+                                        title={exercise.title}
+                                        duration={exercise.duration}
+                                        target={exercise.muscleGroup}
+                                        image={exercise.image}
+                                    />
+                                ))}
+                            </View>
+                        </View>
+
+                        {/* New Routines Section */}
+                        <View style={styles.section}>
+                            <View style={styles.sectionHeader}>
+                                <Text style={styles.sectionTitle}>New Routines</Text>
+                                <TouchableOpacity onPress={() => setActiveCategory('All')}>
+                                    <Text style={styles.seeAllText}>EXPLORE</Text>
+                                </TouchableOpacity>
+                            </View>
+                            <View style={styles.exerciseList}>
+                                {EXERCISES.slice(3, 6).map((exercise) => (
+                                    <ExerciseCard
+                                        key={exercise.id}
+                                        title={exercise.title}
+                                        duration={exercise.duration}
+                                        target={exercise.muscleGroup}
+                                        image={exercise.image}
+                                    />
+                                ))}
+                            </View>
+                        </View>
+                    </>
+                )}
             </ScrollView>
         </SafeAreaView>
     );
@@ -222,6 +297,31 @@ const styles = StyleSheet.create({
         fontWeight: '500',
     },
     categoryTextActive: {
+        fontWeight: '700',
+        color: '#fff',
+    },
+    subCategoryButton: {
+        height: 32,
+        paddingHorizontal: 16,
+        borderRadius: 16,
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.2)',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginRight: 8,
+        backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    },
+    subCategoryButtonActive: {
+        backgroundColor: '#ff6a00',
+        borderColor: '#ff6a00',
+    },
+    subCategoryText: {
+        color: 'rgba(255, 255, 255, 0.6)',
+        fontSize: 12,
+        fontWeight: '500',
+    },
+    subCategoryTextActive: {
+        color: '#000',
         fontWeight: '700',
     },
     section: {
