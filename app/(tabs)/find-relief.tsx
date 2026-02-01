@@ -1,31 +1,34 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useState } from 'react';
-import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useMemo, useState } from 'react';
+import { Alert, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { getExercisesForPosition } from '../data/exercises';
+import { saveToHistory } from '../utils/storage';
 
 export default function FindReliefScreen() {
     const router = useRouter();
     const params = useLocalSearchParams(); // { x, y, view, timestamp }
     const [painLevel, setPainLevel] = useState(6);
 
-    const instructions = [
-        {
-            step: 1,
-            title: 'Setup',
-            description: 'Position your foam roller horizontally beneath your shoulder blades. Support your head with your hands.',
-        },
-        {
-            step: 2,
-            title: 'Movement',
-            description: 'Lift your hips slightly and slowly roll upwards toward the top of your shoulders, then back to the mid-back.',
-        },
-        {
-            step: 3,
-            title: 'Hold',
-            description: 'When you find a tight spot (knot), pause and hold for 30 seconds while breathing deeply.',
-        },
-    ];
+    const x = Number(params.x) || 0;
+    const y = Number(params.y) || 0;
+    const view = (params.view as 'Front' | 'Back') || 'Front';
+
+    const exercises = useMemo(() => getExercisesForPosition(y, view), [y, view]);
+    const targetMuscle = exercises.length > 0 ? exercises[0].muscleGroup : 'General';
+
+    const handleComplete = async () => {
+        const item = {
+            date: Date.now(),
+            muscleGroup: targetMuscle,
+            exercises: exercises,
+        };
+        await saveToHistory(item);
+        Alert.alert("Relief Plan Completed", "Your session has been saved to history.", [
+            { text: "OK", onPress: () => router.navigate('/(tabs)') } // Fixed to navigate to home tab
+        ]);
+    };
 
     return (
         <SafeAreaView style={styles.container}>
@@ -35,7 +38,7 @@ export default function FindReliefScreen() {
                     <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
                         <Ionicons name="arrow-back" size={24} color="#fff" />
                     </TouchableOpacity>
-                    <Text style={styles.headerTitle}>Personalized Relief</Text>
+                    <Text style={styles.headerTitle}>{targetMuscle} Relief</Text>
                     <View style={styles.headerSpacer} />
                 </View>
 
@@ -56,8 +59,8 @@ export default function FindReliefScreen() {
                             <View style={styles.progressThumb} />
                         </View>
                         <View style={styles.timeContainer}>
-                            <Text style={styles.timeText}>0:37</Text>
-                            <Text style={styles.timeText}>2:23</Text>
+                            <Text style={styles.timeText}>0:00</Text>
+                            <Text style={styles.timeText}>Total: {exercises.length * 3} min</Text>
                         </View>
                     </View>
                 </View>
@@ -65,12 +68,12 @@ export default function FindReliefScreen() {
                 {/* Exercise Info Badges */}
                 <View style={styles.badgeContainer}>
                     <View style={styles.badge}>
-                        <Ionicons name="timer-outline" size={20} color="#FF9D42" />
-                        <Text style={styles.badgeText}>30s Hold</Text>
+                        <Ionicons name="fitness-outline" size={20} color="#FF9D42" />
+                        <Text style={styles.badgeText}>{exercises.length} Exercises</Text>
                     </View>
                     <View style={styles.badge}>
-                        <Ionicons name="repeat-outline" size={20} color="#FF9D42" />
-                        <Text style={styles.badgeText}>3 Reps</Text>
+                        <Ionicons name="timer-outline" size={20} color="#FF9D42" />
+                        <Text style={styles.badgeText}>~{exercises.length * 4} Mins</Text>
                     </View>
                 </View>
 
@@ -102,26 +105,32 @@ export default function FindReliefScreen() {
                     </View>
                 </View>
 
-                {/* Stretch Instructions */}
+                {/* Recommended Exercises List */}
                 <View style={styles.instructionsSection}>
-                    <Text style={styles.instructionsTitle}>Stretch Instructions</Text>
-                    {instructions.map((item) => (
-                        <View key={item.step} style={styles.instructionCard}>
+                    <Text style={styles.instructionsTitle}>Recommended Routine</Text>
+                    {exercises.map((item, index) => (
+                        <View key={item.id} style={styles.instructionCard}>
                             <View style={styles.stepNumber}>
-                                <Text style={styles.stepNumberText}>{item.step}</Text>
+                                <Text style={styles.stepNumberText}>{index + 1}</Text>
                             </View>
                             <View style={styles.stepContent}>
                                 <Text style={styles.stepTitle}>{item.title}</Text>
                                 <Text style={styles.stepDescription}>{item.description}</Text>
+                                <View style={{ flexDirection: 'row', gap: 8, marginTop: 4 }}>
+                                    <Text style={{ color: '#FF9D42', fontSize: 12, fontWeight: '700' }}>{item.duration}</Text>
+                                </View>
                             </View>
                         </View>
                     ))}
+                    {exercises.length === 0 && (
+                        <Text style={{ color: '#aaa', fontStyle: 'italic' }}>Select a point to see exercises.</Text>
+                    )}
                 </View>
             </ScrollView>
 
             {/* Fixed Bottom Button */}
             <View style={styles.bottomContainer}>
-                <TouchableOpacity style={styles.completeButton}>
+                <TouchableOpacity style={styles.completeButton} onPress={handleComplete}>
                     <Text style={styles.completeButtonText}>MARK AS COMPLETE</Text>
                 </TouchableOpacity>
             </View>

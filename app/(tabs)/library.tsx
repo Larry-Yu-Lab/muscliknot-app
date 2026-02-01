@@ -2,49 +2,13 @@ import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import React, { useState } from 'react';
 import { SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { EXERCISES } from '../data/exercises';
 
-const categories = ['All', 'Warm-ups', 'Yoga', 'Posture', 'Strength'];
+const categories = ['All', 'Neck', 'Shoulders', 'Upper Back', 'Lower Back', 'Legs'];
 
-const recommendedExercises = [
-    {
-        id: 1,
-        title: 'Hamstring Stretch',
-        duration: '5 MINS',
-        target: 'Hamstrings',
-        image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAmeAwr9DErW8b1SJbhOy_7vOkuyzD9szCcnkCnS5_hQdiYY18gYWBg-ybjWbKnf9BYzCIpMnJT5KGr_gtAVZUgLupsvdtZPRrps4oxdLtcmpvY2OsfpZuFZdzL1kh8g-bh1yDNp_UJuGEbZA7g2yQkseD83VPnEWD61N_ClJaoZQLqFqjLSoirR39w5e8Cl3dsEnh4OcQ2KO8MMvNYiixjfKFytH0APyDlrxLaNUrMwqx5MN81VdxI-wDxOwg2-iUAVZcpuOGTNiAj',
-    },
-    {
-        id: 2,
-        title: 'Neck Release',
-        duration: '3 MINS',
-        target: 'Neck',
-        image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuC-cvLfeT_64S5TAWVYCGL4yHRDBy11G9w5fPmd1-7UdjR_j5DsMku5euS4m8OxTOvH0EC3kBpeNjxkEo21urp6uTAxHcaNz0ojdRG9KBomvi5Ru2jnPJQsLqOyVrbjhp46AikjoBNW0dyxk1wQo0GSoTx3HEMT_e6wPqs8SfOAiO6dTkfCRhAfE2x2dpxnE9tmkbI7d7P-_KzBheWdo2JkNsp6IALLTjzWVGtd0yJsoPa4b0PcFx1s-y96azg4I95f--GOqrXhxMiE',
-    },
-    {
-        id: 3,
-        title: 'Spine Alignment',
-        duration: '8 MINS',
-        target: 'Back',
-        image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBJlSG1mDnHXrNaEFm7n9g1tl4akAzq_pH7O3yPYAjrqX9As7TnOilQPEoqcnW-k_zPRKr3HQfuBDiz8g1OGBoemezdvp2qgwIahgrC7EQ22OWHxdorFehBmgQyiZOpzeziUO2qAxoD8wkH1E3FC6p0zrTWn6eTJr1tkk3R7dA75jPHLvdcaiHCZ8PwraFJvhyiO1ArsJJPI8aah3EXeDvH7ucckugkh5fEobvxN64GqpIPrDpx3dbhGEP345AzA-41x9LBB9MMZXpH',
-    },
-];
-
-const newRoutines = [
-    {
-        id: 4,
-        title: 'Full Body Ignite',
-        duration: '12 MINS',
-        target: 'Full Body',
-        image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCpbjcr40P4hU3Wby3mi2ZRmfk-Z1xJzlBo39RM8sJLYLPEp98bl7qCwG9vjdq_HnYO7FbRQdQoBKXlFGg4lV6gwns7C2sCY5BNMPX-rhJjfxznQjqe0jF2vYQEwnc0gnGjPcLWXecgQhdfZJGhqi1Ob6Oqh0DUCdv0Bh0lqluCfaFyRZsjhXlGJ8hC-cZyUw1ok5HhIa-OyYkO-CE09Ge3Qr04Q0qm8yoPMpHfykSD3fkmCfLbsoO65-mysFzw7rsJQfrTND292dzh',
-    },
-    {
-        id: 5,
-        title: 'Lumbar Relief',
-        duration: '6 MINS',
-        target: 'Lower Back',
-        image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuB-ZC4z_qIswOlHm2pLlvmtALU4-MCb96ZbkV7DoXFH8GFQw_OQgp1RchwD0KMuRO5uav5Wyp0QNCH_volp7D22I7CZ6RAAQWnV9-IeqP7Dex2jeUWpRtbKhlNfm8EfTSXG0z9YXm21hsvQcT7SgzvsafAxHksF0__G1lIpiSRHCGkQdIInyWXmOAg-hiushIMKsEfznxLrcrmDEcSQD3Fm5ewUiDSpoIwMAQN0B64YHJK1Lu1ZlYLb8AYajA1ZgFLOeKIuGPtihb0Y',
-    },
-];
+// Derived data
+const recommendedExercises = EXERCISES.slice(0, 3);
+const newRoutines = EXERCISES.slice(3, 6);
 
 type ExerciseCardProps = {
     title: string;
@@ -150,7 +114,7 @@ export default function LibraryScreen() {
                                 key={exercise.id}
                                 title={exercise.title}
                                 duration={exercise.duration}
-                                target={exercise.target}
+                                target={exercise.muscleGroup}
                                 image={exercise.image}
                             />
                         ))}
@@ -171,7 +135,7 @@ export default function LibraryScreen() {
                                 key={exercise.id}
                                 title={exercise.title}
                                 duration={exercise.duration}
-                                target={exercise.target}
+                                target={exercise.muscleGroup}
                                 image={exercise.image}
                             />
                         ))}

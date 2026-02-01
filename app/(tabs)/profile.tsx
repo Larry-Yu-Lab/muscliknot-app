@@ -1,8 +1,10 @@
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
-import React, { useState } from 'react';
+import { useFocusEffect } from 'expo-router';
+import React, { useCallback, useState } from 'react';
 import { Animated, Dimensions, Easing, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Svg, { Circle, Path } from 'react-native-svg';
+import { getHistory } from '../utils/storage';
 
 const { width } = Dimensions.get('window');
 
@@ -42,6 +44,13 @@ export default function ProfileScreen() {
     const [notificationsEnabled, setNotificationsEnabled] = useState(true);
     const [darkModeEnabled, setDarkModeEnabled] = useState(true);
     const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('annual');
+    const [sessionsCount, setSessionsCount] = useState(0);
+
+    useFocusEffect(
+        useCallback(() => {
+            getHistory().then(items => setSessionsCount(items.length));
+        }, [])
+    );
 
     return (
         <SafeAreaView style={styles.container}>
@@ -127,7 +136,7 @@ export default function ProfileScreen() {
                         <View style={styles.statsContainer}>
                             <View style={styles.statCard}>
                                 <Text style={styles.statLabel}>WORKOUTS</Text>
-                                <Text style={styles.statValue}>124</Text>
+                                <Text style={styles.statValue}>{sessionsCount}</Text>
                             </View>
                             <View style={styles.statCard}>
                                 <Text style={styles.statLabel}>RECOVERY</Text>
@@ -135,7 +144,7 @@ export default function ProfileScreen() {
                             </View>
                             <View style={styles.statCard}>
                                 <Text style={styles.statLabel}>STREAK</Text>
-                                <Text style={styles.statValueOrange}>14d</Text>
+                                <Text style={styles.statValueOrange}>{sessionsCount > 0 ? '1d' : '0d'}</Text>
                             </View>
                         </View>
 

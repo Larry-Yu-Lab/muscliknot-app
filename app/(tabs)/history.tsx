@@ -1,55 +1,34 @@
 import { Ionicons } from '@expo/vector-icons';
-import React from 'react';
+import { useFocusEffect } from 'expo-router';
+import React, { useCallback, useState } from 'react';
 import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-
-const historyData = [
-    {
-        id: 1,
-        icon: 'body-outline',
-        title: 'Lower Back Relief',
-        date: 'Today • 10:30 AM',
-        duration: '15 min',
-        type: 'Deep Stretch',
-        typeIcon: 'fitness-outline',
-        isToday: true,
-        completed: true,
-    },
-    {
-        id: 2,
-        icon: 'accessibility-outline',
-        title: 'Full Body Yoga',
-        date: 'Yesterday • 6:15 PM',
-        duration: '30 min',
-        type: 'Vitality Flow',
-        typeIcon: 'leaf-outline',
-        isToday: false,
-        opacity: 0.9,
-    },
-    {
-        id: 3,
-        icon: 'barbell-outline',
-        title: 'Shoulder Mobility',
-        date: 'Oct 22 • 08:00 AM',
-        duration: '10 min',
-        type: 'Post-Workout Recovery',
-        typeIcon: 'refresh-outline',
-        isToday: false,
-        opacity: 0.8,
-    },
-    {
-        id: 4,
-        icon: 'walk-outline',
-        title: 'Hamstring Stretch',
-        date: 'Oct 20 • 09:45 PM',
-        duration: '20 min',
-        type: null,
-        typeIcon: null,
-        isToday: false,
-        opacity: 0.7,
-    },
-];
+import { getHistory, HistoryItem } from '../utils/storage';
 
 export default function HistoryScreen() {
+    const [history, setHistory] = useState<HistoryItem[]>([]);
+
+    useFocusEffect(
+        useCallback(() => {
+            getHistory().then(setHistory);
+        }, [])
+    );
+
+    // Derived Stats
+    const totalSessions = history.length;
+
+    // Calculate most targeted muscle
+    const muscleCounts: Record<string, number> = {};
+    history.forEach(h => {
+        muscleCounts[h.muscleGroup] = (muscleCounts[h.muscleGroup] || 0) + 1;
+    });
+    const topTarget = Object.entries(muscleCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || '-';
+
+    // Format Date Helper
+    const formatDate = (timestamp: number) => {
+        const d = new Date(timestamp);
+        return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    };
+
     return (
         <SafeAreaView style={styles.container}>
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
@@ -75,15 +54,15 @@ export default function HistoryScreen() {
                 <View style={styles.statsCard}>
                     <View style={[styles.statItem, styles.statBorder]}>
                         <Text style={styles.statLabel}>SESSIONS</Text>
-                        <Text style={styles.statValue}>42</Text>
+                        <Text style={styles.statValue}>{totalSessions}</Text>
                     </View>
                     <View style={[styles.statItem, styles.statBorder]}>
                         <Text style={styles.statLabel}>STREAK</Text>
-                        <Text style={styles.statValue}>7d</Text>
+                        <Text style={styles.statValue}>{totalSessions > 0 ? '1d' : '0d'}</Text>
                     </View>
                     <View style={styles.statItem}>
                         <Text style={styles.statLabel}>TARGETED</Text>
-                        <Text style={styles.statValueSmall}>Lower Back</Text>
+                        <Text style={styles.statValueSmall}>{topTarget}</Text>
                     </View>
                 </View>
 
@@ -110,15 +89,15 @@ export default function HistoryScreen() {
                     {/* Timeline line */}
                     <View style={styles.timelineLine} />
 
-                    {historyData.map((item) => (
-                        <View key={item.id} style={[styles.timelineItem, { opacity: item.opacity || 1 }]}>
+                    {history.map((item) => (
+                        <View key={item.id} style={[styles.timelineItem]}>
                             {/* Timeline dot */}
                             <View style={styles.timelineDotContainer}>
-                                <View style={[styles.timelineDot, item.isToday && styles.timelineDotActive]}>
+                                <View style={[styles.timelineDot, styles.timelineDotActive]}>
                                     <Ionicons
-                                        name={item.icon as any}
+                                        name={'body-outline'}
                                         size={20}
-                                        color={item.isToday ? '#000' : '#FF9900'}
+                                        color={'#000'}
                                     />
                                 </View>
                             </View>
@@ -127,37 +106,25 @@ export default function HistoryScreen() {
                             <View style={styles.historyCard}>
                                 <View style={styles.cardHeader}>
                                     <View>
-                                        <Text style={[styles.cardDate, item.isToday && styles.cardDateActive]}>
-                                            {item.date}
+                                        <Text style={[styles.cardDate, styles.cardDateActive]}>
+                                            {formatDate(item.date)}
                                         </Text>
-                                        <Text style={styles.cardTitle}>{item.title}</Text>
+                                        <Text style={styles.cardTitle}>{item.muscleGroup} Relief</Text>
                                     </View>
-                                    {item.completed ? (
-                                        <View style={styles.completedBadge}>
-                                            <Text style={styles.completedBadgeText}>COMPLETED</Text>
-                                        </View>
-                                    ) : (
-                                        <View style={styles.durationBadge}>
-                                            <Text style={styles.durationBadgeText}>{item.duration}</Text>
-                                        </View>
-                                    )}
+                                    <View style={styles.completedBadge}>
+                                        <Text style={styles.completedBadgeText}>COMPLETED</Text>
+                                    </View>
                                 </View>
-                                {item.type && (
-                                    <View style={styles.cardMeta}>
-                                        {item.completed && (
-                                            <>
-                                                <Ionicons name="timer-outline" size={14} color="#a39587" />
-                                                <Text style={styles.metaText}>{item.duration}</Text>
-                                                <Text style={styles.metaDot}>•</Text>
-                                            </>
-                                        )}
-                                        <Ionicons name={item.typeIcon as any} size={14} color="#a39587" />
-                                        <Text style={styles.metaText}>{item.type}</Text>
-                                    </View>
-                                )}
+                                <View style={styles.cardMeta}>
+                                    <Ionicons name="fitness-outline" size={14} color="#a39587" />
+                                    <Text style={styles.metaText}>{item.exercises.length} Exercises</Text>
+                                </View>
                             </View>
                         </View>
                     ))}
+                    {history.length === 0 && (
+                        <Text style={{ color: '#666', textAlign: 'center', marginTop: 20 }}>No history yet. Start a session!</Text>
+                    )}
                 </View>
             </ScrollView>
         </SafeAreaView>
