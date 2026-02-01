@@ -8,36 +8,41 @@ import Animated, { runOnJS, useAnimatedStyle, useSharedValue } from 'react-nativ
 
 type ViewState = 'Front' | 'Back';
 
-interface MarkerProps {
+interface OvalProps {
   initialX: number;
   initialY: number;
-  initialRadius: number;
-  onUpdate: (x: number, y: number, radius: number) => void;
+  initialWidth: number;
+  initialHeight: number;
+  onUpdate: (x: number, y: number, width: number, height: number) => void;
 }
 
-const DraggableMarker = ({ initialX, initialY, initialRadius, onUpdate }: MarkerProps) => {
-  // We use top/left for positioning to ensure it works reliably in absolute containers
+const DraggableOval = ({ initialX, initialY, initialWidth, initialHeight, onUpdate }: OvalProps) => {
   const top = useSharedValue(initialY);
   const left = useSharedValue(initialX);
-  const scale = useSharedValue(initialRadius);
+  const width = useSharedValue(initialWidth);
+  const height = useSharedValue(initialHeight);
+  const scale = useSharedValue(1);
+
   const context = useSharedValue({ x: 0, y: 0, scale: 1 });
 
   useEffect(() => {
     top.value = initialY;
     left.value = initialX;
-    scale.value = initialRadius;
-  }, [initialX, initialY, initialRadius]);
+    width.value = initialWidth;
+    height.value = initialHeight;
+    scale.value = 1;
+  }, [initialX, initialY, initialWidth, initialHeight]);
 
   const pan = Gesture.Pan()
     .onStart(() => {
-      context.value = { x: left.value, y: top.value, scale: scale.value };
+      context.value = { ...context.value, x: left.value, y: top.value };
     })
     .onUpdate((event) => {
       left.value = context.value.x + event.translationX;
       top.value = context.value.y + event.translationY;
     })
     .onEnd(() => {
-      runOnJS(onUpdate)(left.value, top.value, scale.value);
+      runOnJS(onUpdate)(left.value, top.value, width.value * scale.value, height.value * scale.value);
     });
 
   const pinch = Gesture.Pinch()
@@ -48,18 +53,23 @@ const DraggableMarker = ({ initialX, initialY, initialRadius, onUpdate }: Marker
       scale.value = context.value.scale * event.scale;
     })
     .onEnd(() => {
-      runOnJS(onUpdate)(left.value, top.value, scale.value);
+      const finalW = width.value * scale.value;
+      const finalH = height.value * scale.value;
+      width.value = finalW;
+      height.value = finalH;
+      scale.value = 1;
+      runOnJS(onUpdate)(left.value, top.value, finalW, finalH);
     });
 
-  const animatedStyle = useAnimatedStyle(() => ({
-    top: top.value - 16, // Center offset
-    left: left.value - 16,
-    transform: [
-      { scale: scale.value },
-    ],
-  }));
-
   const composed = Gesture.Simultaneous(pan, pinch);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    top: top.value - (height.value * scale.value) / 2,
+    left: left.value - (width.value * scale.value) / 2,
+    width: width.value * scale.value,
+    height: height.value * scale.value,
+    borderRadius: 1000,
+  }));
 
   return (
     <GestureDetector gesture={composed}>
@@ -71,19 +81,32 @@ const DraggableMarker = ({ initialX, initialY, initialRadius, onUpdate }: Marker
 export default function HomeScreen() {
   const router = useRouter();
   const [view, setView] = useState<ViewState>('Front');
-  const [activePoint, setActivePoint] = useState<{ x: number; y: number; radius: number } | null>(null);
+  const [activePoint, setActivePoint] = useState<{ x: number; y: number; width: number; height: number } | null>(null);
 
-  const tapGesture = Gesture.Tap()
+  const startCtx = useSharedValue({ x: 0, y: 0 });
+
+  const creationGesture = Gesture.Pan()
+    .minDistance(0)
     .onStart((event) => {
+      const { x, y } = event;
+      startCtx.value = { x, y };
+      runOnJS(setActivePoint)({ x, y, width: 20, height: 20 });
+    })
+    .onUpdate((event) => {
+      const { translationX, translationY } = event;
+      const newW = Math.max(20, Math.abs(translationX) * 2);
+      const newH = Math.max(20, Math.abs(translationY) * 2);
+
       runOnJS(setActivePoint)({
-        x: event.x,
-        y: event.y,
-        radius: 1
+        x: startCtx.value.x,
+        y: startCtx.value.y,
+        width: newW,
+        height: newH
       });
     });
 
-  const updatePoint = (x: number, y: number, radius: number) => {
-    setActivePoint({ x, y, radius });
+  const updatePoint = (x: number, y: number, w: number, h: number) => {
+    setActivePoint({ x, y, width: w, height: h });
   };
 
   const handleFindRelief = () => {
@@ -93,7 +116,8 @@ export default function HomeScreen() {
         params: {
           x: activePoint.x,
           y: activePoint.y,
-          radius: activePoint.radius,
+          width: activePoint.width,
+          height: activePoint.height,
           view,
           timestamp: Date.now()
         }
@@ -130,7 +154,7 @@ export default function HomeScreen() {
           </View>
           <TextInput
             style={styles.searchInput}
-            placeholder={activePoint ? "Pain point selected" : "Tap on the body model to select"}
+            placeholder={activePoint ? "Pain point selected" : "Drag to map your pain"}
             placeholderTextColor="#71717a" // zinc-500
             editable={false}
           />
@@ -156,24 +180,25 @@ export default function HomeScreen() {
 
           {/* Image Area with Inteaction */}
           <View style={styles.bodyImageContainer}>
-            {/* Gesture Detector for Tapping Background */}
-            <GestureDetector gesture={tapGesture}>
-              <View style={{ flex: 1 }}>
+            {/* Gesture Detector for Creating on Background */}
+            <GestureDetector gesture={creationGesture}>
+              <View style={{ flex: 1, backgroundColor: 'transparent' }}>
                 <Image
                   source={view === 'Front' ? require('../../assets/images/front_muscle.png') : require('../../assets/images/back_muscle.png')}
                   style={styles.bodyImage}
                   contentFit="contain"
                 />
-                {/* Render Marker ON TOP if active */}
               </View>
             </GestureDetector>
 
+            {/* Render Marker ON TOP if active */}
             {activePoint && (
               <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
-                <DraggableMarker
+                <DraggableOval
                   initialX={activePoint.x}
                   initialY={activePoint.y}
-                  initialRadius={activePoint.radius}
+                  initialWidth={activePoint.width}
+                  initialHeight={activePoint.height}
                   onUpdate={updatePoint}
                 />
               </View>
