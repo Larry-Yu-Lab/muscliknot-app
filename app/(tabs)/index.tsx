@@ -5,6 +5,8 @@ import React, { useEffect, useState } from 'react';
 import { SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { runOnJS, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
+import { usePreferences } from '../context/PreferencesContext';
+import { getTranslation } from '../utils/i18n';
 
 type ViewState = 'Front' | 'Back';
 
@@ -80,6 +82,9 @@ const DraggableOval = ({ initialX, initialY, initialWidth, initialHeight, onUpda
 
 export default function HomeScreen() {
   const router = useRouter();
+  const { language } = usePreferences();
+  const t = (key: Parameters<typeof getTranslation>[1]) => getTranslation(language, key);
+
   const [view, setView] = useState<ViewState>('Front');
   const [activePoint, setActivePoint] = useState<{ x: number; y: number; width: number; height: number } | null>(null);
 
@@ -137,8 +142,8 @@ export default function HomeScreen() {
               style={styles.avatar}
             />
             <View>
-              <Text style={styles.greetingSub}>Let's recover</Text>
-              <Text style={styles.greetingTitle}>Welcome Back</Text>
+              <Text style={styles.greetingSub}>{t('letsRecover')}</Text>
+              <Text style={styles.greetingTitle}>{t('welcomeBack')}</Text>
             </View>
           </View>
           <TouchableOpacity style={styles.notificationButton}>
@@ -154,7 +159,7 @@ export default function HomeScreen() {
           </View>
           <TextInput
             style={styles.searchInput}
-            placeholder={activePoint ? "Pain point selected" : "Drag to map your pain"}
+            placeholder={activePoint ? t('painPointSelected') : t('dragToMap')}
             placeholderTextColor="#71717a" // zinc-500
             editable={false}
           />
@@ -168,13 +173,13 @@ export default function HomeScreen() {
               style={[styles.toggleButton, view === 'Front' && styles.toggleButtonActive]}
               onPress={() => { setView('Front'); setActivePoint(null); }}
             >
-              <Text style={[styles.toggleText, view === 'Front' && styles.toggleTextActive]}>FRONT</Text>
+              <Text style={[styles.toggleText, view === 'Front' && styles.toggleTextActive]}>{t('front')}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.toggleButton, view === 'Back' && styles.toggleButtonActive]}
               onPress={() => { setView('Back'); setActivePoint(null); }}
             >
-              <Text style={[styles.toggleText, view === 'Back' && styles.toggleTextActive]}>BACK</Text>
+              <Text style={[styles.toggleText, view === 'Back' && styles.toggleTextActive]}>{t('back')}</Text>
             </TouchableOpacity>
           </View>
 
@@ -212,7 +217,7 @@ export default function HomeScreen() {
           {/* Contextual Action Button */}
           {activePoint && (
             <TouchableOpacity style={styles.generateButton} onPress={handleFindRelief}>
-              <Text style={styles.generateButtonText}>GENERATE RELIEF PLAN</Text>
+              <Text style={styles.generateButtonText}>{t('generateReliefPlan')}</Text>
               <Ionicons name="arrow-forward" size={20} color="#000" />
             </TouchableOpacity>
           )}
@@ -220,24 +225,20 @@ export default function HomeScreen() {
 
         {/* Quick Fix */}
         <View style={styles.quickFixHeader}>
-          <Text style={styles.sectionTitle}>Recent Plans</Text>
+          <Text style={styles.sectionTitle}>{t('recentPlans')}</Text>
           <TouchableOpacity>
-            <Text style={styles.seeAllText}>History</Text>
+            <Text style={styles.seeAllText}>{t('seeAllHistory')}</Text>
           </TouchableOpacity>
         </View>
 
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.cardsScroll}>
-          {/* Placeholder for 'No recent plans' could go here if we wanted strict 'Remove all', 
-               but keeping the cards as 'Recent' examples for UI structure makes sense unless strictly forbidden.
-               I'll keep them but rename to be generic */}
-
           {/* Card 1 */}
           <TouchableOpacity style={styles.card}>
             <View style={styles.cardIcon}>
               <Ionicons name="medkit-outline" size={24} color="#f97316" />
             </View>
             <View>
-              <Text style={styles.cardTitle}>Neck Relief</Text>
+              <Text style={styles.cardTitle}>{t('neckRelief')}</Text>
               <Text style={styles.cardSubtitle}>YESTERDAY</Text>
             </View>
             <View style={styles.cardArrow}>
@@ -251,7 +252,7 @@ export default function HomeScreen() {
               <Ionicons name="fitness-outline" size={24} color="#f97316" />
             </View>
             <View>
-              <Text style={styles.cardTitle}>Lower Back</Text>
+              <Text style={styles.cardTitle}>{t('lowerBack')}</Text>
               <Text style={styles.cardSubtitle}>2 DAYS AGO</Text>
             </View>
             <View style={styles.cardArrow}>

@@ -2,10 +2,14 @@ import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from 'expo-router';
 import React, { useCallback, useState } from 'react';
 import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { usePreferences } from '../context/PreferencesContext';
+import { getTranslation } from '../utils/i18n';
 import { getHistory, HistoryItem } from '../utils/storage';
 
 export default function HistoryScreen() {
     const [history, setHistory] = useState<HistoryItem[]>([]);
+    const { language } = usePreferences();
+    const t = (key: Parameters<typeof getTranslation>[1]) => getTranslation(language, key);
 
     useFocusEffect(
         useCallback(() => {
@@ -23,10 +27,18 @@ export default function HistoryScreen() {
     });
     const topTarget = Object.entries(muscleCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || '-';
 
-    // Format Date Helper
+    // Format Date Helper - Simple dynamic locale
     const formatDate = (timestamp: number) => {
         const d = new Date(timestamp);
-        return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+        // Map our language codes to standard locales if needed, but en, fr, es, zh work well
+        const localeMap: Record<string, string> = {
+            en: 'en-US',
+            zh: 'zh-CN',
+            fr: 'fr-FR',
+            es: 'es-ES'
+        };
+        const locale = localeMap[language] || 'en-US';
+        return d.toLocaleDateString(locale, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
     };
 
     return (
@@ -38,7 +50,7 @@ export default function HistoryScreen() {
                         <TouchableOpacity>
                             <Ionicons name="chevron-back" size={24} color="#fff" />
                         </TouchableOpacity>
-                        <Text style={styles.headerTitle}>Recovery History</Text>
+                        <Text style={styles.headerTitle}>{t('recoveryHistory')}</Text>
                     </View>
                     <View style={styles.headerRight}>
                         <TouchableOpacity style={styles.headerIcon}>
@@ -53,15 +65,15 @@ export default function HistoryScreen() {
                 {/* Stats Card */}
                 <View style={styles.statsCard}>
                     <View style={[styles.statItem, styles.statBorder]}>
-                        <Text style={styles.statLabel}>SESSIONS</Text>
+                        <Text style={styles.statLabel}>{t('sessions')}</Text>
                         <Text style={styles.statValue}>{totalSessions}</Text>
                     </View>
                     <View style={[styles.statItem, styles.statBorder]}>
-                        <Text style={styles.statLabel}>STREAK</Text>
+                        <Text style={styles.statLabel}>{t('streakUpper')}</Text>
                         <Text style={styles.statValue}>{totalSessions > 0 ? '1d' : '0d'}</Text>
                     </View>
                     <View style={styles.statItem}>
-                        <Text style={styles.statLabel}>TARGETED</Text>
+                        <Text style={styles.statLabel}>{t('targeted')}</Text>
                         <Text style={styles.statValueSmall}>{topTarget}</Text>
                     </View>
                 </View>
@@ -69,12 +81,12 @@ export default function HistoryScreen() {
                 {/* Weekly Report Card */}
                 <View style={styles.reportCard}>
                     <View style={styles.reportContent}>
-                        <Text style={styles.reportTitle}>Weekly Vitality Report</Text>
+                        <Text style={styles.reportTitle}>{t('weeklyReportTitle')}</Text>
                         <Text style={styles.reportDescription}>
-                            Your recovery efficiency increased by 12% this week. Keep the momentum!
+                            {t('weeklyReportDesc')}
                         </Text>
                         <TouchableOpacity style={styles.reportButton}>
-                            <Text style={styles.reportButtonText}>View My Insights</Text>
+                            <Text style={styles.reportButtonText}>{t('viewInsights')}</Text>
                         </TouchableOpacity>
                     </View>
                     <View style={styles.reportIconBg}>
@@ -83,7 +95,7 @@ export default function HistoryScreen() {
                 </View>
 
                 {/* Progress Journey */}
-                <Text style={styles.sectionTitle}>Your Progress Journey</Text>
+                <Text style={styles.sectionTitle}>{t('progressJourney')}</Text>
 
                 <View style={styles.timelineContainer}>
                     {/* Timeline line */}
@@ -109,21 +121,21 @@ export default function HistoryScreen() {
                                         <Text style={[styles.cardDate, styles.cardDateActive]}>
                                             {formatDate(item.date)}
                                         </Text>
-                                        <Text style={styles.cardTitle}>{item.muscleGroup} Relief</Text>
+                                        <Text style={styles.cardTitle}>{item.muscleGroup} {t('relief')}</Text>
                                     </View>
                                     <View style={styles.completedBadge}>
-                                        <Text style={styles.completedBadgeText}>COMPLETED</Text>
+                                        <Text style={styles.completedBadgeText}>{t('completed')}</Text>
                                     </View>
                                 </View>
                                 <View style={styles.cardMeta}>
                                     <Ionicons name="fitness-outline" size={14} color="#a39587" />
-                                    <Text style={styles.metaText}>{item.exercises.length} Exercises</Text>
+                                    <Text style={styles.metaText}>{t('exercisesCount').replace('${count}', item.exercises.length.toString())}</Text>
                                 </View>
                             </View>
                         </View>
                     ))}
                     {history.length === 0 && (
-                        <Text style={{ color: '#666', textAlign: 'center', marginTop: 20 }}>No history yet. Start a session!</Text>
+                        <Text style={{ color: '#666', textAlign: 'center', marginTop: 20 }}>{t('noHistory')}</Text>
                     )}
                 </View>
             </ScrollView>

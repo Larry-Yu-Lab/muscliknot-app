@@ -2,7 +2,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import React, { useMemo, useState } from 'react';
 import { SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { usePreferences } from '../context/PreferencesContext';
 import { EXERCISES } from '../data/exercises';
+import { getTranslation } from '../utils/i18n';
 
 const categories = ['All', 'Relief', 'Warm-ups', 'Yoga', 'Posture', 'Strength'];
 const reliefMuscleGroups = ['All', 'Neck', 'Shoulders', 'Upper Back', 'Lower Back', 'Glutes', 'Legs'];
@@ -12,9 +14,16 @@ type ExerciseCardProps = {
     duration: string;
     target: string;
     image: string;
+    t: (key: string) => string; // Pass t function or translated target string? Let's generic it.
 };
 
-const ExerciseCard = ({ title, duration, target, image }: ExerciseCardProps) => (
+// Helper for mapped muscle group translation inside card
+const getMuscleKey = (name: string) => {
+    if (name === 'All') return 'catAll';
+    return `mg${name.replace(/\s/g, '')}` as any;
+};
+
+const ExerciseCard = ({ title, duration, target, image, t }: ExerciseCardProps) => (
     <TouchableOpacity style={styles.exerciseCard}>
         <View style={styles.exerciseImageContainer}>
             <Image
@@ -31,7 +40,7 @@ const ExerciseCard = ({ title, duration, target, image }: ExerciseCardProps) => 
                     <Text style={styles.durationText}>{duration}</Text>
                 </View>
                 <View style={styles.targetBadge}>
-                    <Text style={styles.targetText}>Target: {target}</Text>
+                    <Text style={styles.targetText}>{t('target').replace('${target}', t(getMuscleKey(target)) !== getMuscleKey(target) ? t(getMuscleKey(target)) : target)}</Text>
                 </View>
             </View>
         </View>
@@ -45,6 +54,9 @@ export default function LibraryScreen() {
     const [activeCategory, setActiveCategory] = useState('All');
     const [activeMuscleGroup, setActiveMuscleGroup] = useState('All');
     const [searchQuery, setSearchQuery] = useState('');
+
+    const { language } = usePreferences();
+    const t = (key: Parameters<typeof getTranslation>[1]) => getTranslation(language, key);
 
     const filteredExercises = useMemo(() => {
         return EXERCISES.filter(ex => {
@@ -63,18 +75,35 @@ export default function LibraryScreen() {
         });
     }, [activeCategory, activeMuscleGroup, searchQuery]);
 
-    // Split into "Recommended" (random subset) and "All Results" for better UX?
-    // Or just show one list since filtering is active. Let's show one consolidated list when filtering.
-    // But initially show the split sections if 'All' is selected.
-
     const isFiltering = activeCategory !== 'All' || searchQuery.length > 0;
+
+    // Helpers for dynamic keys
+    const getCategoryKey = (cat: string) => {
+        if (cat === 'All') return 'catAll';
+        // 'Warm-ups' -> 'catWarmups'
+        return `cat${cat.replace(/[-\s]/g, '')}` as any;
+    };
+
+    // getMuscleKey defined above, but we need it here too or reuse logic
+    const getMuscleDisplay = (name: string) => {
+        const key = name === 'All' ? 'catAll' : `mg${name.replace(/\s/g, '')}` as any;
+        const trans = t(key);
+        return trans !== key ? trans : name;
+    };
+
+    const getCategoryDisplay = (name: string) => {
+        const key = getCategoryKey(name);
+        const trans = t(key);
+        return trans !== key ? trans : name;
+    };
+
 
     return (
         <SafeAreaView style={styles.container}>
             {/* Header */}
             <View style={styles.header}>
                 <View style={styles.headerTop}>
-                    <Text style={styles.headerTitle}>Library</Text>
+                    <Text style={styles.headerTitle}>{t('library')}</Text>
                     <TouchableOpacity style={styles.notificationButton}>
                         <Ionicons name="notifications-outline" size={22} color="#ff6a00" />
                     </TouchableOpacity>
@@ -85,7 +114,7 @@ export default function LibraryScreen() {
                     <Ionicons name="search" size={20} color="#ff6a00" />
                     <TextInput
                         style={styles.searchInput}
-                        placeholder="Search exercises..."
+                        placeholder={t('searchExercises')}
                         placeholderTextColor="#6b7280"
                         value={searchQuery}
                         onChangeText={setSearchQuery}
@@ -118,7 +147,7 @@ export default function LibraryScreen() {
                                     activeCategory === category && styles.categoryTextActive,
                                 ]}
                             >
-                                {category}
+                                {getCategoryDisplay(category)}
                             </Text>
                         </TouchableOpacity>
                     ))}
@@ -146,7 +175,7 @@ export default function LibraryScreen() {
                                         activeMuscleGroup === group && styles.subCategoryTextActive,
                                     ]}
                                 >
-                                    {group}
+                                    {getMuscleDisplay(group)}
                                 </Text>
                             </TouchableOpacity>
                         ))}
@@ -157,7 +186,7 @@ export default function LibraryScreen() {
                 {isFiltering ? (
                     <View style={styles.section}>
                         <Text style={styles.sectionTitle}>
-                            {filteredExercises.length} Result{filteredExercises.length !== 1 ? 's' : ''}
+                            {filteredExercises.length} {t('results')}
                         </Text>
                         <View style={styles.exerciseList}>
                             {filteredExercises.map((exercise) => (
@@ -167,6 +196,7 @@ export default function LibraryScreen() {
                                     duration={exercise.duration}
                                     target={exercise.muscleGroup}
                                     image={exercise.image}
+                                    t={t as any}
                                 />
                             ))}
                         </View>
@@ -176,9 +206,9 @@ export default function LibraryScreen() {
                         {/* Recommended Section (Default View) */}
                         <View style={styles.section}>
                             <View style={styles.sectionHeader}>
-                                <Text style={styles.sectionTitle}>Recommended for You</Text>
+                                <Text style={styles.sectionTitle}>{t('recommendedForYou')}</Text>
                                 <TouchableOpacity onPress={() => setActiveCategory('Relief')}>
-                                    <Text style={styles.seeAllText}>SEE ALL</Text>
+                                    <Text style={styles.seeAllText}>{t('seeAll')}</Text>
                                 </TouchableOpacity>
                             </View>
                             <View style={styles.exerciseList}>
@@ -189,6 +219,7 @@ export default function LibraryScreen() {
                                         duration={exercise.duration}
                                         target={exercise.muscleGroup}
                                         image={exercise.image}
+                                        t={t as any}
                                     />
                                 ))}
                             </View>
@@ -197,9 +228,9 @@ export default function LibraryScreen() {
                         {/* New Routines Section */}
                         <View style={styles.section}>
                             <View style={styles.sectionHeader}>
-                                <Text style={styles.sectionTitle}>New Routines</Text>
+                                <Text style={styles.sectionTitle}>{t('newRoutines')}</Text>
                                 <TouchableOpacity onPress={() => setActiveCategory('All')}>
-                                    <Text style={styles.seeAllText}>EXPLORE</Text>
+                                    <Text style={styles.seeAllText}>{t('explore')}</Text>
                                 </TouchableOpacity>
                             </View>
                             <View style={styles.exerciseList}>
@@ -210,6 +241,7 @@ export default function LibraryScreen() {
                                         duration={exercise.duration}
                                         target={exercise.muscleGroup}
                                         image={exercise.image}
+                                        t={t as any}
                                     />
                                 ))}
                             </View>

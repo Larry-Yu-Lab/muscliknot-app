@@ -3,9 +3,14 @@ import { Tabs } from 'expo-router';
 import React from 'react';
 
 import { HapticTab } from '@/components/haptic-tab';
+import { usePreferences } from '../context/PreferencesContext';
+import { getTranslation } from '../utils/i18n';
 
 
 export default function TabLayout() {
+  const { language } = usePreferences();
+  const t = (key: Parameters<typeof getTranslation>[1]) => getTranslation(language, key);
+
   return (
     <Tabs
       screenOptions={{
@@ -23,7 +28,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
+          title: t('tabHome'),
           tabBarIcon: ({ color }) => <Ionicons size={24} name="home" color={color} />,
         }}
       />
@@ -32,7 +37,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="find-relief"
         options={{
-          title: 'Find Relief',
+          title: t('tabFindRelief'),
           tabBarIcon: ({ color }) => <MaterialIcons size={24} name="health-and-safety" color={color} />,
         }}
       />
@@ -41,7 +46,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="history"
         options={{
-          title: 'History',
+          title: t('tabHistory'),
           tabBarIcon: ({ color }) => <MaterialIcons size={24} name="history" color={color} />,
         }}
       />
@@ -50,7 +55,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="library"
         options={{
-          title: 'Library',
+          title: t('tabLibrary'),
           tabBarIcon: ({ color }) => <Ionicons size={24} name="book" color={color} />,
         }}
       />
@@ -59,7 +64,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="profile"
         options={{
-          title: 'Profile',
+          title: t('tabProfile'),
           tabBarIcon: ({ color }) => <Ionicons size={24} name="person" color={color} />,
         }}
       />

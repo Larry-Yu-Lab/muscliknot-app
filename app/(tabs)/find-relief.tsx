@@ -3,13 +3,18 @@ import { Image } from 'expo-image';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
 import { Alert, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { usePreferences } from '../context/PreferencesContext';
 import { getExercisesForPosition } from '../data/exercises';
+import { getTranslation } from '../utils/i18n';
 import { saveToHistory } from '../utils/storage';
 
 export default function FindReliefScreen() {
     const router = useRouter();
     const params = useLocalSearchParams(); // { x, y, view, timestamp }
     const [painLevel, setPainLevel] = useState(6);
+
+    const { language } = usePreferences();
+    const t = (key: Parameters<typeof getTranslation>[1]) => getTranslation(language, key);
 
     const x = Number(params.x) || 0;
     const y = Number(params.y) || 0;
@@ -18,6 +23,23 @@ export default function FindReliefScreen() {
     const exercises = useMemo(() => getExercisesForPosition(y, view), [y, view]);
     const targetMuscle = exercises.length > 0 ? exercises[0].muscleGroup : 'General';
 
+    // Helper to get translated muscle name if available, else fallback to English name
+    const getMuscleName = (name: string) => {
+        const key = `mg${name.replace(/\s/g, '')}` as any;
+        // Try to find if key exists in current language via getTranslation, 
+        // but getTranslation is strict on keys. 
+        // For now, let's simplistic check or just display raw name if not mapped.
+        // Given complexity, valid keys are: mgNeck, mgShoulders, etc.
+        const mappedKey = `mg${name.replace(/\s+/g, '')}`;
+        // We can try to fetch it, if it returns key itself (fallback), we show name.
+        // Actually getTranslation returns key if missing/fallback. 
+        // Let's rely on standard names matching keys carefully.
+        // "Neck" -> "mgNeck", "Upper Back" -> "mgUpperBack"
+        return t(mappedKey as any) !== mappedKey ? t(mappedKey as any) : name;
+    };
+
+    const displayTarget = getMuscleName(targetMuscle);
+
     const handleComplete = async () => {
         const item = {
             date: Date.now(),
@@ -25,10 +47,12 @@ export default function FindReliefScreen() {
             exercises: exercises,
         };
         await saveToHistory(item);
-        Alert.alert("Relief Plan Completed", "Your session has been saved to history.", [
-            { text: "OK", onPress: () => router.navigate('/(tabs)') } // Fixed to navigate to home tab
+        Alert.alert(t('planCompletedTitle'), t('planCompletedMessage'), [
+            { text: "OK", onPress: () => router.navigate('/(tabs)') }
         ]);
     };
+
+    const totalMinutes = exercises.length * 3; // Approx duration
 
     return (
         <SafeAreaView style={styles.container}>
@@ -38,7 +62,7 @@ export default function FindReliefScreen() {
                     <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
                         <Ionicons name="arrow-back" size={24} color="#fff" />
                     </TouchableOpacity>
-                    <Text style={styles.headerTitle}>{targetMuscle} Relief</Text>
+                    <Text style={styles.headerTitle}>{displayTarget} {t('relief')}</Text>
                     <View style={styles.headerSpacer} />
                 </View>
 
@@ -60,7 +84,7 @@ export default function FindReliefScreen() {
                         </View>
                         <View style={styles.timeContainer}>
                             <Text style={styles.timeText}>0:00</Text>
-                            <Text style={styles.timeText}>Total: {exercises.length * 3} min</Text>
+                            <Text style={styles.timeText}>{t('totalMin').replace('${min}', totalMinutes.toString())}</Text>
                         </View>
                     </View>
                 </View>
@@ -69,11 +93,11 @@ export default function FindReliefScreen() {
                 <View style={styles.badgeContainer}>
                     <View style={styles.badge}>
                         <Ionicons name="fitness-outline" size={20} color="#FF9D42" />
-                        <Text style={styles.badgeText}>{exercises.length} Exercises</Text>
+                        <Text style={styles.badgeText}>{t('exercisesCount').replace('${count}', exercises.length.toString())}</Text>
                     </View>
                     <View style={styles.badge}>
                         <Ionicons name="timer-outline" size={20} color="#FF9D42" />
-                        <Text style={styles.badgeText}>~{exercises.length * 4} Mins</Text>
+                        <Text style={styles.badgeText}>{t('approxMins').replace('${min}', String(exercises.length * 4))}</Text>
                     </View>
                 </View>
 
@@ -81,13 +105,13 @@ export default function FindReliefScreen() {
                 <View style={styles.assessmentCard}>
                     <View style={styles.assessmentHeader}>
                         <Ionicons name="analytics-outline" size={24} color="#FF9D42" />
-                        <Text style={styles.assessmentTitle}>Pain Assessment</Text>
+                        <Text style={styles.assessmentTitle}>{t('painAssessment')}</Text>
                     </View>
                     <View style={styles.assessmentContent}>
                         <View style={styles.scaleHeader}>
-                            <Text style={styles.scaleLabel}>Rate your intensity</Text>
+                            <Text style={styles.scaleLabel}>{t('rateIntensity')}</Text>
                             <View style={styles.scaleBadge}>
-                                <Text style={styles.scaleBadgeText}>1-10 SCALE</Text>
+                                <Text style={styles.scaleBadgeText}>{t('scale1to10')}</Text>
                             </View>
                         </View>
                         <View style={styles.sliderContainer}>
@@ -98,16 +122,16 @@ export default function FindReliefScreen() {
                             <Text style={styles.painNumber}>{painLevel}</Text>
                         </View>
                         <View style={styles.sliderLabels}>
-                            <Text style={styles.sliderLabel}>Mild</Text>
-                            <Text style={styles.sliderLabel}>Moderate</Text>
-                            <Text style={styles.sliderLabel}>Severe</Text>
+                            <Text style={styles.sliderLabel}>{t('mild')}</Text>
+                            <Text style={styles.sliderLabel}>{t('moderate')}</Text>
+                            <Text style={styles.sliderLabel}>{t('severe')}</Text>
                         </View>
                     </View>
                 </View>
 
                 {/* Recommended Exercises List */}
                 <View style={styles.instructionsSection}>
-                    <Text style={styles.instructionsTitle}>Recommended Routine</Text>
+                    <Text style={styles.instructionsTitle}>{t('recommendedRoutine')}</Text>
                     {exercises.map((item, index) => (
                         <View key={item.id} style={styles.instructionCard}>
                             <View style={styles.stepNumber}>
@@ -123,7 +147,7 @@ export default function FindReliefScreen() {
                         </View>
                     ))}
                     {exercises.length === 0 && (
-                        <Text style={{ color: '#aaa', fontStyle: 'italic' }}>Select a point to see exercises.</Text>
+                        <Text style={{ color: '#aaa', fontStyle: 'italic' }}>{t('selectPointPrompt')}</Text>
                     )}
                 </View>
             </ScrollView>
@@ -131,7 +155,7 @@ export default function FindReliefScreen() {
             {/* Fixed Bottom Button */}
             <View style={styles.bottomContainer}>
                 <TouchableOpacity style={styles.completeButton} onPress={handleComplete}>
-                    <Text style={styles.completeButtonText}>MARK AS COMPLETE</Text>
+                    <Text style={styles.completeButtonText}>{t('markAsComplete')}</Text>
                 </TouchableOpacity>
             </View>
         </SafeAreaView>

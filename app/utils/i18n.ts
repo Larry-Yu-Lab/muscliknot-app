@@ -1,0 +1,688 @@
+export type Language = 'en' | 'zh' | 'fr' | 'es';
+
+export const LANGUAGES: { code: Language; label: string }[] = [
+    { code: 'en', label: 'English' },
+    { code: 'fr', label: 'Français' },
+    { code: 'es', label: 'Español' },
+    { code: 'zh', label: '中文' },
+];
+
+export const translations = {
+    en: {
+        // General
+        settings: 'Settings',
+        notifications: 'Notifications',
+        darkMode: 'Dark Mode',
+        language: 'Language',
+        logout: 'Logout',
+        dashboard: 'DASHBOARD',
+
+        // Profile
+        profile: 'Profile',
+        plansPricing: 'Plans & Pricing',
+        athleteStatus: 'DATA-DRIVEN ATHLETE',
+        premiumStatus: 'PREMIUM',
+        workouts: 'WORKOUTS',
+        recovery: 'RECOVERY',
+        streak: 'STREAK',
+        healthVault: 'HEALTH VAULT',
+        viewAnalytics: 'VIEW ANALYTICS',
+        injuryHistory: 'INJURY HISTORY',
+        fitnessLevel: 'FITNESS LEVEL',
+        generalSettings: 'GENERAL SETTINGS',
+        account: 'ACCOUNT',
+
+        // Plans
+        monthly: 'MONTHLY',
+        annual: 'ANNUAL',
+        save20: 'SAVE 20%',
+        elitePlan: 'ELITE PLAN',
+        billedAnnually: 'Billed annually',
+        bestValue: 'BEST VALUE',
+        upgradeSave: 'UPGRADE & SAVE 20%',
+        upgradeElite: 'UPGRADE TO ELITE',
+        proPlan: 'PRO PLAN',
+        choosePro: 'CHOOSE PRO',
+        transparencyComparison: 'TRANSPARENCY COMPARISON',
+        features: 'FEATURES',
+        free: 'FREE',
+        pro: 'PRO',
+        elite: 'ELITE',
+
+        // Features
+        muscleMapping: 'Muscle Mapping',
+        aiCoaching: 'AI Coaching',
+        monthlySavings: 'Monthly Savings',
+        annualTotal: 'Annual Total',
+        basic: 'Basic',
+        advanced: 'Advanced',
+        unlimited: 'Unlimited',
+
+        // Footer
+        footerNoteAnnual: '*Savings calculated based on annual vs monthly subscription prices. Transparent pricing with no hidden activation fees.',
+        footerNoteMonthly: '*Pricing reflects standard monthly billing rates. Transparent pricing with no hidden activation fees.',
+
+        // Tabs
+        tabHome: 'Home',
+        tabFindRelief: 'Find Relief',
+        tabHistory: 'History',
+        tabLibrary: 'Library',
+        tabProfile: 'Profile',
+
+        // Home
+        letsRecover: "Let's recover",
+        welcomeBack: 'Welcome Back',
+        dragToMap: 'Drag to map your pain',
+        painPointSelected: 'Pain point selected',
+        front: 'FRONT',
+        back: 'BACK',
+        generateReliefPlan: 'GENERATE RELIEF PLAN',
+        recentPlans: 'Recent Plans',
+        seeAllHistory: 'History',
+        neckRelief: 'Neck Relief',
+        lowerBack: 'Lower Back',
+
+        // Find Relief
+        relief: 'Relief',
+        totalMin: 'Total: ${min} min',
+        exercisesCount: '${count} Exercises',
+        approxMins: '~${min} Mins',
+        painAssessment: 'Pain Assessment',
+        rateIntensity: 'Rate your intensity',
+        scale1to10: '1-10 SCALE',
+        mild: 'Mild',
+        moderate: 'Moderate',
+        severe: 'Severe',
+        recommendedRoutine: 'Recommended Routine',
+        selectPointPrompt: 'Select a point to see exercises.',
+        markAsComplete: 'MARK AS COMPLETE',
+        planCompletedTitle: 'Relief Plan Completed',
+        planCompletedMessage: 'Your session has been saved to history.',
+
+        // History
+        recoveryHistory: 'Recovery History',
+        sessions: 'SESSIONS',
+        streakUpper: 'STREAK',
+        targeted: 'TARGETED',
+        weeklyReportTitle: 'Weekly Vitality Report',
+        weeklyReportDesc: 'Your recovery efficiency increased by 12% this week. Keep the momentum!',
+        viewInsights: 'View My Insights',
+        progressJourney: 'Your Progress Journey',
+        completed: 'COMPLETED',
+        noHistory: 'No history yet. Start a session!',
+
+        // Library
+        library: 'Library',
+        searchExercises: 'Search exercises...',
+        results: 'Result(s)',
+        recommendedForYou: 'Recommended for You',
+        seeAll: 'SEE ALL',
+        newRoutines: 'New Routines',
+        explore: 'EXPLORAR',
+        target: 'Target: ${target}',
+
+        // Categories & Muscles
+        catAll: 'All',
+        catRelief: 'Relief',
+        catWarmups: 'Warm-ups',
+        catYoga: 'Yoga',
+        catPosture: 'Posture',
+        catStrength: 'Strength',
+        mgNeck: 'Neck',
+        mgShoulders: 'Shoulders',
+        mgUpperBack: 'Upper Back',
+        mgLowerBack: 'Lower Back',
+        mgGlutes: 'Glutes',
+        mgLegs: 'Legs',
+
+        // Time
+        yesterday: 'YESTERDAY',
+        daysAgo: '${days} DAYS AGO',
+
+        // Exercises
+        ex_n1_title: 'Neck Tilts',
+        ex_n1_desc: 'Gently tilt your head side to side, holding for 15 seconds each.',
+        ex_n2_title: 'Neck Rotations',
+        ex_n2_desc: 'Slowly rotate your neck in a circular motion.',
+        ex_s1_title: 'Shoulder Rolls',
+        ex_s1_desc: 'Roll your shoulders forward and backward to release tension.',
+        ex_s2_title: 'Cross-Body Arm Stretch',
+        ex_s2_desc: 'Pull one arm across your chest with the other arm.',
+        ex_ub1_title: 'Cat-Cow Stretch',
+        ex_ub1_desc: 'Alternate between arching and rounding your back on all fours.',
+        ex_ub2_title: 'Thoracic Extension',
+        ex_ub2_desc: 'Lean back over a chair or foam roller to open the chest.',
+        ex_lb1_title: 'Child’s Pose',
+        ex_lb1_desc: 'Sit back on your heels with arms stretched forward.',
+        ex_lb2_title: 'Knee-to-Chest',
+        ex_lb2_desc: 'Lie on your back and pull one knee to your chest.',
+        ex_g1_title: 'Pigeon Pose',
+        ex_g1_desc: 'Deep glute stretch on the floor.',
+        ex_l1_title: 'Hamstring Stretch',
+        ex_l1_desc: 'Reach for your toes while standing or sitting.',
+        ex_y1_title: 'Sun Salutation',
+        ex_y1_desc: 'Classic yoga flow to energize the body.',
+        ex_w1_title: 'Dynamic Warm-up',
+        ex_w1_desc: 'Get your blood flowing before a workout.',
+        ex_p1_title: 'Desk Posture Fix',
+        ex_p1_desc: 'Correct slouching and open up the chest.',
+        ex_st1_title: 'Core Blast',
+        ex_st1_desc: 'Intensive core workout for stability.',
+
+        // Stats
+        workoutsLabel: 'WORKOUTS',
+        recoveryLabel: 'RECOVERY',
+        streakLabel: 'STREAK'
+    },
+    zh: {
+        // General
+        settings: '设置',
+        notifications: '通知',
+        darkMode: '深色模式',
+        language: '语言',
+        logout: '退出登录',
+        dashboard: '仪表盘',
+
+        // Profile
+        profile: '个人资料',
+        plansPricing: '计划与定价',
+        athleteStatus: '数据驱动运动员',
+        premiumStatus: '高级会员',
+        workouts: '训练次数',
+        recovery: '恢复状态',
+        streak: '连续打卡',
+        healthVault: '健康档案',
+        viewAnalytics: '查看分析',
+        injuryHistory: '伤病历史',
+        fitnessLevel: '体能等级',
+        generalSettings: '通用设置',
+        account: '账户',
+
+        // Plans
+        monthly: '月付',
+        annual: '年付',
+        save20: '省20%',
+        elitePlan: '精英计划',
+        billedAnnually: '每年计费',
+        bestValue: '超值首选',
+        upgradeSave: '升级并省20%',
+        upgradeElite: '升级到精英版',
+        proPlan: '专业计划',
+        choosePro: '通过专业版',
+        transparencyComparison: '透明比价',
+        features: '功能',
+        free: '免费',
+        pro: '专业',
+        elite: '精英',
+
+        // Features
+        muscleMapping: '肌肉映射',
+        aiCoaching: 'AI 教练',
+        monthlySavings: '每月节省',
+        annualTotal: '年度总计',
+        basic: '基础',
+        advanced: '高级',
+        unlimited: '无限制',
+
+        // Footer
+        footerNoteAnnual: '*节省金额基于年度与月度订阅价格计算。价格透明，无隐藏激活费用。',
+        footerNoteMonthly: '*定价反映标准月度计费率。价格透明，无隐藏激活费用。',
+
+        // Tabs
+        tabHome: '首页',
+        tabFindRelief: '缓解',
+        tabHistory: '历史',
+        tabLibrary: '库',
+        tabProfile: '个人',
+
+        // Home
+        letsRecover: '开始恢复',
+        welcomeBack: '欢迎回来',
+        dragToMap: '拖动以定位疼痛',
+        painPointSelected: '已选择痛点',
+        front: '正面',
+        back: '背面',
+        generateReliefPlan: '生成缓解计划',
+        recentPlans: '最近计划',
+        seeAllHistory: '历史记录',
+        neckRelief: '颈部缓解',
+        lowerBack: '下背部',
+
+        // Find Relief
+        relief: '缓解',
+        totalMin: '总计: ${min} 分钟',
+        exercisesCount: '${count} 个动作',
+        approxMins: '约 ${min} 分钟',
+        painAssessment: '疼痛评估',
+        rateIntensity: '评估强度',
+        scale1to10: '1-10 级',
+        mild: '轻微',
+        moderate: '中度',
+        severe: '严重',
+        recommendedRoutine: '推荐流程',
+        selectPointPrompt: '选择一个点以查看动作',
+        markAsComplete: '标记为完成',
+        planCompletedTitle: '缓解计划已完成',
+        planCompletedMessage: '您的会话已保存到历史记录。',
+
+        // History
+        recoveryHistory: '恢复历史',
+        sessions: '会话',
+        streakUpper: '连续',
+        targeted: '目标',
+        weeklyReportTitle: '每周活力报告',
+        weeklyReportDesc: '本周您的恢复效率提高了 12%。保持势头！',
+        viewInsights: '查看我的见解',
+        progressJourney: '您的进步之旅',
+        completed: '已完成',
+        noHistory: '尚无历史记录。开始会话！',
+
+        // Library
+        library: '运动库',
+        searchExercises: '搜索动作...',
+        results: '结果',
+        recommendedForYou: '为您推荐',
+        seeAll: '查看全部',
+        newRoutines: '新例程',
+        explore: '探索',
+        target: '目标: ${target}',
+
+        // Categories & Muscles
+        catAll: '全部',
+        catRelief: '缓解',
+        catWarmups: '热身',
+        catYoga: '瑜伽',
+        catPosture: '姿态',
+        catStrength: '力量',
+        mgNeck: '颈部',
+        mgShoulders: '肩膀',
+        mgUpperBack: '上背',
+        mgLowerBack: '下背',
+        mgGlutes: '臀部',
+        mgLegs: '腿部',
+
+        // Time
+        yesterday: '昨天',
+        daysAgo: '${days} 天前',
+
+        // Exercises
+        ex_n1_title: '颈部倾斜',
+        ex_n1_desc: '轻轻地左右倾斜头部，每侧保持 15 秒。',
+        ex_n2_title: '颈部旋转',
+        ex_n2_desc: '缓慢地做圆周运动旋转颈部。',
+        ex_s1_title: '肩部绕环',
+        ex_s1_desc: '向前和向后滚动肩膀以释放紧张感。',
+        ex_s2_title: '交叉手臂伸展',
+        ex_s2_desc: '用另一只手臂将一只手臂拉过胸前。',
+        ex_ub1_title: '猫牛式伸展',
+        ex_ub1_desc: '四肢着地，背部交替拱起和下塌。',
+        ex_ub2_title: '胸椎伸展',
+        ex_ub2_desc: '靠在椅子或泡沫轴上向后仰，打开胸腔。',
+        ex_lb1_title: '婴儿式',
+        ex_lb1_desc: '坐在脚跟上，双臂向前伸展。',
+        ex_lb2_title: '膝盖抱胸',
+        ex_lb2_desc: '平躺，将一只膝盖拉向胸部。',
+        ex_g1_title: '鸽子式',
+        ex_g1_desc: '地板上的深层臀部伸展。',
+        ex_l1_title: '腘绳肌伸展',
+        ex_l1_desc: '站立或坐着时伸手去触碰脚趾。',
+        ex_y1_title: '拜日式',
+        ex_y1_desc: '经典的瑜伽流程，激发身体活力。',
+        ex_w1_title: '动态热身',
+        ex_w1_desc: '锻炼前让血液流动起来。',
+        ex_p1_title: '办公桌姿势修正',
+        ex_p1_desc: '纠正驼背并打开胸腔。',
+        ex_st1_title: '核心爆发',
+        ex_st1_desc: '高强度的核心稳定性训练。',
+
+        // Stats
+        workoutsLabel: '训练',
+        recoveryLabel: '恢复',
+        streakLabel: '连续'
+    },
+    fr: {
+        // General
+        settings: 'Paramètres',
+        notifications: 'Notifications',
+        darkMode: 'Mode sombre',
+        language: 'Langue',
+        logout: 'Se déconnecter',
+        dashboard: 'TABLEAU DE BORD',
+
+        // Profile
+        profile: 'Profil',
+        plansPricing: 'Forfaits et tarifs',
+        athleteStatus: 'ATHLÈTE AXÉ SUR LES DONNÉES',
+        premiumStatus: 'PREMIUM',
+        workouts: 'ENTRAÎNEMENTS',
+        recovery: 'RÉCUPÉRATION',
+        streak: 'SÉRIE',
+        healthVault: 'COFFRE-FORT SANTÉ',
+        viewAnalytics: 'VOIR LES ANALYSES',
+        injuryHistory: 'HISTORIQUE DES BLESSURES',
+        fitnessLevel: 'NIVEAU DE FORME',
+        generalSettings: 'PARAMÈTRES GÉNÉRAUX',
+        account: 'COMPTE',
+
+        // Plans
+        monthly: 'MENSUEL',
+        annual: 'ANNUEL',
+        save20: 'ÉCONOMISEZ 20%',
+        elitePlan: 'FORFAIT ELITE',
+        billedAnnually: 'Facturé annuellement',
+        bestValue: 'MEILLEURE VALEUR',
+        upgradeSave: 'METTRE À NIVEAU ET ÉCONOMISER 20%',
+        upgradeElite: 'PASSER À ELITE',
+        proPlan: 'FORFAIT PRO',
+        choosePro: 'CHOISIR PRO',
+        transparencyComparison: 'COMPARAISON TRANSPARENTE',
+        features: 'FONCTIONNALITÉS',
+        free: 'GRATUIT',
+        pro: 'PRO',
+        elite: 'ELITE',
+
+        // Features
+        muscleMapping: 'Cartographie musculaire',
+        aiCoaching: 'Coaching IA',
+        monthlySavings: 'Économies mensuelles',
+        annualTotal: 'Total annuel',
+        basic: 'Basique',
+        advanced: 'Avancé',
+        unlimited: 'Illimité',
+
+        // Footer
+        footerNoteAnnual: '*Économies calculées sur la base des prix annuels par rapport aux prix mensuels. Tarification transparente sans frais d\'activation cachés.',
+        footerNoteMonthly: '*La tarification reflète les taux de facturation mensuels standard. Tarification transparente sans frais d\'activation cachés.',
+
+        // Tabs
+        tabHome: 'Accueil',
+        tabFindRelief: 'Soulagement',
+        tabHistory: 'Historique',
+        tabLibrary: 'Bibliothèque',
+        tabProfile: 'Profil',
+
+        // Home
+        letsRecover: 'Récupérons',
+        welcomeBack: 'Bon retour',
+        dragToMap: 'Faites glisser pour situer votre douleur',
+        painPointSelected: 'Point de douleur sélectionné',
+        front: 'AVANT',
+        back: 'DOS',
+        generateReliefPlan: 'GÉNÉRER UN PLAN DE SOULAGEMENT',
+        recentPlans: 'Plans récents',
+        seeAllHistory: 'Historique',
+        neckRelief: 'Soulagement du cou',
+        lowerBack: 'Bas du dos',
+
+        // Find Relief
+        relief: 'Soulagement',
+        totalMin: 'Total: ${min} min',
+        exercisesCount: '${count} Exercices',
+        approxMins: '~${min} Minutes',
+        painAssessment: 'Évaluation de la douleur',
+        rateIntensity: 'Évaluez votre intensité',
+        scale1to10: 'ÉCHELLE 1-10',
+        mild: 'Léger',
+        moderate: 'Modéré',
+        severe: 'Sévère',
+        recommendedRoutine: 'Routine recommandée',
+        selectPointPrompt: 'Sélectionnez un point pour voir les exercices.',
+        markAsComplete: 'MARQUER COMME TERMINÉ',
+        planCompletedTitle: 'Plan de soulagement terminé',
+        planCompletedMessage: 'Votre session a été enregistrée dans l\'historique.',
+
+        // History
+        recoveryHistory: 'Historique de récupération',
+        sessions: 'SESSIONS',
+        streakUpper: 'SÉRIE',
+        targeted: 'CIBLÉ',
+        weeklyReportTitle: 'Rapport hebdomadaire de vitalité',
+        weeklyReportDesc: 'Votre efficacité de récupération a augmenté de 12 % cette semaine. Continuez sur votre lancée !',
+        viewInsights: 'Voir mes statistiques',
+        progressJourney: 'Votre parcours de progrès',
+        completed: 'TERMINÉ',
+        noHistory: 'Pas encore d\'historique. Commencez une session !',
+
+        // Library
+        library: 'Bibliothèque',
+        searchExercises: 'Rechercher des exercices...',
+        results: 'Résultat(s)',
+        recommendedForYou: 'Recommandé pour vous',
+        seeAll: 'VOIR TOUT',
+        newRoutines: 'Nouvelles routines',
+        explore: 'EXPLORER',
+        target: 'Cible: ${target}',
+
+        // Categories & Muscles
+        catAll: 'Tout',
+        catRelief: 'Soulagement',
+        catWarmups: 'Échauffements',
+        catYoga: 'Yoga',
+        catPosture: 'Posture',
+        catStrength: 'Force',
+        mgNeck: 'Cou',
+        mgShoulders: 'Épaules',
+        mgUpperBack: 'Haut du dos',
+        mgLowerBack: 'Bas du dos',
+        mgGlutes: 'Fessiers',
+        mgLegs: 'Jambes',
+
+        // Time
+        yesterday: 'HIER',
+        daysAgo: 'IL Y A ${days} JOURS',
+
+        // Exercises
+        ex_n1_title: 'Inclinaisons du cou',
+        ex_n1_desc: 'Inclinez doucement la tête d\'un côté à l\'autre, maintenez 15s.',
+        ex_n2_title: 'Rotations du cou',
+        ex_n2_desc: 'Faites tourner lentement votre cou dans un mouvement circulaire.',
+        ex_s1_title: 'Roulements d\'épaules',
+        ex_s1_desc: 'Roulez vos épaules vers l\'avant et l\'arrière pour relâcher la tension.',
+        ex_s2_title: 'Étirement des bras croisés',
+        ex_s2_desc: 'Tirez un bras sur votre poitrine avec l\'autre bras.',
+        ex_ub1_title: 'Étirement Chat-Vache',
+        ex_ub1_desc: 'Alternez le dos rond et le dos creux à quatre pattes.',
+        ex_ub2_title: 'Extension thoracique',
+        ex_ub2_desc: 'Penchez-vous en arrière sur une chaise ou un rouleau en mousse.',
+        ex_lb1_title: 'Posture de l\'enfant',
+        ex_lb1_desc: 'Asseyez-vous sur vos talons avec les bras tendus vers l\'avant.',
+        ex_lb2_title: 'Genou à la poitrine',
+        ex_lb2_desc: 'Allongez-vous sur le dos et tirez un genou vers votre poitrine.',
+        ex_g1_title: 'Posture du pigeon',
+        ex_g1_desc: 'Étirement profond des fessiers au sol.',
+        ex_l1_title: 'Étirement des ischio-jambiers',
+        ex_l1_desc: 'Essayez de toucher vos orteils en position debout ou assise.',
+        ex_y1_title: 'Salutation au soleil',
+        ex_y1_desc: 'Flux de yoga classique pour énergiser le corps.',
+        ex_w1_title: 'Échauffement dynamique',
+        ex_w1_desc: 'Faites circuler votre sang avant une séance d\'entraînement.',
+        ex_p1_title: 'Correction posture bureau',
+        ex_p1_desc: 'Corrigez l\'affaissement et ouvrez la poitrine.',
+        ex_st1_title: 'Explosion du noyau',
+        ex_st1_desc: 'Entraînement intensif du tronc pour la stabilité.',
+
+        // Stats
+        workoutsLabel: 'ENTRAÎNEMENTS',
+        recoveryLabel: 'RÉCUPÉRATION',
+        streakLabel: 'SÉRIE'
+    },
+    es: {
+        // General
+        settings: 'Configuración',
+        notifications: 'Notificaciones',
+        darkMode: 'Modo oscuro',
+        language: 'Idioma',
+        logout: 'Cerrar sesión',
+        dashboard: 'TABLERO',
+
+        // Tabs
+        tabHome: 'Inicio',
+        tabFindRelief: 'Alivio',
+        tabHistory: 'Historial',
+        tabLibrary: 'Biblioteca',
+        tabProfile: 'Perfil',
+
+        // Home
+        letsRecover: 'Vamos a recuperarnos',
+        welcomeBack: 'Bienvenido de nuevo',
+        dragToMap: 'Arrastra para ubicar tu dolor',
+        painPointSelected: 'Punto de dolor seleccionado',
+        front: 'FRENTE',
+        back: 'DORSO',
+        generateReliefPlan: 'GENERAR PLAN DE ALIVIO',
+        recentPlans: 'Planes recientes',
+        seeAllHistory: 'Historial',
+        neckRelief: 'Alivio de cuello',
+        lowerBack: 'Parte baja de espalda',
+
+        // Find Relief
+        relief: 'Alivio',
+        totalMin: 'Total: ${min} min',
+        exercisesCount: '${count} Ejercicios',
+        approxMins: '~${min} Minutos',
+        painAssessment: 'Evaluación del dolor',
+        rateIntensity: 'Califica tu intensidad',
+        scale1to10: 'ESCALA 1-10',
+        mild: 'Leve',
+        moderate: 'Moderado',
+        severe: 'Severo',
+        recommendedRoutine: 'Rutina recomendada',
+        selectPointPrompt: 'Selecciona un punto para ver ejercicios.',
+        markAsComplete: 'MARCAR COMO COMPLETO',
+        planCompletedTitle: 'Plan de alivio completado',
+        planCompletedMessage: 'Tu sesión ha sido guardada en el historial.',
+
+        // History
+        recoveryHistory: 'Historial de recuperación',
+        sessions: 'SESIONES',
+        streakUpper: 'RACHA',
+        targeted: 'OBJETIVO',
+        weeklyReportTitle: 'Informe Semanal de Vitalidad',
+        weeklyReportDesc: 'Tu eficiencia de recuperación aumentó un 12% esta semana. ¡Mantén el impulso!',
+        viewInsights: 'Ver mis estadísticas',
+        progressJourney: 'Tu viaje de progreso',
+        completed: 'COMPLETADO',
+        noHistory: 'Aún no hay historial. ¡Comienza una sesión!',
+
+        // Library
+        library: 'Biblioteca',
+        searchExercises: 'Buscar ejercicios...',
+        results: 'Resultados',
+        recommendedForYou: 'Recomendado para ti',
+        seeAll: 'VER TODO',
+        newRoutines: 'Nuevas rutinas',
+        explore: 'EXPLORAR',
+        target: 'Objetivo: ${target}',
+
+        // Categories & Muscles
+        catAll: 'Todo',
+        catRelief: 'Alivio',
+        catWarmups: 'Calentamiento',
+        catYoga: 'Yoga',
+        catPosture: 'Postura',
+        catStrength: 'Fuerza',
+        mgNeck: 'Cuello',
+        mgShoulders: 'Hombros',
+        mgUpperBack: 'Espalda Alta',
+        mgLowerBack: 'Espalda Baja',
+        mgGlutes: 'Glúteos',
+        mgLegs: 'Piernas',
+
+        // Profile
+        profile: 'Perfil',
+        plansPricing: 'Planes y precios',
+        athleteStatus: 'ATLETA IMPULSADO POR DATOS',
+        premiumStatus: 'PREMIUM',
+        workouts: 'ENTRENAMIENTOS',
+        recovery: 'RECUPERACIÓN',
+        streak: 'RACHA',
+        healthVault: 'CÁMARA DE SALUD',
+        viewAnalytics: 'VER ANÁLISIS',
+        injuryHistory: 'HISTORIAL DE LESIONES',
+        fitnessLevel: 'NIVEL DE ESTADO FÍSICO',
+        generalSettings: 'CONFIGURACIÓN GENERAL',
+        account: 'CUENTA',
+
+        // Plans
+        monthly: 'MENSUAL',
+        annual: 'ANUAL',
+        save20: 'AHORRA 20%',
+        elitePlan: 'PLAN ELITE',
+        billedAnnually: 'Facturado anualmente',
+        bestValue: 'MEJOR VALOR',
+        upgradeSave: 'MEJORAR Y AHORRAR 20%',
+        upgradeElite: 'MEJORAR A ELITE',
+        proPlan: 'PLAN PRO',
+        choosePro: 'ELEGIR PRO',
+        transparencyComparison: 'COMPARACIÓN DE TRANSPARENCIA',
+        features: 'CARACTERÍSTICAS',
+        free: 'GRATIS',
+        pro: 'PRO',
+        elite: 'ELITE',
+
+        // Features
+        muscleMapping: 'Mapeo muscular',
+        aiCoaching: 'Entrenamiento con IA',
+        monthlySavings: 'Ahorros mensuales',
+        annualTotal: 'Total anual',
+        basic: 'Básico',
+        advanced: 'Avanzado',
+        unlimited: 'Ilimitado',
+
+        // Footer
+        footerNoteAnnual: '*Ahorros calculados en base a precios de suscripción anual vs mensual. Precios transparentes sin tarifas de activación ocultas.',
+        footerNoteMonthly: '*Los precios reflejan las tarifas de facturación mensual estándar. Precios transparentes sin tarifas de activación ocultas.',
+
+        // Time
+        yesterday: 'AYER',
+        daysAgo: 'HACE ${days} DÍAS',
+
+        // Exercises
+        ex_n1_title: 'Inclinaciones de cuello',
+        ex_n1_desc: 'Inclina suavemente la cabeza de lado a lado, manteniendo 15 segundos cada lado.',
+        ex_n2_title: 'Rotaciones de cuello',
+        ex_n2_desc: 'Gira lentamente el cuello en un movimiento circular.',
+        ex_s1_title: 'Giros de hombros',
+        ex_s1_desc: 'Gira los hombros hacia adelante y hacia atrás para liberar tensión.',
+        ex_s2_title: 'Estiramiento de brazo cruzado',
+        ex_s2_desc: 'Tira de un brazo cruzando el pecho con el otro brazo.',
+        ex_ub1_title: 'Estiramiento Gato-Vaca',
+        ex_ub1_desc: 'Alterna entre arquear y redondear la espalda en cuatro patas.',
+        ex_ub2_title: 'Extensión torácica',
+        ex_ub2_desc: 'Recuéstate sobre una silla o rodillo para abrir el pecho.',
+        ex_lb1_title: 'Postura del niño',
+        ex_lb1_desc: 'Siéntate sobre los talones con los brazos estirados hacia adelante.',
+        ex_lb2_title: 'Rodilla al pecho',
+        ex_lb2_desc: 'Acuéstate boca arriba y lleva una rodilla al pecho.',
+        ex_g1_title: 'Postura de la paloma',
+        ex_g1_desc: 'Estiramiento profundo de glúteos en el suelo.',
+        ex_l1_title: 'Estiramiento de isquiotibiales',
+        ex_l1_desc: 'Alcanza tus dedos de los pies estando de pie o sentado.',
+        ex_y1_title: 'Saludo al sol',
+        ex_y1_desc: 'Flujo de yoga clásico para energizar el cuerpo.',
+        ex_w1_title: 'Calentamiento dinámico',
+        ex_w1_desc: 'Haz circular la sangre antes de entrenar.',
+        ex_p1_title: 'Corrección de postura de escritorio',
+        ex_p1_desc: 'Corrige la postura encorvada y abre el pecho.',
+        ex_st1_title: 'Explosión de núcleo',
+        ex_st1_desc: 'Entrenamiento intensivo de núcleo para estabilidad.',
+
+        // Stats
+        workoutsLabel: 'ENTRENAMIENTOS',
+        recoveryLabel: 'RECUPERACIÓN',
+        streakLabel: 'RACHA'
+    },
+};
+
+// Helper to validate language code
+export const isSupportedLanguage = (lang: string): lang is Language => {
+    return LANGUAGES.some(l => l.code === lang);
+};
+
+export const getTranslation = (lang: Language, key: keyof typeof translations['en']) => {
+    // Safety check: if lang is not in translations, fallback to en
+    const targetLang = translations[lang] ? lang : 'en';
+    const translation = translations[targetLang] as Record<string, string>;
+    const fallback = translations['en'] as Record<string, string>;
+    return translation[key] || fallback[key] || key;
+};
