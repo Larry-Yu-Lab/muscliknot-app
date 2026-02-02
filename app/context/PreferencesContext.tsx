@@ -9,8 +9,10 @@ type Theme = 'light' | 'dark';
 interface PreferencesContextType {
     theme: Theme;
     language: Language;
+    notificationsEnabled: boolean;
     toggleTheme: () => void;
     setLanguage: (lang: Language) => void;
+    toggleNotifications: () => void;
     isDarkMode: boolean;
 }
 
@@ -20,6 +22,7 @@ export const PreferencesProvider: React.FC<{ children: React.ReactNode }> = ({ c
     const systemColorScheme = _useColorScheme();
     const [theme, setTheme] = useState<Theme>(systemColorScheme === 'dark' ? 'dark' : 'light');
     const [language, setLanguageState] = useState<Language>('en');
+    const [notificationsEnabled, setNotificationsEnabled] = useState(true);
 
     useEffect(() => {
         loadPreferences();
@@ -29,6 +32,7 @@ export const PreferencesProvider: React.FC<{ children: React.ReactNode }> = ({ c
         try {
             const storedTheme = await AsyncStorage.getItem('app_theme');
             const storedLang = await AsyncStorage.getItem('app_language');
+            const storedNotifs = await AsyncStorage.getItem('app_notifications');
 
             if (storedTheme) setTheme(storedTheme as Theme);
             if (storedLang && isSupportedLanguage(storedLang)) {
@@ -36,6 +40,9 @@ export const PreferencesProvider: React.FC<{ children: React.ReactNode }> = ({ c
             } else {
                 // Determine default language or fallback to 'en'
                 setLanguageState('en');
+            }
+            if (storedNotifs !== null) {
+                setNotificationsEnabled(storedNotifs === 'true');
             }
         } catch (error) {
             console.error('Failed to load preferences:', error);
@@ -61,8 +68,26 @@ export const PreferencesProvider: React.FC<{ children: React.ReactNode }> = ({ c
         }
     };
 
+    const toggleNotifications = async () => {
+        const newValue = !notificationsEnabled;
+        setNotificationsEnabled(newValue);
+        try {
+            await AsyncStorage.setItem('app_notifications', String(newValue));
+        } catch (error) {
+            console.error('Failed to save notifications preference:', error);
+        }
+    };
+
     return (
-        <PreferencesContext.Provider value={{ theme, language, toggleTheme, setLanguage, isDarkMode: theme === 'dark' }}>
+        <PreferencesContext.Provider value={{
+            theme,
+            language,
+            notificationsEnabled,
+            toggleTheme,
+            setLanguage,
+            toggleNotifications,
+            isDarkMode: theme === 'dark'
+        }}>
             {children}
         </PreferencesContext.Provider>
     );

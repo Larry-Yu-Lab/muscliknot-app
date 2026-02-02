@@ -4,8 +4,8 @@ import { Image } from 'expo-image';
 import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useState } from 'react';
 import { Dimensions, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import Animated, { interpolateColor, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import Svg, { Circle, Path } from 'react-native-svg';
+import { CustomToggle } from '../../components/ui/CustomToggle';
 import { usePreferences } from '../context/PreferencesContext';
 import { useUser } from '../context/UserContext';
 import { getTranslation, LANGUAGES } from '../utils/i18n';
@@ -13,42 +13,9 @@ import { getHistory } from '../utils/storage';
 
 const { width } = Dimensions.get('window');
 
-const CustomToggle = ({ value, onValueChange, activeColor }: { value: boolean, onValueChange: () => void, activeColor: string }) => {
-    const isDarkGlobal = usePreferences().theme === 'dark';
-    const translateX = useSharedValue(value ? 20 : 0);
-
-    React.useEffect(() => {
-        translateX.value = withSpring(value ? 20 : 0, { damping: 15, stiffness: 120 });
-    }, [value]);
-
-    const trackAnimatedStyle = useAnimatedStyle(() => {
-        return {
-            backgroundColor: interpolateColor(
-                translateX.value,
-                [0, 20],
-                [isDarkGlobal ? '#333' : '#e5e7eb', activeColor]
-            )
-        };
-    });
-
-    const thumbAnimatedStyle = useAnimatedStyle(() => {
-        return {
-            transform: [{ translateX: translateX.value }]
-        };
-    });
-
-    return (
-        <TouchableOpacity activeOpacity={0.8} onPress={onValueChange}>
-            <Animated.View style={[styles.customToggleTrack, trackAnimatedStyle]}>
-                <Animated.View style={[styles.customToggleThumb, thumbAnimatedStyle]} />
-            </Animated.View>
-        </TouchableOpacity>
-    );
-};
-
 export default function ProfileScreen() {
     const router = useRouter();
-    const { theme, language, toggleTheme, setLanguage } = usePreferences();
+    const { theme, language, toggleTheme, setLanguage, notificationsEnabled, toggleNotifications } = usePreferences();
     const { user, updateUser } = useUser();
     const colors = Colors[theme];
     const isDark = theme === 'dark';
@@ -344,8 +311,8 @@ export default function ProfileScreen() {
                                         <Text style={[styles.rowLabel, { color: colors.text }]}>{t('notifications')}</Text>
                                     </View>
                                     <CustomToggle
-                                        value={true}
-                                        onValueChange={() => { }}
+                                        value={notificationsEnabled}
+                                        onValueChange={toggleNotifications}
                                         activeColor={colors.accent}
                                     />
                                 </View>
@@ -1014,23 +981,5 @@ const styles = StyleSheet.create({
     logoutText: {
         fontSize: 16,
         fontWeight: '600',
-    },
-    customToggleTrack: {
-        width: 48,
-        height: 28,
-        borderRadius: 14,
-        padding: 2,
-        justifyContent: 'center',
-    },
-    customToggleThumb: {
-        width: 24,
-        height: 24,
-        borderRadius: 12,
-        backgroundColor: '#fff',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.2,
-        shadowRadius: 2,
-        elevation: 2,
     },
 });

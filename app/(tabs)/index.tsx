@@ -8,6 +8,7 @@ import Animated, { runOnJS, useAnimatedStyle, useSharedValue } from 'react-nativ
 import { usePreferences } from '../context/PreferencesContext';
 import { getTranslation } from '../utils/i18n';
 
+
 type ViewState = 'Front' | 'Back';
 
 interface OvalProps {

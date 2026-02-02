@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import React, { useMemo, useState } from 'react';
 import { SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { CustomToggle } from '../../components/ui/CustomToggle';
 import { usePreferences } from '../context/PreferencesContext';
 import { EXERCISES } from '../data/exercises';
 import { getTranslation } from '../utils/i18n';
@@ -61,7 +62,7 @@ export default function LibraryScreen() {
     const [activeMuscleGroup, setActiveMuscleGroup] = useState('All');
     const [searchQuery, setSearchQuery] = useState('');
 
-    const { language } = usePreferences();
+    const { language, notificationsEnabled, toggleNotifications } = usePreferences();
     const t = (key: Parameters<typeof getTranslation>[1]) => getTranslation(language, key);
 
     const filteredExercises = useMemo(() => {
@@ -110,9 +111,11 @@ export default function LibraryScreen() {
             <View style={styles.header}>
                 <View style={styles.headerTop}>
                     <Text style={styles.headerTitle}>{t('library')}</Text>
-                    <TouchableOpacity style={styles.notificationButton}>
-                        <Ionicons name="notifications-outline" size={22} color="#ff6a00" />
-                    </TouchableOpacity>
+                    <CustomToggle
+                        value={notificationsEnabled}
+                        onValueChange={toggleNotifications}
+                        activeColor="#f97316"
+                    />
                 </View>
 
                 {/* Search Bar */}
