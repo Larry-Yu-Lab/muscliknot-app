@@ -239,7 +239,7 @@ export default function HomeScreen() {
             </View>
             <View>
               <Text style={styles.cardTitle}>{t('neckRelief')}</Text>
-              <Text style={styles.cardSubtitle}>YESTERDAY</Text>
+              <Text style={styles.cardSubtitle}>{t('yesterday')}</Text>
             </View>
             <View style={styles.cardArrow}>
               <Ionicons name="chevron-forward" size={20} color="#f97316" />
@@ -253,7 +253,7 @@ export default function HomeScreen() {
             </View>
             <View>
               <Text style={styles.cardTitle}>{t('lowerBack')}</Text>
-              <Text style={styles.cardSubtitle}>2 DAYS AGO</Text>
+              <Text style={styles.cardSubtitle}>{t('daysAgo').replace('${days}', '2')}</Text>
             </View>
             <View style={styles.cardArrow}>
               <Ionicons name="chevron-forward" size={20} color="#f97316" />

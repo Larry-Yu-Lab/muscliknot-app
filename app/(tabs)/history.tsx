@@ -121,7 +121,13 @@ export default function HistoryScreen() {
                                         <Text style={[styles.cardDate, styles.cardDateActive]}>
                                             {formatDate(item.date)}
                                         </Text>
-                                        <Text style={styles.cardTitle}>{item.muscleGroup} {t('relief')}</Text>
+                                        <Text style={styles.cardTitle}>
+                                            {(() => {
+                                                const muscleKey = `mg${item.muscleGroup.replace(/\s/g, '')}` as any;
+                                                const translatedMuscle = t(muscleKey) !== muscleKey ? t(muscleKey) : item.muscleGroup;
+                                                return `${translatedMuscle} ${t('relief')}`;
+                                            })()}
+                                        </Text>
                                     </View>
                                     <View style={styles.completedBadge}>
                                         <Text style={styles.completedBadgeText}>{t('completed')}</Text>

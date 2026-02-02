@@ -10,6 +10,7 @@ const categories = ['All', 'Relief', 'Warm-ups', 'Yoga', 'Posture', 'Strength'];
 const reliefMuscleGroups = ['All', 'Neck', 'Shoulders', 'Upper Back', 'Lower Back', 'Glutes', 'Legs'];
 
 type ExerciseCardProps = {
+    id: string;
     title: string;
     duration: string;
     target: string;
@@ -23,32 +24,37 @@ const getMuscleKey = (name: string) => {
     return `mg${name.replace(/\s/g, '')}` as any;
 };
 
-const ExerciseCard = ({ title, duration, target, image, t }: ExerciseCardProps) => (
-    <TouchableOpacity style={styles.exerciseCard}>
-        <View style={styles.exerciseImageContainer}>
-            <Image
-                source={{ uri: image }}
-                style={styles.exerciseImage}
-                contentFit="cover"
-            />
-        </View>
-        <View style={styles.exerciseContent}>
-            <Text style={styles.exerciseTitle}>{title}</Text>
-            <View style={styles.exerciseMeta}>
-                <View style={styles.durationContainer}>
-                    <Ionicons name="timer-outline" size={14} color="#9ca3af" />
-                    <Text style={styles.durationText}>{duration}</Text>
-                </View>
-                <View style={styles.targetBadge}>
-                    <Text style={styles.targetText}>{t('target').replace('${target}', t(getMuscleKey(target)) !== getMuscleKey(target) ? t(getMuscleKey(target)) : target)}</Text>
+const ExerciseCard = ({ id, title, duration, target, image, t }: ExerciseCardProps) => {
+    const titleKey = `ex_${id}_title` as any;
+    const translatedTitle = t(titleKey) !== titleKey ? t(titleKey) : title;
+
+    return (
+        <TouchableOpacity style={styles.exerciseCard}>
+            <View style={styles.exerciseImageContainer}>
+                <Image
+                    source={{ uri: image }}
+                    style={styles.exerciseImage}
+                    contentFit="cover"
+                />
+            </View>
+            <View style={styles.exerciseContent}>
+                <Text style={styles.exerciseTitle}>{translatedTitle}</Text>
+                <View style={styles.exerciseMeta}>
+                    <View style={styles.durationContainer}>
+                        <Ionicons name="timer-outline" size={14} color="#9ca3af" />
+                        <Text style={styles.durationText}>{duration}</Text>
+                    </View>
+                    <View style={styles.targetBadge}>
+                        <Text style={styles.targetText}>{t('target').replace('${target}', t(getMuscleKey(target)) !== getMuscleKey(target) ? t(getMuscleKey(target)) : target)}</Text>
+                    </View>
                 </View>
             </View>
-        </View>
-        <TouchableOpacity style={styles.favoriteButton}>
-            <Ionicons name="heart-outline" size={20} color="#6b7280" />
+            <TouchableOpacity style={styles.favoriteButton}>
+                <Ionicons name="heart-outline" size={20} color="#6b7280" />
+            </TouchableOpacity>
         </TouchableOpacity>
-    </TouchableOpacity>
-);
+    );
+};
 
 export default function LibraryScreen() {
     const [activeCategory, setActiveCategory] = useState('All');
@@ -192,6 +198,7 @@ export default function LibraryScreen() {
                             {filteredExercises.map((exercise) => (
                                 <ExerciseCard
                                     key={exercise.id}
+                                    id={exercise.id}
                                     title={exercise.title}
                                     duration={exercise.duration}
                                     target={exercise.muscleGroup}
@@ -215,6 +222,7 @@ export default function LibraryScreen() {
                                 {EXERCISES.slice(0, 3).map((exercise) => (
                                     <ExerciseCard
                                         key={exercise.id}
+                                        id={exercise.id}
                                         title={exercise.title}
                                         duration={exercise.duration}
                                         target={exercise.muscleGroup}
@@ -237,6 +245,7 @@ export default function LibraryScreen() {
                                 {EXERCISES.slice(3, 6).map((exercise) => (
                                     <ExerciseCard
                                         key={exercise.id}
+                                        id={exercise.id}
                                         title={exercise.title}
                                         duration={exercise.duration}
                                         target={exercise.muscleGroup}

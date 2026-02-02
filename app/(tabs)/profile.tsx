@@ -3,7 +3,8 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useState } from 'react';
-import { Dimensions, SafeAreaView, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
+import { Dimensions, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import Animated, { interpolateColor, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import Svg, { Circle, Path } from 'react-native-svg';
 import { usePreferences } from '../context/PreferencesContext';
 import { useUser } from '../context/UserContext';
@@ -11,6 +12,39 @@ import { getTranslation, LANGUAGES } from '../utils/i18n';
 import { getHistory } from '../utils/storage';
 
 const { width } = Dimensions.get('window');
+
+const CustomToggle = ({ value, onValueChange, activeColor }: { value: boolean, onValueChange: () => void, activeColor: string }) => {
+    const isDarkGlobal = usePreferences().theme === 'dark';
+    const translateX = useSharedValue(value ? 20 : 0);
+
+    React.useEffect(() => {
+        translateX.value = withSpring(value ? 20 : 0, { damping: 15, stiffness: 120 });
+    }, [value]);
+
+    const trackAnimatedStyle = useAnimatedStyle(() => {
+        return {
+            backgroundColor: interpolateColor(
+                translateX.value,
+                [0, 20],
+                [isDarkGlobal ? '#333' : '#e5e7eb', activeColor]
+            )
+        };
+    });
+
+    const thumbAnimatedStyle = useAnimatedStyle(() => {
+        return {
+            transform: [{ translateX: translateX.value }]
+        };
+    });
+
+    return (
+        <TouchableOpacity activeOpacity={0.8} onPress={onValueChange}>
+            <Animated.View style={[styles.customToggleTrack, trackAnimatedStyle]}>
+                <Animated.View style={[styles.customToggleThumb, thumbAnimatedStyle]} />
+            </Animated.View>
+        </TouchableOpacity>
+    );
+};
 
 export default function ProfileScreen() {
     const router = useRouter();
@@ -109,7 +143,9 @@ export default function ProfileScreen() {
                             <View style={styles.nameSection}>
                                 <Text style={[styles.userName, { color: colors.text }]}>{user.name}</Text>
                                 <View style={styles.statusRow}>
-                                    <Text style={[styles.athleteStatus, { color: colors.accent }]}>{t('athleteStatus')}</Text>
+                                    <Text style={[styles.athleteStatus, { color: colors.accent }]}>
+                                        {t('statusAthlete')}
+                                    </Text>
                                     <Text style={[styles.statusDot, { color: colors.textSecondary }]}>•</Text>
                                     <Text style={[styles.premiumStatus, { color: colors.textSecondary }]}>{t('premiumStatus')}</Text>
                                 </View>
@@ -154,7 +190,7 @@ export default function ProfileScreen() {
                                     </View>
                                     <View style={styles.cardContent}>
                                         <Text style={[styles.cardLabel, { color: colors.textSecondary }]}>{t('injuryHistory')}</Text>
-                                        <Text style={[styles.cardTitle, { color: colors.text }]}>Recovery Track</Text>
+                                        <Text style={[styles.cardTitle, { color: colors.text }]}>{t('recoveryTrack')}</Text>
                                     </View>
                                     <View style={styles.miniGraphContainer}>
                                         <Svg width="100%" height={60} viewBox="0 0 100 40" preserveAspectRatio="none">
@@ -176,7 +212,9 @@ export default function ProfileScreen() {
                                         <View style={styles.cardIconGreen}>
                                             <MaterialCommunityIcons name="dumbbell" size={20} color={colors.success} />
                                         </View>
-                                        <Text style={[styles.levelTextSimple, { color: colors.textSecondary }]}>LVL {user.attributes.level}</Text>
+                                        <Text style={[styles.levelTextSimple, { color: colors.textSecondary }]}>
+                                            {t('lvlLabel')} {user.attributes.level}
+                                        </Text>
                                     </View>
                                     {/* Circular Progress */}
                                     <View style={styles.circularProgressContainer}>
@@ -207,7 +245,12 @@ export default function ProfileScreen() {
                                     </View>
                                     <View style={styles.fitnessInfo}>
                                         <Text style={[styles.cardLabel, { color: colors.textSecondary }]}>{t('fitnessLevel')}</Text>
-                                        <Text style={[styles.fitnessLevelText, { color: colors.text }]}>{user.attributes.fitnessLevel}</Text>
+                                        <Text style={[styles.fitnessLevelText, { color: colors.text }]}>
+                                            {(() => {
+                                                const levelKey = `fl${user.attributes.fitnessLevel.charAt(0) + user.attributes.fitnessLevel.slice(1).toLowerCase()}` as any;
+                                                return t(levelKey) !== levelKey ? t(levelKey) : user.attributes.fitnessLevel;
+                                            })()}
+                                        </Text>
                                     </View>
                                 </View>
                             </View>
@@ -279,11 +322,10 @@ export default function ProfileScreen() {
                                         </View>
                                         <Text style={[styles.rowLabel, { color: colors.text }]}>{t('darkMode')}</Text>
                                     </View>
-                                    <Switch
+                                    <CustomToggle
                                         value={isDark}
                                         onValueChange={toggleTheme}
-                                        trackColor={{ false: colors.switchTrack, true: colors.accent }}
-                                        thumbColor={colors.switchThumb}
+                                        activeColor={colors.accent}
                                     />
                                 </View>
 
@@ -301,11 +343,10 @@ export default function ProfileScreen() {
                                         </View>
                                         <Text style={[styles.rowLabel, { color: colors.text }]}>{t('notifications')}</Text>
                                     </View>
-                                    <Switch
+                                    <CustomToggle
                                         value={true}
                                         onValueChange={() => { }}
-                                        trackColor={{ false: colors.switchTrack, true: colors.accent }}
-                                        thumbColor={colors.switchThumb}
+                                        activeColor={colors.accent}
                                     />
                                 </View>
                             </View>
@@ -357,10 +398,12 @@ export default function ProfileScreen() {
                                         <Text style={styles.planTitleElite}>{t('elitePlan')}</Text>
                                         <View style={styles.priceContainer}>
                                             <Text style={[styles.priceBig, { color: colors.text }]}>{billingCycle === 'annual' ? '$7.99' : '$9.99'}</Text>
-                                            <Text style={[styles.pricePeriod, { color: colors.textSecondary }]}>/mo</Text>
+                                            <Text style={[styles.pricePeriod, { color: colors.textSecondary }]}>{t('monthAbbr')}</Text>
                                         </View>
                                         {billingCycle === 'annual' && (
-                                            <Text style={[styles.billedText, { color: colors.textSecondary }]}>{t('billedAnnually')} ($95.88/yr)</Text>
+                                            <Text style={[styles.billedText, { color: colors.textSecondary }]}>
+                                                {t('billedAnnually')} {t('annualPrice').replace('${price}', '95.88')}
+                                            </Text>
                                         )}
                                     </View>
                                     <View style={[styles.bestValueBadge, { backgroundColor: colors.accent }]}>
@@ -369,10 +412,14 @@ export default function ProfileScreen() {
                                 </View>
                                 <View style={[styles.divider, { backgroundColor: colors.cardBorder }]} />
                                 <View style={styles.featuresList}>
-                                    {[1, 2, 3].map((_, i) => (
+                                    {[
+                                        'featureUnlimitedAI',
+                                        'featureAdvancedMapping',
+                                        'featureFullAnalytics'
+                                    ].map((key, i) => (
                                         <View key={i} style={styles.featureItem}>
                                             <MaterialCommunityIcons name="check-circle" size={20} color={colors.accent} />
-                                            <Text style={[styles.featureText, { color: colors.text }]}>{t('features')}</Text>
+                                            <Text style={[styles.featureText, { color: colors.text }]}>{t(key as any)}</Text>
                                         </View>
                                     ))}
                                 </View>
@@ -385,9 +432,41 @@ export default function ProfileScreen() {
                         </View>
 
                         {/* Tables and Pro Card logic simplified for brevity but followed same theme pattern */}
-                        < View style={[styles.proCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
-                            {/* Content ... */}
-                            <Text style={{ color: colors.text }}>{t('proPlan')}</Text>
+                        {/* Pro Plan Card */}
+                        <View style={[styles.proCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
+                            <View style={styles.planHeader}>
+                                <View>
+                                    <View style={styles.proBadge}>
+                                        <Text style={styles.proBadgeText}>{t('pro')}</Text>
+                                    </View>
+                                    <Text style={[styles.planTitlePro, { color: colors.text }]}>{t('proPlan')}</Text>
+                                    <View style={styles.priceContainer}>
+                                        <Text style={[styles.priceBig, { color: colors.text }]}>{billingCycle === 'annual' ? '$3.99' : '$4.99'}</Text>
+                                        <Text style={[styles.pricePeriod, { color: colors.textSecondary }]}>{t('monthAbbr')}</Text>
+                                    </View>
+                                    {billingCycle === 'annual' && (
+                                        <Text style={[styles.billedText, { color: colors.textSecondary }]}>
+                                            {t('billedAnnually')} {t('annualPrice').replace('${price}', '47.88')}
+                                        </Text>
+                                    )}
+                                </View>
+                            </View>
+                            <View style={[styles.divider, { backgroundColor: colors.cardBorder }]} />
+                            <View style={styles.featuresList}>
+                                {[
+                                    'featureBasicAI',
+                                    'featureStandardMapping',
+                                    'featureWeeklyReports'
+                                ].map((key, i) => (
+                                    <View key={i} style={styles.featureItem}>
+                                        <Ionicons name="checkmark-circle" size={20} color={colors.textSecondary} />
+                                        <Text style={[styles.featureText, { color: colors.textSecondary }]}>{t(key as any)}</Text>
+                                    </View>
+                                ))}
+                            </View>
+                            <TouchableOpacity style={[styles.proButton, { borderColor: colors.cardBorder }]}>
+                                <Text style={[styles.proButtonText, { color: colors.text }]}>{t('choosePro')}</Text>
+                            </TouchableOpacity>
                         </View>
                     </View>
                 )}
@@ -798,9 +877,36 @@ const styles = StyleSheet.create({
         padding: 24,
         borderWidth: 1,
         marginTop: 16,
+    },
+    proBadge: {
+        backgroundColor: 'rgba(156, 163, 175, 0.2)',
+        paddingHorizontal: 8,
+        paddingVertical: 2,
+        borderRadius: 6,
+        alignSelf: 'flex-start',
+        marginBottom: 8,
+    },
+    proBadgeText: {
+        color: '#9ca3af',
+        fontSize: 10,
+        fontWeight: '800',
+        letterSpacing: 1,
+    },
+    planTitlePro: {
+        fontSize: 18,
+        fontWeight: '800',
+        marginBottom: 8,
+    },
+    proButton: {
+        paddingVertical: 14,
+        borderRadius: 16,
         alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: 100
+        borderWidth: 1,
+        marginTop: 8,
+    },
+    proButtonText: {
+        fontSize: 14,
+        fontWeight: '700',
     },
     // Settings Section Styles
     settingsSection: {
@@ -908,5 +1014,23 @@ const styles = StyleSheet.create({
     logoutText: {
         fontSize: 16,
         fontWeight: '600',
+    },
+    customToggleTrack: {
+        width: 48,
+        height: 28,
+        borderRadius: 14,
+        padding: 2,
+        justifyContent: 'center',
+    },
+    customToggleThumb: {
+        width: 24,
+        height: 24,
+        borderRadius: 12,
+        backgroundColor: '#fff',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 2,
+        elevation: 2,
     },
 });

@@ -38,6 +38,7 @@ export const translations = {
         save20: 'SAVE 20%',
         elitePlan: 'ELITE PLAN',
         billedAnnually: 'Billed annually',
+        annualPrice: '(${price}/yr)',
         bestValue: 'BEST VALUE',
         upgradeSave: 'UPGRADE & SAVE 20%',
         upgradeElite: 'UPGRADE TO ELITE',
@@ -57,10 +58,25 @@ export const translations = {
         basic: 'Basic',
         advanced: 'Advanced',
         unlimited: 'Unlimited',
+        featureUnlimitedAI: 'Unlimited AI Coaching',
+        featureAdvancedMapping: 'Advanced Muscle Mapping',
+        featureFullAnalytics: 'Full Recovery Analytics',
+        featureBasicAI: 'Basic AI Coaching',
+        featureStandardMapping: 'Standard Muscle Mapping',
+        featureWeeklyReports: 'Weekly Progress Reports',
+        lvlLabel: 'LVL',
+        monthAbbr: '/mo',
 
         // Footer
         footerNoteAnnual: '*Savings calculated based on annual vs monthly subscription prices. Transparent pricing with no hidden activation fees.',
         footerNoteMonthly: '*Pricing reflects standard monthly billing rates. Transparent pricing with no hidden activation fees.',
+
+        // Additional Profile Strings
+        recoveryTrack: 'Recovery Track',
+        flAdvanced: 'ADVANCED',
+        flIntermediate: 'INTERMEDIATE',
+        flBeginner: 'BEGINNER',
+        statusAthlete: 'DATA-DRIVEN ATHLETE',
 
         // Tabs
         tabHome: 'Home',
@@ -118,7 +134,7 @@ export const translations = {
         recommendedForYou: 'Recommended for You',
         seeAll: 'SEE ALL',
         newRoutines: 'New Routines',
-        explore: 'EXPLORAR',
+        explore: 'EXPLORE',
         target: 'Target: ${target}',
 
         // Categories & Muscles
@@ -204,6 +220,7 @@ export const translations = {
         save20: '省20%',
         elitePlan: '精英计划',
         billedAnnually: '每年计费',
+        annualPrice: '(${price}/年)',
         bestValue: '超值首选',
         upgradeSave: '升级并省20%',
         upgradeElite: '升级到精英版',
@@ -223,10 +240,25 @@ export const translations = {
         basic: '基础',
         advanced: '高级',
         unlimited: '无限制',
+        featureUnlimitedAI: '无限 AI 教练',
+        featureAdvancedMapping: '高级肌肉映射',
+        featureFullAnalytics: '全面恢复分析',
+        featureBasicAI: '基础 AI 教练',
+        featureStandardMapping: '标准肌肉映射',
+        featureWeeklyReports: '每周进度报告',
+        lvlLabel: '等级',
+        monthAbbr: '/月',
 
         // Footer
         footerNoteAnnual: '*节省金额基于年度与月度订阅价格计算。价格透明，无隐藏激活费用。',
         footerNoteMonthly: '*定价反映标准月度计费率。价格透明，无隐藏激活费用。',
+
+        // Additional Profile Strings
+        recoveryTrack: '恢复轨迹',
+        flAdvanced: '高级',
+        flIntermediate: '中级',
+        flBeginner: '初级',
+        statusAthlete: '数据驱动型运动员',
 
         // Tabs
         tabHome: '首页',
@@ -280,7 +312,7 @@ export const translations = {
         // Library
         library: '运动库',
         searchExercises: '搜索动作...',
-        results: '结果',
+        results: '个结果',
         recommendedForYou: '为您推荐',
         seeAll: '查看全部',
         newRoutines: '新例程',
@@ -370,6 +402,7 @@ export const translations = {
         save20: 'ÉCONOMISEZ 20%',
         elitePlan: 'FORFAIT ELITE',
         billedAnnually: 'Facturé annuellement',
+        annualPrice: '(${price}/an)',
         bestValue: 'MEILLEURE VALEUR',
         upgradeSave: 'METTRE À NIVEAU ET ÉCONOMISER 20%',
         upgradeElite: 'PASSER À ELITE',
@@ -389,10 +422,25 @@ export const translations = {
         basic: 'Basique',
         advanced: 'Avancé',
         unlimited: 'Illimité',
+        featureUnlimitedAI: 'Coaching IA Illimité',
+        featureAdvancedMapping: 'Cartographie Musculaire Avancée',
+        featureFullAnalytics: 'Analyses de Récupération Complètes',
+        featureBasicAI: 'Coaching IA de Base',
+        featureStandardMapping: 'Cartographie Musculaire Standard',
+        featureWeeklyReports: 'Rapports de Progrès Hebdomadaires',
+        lvlLabel: 'NIV',
+        monthAbbr: '/mois',
 
         // Footer
         footerNoteAnnual: '*Économies calculées sur la base des prix annuels par rapport aux prix mensuels. Tarification transparente sans frais d\'activation cachés.',
         footerNoteMonthly: '*La tarification reflète les taux de facturation mensuels standard. Tarification transparente sans frais d\'activation cachés.',
+
+        // Additional Profile Strings
+        recoveryTrack: 'Suivi de récupération',
+        flAdvanced: 'AVANCÉ',
+        flIntermediate: 'INTERMÉDIAIRE',
+        flBeginner: 'DÉBUTANT',
+        statusAthlete: 'ATHLÈTE AXÉ SUR LES DONNÉES',
 
         // Tabs
         tabHome: 'Accueil',
@@ -567,7 +615,7 @@ export const translations = {
         // Library
         library: 'Biblioteca',
         searchExercises: 'Buscar ejercicios...',
-        results: 'Resultados',
+        results: 'Resultado(s)',
         recommendedForYou: 'Recomendado para ti',
         seeAll: 'VER TODO',
         newRoutines: 'Nuevas rutinas',
@@ -609,6 +657,7 @@ export const translations = {
         save20: 'AHORRA 20%',
         elitePlan: 'PLAN ELITE',
         billedAnnually: 'Facturado anualmente',
+        annualPrice: '(${price}/año)',
         bestValue: 'MEJOR VALOR',
         upgradeSave: 'MEJORAR Y AHORRAR 20%',
         upgradeElite: 'MEJORAR A ELITE',
@@ -628,10 +677,25 @@ export const translations = {
         basic: 'Básico',
         advanced: 'Avanzado',
         unlimited: 'Ilimitado',
+        featureUnlimitedAI: 'Entrenamiento IA Ilimitado',
+        featureAdvancedMapping: 'Mapeo Muscular Avanzado',
+        featureFullAnalytics: 'Análisis de Recuperación Completo',
+        featureBasicAI: 'Entrenamiento IA Básico',
+        featureStandardMapping: 'Mapeo Muscular Estándar',
+        featureWeeklyReports: 'Informes de Progreso Semanales',
+        lvlLabel: 'NIV',
+        monthAbbr: '/mes',
 
         // Footer
         footerNoteAnnual: '*Ahorros calculados en base a precios de suscripción anual vs mensual. Precios transparentes sin tarifas de activación ocultas.',
         footerNoteMonthly: '*Los precios reflejan las tarifas de facturación mensual estándar. Precios transparentes sin tarifas de activación ocultas.',
+
+        // Additional Profile Strings
+        recoveryTrack: 'Seguimiento de recuperación',
+        flAdvanced: 'AVANZADO',
+        flIntermediate: 'INTERMEDIO',
+        flBeginner: 'PRINCIPIANTE',
+        statusAthlete: 'ATLETA IMPULSADO POR DATOS',
 
         // Time
         yesterday: 'AYER',
