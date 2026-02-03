@@ -1,8 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useMemo, useRef, useState } from 'react';
+import * as React from 'react';
+import { useRef, useState } from 'react';
 import { Alert, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { handleSelection, SelectionArea } from '../components/AnatomyMap';
 import { usePreferences } from '../context/PreferencesContext';
 import { getExercisesForPosition } from '../data/exercises';
 import { getTranslation } from '../utils/i18n';
@@ -20,10 +22,35 @@ export default function FindReliefScreen() {
 
     const x = Number(params.x) || 0;
     const y = Number(params.y) || 0;
+    const width = Number(params.width) || 40;
+    const height = Number(params.height) || 40;
     const view = (params.view as 'Front' | 'Back') || 'Front';
 
-    const exercises = useMemo(() => getExercisesForPosition(y, view), [y, view]);
-    const targetMuscle = exercises.length > 0 ? exercises[0].muscleGroup : 'General';
+    const [exercises, setExercises] = useState<any[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    React.useEffect(() => {
+        const fetchExercises = async () => {
+            setIsLoading(true);
+            const selectionArea: SelectionArea = { x, y, width, height };
+
+            // Call the future-proof selection handler
+            await handleSelection(selectionArea, (data) => {
+                // If we get data from Supabase, use it. 
+                // Fallback to local data if nothing is returned (for development/testing)
+                if (data && data.length > 0) {
+                    setExercises(data);
+                } else {
+                    setExercises(getExercisesForPosition(y, view));
+                }
+                setIsLoading(false);
+            });
+        };
+
+        fetchExercises();
+    }, [x, y, width, height, view]);
+
+    const targetMuscle = exercises.length > 0 ? (exercises[0].muscleGroup || exercises[0].muscle_id) : 'General';
 
     // Helper to get translated muscle name if available, else fallback to English name
     const getMuscleName = (name: string) => {
@@ -111,11 +138,15 @@ export default function FindReliefScreen() {
                 <View style={styles.badgeContainer}>
                     <View style={styles.badge}>
                         <Ionicons name="fitness-outline" size={20} color="#FF9D42" />
-                        <Text style={styles.badgeText}>{t('exercisesCount').replace('${count}', exercises.length.toString())}</Text>
+                        <Text style={styles.badgeText}>
+                            {isLoading ? '...' : t('exercisesCount').replace('${count}', exercises.length.toString())}
+                        </Text>
                     </View>
                     <View style={styles.badge}>
                         <Ionicons name="timer-outline" size={20} color="#FF9D42" />
-                        <Text style={styles.badgeText}>{t('approxMins').replace('${min}', String(exercises.length * 4))}</Text>
+                        <Text style={styles.badgeText}>
+                            {isLoading ? '...' : t('approxMins').replace('${min}', String(exercises.length * 4))}
+                        </Text>
                     </View>
                 </View>
 
