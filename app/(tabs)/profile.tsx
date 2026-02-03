@@ -49,7 +49,9 @@ export default function ProfileScreen() {
                         <Ionicons name="chevron-back" size={24} color={colors.text} />
                     </TouchableOpacity>
                     <Text style={[styles.headerTitle, { color: colors.text }]}>{t('dashboard')}</Text>
-                    <View style={styles.headerButton} />
+                    <TouchableOpacity style={styles.headerButton} onPress={() => router.push('/settings')}>
+                        <Ionicons name="settings-outline" size={24} color={colors.text} />
+                    </TouchableOpacity>
                 </View>
 
                 {/* Tab Switcher */}
@@ -225,90 +227,16 @@ export default function ProfileScreen() {
 
                         {/* General Settings Section */}
                         <View style={styles.settingsSection}>
-                            <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>{t('generalSettings')}</Text>
+                            <Text style={[styles.sectionTitle, { color: colors.textSecondary, marginBottom: 12 }]}>{t('generalSettings').toUpperCase()}</Text>
 
-                            <View style={[styles.card, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
-
-                                {/* Language */}
-                                <View style={[styles.languageContainer, { borderBottomColor: colors.cardBorder }]}>
-                                    <TouchableOpacity
-                                        style={styles.languageHeader}
-                                        onPress={() => setIsLanguageDropdownOpen(!isLanguageDropdownOpen)}
-                                    >
-                                        <View style={styles.rowLeft}>
-                                            <View style={[styles.iconContainer, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : '#e5e7eb' }]}>
-                                                <Ionicons name="language" size={20} color={colors.text} />
-                                            </View>
-                                            <Text style={[styles.rowLabel, { color: colors.text }]}>{t('language')}</Text>
-                                        </View>
-                                        <View style={styles.rowRight}>
-                                            <Text style={[styles.currentLangText, { color: colors.textSecondary }]}>
-                                                {LANGUAGES.find(l => l.code === language)?.label || 'English'}
-                                            </Text>
-                                            <Ionicons
-                                                name={isLanguageDropdownOpen ? "chevron-up" : "chevron-down"}
-                                                size={20}
-                                                color={colors.textSecondary}
-                                            />
-                                        </View>
-                                    </TouchableOpacity>
-
-                                    {isLanguageDropdownOpen && (
-                                        <View style={[styles.languageList, { backgroundColor: isDark ? 'rgba(0,0,0,0.2)' : '#f9fafb' }]}>
-                                            {LANGUAGES.map((langItem) => (
-                                                <TouchableOpacity
-                                                    key={langItem.code}
-                                                    style={[
-                                                        styles.languageOption,
-                                                        language === langItem.code && { backgroundColor: isDark ? 'rgba(255,255,255,0.1)' : '#e5e7eb' }
-                                                    ]}
-                                                    onPress={() => {
-                                                        setLanguage(langItem.code);
-                                                        setIsLanguageDropdownOpen(false);
-                                                    }}
-                                                >
-                                                    <View style={styles.languageOptionLeft}>
-                                                        <View style={[styles.radioOuter, { borderColor: language === langItem.code ? colors.accent : colors.textSecondary }]}>
-                                                            {language === langItem.code && (
-                                                                <View style={[styles.radioInner, { backgroundColor: colors.accent }]} />
-                                                            )}
-                                                        </View>
-                                                        <Text style={[styles.languageOptionText, { color: colors.text }]}>{langItem.label}</Text>
-                                                    </View>
-                                                </TouchableOpacity>
-                                            ))}
-                                        </View>
-                                    )}
-                                </View>
-
-                                {/* Dark Mode */}
-                                <View style={[styles.row, { borderBottomWidth: 0 }]}>
+                            {/* Notifications */}
+                            <View style={[styles.pillCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
+                                <View style={styles.rowInner}>
                                     <View style={styles.rowLeft}>
-                                        <View style={[styles.iconContainer, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : '#e5e7eb' }]}>
-                                            <Ionicons name="moon" size={20} color={colors.text} />
+                                        <View style={[styles.iconCircleSmall, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : '#e5e7eb' }]}>
+                                            <Ionicons name="notifications" size={18} color={colors.text} />
                                         </View>
-                                        <Text style={[styles.rowLabel, { color: colors.text }]}>{t('darkMode')}</Text>
-                                    </View>
-                                    <CustomToggle
-                                        value={isDark}
-                                        onValueChange={toggleTheme}
-                                        activeColor={colors.accent}
-                                    />
-                                </View>
-
-                            </View>
-                        </View>
-
-                        {/* Notifications (Mock) */}
-                        <View style={styles.settingsSection}>
-                            <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>{t('notifications')}</Text>
-                            <View style={[styles.card, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
-                                <View style={[styles.row, { borderBottomWidth: 0 }]}>
-                                    <View style={styles.rowLeft}>
-                                        <View style={[styles.iconContainer, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : '#e5e7eb' }]}>
-                                            <Ionicons name="notifications" size={20} color={colors.text} />
-                                        </View>
-                                        <Text style={[styles.rowLabel, { color: colors.text }]}>{t('notifications')}</Text>
+                                        <Text style={[styles.pillLabel, { color: colors.text }]}>{t('notifications')}</Text>
                                     </View>
                                     <CustomToggle
                                         value={notificationsEnabled}
@@ -317,6 +245,91 @@ export default function ProfileScreen() {
                                     />
                                 </View>
                             </View>
+
+                            {/* Dark Mode */}
+                            <View style={[styles.pillCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
+                                <View style={styles.rowInner}>
+                                    <View style={styles.rowLeft}>
+                                        <View style={[styles.iconCircleSmall, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : '#e5e7eb' }]}>
+                                            <Ionicons name="moon" size={18} color={colors.text} />
+                                        </View>
+                                        <Text style={[styles.pillLabel, { color: colors.text }]}>{t('darkMode')}</Text>
+                                    </View>
+                                    <CustomToggle
+                                        value={isDark}
+                                        onValueChange={toggleTheme}
+                                        activeColor={colors.accent}
+                                    />
+                                </View>
+                            </View>
+
+                            {/* Language */}
+                            <View style={[styles.pillCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
+                                <TouchableOpacity
+                                    style={styles.rowInner}
+                                    onPress={() => setIsLanguageDropdownOpen(!isLanguageDropdownOpen)}
+                                >
+                                    <View style={styles.rowLeft}>
+                                        <View style={[styles.iconCircleSmall, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : '#e5e7eb' }]}>
+                                            <Ionicons name="language" size={18} color={colors.text} />
+                                        </View>
+                                        <Text style={[styles.pillLabel, { color: colors.text }]}>{t('language')}</Text>
+                                    </View>
+                                    <View style={styles.rowRight}>
+                                        <Text style={[styles.currentLangTextPill, { color: colors.textSecondary }]}>
+                                            {language.toUpperCase()}
+                                        </Text>
+                                        <Ionicons
+                                            name="chevron-forward"
+                                            size={16}
+                                            color={colors.textSecondary}
+                                        />
+                                    </View>
+                                </TouchableOpacity>
+
+                                {isLanguageDropdownOpen && (
+                                    <View style={[styles.languageListPill, { backgroundColor: isDark ? 'rgba(0,0,0,0.2)' : '#f9fafb' }]}>
+                                        {LANGUAGES.map((langItem) => (
+                                            <TouchableOpacity
+                                                key={langItem.code}
+                                                style={[
+                                                    styles.languageOption,
+                                                    language === langItem.code && { backgroundColor: isDark ? 'rgba(255,255,255,0.1)' : '#e5e7eb' }
+                                                ]}
+                                                onPress={() => {
+                                                    setLanguage(langItem.code);
+                                                    setIsLanguageDropdownOpen(false);
+                                                }}
+                                            >
+                                                <View style={styles.languageOptionLeft}>
+                                                    <View style={[styles.radioOuter, { borderColor: language === langItem.code ? colors.accent : colors.textSecondary }]}>
+                                                        {language === langItem.code && (
+                                                            <View style={[styles.radioInner, { backgroundColor: colors.accent }]} />
+                                                        )}
+                                                    </View>
+                                                    <Text style={[styles.languageOptionText, { color: colors.text }]}>{langItem.label}</Text>
+                                                </View>
+                                            </TouchableOpacity>
+                                        ))}
+                                    </View>
+                                )}
+                            </View>
+
+                            {/* Settings Link */}
+                            <TouchableOpacity
+                                style={[styles.pillCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}
+                                onPress={() => router.push('/settings')}
+                            >
+                                <View style={styles.rowInner}>
+                                    <View style={styles.rowLeft}>
+                                        <View style={[styles.iconCircleSmall, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : '#e5e7eb' }]}>
+                                            <Ionicons name="settings-outline" size={18} color={colors.text} />
+                                        </View>
+                                        <Text style={[styles.pillLabel, { color: colors.text }]}>{t('settings')}</Text>
+                                    </View>
+                                    <Ionicons name="chevron-forward" size={18} color={colors.textSecondary} />
+                                </View>
+                            </TouchableOpacity>
                         </View>
 
                         {/* Account Actions */}
@@ -969,14 +982,50 @@ const styles = StyleSheet.create({
         fontSize: 14,
         fontWeight: '600',
     },
+    pillCard: {
+        borderRadius: 40,
+        borderWidth: 1,
+        marginBottom: 12,
+        overflow: 'hidden',
+    },
+    rowInner: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: 20,
+        paddingVertical: 14,
+        minHeight: 70,
+    },
+    iconCircleSmall: {
+        width: 44,
+        height: 44,
+        borderRadius: 22,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    pillLabel: {
+        fontSize: 16,
+        fontWeight: '700',
+    },
+    currentLangTextPill: {
+        fontSize: 14,
+        fontWeight: '800',
+        color: 'rgba(255,255,255,0.4)',
+    },
+    languageListPill: {
+        paddingVertical: 8,
+        borderTopWidth: 1,
+        borderTopColor: 'rgba(255,255,255,0.05)',
+    },
     logoutButton: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: 16,
-        borderRadius: 12,
+        padding: 18,
+        borderRadius: 40,
         borderWidth: 1,
         gap: 8,
+        marginTop: 12,
     },
     logoutText: {
         fontSize: 16,

@@ -129,33 +129,42 @@ export default function FindReliefScreen() {
                     </View>
                 </View>
 
-                {/* Recommended Exercises List */}
+                {/* Stretch Instructions List */}
                 <View style={styles.instructionsSection}>
-                    <Text style={styles.instructionsTitle}>{t('recommendedRoutine')}</Text>
-                    {exercises.map((item, index) => {
-                        const titleKey = `ex_${item.id}_title` as any;
-                        const descKey = `ex_${item.id}_desc` as any;
-                        const translatedTitle = t(titleKey) !== titleKey ? t(titleKey) : item.title;
-                        const translatedDesc = t(descKey) !== descKey ? t(descKey) : item.description;
+                    <Text style={styles.instructionsTitle}>{t('stretchInstructions')}</Text>
 
-                        return (
-                            <View key={item.id} style={styles.instructionCard}>
-                                <View style={styles.stepNumber}>
-                                    <Text style={styles.stepNumberText}>{index + 1}</Text>
-                                </View>
-                                <View style={styles.stepContent}>
-                                    <Text style={styles.stepTitle}>{translatedTitle}</Text>
-                                    <Text style={styles.stepDescription}>{translatedDesc}</Text>
-                                    <View style={{ flexDirection: 'row', gap: 8, marginTop: 4 }}>
-                                        <Text style={{ color: '#FF9D42', fontSize: 12, fontWeight: '700' }}>{item.duration}</Text>
-                                    </View>
-                                </View>
-                            </View>
-                        );
-                    })}
-                    {exercises.length === 0 && (
-                        <Text style={{ color: '#aaa', fontStyle: 'italic' }}>{t('selectPointPrompt')}</Text>
-                    )}
+                    {/* Step 1: Setup */}
+                    <View style={styles.instructionCard}>
+                        <View style={styles.stepNumber}>
+                            <Text style={styles.stepNumberText}>1</Text>
+                        </View>
+                        <View style={styles.stepContent}>
+                            <Text style={styles.stepTitle}>{t('setupTitle')}</Text>
+                            <Text style={styles.stepDescription}>{t('setupDesc')}</Text>
+                        </View>
+                    </View>
+
+                    {/* Step 2: Movement */}
+                    <View style={styles.instructionCard}>
+                        <View style={styles.stepNumber}>
+                            <Text style={styles.stepNumberText}>2</Text>
+                        </View>
+                        <View style={styles.stepContent}>
+                            <Text style={styles.stepTitle}>{t('movementTitle')}</Text>
+                            <Text style={styles.stepDescription}>{t('movementDesc')}</Text>
+                        </View>
+                    </View>
+
+                    {/* Step 3: Hold */}
+                    <View style={styles.instructionCard}>
+                        <View style={styles.stepNumber}>
+                            <Text style={styles.stepNumberText}>3</Text>
+                        </View>
+                        <View style={styles.stepContent}>
+                            <Text style={styles.stepTitle}>{t('holdTitle')}</Text>
+                            <Text style={styles.stepDescription}>{t('holdDesc')}</Text>
+                        </View>
+                    </View>
                 </View>
             </ScrollView>
 

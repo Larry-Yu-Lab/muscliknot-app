@@ -188,7 +188,29 @@ export const translations = {
         // Stats
         workoutsLabel: 'WORKOUTS',
         recoveryLabel: 'RECOVERY',
-        streakLabel: 'STREAK'
+        streakLabel: 'STREAK',
+
+        // Settings
+        editProfile: 'Edit Profile',
+        changePassword: 'Change Password',
+        preferences: 'Preferences',
+        metricUnits: 'Metric Units',
+        healthPrivacy: 'Health & Privacy',
+        dataExport: 'Data Export',
+        privacyPolicy: 'Privacy Policy',
+        manageHealthRecords: 'Manage Health Records',
+        support: 'Support',
+        helpCenter: 'Help Center',
+        contactUs: 'Contact Us',
+        aboutMuscliKnot: 'About MuscliKnot',
+        metricSymbol: 'm / kg',
+        stretchInstructions: 'Stretch Instructions',
+        setupTitle: 'Setup',
+        movementTitle: 'Movement',
+        holdTitle: 'Hold',
+        setupDesc: 'Position your foam roller horizontally beneath your shoulder blades. Support your head with your hands.',
+        movementDesc: 'Lift your hips slightly and slowly roll upwards toward the top of your shoulders, then back to the mid-back.',
+        holdDesc: 'When you find a tight spot (knot), pause and hold for 30 seconds while breathing deeply.'
     },
     zh: {
         // General
@@ -370,7 +392,29 @@ export const translations = {
         // Stats
         workoutsLabel: '训练',
         recoveryLabel: '恢复',
-        streakLabel: '连续'
+        streakLabel: '连续',
+
+        // Settings
+        editProfile: '编辑个人资料',
+        changePassword: '更改密码',
+        preferences: '偏好设置',
+        metricUnits: '公制单位',
+        healthPrivacy: '健康与隐私',
+        dataExport: '数据导出',
+        privacyPolicy: '隐私政策',
+        manageHealthRecords: '管理健康记录',
+        support: '支持',
+        helpCenter: '帮助中心',
+        contactUs: '联系我们',
+        aboutMuscliKnot: '关于 MuscliKnot',
+        metricSymbol: '米 / 公斤',
+        stretchInstructions: '拉伸说明',
+        setupTitle: '准备',
+        movementTitle: '动作',
+        holdTitle: '保持',
+        setupDesc: '将泡沫轴水平放置在肩胛骨下方。用双手支撑头部。',
+        movementDesc: '稍微抬起臀部，慢慢向上滚动到肩膀顶部，然后返回到背部中部。',
+        holdDesc: '当你发现痛点（结节）时，停下来并保持30秒，同时深呼吸。'
     },
     fr: {
         // General
@@ -552,7 +596,29 @@ export const translations = {
         // Stats
         workoutsLabel: 'ENTRAÎNEMENTS',
         recoveryLabel: 'RÉCUPÉRATION',
-        streakLabel: 'SÉRIE'
+        streakLabel: 'SÉRIE',
+
+        // Settings
+        editProfile: 'Modifier le profil',
+        changePassword: 'Changer le mot de passe',
+        preferences: 'Préférences',
+        metricUnits: 'Unités métriques',
+        healthPrivacy: 'Santé et confidentialité',
+        dataExport: 'Exportation de données',
+        privacyPolicy: 'Politique de confidentialité',
+        manageHealthRecords: 'Gérer les dossiers de santé',
+        support: 'Support',
+        helpCenter: 'Centre d\'aide',
+        contactUs: 'Nous contacter',
+        aboutMuscliKnot: 'À propos de MuscliKnot',
+        metricSymbol: 'm / kg',
+        stretchInstructions: 'Instructions d\'étirement',
+        setupTitle: 'Mise en place',
+        movementTitle: 'Mouvement',
+        holdTitle: 'Maintien',
+        setupDesc: 'Positionnez votre rouleau de mousse horizontalement sous vos omoplates. Soutenez votre tête avec vos mains.',
+        movementDesc: 'Soulevez légèrement vos hanches et roulez lentement vers le haut en direction du sommet de vos épaules, puis revenez vers le milieu du dos.',
+        holdDesc: 'Lorsque vous trouvez un point sensible (nœud), faites une pause et maintenez pendant 30 secondes tout en respirant profondément.'
     },
     es: {
         // General
@@ -734,7 +800,29 @@ export const translations = {
         // Stats
         workoutsLabel: 'ENTRENAMIENTOS',
         recoveryLabel: 'RECUPERACIÓN',
-        streakLabel: 'RACHA'
+        streakLabel: 'RACHA',
+
+        // Settings
+        editProfile: 'Editar perfil',
+        changePassword: 'Cambiar contraseña',
+        preferences: 'Preferencias',
+        metricUnits: 'Unidades métricas',
+        healthPrivacy: 'Salud y privacidad',
+        dataExport: 'Exportar datos',
+        privacyPolicy: 'Política de privacidad',
+        manageHealthRecords: 'Administrar registros de salud',
+        support: 'Soporte',
+        helpCenter: 'Centro de ayuda',
+        contactUs: 'Contáctanos',
+        aboutMuscliKnot: 'Acerca de MuscliKnot',
+        metricSymbol: 'm / kg',
+        stretchInstructions: 'Instrucciones de estiramiento',
+        setupTitle: 'Preparación',
+        movementTitle: 'Movimiento',
+        holdTitle: 'Mantener',
+        setupDesc: 'Coloque su rodillo de espuma horizontalmente debajo de sus omóplatos. Sostenga su cabeza con sus manos.',
+        movementDesc: 'Levante ligeramente las caderas y ruede lentamente hacia arriba, hacia la parte superior de los hombros y luego regrese a la mitad de la espalda.',
+        holdDesc: 'Cuando encuentre un punto de tensión (nudo), haga una pausa y manténgalo así durante 30 segundos mientras respira profundamente.'
     },
 };
 
