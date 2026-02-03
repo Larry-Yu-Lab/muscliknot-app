@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { Alert, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { usePreferences } from '../context/PreferencesContext';
 import { getExercisesForPosition } from '../data/exercises';
@@ -12,6 +12,8 @@ export default function FindReliefScreen() {
     const router = useRouter();
     const params = useLocalSearchParams(); // { x, y, view, timestamp }
     const [painLevel, setPainLevel] = useState(6);
+    const [isSliderActive, setIsSliderActive] = useState(false);
+    const trackWidth = useRef(0);
 
     const { language } = usePreferences();
     const t = (key: Parameters<typeof getTranslation>[1]) => getTranslation(language, key);
@@ -52,11 +54,27 @@ export default function FindReliefScreen() {
         ]);
     };
 
+    const handleSliderTouch = (event: any) => {
+        setIsSliderActive(true);
+        const touchX = event.nativeEvent.locationX;
+        if (trackWidth.current > 0) {
+            const percent = touchX / trackWidth.current;
+            // Use Math.round with a slight bias to make it feel more "snappy" and sensitive
+            const newValue = Math.max(1, Math.min(10, Math.round(percent * 10)));
+            setPainLevel(newValue);
+        }
+    };
+
     const totalMinutes = exercises.length * 3; // Approx duration
 
     return (
         <SafeAreaView style={styles.container}>
-            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+            <ScrollView
+                scrollEnabled={!isSliderActive}
+                scrollEventThrottle={16}
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={styles.scrollContent}
+            >
                 {/* Header */}
                 <View style={styles.header}>
                     <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
@@ -115,9 +133,21 @@ export default function FindReliefScreen() {
                             </View>
                         </View>
                         <View style={styles.sliderContainer}>
-                            <View style={styles.sliderTrack}>
-                                <View style={[styles.sliderFill, { width: `${painLevel * 10}%` }]} />
-                                <View style={[styles.sliderThumb, { left: `${painLevel * 10}%` }]} />
+                            <View
+                                style={styles.sliderTrack}
+                                hitSlop={{ top: 20, bottom: 20, left: 10, right: 10 }}
+                                onLayout={(e) => {
+                                    trackWidth.current = e.nativeEvent.layout.width;
+                                }}
+                                onStartShouldSetResponder={() => true}
+                                onMoveShouldSetResponder={() => true}
+                                onResponderGrant={handleSliderTouch}
+                                onResponderMove={handleSliderTouch}
+                                onResponderRelease={() => setIsSliderActive(false)}
+                                onResponderTerminate={() => setIsSliderActive(false)}
+                            >
+                                <View pointerEvents="none" style={[styles.sliderFill, { width: `${painLevel * 10}%` }]} />
+                                <View pointerEvents="none" style={[styles.sliderThumb, { left: `${painLevel * 10}%` }]} />
                             </View>
                             <Text style={styles.painNumber}>{painLevel}</Text>
                         </View>
