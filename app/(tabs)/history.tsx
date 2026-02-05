@@ -2,14 +2,16 @@ import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from 'expo-router';
 import React, { useCallback, useState } from 'react';
 import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Colors } from '../../constants/theme';
 import { usePreferences } from '../context/PreferencesContext';
 import { getTranslation } from '../utils/i18n';
 import { getHistory, HistoryItem } from '../utils/storage';
 
 export default function HistoryScreen() {
     const [history, setHistory] = useState<HistoryItem[]>([]);
-    const { language } = usePreferences();
+    const { language, theme } = usePreferences();
     const t = (key: Parameters<typeof getTranslation>[1]) => getTranslation(language, key);
+    const colors = Colors[theme];
 
     useFocusEffect(
         useCallback(() => {
@@ -42,86 +44,86 @@ export default function HistoryScreen() {
     };
 
     return (
-        <SafeAreaView style={styles.container}>
+        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
                 {/* Header */}
-                <View style={styles.header}>
+                <View style={[styles.header, { backgroundColor: colors.headerBackground }]}>
                     <View style={styles.headerLeft}>
                         <TouchableOpacity>
-                            <Ionicons name="chevron-back" size={24} color="#fff" />
+                            <Ionicons name="chevron-back" size={24} color={colors.text} />
                         </TouchableOpacity>
-                        <Text style={styles.headerTitle}>{t('recoveryHistory')}</Text>
+                        <Text style={[styles.headerTitle, { color: colors.text }]}>{t('recoveryHistory')}</Text>
                     </View>
                     <View style={styles.headerRight}>
                         <TouchableOpacity style={styles.headerIcon}>
-                            <Ionicons name="calendar-outline" size={22} color="#fff" />
+                            <Ionicons name="calendar-outline" size={22} color={colors.text} />
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.headerIcon}>
-                            <Ionicons name="ellipsis-horizontal" size={22} color="#fff" />
+                            <Ionicons name="ellipsis-horizontal" size={22} color={colors.text} />
                         </TouchableOpacity>
                     </View>
                 </View>
 
                 {/* Stats Card */}
-                <View style={styles.statsCard}>
-                    <View style={[styles.statItem, styles.statBorder]}>
-                        <Text style={styles.statLabel}>{t('sessions')}</Text>
-                        <Text style={styles.statValue}>{totalSessions}</Text>
+                <View style={[styles.statsCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
+                    <View style={[styles.statItem, styles.statBorder, { borderRightColor: colors.cardBorder }]}>
+                        <Text style={[styles.statLabel, { color: colors.textSecondary }]}>{t('sessions')}</Text>
+                        <Text style={[styles.statValue, { color: colors.accent }]}>{totalSessions}</Text>
                     </View>
-                    <View style={[styles.statItem, styles.statBorder]}>
-                        <Text style={styles.statLabel}>{t('streakUpper')}</Text>
-                        <Text style={styles.statValue}>{totalSessions > 0 ? '1d' : '0d'}</Text>
+                    <View style={[styles.statItem, styles.statBorder, { borderRightColor: colors.cardBorder }]}>
+                        <Text style={[styles.statLabel, { color: colors.textSecondary }]}>{t('streakUpper')}</Text>
+                        <Text style={[styles.statValue, { color: colors.accent }]}>{totalSessions > 0 ? '1d' : '0d'}</Text>
                     </View>
                     <View style={styles.statItem}>
-                        <Text style={styles.statLabel}>{t('targeted')}</Text>
-                        <Text style={styles.statValueSmall}>{topTarget}</Text>
+                        <Text style={[styles.statLabel, { color: colors.textSecondary }]}>{t('targeted')}</Text>
+                        <Text style={[styles.statValueSmall, { color: colors.accent }]}>{topTarget}</Text>
                     </View>
                 </View>
 
                 {/* Weekly Report Card */}
-                <View style={styles.reportCard}>
+                <View style={[styles.reportCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
                     <View style={styles.reportContent}>
-                        <Text style={styles.reportTitle}>{t('weeklyReportTitle')}</Text>
-                        <Text style={styles.reportDescription}>
+                        <Text style={[styles.reportTitle, { color: colors.text }]}>{t('weeklyReportTitle')}</Text>
+                        <Text style={[styles.reportDescription, { color: colors.textSecondary }]}>
                             {t('weeklyReportDesc')}
                         </Text>
-                        <TouchableOpacity style={styles.reportButton}>
+                        <TouchableOpacity style={[styles.reportButton, { backgroundColor: colors.accent }]}>
                             <Text style={styles.reportButtonText}>{t('viewInsights')}</Text>
                         </TouchableOpacity>
                     </View>
                     <View style={styles.reportIconBg}>
-                        <Ionicons name="analytics-outline" size={80} color="#FF9900" />
+                        <Ionicons name="analytics-outline" size={80} color={colors.accent} />
                     </View>
                 </View>
 
                 {/* Progress Journey */}
-                <Text style={styles.sectionTitle}>{t('progressJourney')}</Text>
+                <Text style={[styles.sectionTitle, { color: colors.text }]}>{t('progressJourney')}</Text>
 
                 <View style={styles.timelineContainer}>
                     {/* Timeline line */}
-                    <View style={styles.timelineLine} />
+                    <View style={[styles.timelineLine, { backgroundColor: colors.cardBorder }]} />
 
                     {history.map((item) => (
                         <View key={item.id} style={[styles.timelineItem]}>
                             {/* Timeline dot */}
                             <View style={styles.timelineDotContainer}>
-                                <View style={[styles.timelineDot, styles.timelineDotActive]}>
+                                <View style={[styles.timelineDot, styles.timelineDotActive, { backgroundColor: colors.background, borderColor: colors.accent }]}>
                                     <Ionicons
                                         name={'body-outline'}
                                         size={20}
-                                        color={'#000'}
+                                        color={colors.accent}
                                     />
                                 </View>
                             </View>
 
                             {/* Card */}
-                            <View style={styles.historyCard}>
+                            <View style={[styles.historyCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
                                 <View style={styles.cardHeader}>
                                     <View>
-                                        <Text style={[styles.cardDate, styles.cardDateActive]}>
+                                        <Text style={[styles.cardDate, styles.cardDateActive, { color: colors.accent }]}>
                                             {formatDate(item.date)}
                                         </Text>
-                                        <Text style={styles.cardTitle}>
+                                        <Text style={[styles.cardTitle, { color: colors.text }]}>
                                             {(() => {
                                                 const muscleKey = `mg${item.muscleGroup.replace(/\s/g, '')}` as any;
                                                 const translatedMuscle = t(muscleKey) !== muscleKey ? t(muscleKey) : item.muscleGroup;
@@ -129,8 +131,8 @@ export default function HistoryScreen() {
                                             })()}
                                         </Text>
                                     </View>
-                                    <View style={styles.completedBadge}>
-                                        <Text style={styles.completedBadgeText}>{t('completed')}</Text>
+                                    <View style={[styles.completedBadge, { backgroundColor: colors.background, borderColor: colors.accent }]}>
+                                        <Text style={[styles.completedBadgeText, { color: colors.accent }]}>{t('completed')}</Text>
                                     </View>
                                 </View>
                                 <View style={styles.cardMeta}>
@@ -152,7 +154,6 @@ export default function HistoryScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#0a0908',
     },
     scrollContent: {
         paddingBottom: 100,
@@ -163,7 +164,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingHorizontal: 16,
         paddingVertical: 16,
-        backgroundColor: 'rgba(0, 0, 0, 0.8)',
     },
     headerLeft: {
         flexDirection: 'row',
@@ -171,7 +171,6 @@ const styles = StyleSheet.create({
         gap: 12,
     },
     headerTitle: {
-        color: '#fff',
         fontSize: 20,
         fontWeight: '700',
     },
@@ -186,14 +185,12 @@ const styles = StyleSheet.create({
         marginHorizontal: 16,
         marginTop: 24,
         flexDirection: 'row',
-        backgroundColor: 'rgba(255, 255, 255, 0.03)',
         borderRadius: 16,
         padding: 20,
         borderWidth: 1,
-        borderColor: 'rgba(255, 153, 0, 0.1)',
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.4,
+        shadowOpacity: 0.1,
         shadowRadius: 16,
         elevation: 10,
     },
@@ -226,11 +223,9 @@ const styles = StyleSheet.create({
     reportCard: {
         marginHorizontal: 16,
         marginTop: 24,
-        backgroundColor: 'rgba(255, 153, 0, 0.05)',
         borderRadius: 16,
         padding: 20,
         borderWidth: 1,
-        borderColor: 'rgba(255, 153, 0, 0.3)',
         overflow: 'hidden',
         position: 'relative',
     },

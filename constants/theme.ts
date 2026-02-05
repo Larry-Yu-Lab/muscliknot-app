@@ -5,16 +5,16 @@
 
 import { Platform } from 'react-native';
 
-const tintColorLight = '#0a7ea4';
-const tintColorDark = '#fff';
+const tintColorLight = '#f96b06';
+const tintColorDark = '#f96b06';
 
 export const Colors = {
   light: {
     text: '#11181C',
-    background: '#fff',
+    background: '#ffffff',
     tint: tintColorLight,
     icon: '#687076',
-    tabIconDefault: '#687076',
+    tabIconDefault: '#9BA1A6',
     tabIconSelected: tintColorLight,
     // Semantic Colors
     cardBackground: '#f7f7f7',
@@ -26,24 +26,28 @@ export const Colors = {
     headerBackground: '#ffffff',
     switchTrack: '#e5e7eb',
     switchThumb: '#ffffff',
+    surface: '#ffffff',
+    inputBackground: '#f1f5f9',
   },
   dark: {
     text: '#ECEDEE',
-    background: '#000000',
+    background: '#121212', // Using the app's specific dark grey
     tint: tintColorDark,
     icon: '#9BA1A6',
     tabIconDefault: '#9BA1A6',
     tabIconSelected: tintColorDark,
     // Semantic Colors
-    cardBackground: '#111111',
-    cardBorder: 'rgba(255,255,255,0.05)',
-    textSecondary: 'rgba(255,255,255,0.4)',
+    cardBackground: '#1e1e1e', // Slightly lighter than bg
+    cardBorder: 'rgba(255,255,255,0.08)',
+    textSecondary: 'rgba(255,255,255,0.6)',
     accent: '#f96b06',
     success: '#22c55e',
     danger: '#ef4444',
-    headerBackground: 'rgba(0,0,0,0.95)',
-    switchTrack: '#222222',
+    headerBackground: '#121212',
+    switchTrack: '#3f3f46',
     switchThumb: '#ffffff',
+    surface: '#18181b', // zinc-900
+    inputBackground: 'rgba(255,255,255,0.05)',
   },
 };
 

@@ -5,28 +5,34 @@ import React, { useEffect, useState } from 'react';
 import { SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { runOnJS, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
+import { Colors } from '../../constants/theme';
 import { usePreferences } from '../context/PreferencesContext';
 import { getTranslation } from '../utils/i18n';
 
 
 type ViewState = 'Front' | 'Back';
 
+
+
+/* Draggable/Resizable/Rotatable Marker Component */
 interface OvalProps {
   initialX: number;
   initialY: number;
   initialWidth: number;
   initialHeight: number;
-  onUpdate: (x: number, y: number, width: number, height: number) => void;
+  initialRotation: number;
+  onUpdate: (x: number, y: number, w: number, h: number, r: number) => void;
 }
 
-const DraggableOval = ({ initialX, initialY, initialWidth, initialHeight, onUpdate }: OvalProps) => {
+const DraggableOval = ({ initialX, initialY, initialWidth, initialHeight, initialRotation, onUpdate }: OvalProps) => {
   const top = useSharedValue(initialY);
   const left = useSharedValue(initialX);
   const width = useSharedValue(initialWidth);
   const height = useSharedValue(initialHeight);
   const scale = useSharedValue(1);
+  const rotation = useSharedValue(initialRotation || 0);
 
-  const context = useSharedValue({ x: 0, y: 0, scale: 1 });
+  const context = useSharedValue({ x: 0, y: 0, scale: 1, rotation: 0 });
 
   useEffect(() => {
     top.value = initialY;
@@ -34,9 +40,12 @@ const DraggableOval = ({ initialX, initialY, initialWidth, initialHeight, onUpda
     width.value = initialWidth;
     height.value = initialHeight;
     scale.value = 1;
-  }, [initialX, initialY, initialWidth, initialHeight]);
+    rotation.value = initialRotation || 0;
+  }, [initialX, initialY, initialWidth, initialHeight, initialRotation]);
 
+  /* 1. PAN (Drag) - Strict 1 Finger */
   const pan = Gesture.Pan()
+    .maxPointers(1) // Force 1 finger for dragging to distinguish from rotation
     .onStart(() => {
       context.value = { ...context.value, x: left.value, y: top.value };
     })
@@ -45,9 +54,10 @@ const DraggableOval = ({ initialX, initialY, initialWidth, initialHeight, onUpda
       top.value = context.value.y + event.translationY;
     })
     .onEnd(() => {
-      runOnJS(onUpdate)(left.value, top.value, width.value * scale.value, height.value * scale.value);
+      runOnJS(onUpdate)(left.value, top.value, width.value * scale.value, height.value * scale.value, rotation.value);
     });
 
+  /* 2. PINCH (Scale) + ROTATE - 2 Fingers */
   const pinch = Gesture.Pinch()
     .onStart(() => {
       context.value = { ...context.value, scale: scale.value };
@@ -61,16 +71,29 @@ const DraggableOval = ({ initialX, initialY, initialWidth, initialHeight, onUpda
       width.value = finalW;
       height.value = finalH;
       scale.value = 1;
-      runOnJS(onUpdate)(left.value, top.value, finalW, finalH);
+      runOnJS(onUpdate)(left.value, top.value, finalW, finalH, rotation.value);
     });
 
-  const composed = Gesture.Simultaneous(pan, pinch);
+  const rotate = Gesture.Rotation()
+    .onStart(() => {
+      context.value = { ...context.value, rotation: rotation.value };
+    })
+    .onUpdate((event) => {
+      rotation.value = context.value.rotation + event.rotation;
+    })
+    .onEnd(() => {
+      runOnJS(onUpdate)(left.value, top.value, width.value * scale.value, height.value * scale.value, rotation.value);
+    });
+
+  /* Compose: 1 Finger Pan | 2 Finger Pinch+Rotate */
+  const composed = Gesture.Simultaneous(pan, pinch, rotate);
 
   const animatedStyle = useAnimatedStyle(() => ({
     top: top.value - (height.value * scale.value) / 2,
     left: left.value - (width.value * scale.value) / 2,
     width: width.value * scale.value,
     height: height.value * scale.value,
+    transform: [{ rotate: `${rotation.value}rad` }],
     borderRadius: 1000,
   }));
 
@@ -83,11 +106,13 @@ const DraggableOval = ({ initialX, initialY, initialWidth, initialHeight, onUpda
 
 export default function HomeScreen() {
   const router = useRouter();
-  const { language } = usePreferences();
+  const { language, theme } = usePreferences();
   const t = (key: Parameters<typeof getTranslation>[1]) => getTranslation(language, key);
+  const colors = Colors[theme];
+  const isDark = theme === 'dark';
 
   const [view, setView] = useState<ViewState>('Front');
-  const [activePoint, setActivePoint] = useState<{ x: number; y: number; width: number; height: number } | null>(null);
+  const [activePoint, setActivePoint] = useState<{ x: number; y: number; width: number; height: number; rotation: number } | null>(null);
 
   const startCtx = useSharedValue({ x: 0, y: 0 });
 
@@ -96,7 +121,7 @@ export default function HomeScreen() {
     .onStart((event) => {
       const { x, y } = event;
       startCtx.value = { x, y };
-      runOnJS(setActivePoint)({ x, y, width: 20, height: 20 });
+      runOnJS(setActivePoint)({ x, y, width: 20, height: 20, rotation: 0 });
     })
     .onUpdate((event) => {
       const { translationX, translationY } = event;
@@ -107,12 +132,13 @@ export default function HomeScreen() {
         x: startCtx.value.x,
         y: startCtx.value.y,
         width: newW,
-        height: newH
+        height: newH,
+        rotation: 0
       });
     });
 
-  const updatePoint = (x: number, y: number, w: number, h: number) => {
-    setActivePoint({ x, y, width: w, height: h });
+  const updatePoint = (x: number, y: number, w: number, h: number, r: number) => {
+    setActivePoint({ x, y, width: w, height: h, rotation: r });
   };
 
   const handleFindRelief = () => {
@@ -124,6 +150,7 @@ export default function HomeScreen() {
           y: activePoint.y,
           width: activePoint.width,
           height: activePoint.height,
+          rotation: activePoint.rotation,
           view,
           timestamp: Date.now()
         }
@@ -132,44 +159,44 @@ export default function HomeScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
 
         {/* Header */}
-        <View style={styles.header}>
+        <View style={[styles.header, { backgroundColor: colors.headerBackground }]}>
           <View style={styles.headerLeft}>
             <Image
               source={{ uri: "https://lh3.googleusercontent.com/aida-public/AB6AXuATfKINBnYddwALYOWgnuRoHefSk8YUwGzzqj09-y9OuUOYSlHWWTUDnJ-ATViJk106sgPtrQ7TGy5HW82D9CW8zxe4GUAvHl7Yv2kpQUMKw3UyP3fEk87uibvOm8nOTMzJQ0Joy_l7k3uN4g4B5gOO4GPpj7iMDX55B2u0lQXz-SR1fnS_PzRZShxB4XFzO8nPITSCqGOHZic_6yrSbnBTSwfP6YAh_977r7ima5hru3ocwA6w4pwZNSguCa_wBXPsBNyeyHUrU75c" }}
               style={styles.avatar}
             />
             <View>
-              <Text style={styles.greetingSub}>{t('letsRecover')}</Text>
-              <Text style={styles.greetingTitle}>{t('welcomeBack')}</Text>
+              <Text style={[styles.greetingSub, { color: colors.textSecondary }]}>{t('letsRecover')}</Text>
+              <Text style={[styles.greetingTitle, { color: colors.text }]}>{t('welcomeBack')}</Text>
             </View>
           </View>
-          <TouchableOpacity style={styles.notificationButton}>
-            <Ionicons name="notifications-outline" size={24} color="#fff" />
+          <TouchableOpacity style={[styles.notificationButton, { backgroundColor: isDark ? 'rgba(255, 255, 255, 0.05)' : colors.cardBackground, borderColor: colors.cardBorder }]}>
+            <Ionicons name="notifications-outline" size={24} color={colors.text} />
             <View style={styles.notificationDot} />
           </TouchableOpacity>
         </View>
 
         {/* Search */}
-        <View style={styles.searchContainer}>
+        <View style={[styles.searchContainer, { backgroundColor: colors.inputBackground, borderColor: colors.cardBorder }]}>
           <View style={styles.searchIconContainer}>
             <Ionicons name="search" size={20} color="#fff" />
           </View>
           <TextInput
-            style={styles.searchInput}
+            style={[styles.searchInput, { color: colors.text }]}
             placeholder={activePoint ? t('painPointSelected') : t('dragToMap')}
-            placeholderTextColor="#71717a" // zinc-500
+            placeholderTextColor={colors.textSecondary}
             editable={false}
           />
         </View>
 
         {/* Body Visualizer */}
-        <View style={styles.bodyVisualizerContainer}>
+        <View style={[styles.bodyVisualizerContainer, { backgroundColor: isDark ? '#272727' : '#f0f0f0' }]}>
           {/* Toggle */}
-          <View style={styles.toggleContainer}>
+          <View style={[styles.toggleContainer, { backgroundColor: isDark ? 'rgba(24, 24, 27, 0.5)' : '#e0e0e0', borderColor: colors.cardBorder }]}>
             <TouchableOpacity
               style={[styles.toggleButton, view === 'Front' && styles.toggleButtonActive]}
               onPress={() => { setView('Front'); setActivePoint(null); }}
@@ -204,10 +231,11 @@ export default function HomeScreen() {
               {activePoint && (
                 <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
                   <DraggableOval
-                    initialX={activePoint.x}
-                    initialY={activePoint.y}
-                    initialWidth={activePoint.width}
-                    initialHeight={activePoint.height}
+                    initialX={activePoint!.x}
+                    initialY={activePoint!.y}
+                    initialWidth={activePoint!.width}
+                    initialHeight={activePoint!.height}
+                    initialRotation={activePoint!.rotation}
                     onUpdate={updatePoint}
                   />
                 </View>
@@ -226,7 +254,7 @@ export default function HomeScreen() {
 
         {/* Quick Fix */}
         <View style={styles.quickFixHeader}>
-          <Text style={styles.sectionTitle}>{t('recentPlans')}</Text>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>{t('recentPlans')}</Text>
           <TouchableOpacity>
             <Text style={styles.seeAllText}>{t('seeAllHistory')}</Text>
           </TouchableOpacity>
@@ -234,30 +262,30 @@ export default function HomeScreen() {
 
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.cardsScroll}>
           {/* Card 1 */}
-          <TouchableOpacity style={styles.card}>
-            <View style={styles.cardIcon}>
-              <Ionicons name="medkit-outline" size={24} color="#f97316" />
+          <TouchableOpacity style={[styles.card, { backgroundColor: colors.cardBackground, borderLeftColor: colors.accent }]}>
+            <View style={[styles.cardIcon, { backgroundColor: isDark ? 'rgba(249, 115, 22, 0.2)' : 'rgba(249, 115, 22, 0.1)' }]}>
+              <Ionicons name="medkit-outline" size={24} color={colors.accent} />
             </View>
             <View>
-              <Text style={styles.cardTitle}>{t('neckRelief')}</Text>
-              <Text style={styles.cardSubtitle}>{t('yesterday')}</Text>
+              <Text style={[styles.cardTitle, { color: colors.text }]}>{t('neckRelief')}</Text>
+              <Text style={[styles.cardSubtitle, { color: colors.textSecondary }]}>{t('yesterday')}</Text>
             </View>
             <View style={styles.cardArrow}>
-              <Ionicons name="chevron-forward" size={20} color="#f97316" />
+              <Ionicons name="chevron-forward" size={20} color={colors.accent} />
             </View>
           </TouchableOpacity>
 
           {/* Card 2 */}
-          <TouchableOpacity style={styles.card}>
-            <View style={styles.cardIcon}>
-              <Ionicons name="fitness-outline" size={24} color="#f97316" />
+          <TouchableOpacity style={[styles.card, { backgroundColor: colors.cardBackground, borderLeftColor: colors.accent }]}>
+            <View style={[styles.cardIcon, { backgroundColor: isDark ? 'rgba(249, 115, 22, 0.2)' : 'rgba(249, 115, 22, 0.1)' }]}>
+              <Ionicons name="fitness-outline" size={24} color={colors.accent} />
             </View>
             <View>
-              <Text style={styles.cardTitle}>{t('lowerBack')}</Text>
-              <Text style={styles.cardSubtitle}>{t('daysAgo').replace('${days}', '2')}</Text>
+              <Text style={[styles.cardTitle, { color: colors.text }]}>{t('lowerBack')}</Text>
+              <Text style={[styles.cardSubtitle, { color: colors.textSecondary }]}>{t('daysAgo').replace('${days}', '2')}</Text>
             </View>
             <View style={styles.cardArrow}>
-              <Ionicons name="chevron-forward" size={20} color="#f97316" />
+              <Ionicons name="chevron-forward" size={20} color={colors.accent} />
             </View>
           </TouchableOpacity>
         </ScrollView>
@@ -270,7 +298,6 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#121212', // background-dark
   },
   scrollContent: {
     paddingBottom: 100, // Matching pb-24
@@ -330,9 +357,7 @@ const styles = StyleSheet.create({
     marginVertical: 16,
     height: 56,
     borderRadius: 12,
-    backgroundColor: 'rgba(255, 255, 255, 0.05)', // glass
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,

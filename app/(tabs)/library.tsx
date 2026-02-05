@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import React, { useMemo, useState } from 'react';
 import { SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Colors } from '../../constants/theme';
 import { usePreferences } from '../context/PreferencesContext';
 import { EXERCISES } from '../data/exercises';
 import { getTranslation } from '../utils/i18n';
@@ -15,7 +16,8 @@ type ExerciseCardProps = {
     duration: string;
     target: string;
     image: string;
-    t: (key: string) => string; // Pass t function or translated target string? Let's generic it.
+    t: (key: string) => string;
+    colors: any;
 };
 
 // Helper for mapped muscle group translation inside card
@@ -24,13 +26,13 @@ const getMuscleKey = (name: string) => {
     return `mg${name.replace(/\s/g, '')}` as any;
 };
 
-const ExerciseCard = ({ id, title, duration, target, image, t }: ExerciseCardProps) => {
+const ExerciseCard = ({ id, title, duration, target, image, t, colors }: ExerciseCardProps) => {
     const titleKey = `ex_${id}_title` as any;
     const translatedTitle = t(titleKey) !== titleKey ? t(titleKey) : title;
 
     return (
-        <TouchableOpacity style={styles.exerciseCard}>
-            <View style={styles.exerciseImageContainer}>
+        <TouchableOpacity style={[styles.exerciseCard, { backgroundColor: colors.cardBackground, borderColor: 'rgba(249, 107, 6, 0.3)' }]}>
+            <View style={[styles.exerciseImageContainer, { borderColor: colors.accent }]}>
                 <Image
                     source={{ uri: image }}
                     style={styles.exerciseImage}
@@ -38,19 +40,19 @@ const ExerciseCard = ({ id, title, duration, target, image, t }: ExerciseCardPro
                 />
             </View>
             <View style={styles.exerciseContent}>
-                <Text style={styles.exerciseTitle}>{translatedTitle}</Text>
+                <Text style={[styles.exerciseTitle, { color: colors.text }]}>{translatedTitle}</Text>
                 <View style={styles.exerciseMeta}>
                     <View style={styles.durationContainer}>
-                        <Ionicons name="timer-outline" size={14} color="#9ca3af" />
-                        <Text style={styles.durationText}>{duration}</Text>
+                        <Ionicons name="timer-outline" size={14} color={colors.textSecondary} />
+                        <Text style={[styles.durationText, { color: colors.textSecondary }]}>{duration}</Text>
                     </View>
-                    <View style={styles.targetBadge}>
-                        <Text style={styles.targetText}>{t('target').replace('${target}', t(getMuscleKey(target)) !== getMuscleKey(target) ? t(getMuscleKey(target)) : target)}</Text>
+                    <View style={[styles.targetBadge, { backgroundColor: 'rgba(249, 107, 6, 0.1)', borderColor: 'rgba(249, 107, 6, 0.2)' }]}>
+                        <Text style={[styles.targetText, { color: colors.accent }]}>{t('target').replace('${target}', t(getMuscleKey(target)) !== getMuscleKey(target) ? t(getMuscleKey(target)) : target)}</Text>
                     </View>
                 </View>
             </View>
             <TouchableOpacity style={styles.favoriteButton}>
-                <Ionicons name="heart-outline" size={20} color="#6b7280" />
+                <Ionicons name="heart-outline" size={20} color={colors.textSecondary} />
             </TouchableOpacity>
         </TouchableOpacity>
     );
@@ -61,8 +63,9 @@ export default function LibraryScreen() {
     const [activeMuscleGroup, setActiveMuscleGroup] = useState('All');
     const [searchQuery, setSearchQuery] = useState('');
 
-    const { language } = usePreferences();
+    const { language, theme } = usePreferences();
     const t = (key: Parameters<typeof getTranslation>[1]) => getTranslation(language, key);
+    const colors = Colors[theme];
 
     const filteredExercises = useMemo(() => {
         return EXERCISES.filter(ex => {
@@ -105,20 +108,20 @@ export default function LibraryScreen() {
 
 
     return (
-        <SafeAreaView style={styles.container}>
+        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
             {/* Header */}
-            <View style={styles.header}>
+            <View style={[styles.header, { backgroundColor: colors.headerBackground }]}>
                 <View style={styles.headerTop}>
-                    <Text style={styles.headerTitle}>{t('library')}</Text>
+                    <Text style={[styles.headerTitle, { color: colors.text }]}>{t('library')}</Text>
                 </View>
 
                 {/* Search Bar */}
-                <View style={styles.searchContainer}>
-                    <Ionicons name="search" size={20} color="#ff6a00" />
+                <View style={[styles.searchContainer, { backgroundColor: colors.inputBackground, borderColor: colors.accent }]}>
+                    <Ionicons name="search" size={20} color={colors.accent} />
                     <TextInput
-                        style={styles.searchInput}
+                        style={[styles.searchInput, { color: colors.text }]}
                         placeholder={t('searchExercises')}
-                        placeholderTextColor="#6b7280"
+                        placeholderTextColor={colors.textSecondary}
                         value={searchQuery}
                         onChangeText={setSearchQuery}
                     />
@@ -137,7 +140,8 @@ export default function LibraryScreen() {
                             key={category}
                             style={[
                                 styles.categoryButton,
-                                activeCategory === category && styles.categoryButtonActive,
+                                { borderColor: 'rgba(249, 107, 6, 0.4)' },
+                                activeCategory === category && { backgroundColor: 'rgba(249, 107, 6, 0.1)', borderColor: colors.accent },
                             ]}
                             onPress={() => {
                                 setActiveCategory(category);
@@ -147,7 +151,8 @@ export default function LibraryScreen() {
                             <Text
                                 style={[
                                     styles.categoryText,
-                                    activeCategory === category && styles.categoryTextActive,
+                                    { color: colors.text },
+                                    activeCategory === category && { color: colors.text, fontWeight: '700' },
                                 ]}
                             >
                                 {getCategoryDisplay(category)}
@@ -168,14 +173,16 @@ export default function LibraryScreen() {
                                 key={group}
                                 style={[
                                     styles.subCategoryButton,
-                                    activeMuscleGroup === group && styles.subCategoryButtonActive,
+                                    { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder },
+                                    activeMuscleGroup === group && { backgroundColor: colors.accent, borderColor: colors.accent },
                                 ]}
                                 onPress={() => setActiveMuscleGroup(group)}
                             >
                                 <Text
                                     style={[
                                         styles.subCategoryText,
-                                        activeMuscleGroup === group && styles.subCategoryTextActive,
+                                        { color: colors.textSecondary },
+                                        activeMuscleGroup === group && { color: '#fff', fontWeight: '700' },
                                     ]}
                                 >
                                     {getMuscleDisplay(group)}
@@ -188,7 +195,7 @@ export default function LibraryScreen() {
                 {/* Content */}
                 {isFiltering ? (
                     <View style={styles.section}>
-                        <Text style={styles.sectionTitle}>
+                        <Text style={[styles.sectionTitle, { color: colors.text }]}>
                             {filteredExercises.length} {t('results')}
                         </Text>
                         <View style={styles.exerciseList}>
@@ -201,6 +208,7 @@ export default function LibraryScreen() {
                                     target={exercise.muscleGroup}
                                     image={exercise.image}
                                     t={t as any}
+                                    colors={colors}
                                 />
                             ))}
                         </View>
@@ -210,9 +218,9 @@ export default function LibraryScreen() {
                         {/* Recommended Section (Default View) */}
                         <View style={styles.section}>
                             <View style={styles.sectionHeader}>
-                                <Text style={styles.sectionTitle}>{t('recommendedForYou')}</Text>
+                                <Text style={[styles.sectionTitle, { color: colors.text }]}>{t('recommendedForYou')}</Text>
                                 <TouchableOpacity onPress={() => setActiveCategory('Relief')}>
-                                    <Text style={styles.seeAllText}>{t('seeAll')}</Text>
+                                    <Text style={[styles.seeAllText, { color: colors.accent }]}>{t('seeAll')}</Text>
                                 </TouchableOpacity>
                             </View>
                             <View style={styles.exerciseList}>
@@ -225,6 +233,7 @@ export default function LibraryScreen() {
                                         target={exercise.muscleGroup}
                                         image={exercise.image}
                                         t={t as any}
+                                        colors={colors}
                                     />
                                 ))}
                             </View>
@@ -233,9 +242,9 @@ export default function LibraryScreen() {
                         {/* New Routines Section */}
                         <View style={styles.section}>
                             <View style={styles.sectionHeader}>
-                                <Text style={styles.sectionTitle}>{t('newRoutines')}</Text>
+                                <Text style={[styles.sectionTitle, { color: colors.text }]}>{t('newRoutines')}</Text>
                                 <TouchableOpacity onPress={() => setActiveCategory('All')}>
-                                    <Text style={styles.seeAllText}>{t('explore')}</Text>
+                                    <Text style={[styles.seeAllText, { color: colors.accent }]}>{t('explore')}</Text>
                                 </TouchableOpacity>
                             </View>
                             <View style={styles.exerciseList}>
@@ -248,6 +257,7 @@ export default function LibraryScreen() {
                                         target={exercise.muscleGroup}
                                         image={exercise.image}
                                         t={t as any}
+                                        colors={colors}
                                     />
                                 ))}
                             </View>
@@ -262,13 +272,11 @@ export default function LibraryScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#000',
     },
     header: {
         paddingHorizontal: 16,
         paddingTop: 24,
         paddingBottom: 8,
-        backgroundColor: 'rgba(0, 0, 0, 0.8)',
     },
     headerTop: {
         flexDirection: 'row',
@@ -277,7 +285,6 @@ const styles = StyleSheet.create({
         marginBottom: 16,
     },
     headerTitle: {
-        color: '#fff',
         fontSize: 24,
         fontWeight: '800',
     },
@@ -293,9 +300,7 @@ const styles = StyleSheet.create({
     searchContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#000',
         borderWidth: 2,
-        borderColor: '#ff6a00',
         borderRadius: 28,
         paddingHorizontal: 16,
         height: 56,
@@ -303,7 +308,6 @@ const styles = StyleSheet.create({
     },
     searchInput: {
         flex: 1,
-        color: '#fff',
         fontSize: 16,
         fontWeight: '500',
     },
@@ -320,7 +324,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 24,
         borderRadius: 20,
         borderWidth: 1,
-        borderColor: 'rgba(255, 106, 0, 0.4)',
         alignItems: 'center',
         justifyContent: 'center',
         marginRight: 12,
@@ -330,7 +333,6 @@ const styles = StyleSheet.create({
         borderColor: '#ff6a00',
     },
     categoryText: {
-        color: '#fff',
         fontSize: 14,
         fontWeight: '500',
     },
@@ -349,17 +351,13 @@ const styles = StyleSheet.create({
         marginRight: 8,
         backgroundColor: 'rgba(255, 255, 255, 0.05)',
     },
-    subCategoryButtonActive: {
-        backgroundColor: '#ff6a00',
-        borderColor: '#ff6a00',
-    },
+    subCategoryButtonActive: {},
     subCategoryText: {
         color: 'rgba(255, 255, 255, 0.6)',
         fontSize: 12,
         fontWeight: '500',
     },
     subCategoryTextActive: {
-        color: '#000',
         fontWeight: '700',
     },
     section: {
@@ -373,12 +371,10 @@ const styles = StyleSheet.create({
         marginBottom: 16,
     },
     sectionTitle: {
-        color: '#fff',
         fontSize: 20,
         fontWeight: '700',
     },
     seeAllText: {
-        color: '#ff6a00',
         fontSize: 12,
         fontWeight: '700',
         letterSpacing: 1,
@@ -390,17 +386,14 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         padding: 12,
-        backgroundColor: 'rgba(39, 39, 42, 0.5)',
         borderRadius: 16,
         borderWidth: 1,
-        borderColor: 'rgba(255, 106, 0, 0.3)',
     },
     exerciseImageContainer: {
         width: 64,
         height: 64,
         borderRadius: 32,
         borderWidth: 2,
-        borderColor: '#ff6a00',
         overflow: 'hidden',
     },
     exerciseImage: {
@@ -412,7 +405,6 @@ const styles = StyleSheet.create({
         marginLeft: 16,
     },
     exerciseTitle: {
-        color: '#fff',
         fontSize: 16,
         fontWeight: '700',
         marginBottom: 4,
@@ -429,20 +421,16 @@ const styles = StyleSheet.create({
         gap: 4,
     },
     durationText: {
-        color: '#9ca3af',
         fontSize: 12,
         fontWeight: '500',
     },
     targetBadge: {
-        backgroundColor: 'rgba(255, 106, 0, 0.1)',
         paddingHorizontal: 8,
         paddingVertical: 2,
         borderRadius: 12,
         borderWidth: 1,
-        borderColor: 'rgba(255, 106, 0, 0.2)',
     },
     targetText: {
-        color: '#ff6a00',
         fontSize: 10,
         fontWeight: '700',
         letterSpacing: 0.5,

@@ -3,24 +3,26 @@ import { Tabs } from 'expo-router';
 import React from 'react';
 
 import { HapticTab } from '@/components/haptic-tab';
+import { Colors } from '../../constants/theme';
 import { usePreferences } from '../context/PreferencesContext';
 import { getTranslation } from '../utils/i18n';
 
 
 export default function TabLayout() {
-  const { language } = usePreferences();
+  const { language, theme } = usePreferences();
   const t = (key: Parameters<typeof getTranslation>[1]) => getTranslation(language, key);
+  const colors = Colors[theme];
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: '#f97316', // Orange
-        tabBarInactiveTintColor: '#a1a1aa', // Zinc-400 equivalent
+        tabBarActiveTintColor: colors.tint,
+        tabBarInactiveTintColor: colors.tabIconDefault,
         headerShown: false,
         tabBarButton: HapticTab,
         tabBarStyle: {
-          backgroundColor: '#121212', // Background Dark
-          borderTopColor: 'rgba(255,255,255,0.1)',
+          backgroundColor: colors.background,
+          borderTopColor: colors.cardBorder,
         },
       }}>
 

@@ -4,6 +4,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as React from 'react';
 import { useRef, useState } from 'react';
 import { Alert, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Colors } from '../../constants/theme';
 import { handleSelection, SelectionArea } from '../components/AnatomyMap';
 import { usePreferences } from '../context/PreferencesContext';
 import { getExercisesForPosition } from '../data/exercises';
@@ -17,8 +18,10 @@ export default function FindReliefScreen() {
     const [isSliderActive, setIsSliderActive] = useState(false);
     const trackWidth = useRef(0);
 
-    const { language } = usePreferences();
+    const { language, theme } = usePreferences();
     const t = (key: Parameters<typeof getTranslation>[1]) => getTranslation(language, key);
+    const colors = Colors[theme];
+    const isDark = theme === 'dark';
 
     const x = Number(params.x) || 0;
     const y = Number(params.y) || 0;
@@ -95,7 +98,7 @@ export default function FindReliefScreen() {
     const totalMinutes = exercises.length * 3; // Approx duration
 
     return (
-        <SafeAreaView style={styles.container}>
+        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
             <ScrollView
                 scrollEnabled={!isSliderActive}
                 scrollEventThrottle={16}
@@ -103,11 +106,11 @@ export default function FindReliefScreen() {
                 contentContainerStyle={styles.scrollContent}
             >
                 {/* Header */}
-                <View style={styles.header}>
+                <View style={[styles.header, { backgroundColor: colors.headerBackground }]}>
                     <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-                        <Ionicons name="arrow-back" size={24} color="#fff" />
+                        <Ionicons name="arrow-back" size={24} color={colors.text} />
                     </TouchableOpacity>
-                    <Text style={styles.headerTitle}>{displayTarget} {t('relief')}</Text>
+                    <Text style={[styles.headerTitle, { color: colors.text }]}>{displayTarget} {t('relief')}</Text>
                     <View style={styles.headerSpacer} />
                 </View>
 
@@ -136,25 +139,25 @@ export default function FindReliefScreen() {
 
                 {/* Exercise Info Badges */}
                 <View style={styles.badgeContainer}>
-                    <View style={styles.badge}>
-                        <Ionicons name="fitness-outline" size={20} color="#FF9D42" />
-                        <Text style={styles.badgeText}>
+                    <View style={[styles.badge, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
+                        <Ionicons name="fitness-outline" size={20} color={colors.accent} />
+                        <Text style={[styles.badgeText, { color: colors.text }]}>
                             {isLoading ? '...' : t('exercisesCount').replace('${count}', exercises.length.toString())}
                         </Text>
                     </View>
-                    <View style={styles.badge}>
-                        <Ionicons name="timer-outline" size={20} color="#FF9D42" />
-                        <Text style={styles.badgeText}>
+                    <View style={[styles.badge, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
+                        <Ionicons name="timer-outline" size={20} color={colors.accent} />
+                        <Text style={[styles.badgeText, { color: colors.text }]}>
                             {isLoading ? '...' : t('approxMins').replace('${min}', String(exercises.length * 4))}
                         </Text>
                     </View>
                 </View>
 
                 {/* Pain Assessment */}
-                <View style={styles.assessmentCard}>
+                <View style={[styles.assessmentCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
                     <View style={styles.assessmentHeader}>
-                        <Ionicons name="analytics-outline" size={24} color="#FF9D42" />
-                        <Text style={styles.assessmentTitle}>{t('painAssessment')}</Text>
+                        <Ionicons name="analytics-outline" size={24} color={colors.accent} />
+                        <Text style={[styles.assessmentTitle, { color: colors.text }]}>{t('painAssessment')}</Text>
                     </View>
                     <View style={styles.assessmentContent}>
                         <View style={styles.scaleHeader}>
@@ -230,8 +233,8 @@ export default function FindReliefScreen() {
             </ScrollView>
 
             {/* Fixed Bottom Button */}
-            <View style={styles.bottomContainer}>
-                <TouchableOpacity style={styles.completeButton} onPress={handleComplete}>
+            <View style={[styles.bottomContainer, { backgroundColor: colors.headerBackground, borderTopColor: colors.cardBorder }]}>
+                <TouchableOpacity style={[styles.completeButton, { backgroundColor: colors.accent }]} onPress={handleComplete}>
                     <Text style={styles.completeButtonText}>{t('markAsComplete')}</Text>
                 </TouchableOpacity>
             </View>
@@ -242,7 +245,6 @@ export default function FindReliefScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#000', // background-dark
     },
     scrollContent: {
         paddingBottom: 120,
@@ -253,7 +255,6 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         paddingHorizontal: 16,
         paddingVertical: 12,
-        backgroundColor: 'rgba(0, 0, 0, 0.8)',
     },
     backButton: {
         width: 48,
@@ -538,12 +539,10 @@ const styles = StyleSheet.create({
         bottom: 0,
         left: 0,
         right: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.95)',
         paddingHorizontal: 16,
         paddingTop: 10,
         paddingBottom: 16,
         borderTopWidth: 1,
-        borderTopColor: 'rgba(255, 255, 255, 0.1)',
     },
     completeButton: {
         height: 44,
