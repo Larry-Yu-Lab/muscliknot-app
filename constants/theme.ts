@@ -28,6 +28,7 @@ export const Colors = {
     switchThumb: '#ffffff',
     surface: '#ffffff',
     inputBackground: '#f1f5f9',
+    muscleVisualizerBackground: '#f0f0f0',
   },
   dark: {
     text: '#ECEDEE',
@@ -48,6 +49,7 @@ export const Colors = {
     switchThumb: '#ffffff',
     surface: '#18181b', // zinc-900
     inputBackground: 'rgba(255,255,255,0.05)',
+    muscleVisualizerBackground: '#272727',
   },
 };
 

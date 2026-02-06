@@ -194,7 +194,7 @@ export default function HomeScreen() {
         </View>
 
         {/* Body Visualizer */}
-        <View style={[styles.bodyVisualizerContainer, { backgroundColor: isDark ? '#272727' : '#f0f0f0' }]}>
+        <View style={[styles.bodyVisualizerContainer, { backgroundColor: colors.muscleVisualizerBackground }]}>
           {/* Toggle */}
           <View style={[styles.toggleContainer, { backgroundColor: isDark ? 'rgba(24, 24, 27, 0.5)' : '#e0e0e0', borderColor: colors.cardBorder }]}>
             <TouchableOpacity
@@ -212,11 +212,15 @@ export default function HomeScreen() {
           </View>
 
           {/* Image Area with Inteaction */}
-          <View style={styles.bodyImageContainer}>
+          <View style={[styles.bodyImageContainer, { backgroundColor: colors.muscleVisualizerBackground }]}>
             {/* 1. Underlying Visual Layer - Full Width/Height */}
             <Image
-              source={view === 'Front' ? require('../../assets/images/front_muscle.png') : require('../../assets/images/back_muscle.png')}
-              style={[StyleSheet.absoluteFill, { width: '100%', height: '100%' }]}
+              source={
+                view === 'Front'
+                  ? (isDark ? require('../../assets/images/front_muscle.png') : require('../../assets/images/front_muscle_light.png'))
+                  : (isDark ? require('../../assets/images/back_muscle.png') : require('../../assets/images/back_muscle_light.png'))
+              }
+              style={[StyleSheet.absoluteFill, { width: '100%', height: '100%', backgroundColor: 'transparent' }]}
               contentFit="contain"
             />
 
