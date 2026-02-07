@@ -1,7 +1,7 @@
+import { usePreferences } from '@/context/PreferencesContext';
 import React from 'react';
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import { Platform, StyleSheet, TouchableOpacity } from 'react-native';
 import Animated, { interpolateColor, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
-import { usePreferences } from '../../app/context/PreferencesContext';
 
 interface CustomToggleProps {
     value: boolean;
@@ -56,10 +56,17 @@ const styles = StyleSheet.create({
         height: 24,
         borderRadius: 12,
         backgroundColor: '#fff',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.2,
-        shadowRadius: 2,
-        elevation: 2,
+        ...Platform.select({
+            web: {
+                boxShadow: '0px 2px 2px rgba(0,0,0,0.2)',
+            },
+            default: {
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.2,
+                shadowRadius: 2,
+                elevation: 2,
+            },
+        }),
     },
 });

@@ -49,6 +49,11 @@ export default function RegisterScreen() {
             return;
         }
 
+        if (password.length < 6) {
+            Alert.alert('Weak Password', 'Password must be at least 6 characters long');
+            return;
+        }
+
         setLoading(true);
         const { data, error } = await supabase.auth.signUp({
             email,
@@ -66,6 +71,7 @@ export default function RegisterScreen() {
         } else if (data.session) {
             // Auto-login successful (Email confirmation disabled)
             // Layout will handle redirect, but we can assume success
+            router.replace('/(tabs)');
         } else {
             // Email confirmation required
             Alert.alert(

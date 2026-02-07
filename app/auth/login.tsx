@@ -35,7 +35,7 @@ export default function LoginScreen() {
 
         setLoading(true);
         const { error } = await supabase.auth.signInWithPassword({
-            email,
+            email: email.trim(),
             password,
         });
 
@@ -43,8 +43,9 @@ export default function LoginScreen() {
             Alert.alert('Login Failed', error.message);
             setLoading(false);
         } else {
-            // Navigation handled by auth listener in _layout
+            // Navigation handled by auth listener in _layout, but explicit replacement is safer/faster
             setLoading(false);
+            router.replace('/(tabs)');
         }
     }
 

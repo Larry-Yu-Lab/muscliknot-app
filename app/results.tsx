@@ -1,10 +1,10 @@
 import { Colors } from '@/constants/theme';
+import { usePreferences } from '@/context/PreferencesContext';
+import { getTranslation } from '@/utils/i18n';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React from 'react';
-import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { usePreferences } from './context/PreferencesContext';
-import { getTranslation } from './utils/i18n';
+import { Platform, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function ResultsScreen() {
     const router = useRouter();
@@ -164,12 +164,20 @@ const styles = StyleSheet.create({
         padding: 20,
         borderRadius: 16,
         marginBottom: 20,
+
         borderLeftWidth: 4,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 3,
+        ...Platform.select({
+            web: {
+                boxShadow: '0px 2px 4px rgba(0,0,0,0.1)',
+            },
+            default: {
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.1,
+                shadowRadius: 4,
+                elevation: 3,
+            },
+        }),
     },
     sectionHeader: {
         flexDirection: 'row',
@@ -191,11 +199,19 @@ const styles = StyleSheet.create({
         borderRadius: 12,
         alignItems: 'center',
         justifyContent: 'center',
-        shadowColor: '#f96b06',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.4,
-        shadowRadius: 12,
-        elevation: 8,
+
+        ...Platform.select({
+            web: {
+                boxShadow: '0px 4px 12px rgba(249,107,6,0.4)',
+            },
+            default: {
+                shadowColor: '#f96b06',
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: 0.4,
+                shadowRadius: 12,
+                elevation: 8,
+            },
+        }),
     },
     doneButtonText: {
         color: '#fff',
