@@ -2,7 +2,7 @@ import { usePreferences } from '@/context/PreferencesContext';
 import { supabase } from '@/utils/supabase';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     ActivityIndicator,
     Alert,
@@ -20,16 +20,19 @@ export default function RegisterScreen() {
     const router = useRouter();
     const { theme } = usePreferences();
 
-    // Explicit Design Constants from HTML source
+    // Explicit Design Constants
     const THEME = {
         background: '#23170f',
         primary: '#f97316',
         text: '#FFFFFF',
         textMuted: 'rgba(255, 255, 255, 0.6)',
-        textDim: 'rgba(255, 255, 255, 0.3)', // placeholder
+        textDim: 'rgba(255, 255, 255, 0.3)',
         inputBg: 'rgba(255, 255, 255, 0.03)',
         inputBorder: 'rgba(255, 255, 255, 0.1)',
-        inputFocusBorder: '#f97316',
+        inputErrorBorder: '#ef4444',
+        inputSuccessBorder: '#22c55e',
+        errorText: '#ef4444',
+        successText: '#22c55e',
     };
 
     const [name, setName] = useState('');
@@ -38,29 +41,75 @@ export default function RegisterScreen() {
     const [loading, setLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
 
+    // Validation State
+    const [emailError, setEmailError] = useState('');
+    const [passwordError, setPasswordError] = useState('');
+    const [nameError, setNameError] = useState('');
+
+    const [emailSuccess, setEmailSuccess] = useState('');
+    const [passwordSuccess, setPasswordSuccess] = useState('');
+
     const validateEmail = (email: string) => {
         const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return re.test(email);
     };
 
-    async function signUpWithEmail() {
-        if (!supabase) {
-            Alert.alert('Configuration Error', 'Supabase client is not initialized.');
-            return;
+    // Real-time validation effects
+    useEffect(() => {
+        if (email) {
+            if (!validateEmail(email)) {
+                setEmailError('Please enter a valid email.');
+                setEmailSuccess('');
+            } else {
+                setEmailError('');
+                setEmailSuccess('Valid email format.');
+            }
+        } else {
+            setEmailError('');
+            setEmailSuccess('');
         }
+    }, [email]);
 
-        if (!name || !email || !password) {
-            Alert.alert('Error', 'Please fill in all fields');
-            return;
+    useEffect(() => {
+        if (password) {
+            if (password.length < 6) {
+                setPasswordError('Password must be at least 6 characters.');
+                setPasswordSuccess('');
+            } else {
+                setPasswordError('');
+                setPasswordSuccess('Strong password.');
+            }
+        } else {
+            setPasswordError('');
+            setPasswordSuccess('');
+        }
+    }, [password]);
+
+    async function signUpWithEmail() {
+        // Final Validation Check
+        let isValid = true;
+
+        if (!name) {
+            setNameError('Name is required.');
+            isValid = false;
+        } else {
+            setNameError('');
         }
 
         if (!validateEmail(email)) {
-            Alert.alert('Invalid Email', 'Please enter a valid email address');
-            return;
+            setEmailError('Please enter a valid email.');
+            isValid = false;
         }
 
         if (password.length < 6) {
-            Alert.alert('Weak Password', 'Password must be at least 6 characters long');
+            setPasswordError('Password must be at least 6 characters.');
+            isValid = false;
+        }
+
+        if (!isValid) return;
+
+        if (!supabase) {
+            Alert.alert('Configuration Error', 'Supabase client is not initialized.');
             return;
         }
 
@@ -95,6 +144,13 @@ export default function RegisterScreen() {
         }
     }
 
+    // Helper to get border color based on state
+    const getBorderColor = (error: string, success: string, defaultColor: string) => {
+        if (error) return THEME.inputErrorBorder;
+        if (success) return THEME.inputSuccessBorder;
+        return defaultColor;
+    };
+
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: THEME.background }]}>
             {/* Background Glow Orbs Simulation (Simple Views) */}
@@ -116,7 +172,7 @@ export default function RegisterScreen() {
                     >
                         <Ionicons name="chevron-back" size={24} color="#fff" />
                     </TouchableOpacity>
-                    <Text style={styles.stepText}>Step 5 of 5 (DEBUG MODE)</Text>
+                    <Text style={styles.stepText}>Step 5 of 5</Text>
                     <View style={{ width: 40 }} />
                 </View>
 
@@ -134,7 +190,13 @@ export default function RegisterScreen() {
                         {/* Name */}
                         <View style={styles.inputGroup}>
                             <Text style={[styles.label, { color: 'rgba(255,255,255,0.8)' }]}>Full Name</Text>
-                            <View style={[styles.glassInput, { backgroundColor: THEME.inputBg, borderColor: THEME.inputBorder }]}>
+                            <View style={[
+                                styles.glassInput,
+                                {
+                                    backgroundColor: THEME.inputBg,
+                                    borderColor: nameError ? THEME.inputErrorBorder : THEME.inputBorder
+                                }
+                            ]}>
                                 <Ionicons name="person-outline" size={20} color="rgba(255,255,255,0.4)" style={styles.inputIcon} />
                                 <TextInput
                                     style={styles.textInput}
@@ -144,12 +206,19 @@ export default function RegisterScreen() {
                                     onChangeText={setName}
                                 />
                             </View>
+                            {nameError ? <Text style={[styles.validationText, { color: THEME.errorText }]}>{nameError}</Text> : null}
                         </View>
 
                         {/* Email */}
                         <View style={styles.inputGroup}>
                             <Text style={[styles.label, { color: 'rgba(255,255,255,0.8)' }]}>Email Address</Text>
-                            <View style={[styles.glassInput, { backgroundColor: THEME.inputBg, borderColor: THEME.inputBorder }]}>
+                            <View style={[
+                                styles.glassInput,
+                                {
+                                    backgroundColor: THEME.inputBg,
+                                    borderColor: getBorderColor(emailError, emailSuccess, THEME.inputBorder)
+                                }
+                            ]}>
                                 <Ionicons name="mail-outline" size={20} color="rgba(255,255,255,0.4)" style={styles.inputIcon} />
                                 <TextInput
                                     style={styles.textInput}
@@ -161,12 +230,23 @@ export default function RegisterScreen() {
                                     keyboardType="email-address"
                                 />
                             </View>
+                            {emailError ? (
+                                <Text style={[styles.validationText, { color: THEME.errorText }]}>{emailError}</Text>
+                            ) : emailSuccess ? (
+                                <Text style={[styles.validationText, { color: THEME.successText }]}>{emailSuccess}</Text>
+                            ) : null}
                         </View>
 
                         {/* Password */}
                         <View style={styles.inputGroup}>
                             <Text style={[styles.label, { color: 'rgba(255,255,255,0.8)' }]}>Password</Text>
-                            <View style={[styles.glassInput, { backgroundColor: THEME.inputBg, borderColor: THEME.inputBorder }]}>
+                            <View style={[
+                                styles.glassInput,
+                                {
+                                    backgroundColor: THEME.inputBg,
+                                    borderColor: getBorderColor(passwordError, passwordSuccess, THEME.inputBorder)
+                                }
+                            ]}>
                                 <Ionicons name="lock-closed-outline" size={20} color="rgba(255,255,255,0.4)" style={styles.inputIcon} />
                                 <TextInput
                                     style={styles.textInput}
@@ -184,6 +264,11 @@ export default function RegisterScreen() {
                                     />
                                 </TouchableOpacity>
                             </View>
+                            {passwordError ? (
+                                <Text style={[styles.validationText, { color: THEME.errorText }]}>{passwordError}</Text>
+                            ) : passwordSuccess ? (
+                                <Text style={[styles.validationText, { color: THEME.successText }]}>{passwordSuccess}</Text>
+                            ) : null}
                         </View>
                     </View>
                 </View>
@@ -320,6 +405,12 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontSize: 16,
         height: '100%',
+    },
+    validationText: {
+        fontSize: 14,
+        fontWeight: '600',
+        marginLeft: 4,
+        marginTop: 4,
     },
     footerContainer: {
         marginTop: 'auto',
