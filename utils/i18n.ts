@@ -770,7 +770,7 @@ export const translations = {
         // Exercises
         ex_n1_title: 'Inclinaciones de cuello',
         ex_n1_desc: 'Inclina suavemente la cabeza de lado a lado, manteniendo 15 segundos cada lado.',
-        ex_n2_title: 'Rotaciones de cuello',
+        ex_n2_title: 'Rotations de cuello',
         ex_n2_desc: 'Gira lentamente el cuello en un movimiento circular.',
         ex_s1_title: 'Giros de hombros',
         ex_s1_desc: 'Gira los hombros hacia adelante y hacia atrás para liberar tensión.',
@@ -836,5 +836,7 @@ export const getTranslation = (lang: Language, key: keyof typeof translations['e
     const targetLang = translations[lang] ? lang : 'en';
     const translation = translations[targetLang] as Record<string, string>;
     const fallback = translations['en'] as Record<string, string>;
-    return translation[key] || fallback[key] || key;
+
+    const result = translation[key] || fallback[key] || key;
+    return String(result || '');
 };

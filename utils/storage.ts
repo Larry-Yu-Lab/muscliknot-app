@@ -1,5 +1,5 @@
+import { Exercise } from '@/data/exercises';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Exercise } from '../data/exercises';
 
 export interface HistoryItem {
     id: string;

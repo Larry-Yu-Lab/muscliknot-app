@@ -3,9 +3,9 @@ import { Tabs } from 'expo-router';
 import React from 'react';
 
 import { HapticTab } from '@/components/haptic-tab';
-import { Colors } from '../../constants/theme';
-import { usePreferences } from '../context/PreferencesContext';
-import { getTranslation } from '../utils/i18n';
+import { Colors } from '@/constants/theme';
+import { usePreferences } from '@/context/PreferencesContext';
+import { getTranslation } from '@/utils/i18n';
 
 
 export default function TabLayout() {

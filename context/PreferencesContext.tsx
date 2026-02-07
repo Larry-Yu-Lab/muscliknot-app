@@ -1,7 +1,7 @@
+import { isSupportedLanguage } from '@/utils/i18n';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useColorScheme as _useColorScheme } from 'react-native';
-import { isSupportedLanguage } from '../utils/i18n';
 
 type Language = 'en' | 'zh' | 'fr' | 'es';
 type Theme = 'light' | 'dark';

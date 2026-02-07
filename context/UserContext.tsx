@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { useAuth } from './AuthContext';
 
 // Define the shape of the user data
 export interface UserData {
@@ -25,12 +26,12 @@ interface UserContextType {
 }
 
 const defaultUser: UserData = {
-    name: 'Alex Rivera',
-    avatarUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBNnzd-GV3B24Bcd6xHjlfFuasANL03ODkk-uPd2oMVJxTUGZ9UP425kJTEiSa54sI4kiDChYi_6GpkJMzmV3izbk6t50URWJE21zP0gZvRu_S8HMBYJBCb3U_7bXD7zGKsva8EppfGZqYDZjX4_txR-_COedD6zdQQzdy3HyR1ofKmgdwZ-fmRN5yohGUtr3UGE3cVqifwpGTOKYdJ1KD7FmKgHWgkFl3qu9qvMFiPEDFRAx9JTIcsRjcHGcwwV2ca8Z4sS-H4rZWc',
+    name: 'Guest User',
+    avatarUrl: 'https://ui-avatars.com/api/?name=Guest+User&background=random',
     status: 'DATA-DRIVEN ATHLETE',
-    isPremium: true,
+    isPremium: false,
     stats: {
-        workouts: 0, // This might be loaded from storage/history
+        workouts: 0,
         recoveryScore: 92,
         streakDays: 1,
     },
@@ -38,14 +39,31 @@ const defaultUser: UserData = {
         fitnessLevel: 'ADVANCED',
         level: 8,
         levelProgress: 78,
-        injuryRecovery: 12, // +12%
+        injuryRecovery: 12,
     }
 };
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+    const { user: authUser } = useAuth();
     const [user, setUser] = useState<UserData>(defaultUser);
+
+    useEffect(() => {
+        if (authUser) {
+            // Update user data from Supabase Auth metadata
+            const meta = authUser.user_metadata;
+            setUser(prev => ({
+                ...prev,
+                name: meta.full_name || 'User',
+                avatarUrl: meta.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(meta.full_name || 'User')}&background=f97316&color=fff`,
+                isPremium: true, // simplified for demo
+            }));
+        } else {
+            // Reset to guest/default if logged out (though route protection should prevent this screen access)
+            setUser(defaultUser);
+        }
+    }, [authUser]);
 
     const updateUser = (data: Partial<UserData>) => {
         setUser(prev => ({ ...prev, ...data }));

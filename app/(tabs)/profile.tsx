@@ -1,15 +1,15 @@
+import { CustomToggle } from '@/components/ui/CustomToggle';
 import { Colors } from '@/constants/theme';
+import { usePreferences } from '@/context/PreferencesContext';
+import { useUser } from '@/context/UserContext';
+import { getTranslation, LANGUAGES } from '@/utils/i18n';
+import { getHistory } from '@/utils/storage';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useState } from 'react';
 import { Dimensions, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Svg, { Circle, Path } from 'react-native-svg';
-import { CustomToggle } from '../../components/ui/CustomToggle';
-import { usePreferences } from '../context/PreferencesContext';
-import { useUser } from '../context/UserContext';
-import { getTranslation, LANGUAGES } from '../utils/i18n';
-import { getHistory } from '../utils/storage';
 
 const { width } = Dimensions.get('window');
 

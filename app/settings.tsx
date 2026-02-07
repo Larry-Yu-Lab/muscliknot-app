@@ -1,11 +1,11 @@
+import { CustomToggle } from '@/components/ui/CustomToggle';
+import { Colors } from '@/constants/theme';
+import { usePreferences } from '@/context/PreferencesContext';
+import { getTranslation, LANGUAGES } from '@/utils/i18n';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { CustomToggle } from '../components/ui/CustomToggle';
-import { Colors } from '../constants/theme';
-import { usePreferences } from './context/PreferencesContext';
-import { getTranslation, LANGUAGES } from './utils/i18n';
 
 interface SettingsRowProps {
     icon: string;

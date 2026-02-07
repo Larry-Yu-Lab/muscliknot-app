@@ -1,11 +1,11 @@
+import { Colors } from '@/constants/theme';
+import { usePreferences } from '@/context/PreferencesContext';
+import { getTranslation } from '@/utils/i18n';
+import { getHistory, HistoryItem } from '@/utils/storage';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from 'expo-router';
 import React, { useCallback, useState } from 'react';
 import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Colors } from '../../constants/theme';
-import { usePreferences } from '../context/PreferencesContext';
-import { getTranslation } from '../utils/i18n';
-import { getHistory, HistoryItem } from '../utils/storage';
 
 export default function HistoryScreen() {
     const [history, setHistory] = useState<HistoryItem[]>([]);

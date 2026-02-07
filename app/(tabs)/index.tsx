@@ -1,3 +1,8 @@
+import { getMusclesInArea } from '@/components/AnatomyMap';
+import { Colors } from '@/constants/theme';
+import { usePreferences } from '@/context/PreferencesContext';
+import { useUser } from '@/context/UserContext';
+import { getTranslation } from '@/utils/i18n';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
@@ -5,10 +10,6 @@ import React, { useEffect, useState } from 'react';
 import { SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { runOnJS, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
-import { Colors } from '../../constants/theme';
-import { getMusclesInArea } from '../components/AnatomyMap';
-import { usePreferences } from '../context/PreferencesContext';
-import { getTranslation } from '../utils/i18n';
 
 
 type ViewState = 'Front' | 'Back';
@@ -108,6 +109,7 @@ const DraggableOval = ({ initialX, initialY, initialWidth, initialHeight, initia
 export default function HomeScreen() {
   const router = useRouter();
   const { language, theme } = usePreferences();
+  const { user } = useUser();
   const t = (key: Parameters<typeof getTranslation>[1]) => getTranslation(language, key);
   const colors = Colors[theme];
   const isDark = theme === 'dark';
@@ -192,12 +194,12 @@ export default function HomeScreen() {
         <View style={[styles.header, { backgroundColor: colors.headerBackground }]}>
           <View style={styles.headerLeft}>
             <Image
-              source={{ uri: "https://lh3.googleusercontent.com/aida-public/AB6AXuATfKINBnYddwALYOWgnuRoHefSk8YUwGzzqj09-y9OuUOYSlHWWTUDnJ-ATViJk106sgPtrQ7TGy5HW82D9CW8zxe4GUAvHl7Yv2kpQUMKw3UyP3fEk87uibvOm8nOTMzJQ0Joy_l7k3uN4g4B5gOO4GPpj7iMDX55B2u0lQXz-SR1fnS_PzRZShxB4XFzO8nPITSCqGOHZic_6yrSbnBTSwfP6YAh_977r7ima5hru3ocwA6w4pwZNSguCa_wBXPsBNyeyHUrU75c" }}
+              source={{ uri: user.avatarUrl }}
               style={styles.avatar}
             />
             <View>
               <Text style={[styles.greetingSub, { color: colors.textSecondary }]}>{t('letsRecover')}</Text>
-              <Text style={[styles.greetingTitle, { color: colors.text }]}>{t('welcomeBack')}</Text>
+              <Text style={[styles.greetingTitle, { color: colors.text }]}>Hello, {user.name.split(' ')[0]}</Text>
             </View>
           </View>
           <TouchableOpacity style={[styles.notificationButton, { backgroundColor: isDark ? 'rgba(255, 255, 255, 0.05)' : colors.cardBackground, borderColor: colors.cardBorder }]}>
@@ -205,7 +207,6 @@ export default function HomeScreen() {
             <View style={styles.notificationDot} />
           </TouchableOpacity>
         </View>
-
         {/* Search */}
         <View style={[styles.searchContainer, { backgroundColor: colors.inputBackground, borderColor: colors.cardBorder }]}>
           <View style={styles.searchIconContainer}>

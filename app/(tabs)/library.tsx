@@ -1,11 +1,11 @@
+import { Colors } from '@/constants/theme';
+import { usePreferences } from '@/context/PreferencesContext';
+import { EXERCISES } from '@/data/exercises';
+import { getTranslation } from '@/utils/i18n';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import React, { useMemo, useState } from 'react';
 import { SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { Colors } from '../../constants/theme';
-import { usePreferences } from '../context/PreferencesContext';
-import { EXERCISES } from '../data/exercises';
-import { getTranslation } from '../utils/i18n';
 
 const categories = ['All', 'Relief', 'Warm-ups', 'Yoga', 'Posture', 'Strength'];
 const reliefMuscleGroups = ['All', 'Neck', 'Shoulders', 'Upper Back', 'Lower Back', 'Glutes', 'Legs'];

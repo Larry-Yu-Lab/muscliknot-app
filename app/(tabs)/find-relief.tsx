@@ -1,15 +1,15 @@
+import { fetchExercisesByMuscleAndSize } from '@/components/AnatomyMap';
+import { Colors } from '@/constants/theme';
+import { usePreferences } from '@/context/PreferencesContext';
+import { getExercisesForPosition } from '@/data/exercises';
+import { getTranslation } from '@/utils/i18n';
+import { saveToHistory } from '@/utils/storage';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as React from 'react';
 import { useRef, useState } from 'react';
 import { Alert, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Colors } from '../../constants/theme';
-import { fetchExercisesByMuscleAndSize } from '../components/AnatomyMap';
-import { usePreferences } from '../context/PreferencesContext';
-import { getExercisesForPosition } from '../data/exercises';
-import { getTranslation } from '../utils/i18n';
-import { saveToHistory } from '../utils/storage';
 
 export default function FindReliefScreen() {
     const router = useRouter();
@@ -53,7 +53,14 @@ export default function FindReliefScreen() {
         fetchExercises();
     }, [muscleId, size, y, view]);
 
-    const targetMuscle = exercises.length > 0 ? (exercises[0].muscleGroup || exercises[0].muscle_id) : 'General';
+    const targetMuscle = React.useMemo(() => {
+        if (exercises.length === 0) return 'General';
+        const ex = exercises[0];
+        if (ex.muscleGroup) return ex.muscleGroup;
+        if (Array.isArray(ex.muscle_id) && ex.muscle_id.length > 0) return ex.muscle_id[0];
+        if (typeof ex.muscle_id === 'string') return ex.muscle_id;
+        return 'General';
+    }, [exercises]);
 
     // Helper to get translated muscle name if available, else fallback to English name
     const getMuscleName = (name: string) => {
@@ -142,13 +149,13 @@ export default function FindReliefScreen() {
                     <View style={[styles.badge, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
                         <Ionicons name="fitness-outline" size={20} color={colors.accent} />
                         <Text style={[styles.badgeText, { color: colors.text }]}>
-                            {isLoading ? '...' : t('exercisesCount').replace('${count}', exercises.length.toString())}
+                            {isLoading ? '...' : t('exercisesCount').replace('${count}', (exercises?.length || 0).toString())}
                         </Text>
                     </View>
                     <View style={[styles.badge, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
                         <Ionicons name="timer-outline" size={20} color={colors.accent} />
                         <Text style={[styles.badgeText, { color: colors.text }]}>
-                            {isLoading ? '...' : t('approxMins').replace('${min}', String(exercises.length * 4))}
+                            {isLoading ? '...' : t('approxMins').replace('${min}', String((exercises?.length || 0) * 4))}
                         </Text>
                     </View>
                 </View>
