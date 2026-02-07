@@ -202,72 +202,83 @@ export default function FindReliefScreen() {
                     </View>
                 </View>
 
-                {/* Single Exercise with Detailed Instructions */}
+                {/* Organized Exercise Instructions */}
                 <View style={styles.instructionsSection}>
-                    <Text style={styles.instructionsTitle}>{t('stretchInstructions')}</Text>
+                    <Text style={[styles.instructionsTitle, { color: '#fff' }]}>{t('stretchInstructions')}</Text>
 
                     {isLoading ? (
-                        <Text style={{ color: colors.textSecondary, textAlign: 'center', padding: 20 }}>Loading...</Text>
+                        <Text style={{ color: '#fff', textAlign: 'center', padding: 20 }}>Loading...</Text>
                     ) : exercises.length === 0 ? (
-                        <Text style={{ color: colors.textSecondary, textAlign: 'center', padding: 20 }}>No exercises found for this area.</Text>
+                        <Text style={{ color: 'rgba(255,255,255,0.6)', textAlign: 'center', padding: 20 }}>No exercises found for this area.</Text>
                     ) : (
-                        // Display the FIRST matched exercise with detailed instructions
                         (() => {
                             const ex = exercises[0];
-                            // Parse instructions into steps (split by newlines or periods)
+                            // Parse instructions into actual steps (split by newlines or numbered patterns like "1.", "2.")
                             const instructionSteps = ex.instructions
-                                ? ex.instructions.split(/\n|(?<=\.)\s+/).filter((s: string) => s.trim().length > 0)
+                                ? ex.instructions.split(/\n|(?:\d+\.\s*)/).filter((s: string) => s.trim().length > 0)
                                 : [];
 
                             return (
                                 <View>
-                                    {/* Exercise Title Card */}
-                                    <View style={[styles.instructionCard, { marginBottom: 16 }]}>
+                                    {/* Exercise Header - Icon only, no number */}
+                                    <View style={[styles.instructionCard, { backgroundColor: 'rgba(249, 115, 22, 0.15)', borderColor: colors.accent, borderWidth: 1, marginBottom: 12 }]}>
                                         <View style={[styles.stepNumber, { backgroundColor: colors.accent }]}>
                                             <Ionicons name="fitness-outline" size={20} color="#000" />
                                         </View>
                                         <View style={styles.stepContent}>
-                                            <Text style={styles.stepTitle}>
+                                            <Text style={{ fontSize: 18, fontWeight: '800', color: '#fff' }}>
                                                 {ex.solution_stretch || ex.common_name || 'Relief Exercise'}
                                             </Text>
-                                            {ex.common_name && ex.solution_stretch && (
-                                                <Text style={[styles.stepDescription, { marginTop: 4 }]}>
-                                                    Target: {ex.common_name}
-                                                </Text>
-                                            )}
-                                            {ex.why && (
-                                                <Text style={[styles.stepDescription, { marginTop: 8, color: colors.accent, fontWeight: '600' }]}>
-                                                    Why: {ex.why}
+                                            {ex.common_name && (
+                                                <Text style={{ marginTop: 4, color: 'rgba(255,255,255,0.6)', fontSize: 14 }}>
+                                                    Target Muscle: {ex.common_name}
                                                 </Text>
                                             )}
                                         </View>
                                     </View>
 
-                                    {/* Step-by-step Instructions */}
-                                    {instructionSteps.length > 0 ? (
-                                        instructionSteps.map((step: string, index: number) => (
-                                            <View key={index} style={styles.instructionCard}>
-                                                <View style={styles.stepNumber}>
-                                                    <Text style={styles.stepNumberText}>{index + 1}</Text>
-                                                </View>
-                                                <View style={styles.stepContent}>
-                                                    <Text style={styles.stepDescription}>{step.trim()}</Text>
-                                                </View>
-                                            </View>
-                                        ))
-                                    ) : ex.process ? (
-                                        // Fallback to process if no instructions
+                                    {/* Why This Helps - Widget with orange rounded square number */}
+                                    {ex.why && (
                                         <View style={styles.instructionCard}>
-                                            <View style={styles.stepNumber}>
-                                                <Text style={styles.stepNumberText}>1</Text>
+                                            <View style={[styles.stepNumber, { backgroundColor: '#f97316', borderRadius: 8 }]}>
+                                                <Text style={[styles.stepNumberText, { color: '#000', fontWeight: '800' }]}>1</Text>
                                             </View>
                                             <View style={styles.stepContent}>
-                                                <Text style={styles.stepDescription}>{ex.process}</Text>
+                                                <Text style={{ fontSize: 14, fontWeight: '700', color: colors.accent, marginBottom: 4 }}>Why This Helps</Text>
+                                                <Text style={{ color: '#fff', lineHeight: 22 }}>{ex.why}</Text>
                                             </View>
                                         </View>
-                                    ) : (
-                                        <Text style={{ color: colors.textSecondary, textAlign: 'center', padding: 20 }}>
-                                            No detailed instructions available.
+                                    )}
+
+                                    {/* Each Instruction Step as its own numbered widget */}
+                                    {instructionSteps.length > 0 && instructionSteps.map((step: string, index: number) => (
+                                        <View key={index} style={styles.instructionCard}>
+                                            <View style={[styles.stepNumber, { backgroundColor: '#f97316', borderRadius: 8 }]}>
+                                                <Text style={[styles.stepNumberText, { color: '#000', fontWeight: '800' }]}>{(ex.why ? 2 : 1) + index}</Text>
+                                            </View>
+                                            <View style={styles.stepContent}>
+                                                <Text style={{ color: '#fff', lineHeight: 22 }}>{step.trim()}</Text>
+                                            </View>
+                                        </View>
+                                    ))}
+
+                                    {/* Process - Widget with orange rounded square number */}
+                                    {ex.process && (
+                                        <View style={styles.instructionCard}>
+                                            <View style={[styles.stepNumber, { backgroundColor: '#f97316', borderRadius: 8 }]}>
+                                                <Text style={[styles.stepNumberText, { color: '#000', fontWeight: '800' }]}>{(ex.why ? 1 : 0) + instructionSteps.length + 1}</Text>
+                                            </View>
+                                            <View style={styles.stepContent}>
+                                                <Text style={{ fontSize: 14, fontWeight: '700', color: colors.accent, marginBottom: 4 }}>Process</Text>
+                                                <Text style={{ color: '#fff', lineHeight: 22 }}>{ex.process}</Text>
+                                            </View>
+                                        </View>
+                                    )}
+
+                                    {/* Fallback if nothing available */}
+                                    {!ex.why && !ex.instructions && !ex.process && (
+                                        <Text style={{ color: 'rgba(255,255,255,0.6)', textAlign: 'center', padding: 20 }}>
+                                            No detailed instructions available for this exercise.
                                         </Text>
                                     )}
                                 </View>
@@ -283,7 +294,7 @@ export default function FindReliefScreen() {
                     <Text style={styles.completeButtonText}>{t('markAsComplete')}</Text>
                 </TouchableOpacity>
             </View>
-        </SafeAreaView>
+        </SafeAreaView >
     );
 }
 
