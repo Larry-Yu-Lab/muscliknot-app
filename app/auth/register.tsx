@@ -116,7 +116,7 @@ export default function RegisterScreen() {
                     >
                         <Ionicons name="chevron-back" size={24} color="#fff" />
                     </TouchableOpacity>
-                    <Text style={styles.stepText}>Step 5 of 5</Text>
+                    <Text style={styles.stepText}>Step 5 of 5 (DEBUG MODE)</Text>
                     <View style={{ width: 40 }} />
                 </View>
 
