@@ -87,6 +87,16 @@ export default function LibraryScreen() {
                 if (error) {
                     console.error('Error fetching exercises:', error);
                 } else if (data) {
+                    // Map database exercise_type to app category names
+                    const categoryMap: Record<string, string> = {
+                        'relief': 'Relief',
+                        'posture': 'Posture',
+                        'warmup': 'Warm-ups',
+                        'warmups': 'Warm-ups',
+                        'yoga': 'Yoga',
+                        'strength': 'Strength',
+                    };
+
                     // Transform Supabase data to match local exercise format
                     const transformed = data.map((ex: any) => ({
                         id: ex.id?.toString() || String(Math.random()),
@@ -94,7 +104,7 @@ export default function LibraryScreen() {
                         duration: '3-5 min',
                         target: ex.common_name || 'General',
                         muscleGroup: ex.common_name?.split(' ')[0] || 'General',
-                        category: 'Relief',
+                        category: categoryMap[ex.exercise_type?.toLowerCase()] || 'Relief',
                         image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAQvExJHNf-gPBvV9mafHYX_QH4RDM2a10DReFfan-2uta-tGIgoYLy2YcqV88Fw966WlK2bhvku-3_4e5f88wGpuO0qaD_Yr1qPxSQtigGhxM0Sq6uOtWbw-JV0RDp_0RmODacO147g0dvAY693HSe3XPVdm2eTzs6ER9VAKERpdSDpdD1MgVcJ8HJCDesjsxF-hhw0aRZc-sY0sB3sHox58BbJ7vYjkyyLq8KDnpbu4x0PolLYeNnsL3Q3fcRFHU5BkgY0KWaZ8NP',
                         instructions: ex.instructions,
                         why: ex.why,
