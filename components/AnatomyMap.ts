@@ -80,8 +80,8 @@ export const handleSelection = async (
 };
 
 /**
- * Fetch exercises by specific muscle ID and target area size
- * Uses .contains() for the text[] muscle_id column
+ * Fetch exercises by specific muscle ID
+ * Since your database has muscle_id = null, we search by common_name instead
  */
 export const fetchExercisesByMuscleAndSize = async (
     muscleId: string,
@@ -92,23 +92,35 @@ export const fetchExercisesByMuscleAndSize = async (
         return [];
     }
 
-    try {
-        console.log(`Fetching exercises for muscle: ${muscleId} (ignoring size: ${size})`);
+    // Map app muscle zones to search keywords that match your database's common_name values
+    const muscleKeywords: Record<string, string[]> = {
+        'neck': ['trapezius', 'levator', 'sternocleidomastoid', 'scalene', 'splenius'],
+        'traps': ['trapezius', 'levator', 'scapulae'],
+        'upper_back': ['rhomboid', 'trapezius', 'thoracic'],
+        'lower_back': ['lumbar', 'erector', 'quadratus'],
+        'glutes': ['gluteus', 'piriformis'],
+        'legs': ['hamstring', 'quadriceps', 'calf', 'gastrocnemius', 'tibialis'],
+    };
 
-        // Relaxed query: We now ignore 'target_area_size' to ensure we get results 
-        // regardless of the drawing size (Small/Medium/Large).
+    const keywords = muscleKeywords[muscleId] || [muscleId];
+
+    try {
+        console.log(`Searching for exercises matching: ${keywords.join(', ')}`);
+
+        // Build OR conditions for all keywords
+        const orConditions = keywords.map(k => `common_name.ilike.%${k}%`).join(',');
+
         const { data, error } = await supabase
             .from('recovery_knowledge_base')
             .select('*')
-            .contains('muscle_id', [muscleId]);
-        // .eq('target_area_size', size); // REMOVED: Caused strict filtering issues
+            .or(orConditions);
 
         if (error) {
             console.error('Error fetching exercises:', error);
             return [];
         }
 
-        console.log(`Found ${data?.length} exercises for ${muscleId}`);
+        console.log(`Found ${data?.length || 0} exercises`);
         return data || [];
     } catch (err) {
         console.error('Unexpected error:', err);
