@@ -1,50 +1,96 @@
-# Welcome to your Expo app 👋
+# MuscliKnot 🧘‍♂️💪
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+**MuscliKnot** is a comprehensive muscle recovery and pain relief application built with **React Native** and **Expo**. It empowers users to visualize, track, and alleviate muscle pain through interactive anatomy mapping, personalized relief plans, and a vast library of exercises.
 
-## Get started
+---
 
-1. Install dependencies
+## 📱 App Functionality & Features
 
-   ```bash
-   npm install
-   ```
+### 1. 🏠 Interactive Body Visualizer (Home)
+The core feature of the app is an interactive human anatomy model that allows users to pinpoint pain with precision.
+*   **Dual View:** Toggle between **Front** and **Back** muscle views.
+*   **Smart Pain Mapping:** Users can drag, place, resize, and rotate a "Pain Marker" oval on the body map.
+*   **Relief Generation:** The app analyzes the marker's position and size to identify underlying muscle groups and generates a tailored relief plan.
+*   **Quick Access:** "Recent Plans" for quick re-access to previous relief sessions.
 
-2. Start the app
+### 2. 🚑 Relief Plan Generator (Find Relief)
+Once a pain point is selected, users are guided through a structured relief session.
+*   **Targeted Exercises:** Displays a curated list of exercises specific to the selected muscle group.
+*   **Video Guidance:** Includes video thumbnails and playback UI for visual instruction.
+*   **Step-by-Step Instructions:** Detailed text instructions for Setup, Movement, and Holds.
+*   **Pain Assessment:** Users can rate their pain intensity (1-10) before/after sessions.
+*   **Completion Tracking:** "Mark as Complete" saves the session to history.
 
-   ```bash
-   npx expo start
-   ```
+### 3. 📅 Recovery History
+Tracks the user's recovery journey over time.
+*   **Stats Overview:** Displays total sessions, recovery streaks, and the "Most Targeted" muscle group.
+*   **Weekly Reports:** Insights into weekly progress.
+*   **Interactive Timeline:** A visual scrollable timeline of all past completed sessions with dates and specific relief targets.
 
-In the output, you'll find options to open the app in a
+### 4. 📚 Exercise Library
+A searchable database of all available exercises.
+*   **Categorization:** Filter by categories like **Relief**, **Warm-ups**, **Yoga**, **Posture**, and **Strength**.
+*   **Muscle Group Filtering:** Specific filters (e.g., Neck, Shoulders, Lower Back) available when viewing "Relief" exercises.
+*   **Search:** Real-time search functionality by exercise title.
+*   **Detailed Cards:** Shows duration, target muscle, and difficulty for each exercise.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+### 5. 👤 Profile & Dashboard
+A gamified user hub for settings and progress.
+*   **User Stats:** Tracks "Workouts", "Recovery Score", and "Streak Days".
+*   **Gamification:** Features an "Athlete Level" with a visual progress ring and badges.
+*   **Health Vault:** Visualizes specific health metrics like "Injury History" and "Fitness Level".
+*   **Settings:**
+    *   **Theme:** Toggle **Dark Mode** / Light Mode.
+    *   **Notifications:** Enable/Disable app alerts.
+    *   **Language:** Multi-language support (English, French, Spanish, Chinese, etc.).
+*   **Plans:** UI for viewing/upgrading subscription plans (Elite vs Pro).
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+---
 
-## Get a fresh project
+## 🛠 Tech Stack
 
-When you're ready, run:
+*   **Framework:** [React Native](https://reactnative.dev/) (v0.81) via [Expo](https://expo.dev/) (SDK 54).
+*   **Routing:** [Expo Router](https://docs.expo.dev/router/introduction/) (File-based routing).
+*   **Language:** TypeScript.
+*   **Styling:** `StyleSheet`, `react-native-svg` (for charts/rings).
+*   **Animations & Gestures:** 
+    *   `react-native-reanimated` (Smooth UI transitions).
+    *   `react-native-gesture-handler` (Complex interactions for the body map).
+*   **State Management:** React Context (`UserContext`, `PreferencesContext`).
+*   **Data Persistence:** `AsyncStorage` (Local history/settings).
+*   **Backend Integration:** Supabase (Client configured for future cloud sync/auth).
 
-```bash
-npm run reset-project
-```
+---
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## 🚀 Getting Started
 
-## Learn more
+1.  **Install Dependencies:**
+    ```bash
+    npm install
+    ```
 
-To learn more about developing your project with Expo, look at the following resources:
+2.  **Start the App:**
+    ```bash
+    npx expo start
+    ```
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+3.  **Run on Device/Simulator:**
+    *   Scan the QR code with the **Expo Go** app (Android/iOS).
+    *   Press `a` for Android Emulator or `i` for iOS Simulator.
 
-## Join the community
+---
 
-Join our community of developers creating universal apps.
+## 📂 Project Structure
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+*   `app/(tabs)`: Main tab-based screens (`index`, `find-relief`, `history`, `library`, `profile`).
+*   `components/`: Reusable UI components (e.g., `AnatomyMap.ts`, custom toggles).
+*   `context/`: Global state providers (`PreferencesContext`, `UserContext`).
+*   `constants/`: Theme colors and configuration.
+*   `assets/`: Images (muscle maps) and icons.
+*   `utils/`: Helper functions for localization (`i18n`) and storage.
+
+---
+
+> [!IMPORTANT]  
+> **Documentation Maintenance:**  
+> This `README.md` serves as the central source of truth for the app's functionality. **If you add a new function, screen, or capability to the app, you MUST update this file to reflect those changes.** Keep specific features listed under the "App Functionality" section.
