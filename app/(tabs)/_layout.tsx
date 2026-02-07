@@ -78,6 +78,14 @@ export default function TabLayout() {
           href: null,
         }}
       />
+
+      {/* Hide Pain Assessment - only accessible via navigation from Generate Relief Plan */}
+      <Tabs.Screen
+        name="pain-assessment"
+        options={{
+          href: null,
+        }}
+      />
     </Tabs>
   );
 }

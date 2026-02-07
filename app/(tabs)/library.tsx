@@ -2,9 +2,10 @@ import { Colors } from '@/constants/theme';
 import { usePreferences } from '@/context/PreferencesContext';
 import { EXERCISES } from '@/data/exercises';
 import { getTranslation } from '@/utils/i18n';
+import { supabase } from '@/utils/supabase';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 const categories = ['All', 'Relief', 'Warm-ups', 'Yoga', 'Posture', 'Strength'];
@@ -58,17 +59,68 @@ const ExerciseCard = ({ id, title, duration, target, image, t, colors }: Exercis
     );
 };
 
+
 export default function LibraryScreen() {
     const [activeCategory, setActiveCategory] = useState('All');
     const [activeMuscleGroup, setActiveMuscleGroup] = useState('All');
     const [searchQuery, setSearchQuery] = useState('');
+    const [supabaseExercises, setSupabaseExercises] = useState<any[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
 
     const { language, theme } = usePreferences();
     const t = (key: Parameters<typeof getTranslation>[1]) => getTranslation(language, key);
     const colors = Colors[theme];
 
+    // Fetch all exercises from Supabase
+    useEffect(() => {
+        const fetchAllExercises = async () => {
+            if (!supabase) {
+                setIsLoading(false);
+                return;
+            }
+
+            try {
+                const { data, error } = await supabase
+                    .from('recovery_knowledge_base')
+                    .select('*');
+
+                if (error) {
+                    console.error('Error fetching exercises:', error);
+                } else if (data) {
+                    // Transform Supabase data to match local exercise format
+                    const transformed = data.map((ex: any) => ({
+                        id: ex.id?.toString() || String(Math.random()),
+                        title: ex.solution_stretch || ex.common_name || 'Unknown Exercise',
+                        duration: '3-5 min',
+                        target: ex.common_name || 'General',
+                        muscleGroup: ex.common_name?.split(' ')[0] || 'General',
+                        category: 'Relief',
+                        image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAQvExJHNf-gPBvV9mafHYX_QH4RDM2a10DReFfan-2uta-tGIgoYLy2YcqV88Fw966WlK2bhvku-3_4e5f88wGpuO0qaD_Yr1qPxSQtigGhxM0Sq6uOtWbw-JV0RDp_0RmODacO147g0dvAY693HSe3XPVdm2eTzs6ER9VAKERpdSDpdD1MgVcJ8HJCDesjsxF-hhw0aRZc-sY0sB3sHox58BbJ7vYjkyyLq8KDnpbu4x0PolLYeNnsL3Q3fcRFHU5BkgY0KWaZ8NP',
+                        instructions: ex.instructions,
+                        why: ex.why,
+                        process: ex.process,
+                    }));
+                    setSupabaseExercises(transformed);
+                }
+            } catch (err) {
+                console.error('Unexpected error:', err);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchAllExercises();
+    }, []);
+
+    // Combine local exercises with Supabase exercises (prioritize Supabase for Relief)
+    const allExercises = useMemo(() => {
+        // For Relief category, use Supabase exercises
+        // For other categories, use local exercises
+        return [...EXERCISES, ...supabaseExercises];
+    }, [supabaseExercises]);
+
     const filteredExercises = useMemo(() => {
-        return EXERCISES.filter(ex => {
+        return allExercises.filter(ex => {
             // 1. Search Query
             if (searchQuery && !ex.title.toLowerCase().includes(searchQuery.toLowerCase())) return false;
 
@@ -77,12 +129,14 @@ export default function LibraryScreen() {
 
             // 3. Sub-category (Muscle Group) for Relief
             if (activeCategory === 'Relief' && activeMuscleGroup !== 'All') {
-                if (ex.muscleGroup !== activeMuscleGroup) return false;
+                const muscleMatch = ex.muscleGroup?.toLowerCase().includes(activeMuscleGroup.toLowerCase()) ||
+                    ex.target?.toLowerCase().includes(activeMuscleGroup.toLowerCase());
+                if (!muscleMatch) return false;
             }
 
             return true;
         });
-    }, [activeCategory, activeMuscleGroup, searchQuery]);
+    }, [activeCategory, activeMuscleGroup, searchQuery, allExercises]);
 
     const isFiltering = activeCategory !== 'All' || searchQuery.length > 0;
 

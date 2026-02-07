@@ -8,15 +8,13 @@ import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as React from 'react';
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { Alert, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function FindReliefScreen() {
     const router = useRouter();
-    const params = useLocalSearchParams(); // { x, y, view, timestamp, size, muscleId }
-    const [painLevel, setPainLevel] = useState(6);
-    const [isSliderActive, setIsSliderActive] = useState(false);
-    const trackWidth = useRef(0);
+    const params = useLocalSearchParams(); // { x, y, view, timestamp, size, muscleId, painLevel, duration, cause }
+
 
     const { language, theme } = usePreferences();
     const t = (key: Parameters<typeof getTranslation>[1]) => getTranslation(language, key);
@@ -93,23 +91,14 @@ export default function FindReliefScreen() {
         ]);
     };
 
-    const handleSliderTouch = (event: any) => {
-        setIsSliderActive(true);
-        const touchX = event.nativeEvent.locationX;
-        if (trackWidth.current > 0) {
-            const percent = touchX / trackWidth.current;
-            // Use Math.round with a slight bias to make it feel more "snappy" and sensitive
-            const newValue = Math.max(1, Math.min(10, Math.round(percent * 10)));
-            setPainLevel(newValue);
-        }
-    };
+
+
 
     const totalMinutes = exercises.length * 3; // Approx duration
 
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
             <ScrollView
-                scrollEnabled={!isSliderActive}
                 scrollEventThrottle={16}
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={styles.scrollContent}
@@ -162,45 +151,6 @@ export default function FindReliefScreen() {
                     </View>
                 </View>
 
-                {/* Pain Assessment */}
-                <View style={[styles.assessmentCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
-                    <View style={styles.assessmentHeader}>
-                        <Ionicons name="analytics-outline" size={24} color={colors.accent} />
-                        <Text style={[styles.assessmentTitle, { color: colors.text }]}>{t('painAssessment')}</Text>
-                    </View>
-                    <View style={styles.assessmentContent}>
-                        <View style={styles.scaleHeader}>
-                            <Text style={styles.scaleLabel}>{t('rateIntensity')}</Text>
-                            <View style={styles.scaleBadge}>
-                                <Text style={styles.scaleBadgeText}>{t('scale1to10')}</Text>
-                            </View>
-                        </View>
-                        <View style={styles.sliderContainer}>
-                            <View
-                                style={styles.sliderTrack}
-                                hitSlop={{ top: 20, bottom: 20, left: 10, right: 10 }}
-                                onLayout={(e) => {
-                                    trackWidth.current = e.nativeEvent.layout.width;
-                                }}
-                                onStartShouldSetResponder={() => true}
-                                onMoveShouldSetResponder={() => true}
-                                onResponderGrant={handleSliderTouch}
-                                onResponderMove={handleSliderTouch}
-                                onResponderRelease={() => setIsSliderActive(false)}
-                                onResponderTerminate={() => setIsSliderActive(false)}
-                            >
-                                <View pointerEvents="none" style={[styles.sliderFill, { width: `${painLevel * 10}%` }]} />
-                                <View pointerEvents="none" style={[styles.sliderThumb, { left: `${painLevel * 10}%` }]} />
-                            </View>
-                            <Text style={styles.painNumber}>{painLevel}</Text>
-                        </View>
-                        <View style={styles.sliderLabels}>
-                            <Text style={styles.sliderLabel}>{t('mild')}</Text>
-                            <Text style={styles.sliderLabel}>{t('moderate')}</Text>
-                            <Text style={styles.sliderLabel}>{t('severe')}</Text>
-                        </View>
-                    </View>
-                </View>
 
                 {/* Organized Exercise Instructions */}
                 <View style={styles.instructionsSection}>

@@ -177,7 +177,7 @@ export default function HomeScreen() {
       });
 
       router.push({
-        pathname: '/(tabs)/find-relief',
+        pathname: '/(tabs)/pain-assessment',
         params: {
           x: activePoint.x,
           y: activePoint.y,
