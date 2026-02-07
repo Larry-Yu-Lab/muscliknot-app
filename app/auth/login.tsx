@@ -28,26 +28,40 @@ export default function LoginScreen() {
     const [loading, setLoading] = useState(false);
 
     async function signInWithEmail() {
+        console.log('Attempting to sign in with:', email);
         if (!supabase) {
+            console.error('Supabase client is null');
             Alert.alert('Configuration Error', 'Supabase client is not initialized. Please check your environment variables.');
             return;
         }
 
-        setLoading(true);
-        const { error } = await supabase.auth.signInWithPassword({
-            email: email.trim(),
-            password,
-        });
+        try {
+            setLoading(true);
+            console.log('Sending request to Supabase...');
+            const { error, data } = await supabase.auth.signInWithPassword({
+                email: email.trim(),
+                password,
+            });
 
-        if (error) {
-            Alert.alert('Login Failed', error.message);
+            console.log('Supabase response:', { error, data });
+
+            if (error) {
+                console.error('Login error:', error.message);
+                Alert.alert('Login Failed', error.message);
+            } else {
+                console.log('Login successful, navigating to home...');
+                // Navigation handled by auth listener in _layout, but explicit replacement is safer/faster
+                router.replace('/(tabs)');
+            }
+        } catch (e) {
+            console.error('Unexpected error during login:', e);
+            Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+        } finally {
             setLoading(false);
-        } else {
-            // Navigation handled by auth listener in _layout, but explicit replacement is safer/faster
-            setLoading(false);
-            router.replace('/(tabs)');
         }
     }
+
+    console.log('LoginScreen rendering. Supabase initialized:', !!supabase);
 
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
@@ -90,7 +104,10 @@ export default function LoginScreen() {
 
                     <TouchableOpacity
                         style={[styles.button, { backgroundColor: colors.accent }]}
-                        onPress={signInWithEmail}
+                        onPress={() => {
+                            console.log('Sign In Button Pressed!');
+                            signInWithEmail();
+                        }}
                         disabled={loading}
                     >
                         {loading ? (

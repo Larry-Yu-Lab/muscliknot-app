@@ -1,4 +1,3 @@
-import { Colors } from '@/constants/theme';
 import { usePreferences } from '@/context/PreferencesContext';
 import { supabase } from '@/utils/supabase';
 import { Ionicons } from '@expo/vector-icons';
@@ -20,13 +19,24 @@ import {
 export default function RegisterScreen() {
     const router = useRouter();
     const { theme } = usePreferences();
-    const colors = Colors[theme];
-    const isDark = theme === 'dark';
+
+    // Explicit Design Constants from HTML source
+    const THEME = {
+        background: '#23170f',
+        primary: '#f97316',
+        text: '#FFFFFF',
+        textMuted: 'rgba(255, 255, 255, 0.6)',
+        textDim: 'rgba(255, 255, 255, 0.3)', // placeholder
+        inputBg: 'rgba(255, 255, 255, 0.03)',
+        inputBorder: 'rgba(255, 255, 255, 0.1)',
+        inputFocusBorder: '#f97316',
+    };
 
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
 
     const validateEmail = (email: string) => {
         const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -35,7 +45,7 @@ export default function RegisterScreen() {
 
     async function signUpWithEmail() {
         if (!supabase) {
-            Alert.alert('Configuration Error', 'Supabase client is not initialized. Please check your environment variables.');
+            Alert.alert('Configuration Error', 'Supabase client is not initialized.');
             return;
         }
 
@@ -54,108 +64,166 @@ export default function RegisterScreen() {
             return;
         }
 
-        setLoading(true);
-        const { data, error } = await supabase.auth.signUp({
-            email,
-            password,
-            options: {
-                data: {
-                    full_name: name,
-                    avatar_url: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=f97316&color=fff`,
+        try {
+            setLoading(true);
+            const { data, error } = await supabase.auth.signUp({
+                email,
+                password,
+                options: {
+                    data: {
+                        full_name: name,
+                        avatar_url: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=f97316&color=fff`,
+                    },
                 },
-            },
-        });
+            });
 
-        if (error) {
-            Alert.alert('Registration Failed', error.message);
-        } else if (data.session) {
-            // Auto-login successful (Email confirmation disabled)
-            // Layout will handle redirect, but we can assume success
-            router.replace('/(tabs)');
-        } else {
-            // Email confirmation required
-            Alert.alert(
-                'Success',
-                'Please check your inbox for email verification!',
-                [{ text: 'OK', onPress: () => router.replace('/auth/login') }]
-            );
+            if (error) {
+                Alert.alert('Registration Failed', error.message);
+            } else if (data.session) {
+                router.replace('/(tabs)');
+            } else {
+                Alert.alert(
+                    'Success',
+                    'Please check your inbox for email verification!',
+                    [{ text: 'OK', onPress: () => router.replace('/auth/login') }]
+                );
+            }
+        } catch (e) {
+            Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
     }
 
     return (
-        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+        <SafeAreaView style={[styles.container, { backgroundColor: THEME.background }]}>
+            {/* Background Glow Orbs Simulation (Simple Views) */}
+            <View style={styles.glowContainer} pointerEvents="none">
+                <View style={[styles.glowOrb, { top: -80, left: -80, backgroundColor: THEME.primary }]} />
+                <View style={[styles.glowOrb, { bottom: -80, right: -80, backgroundColor: '#9a3412' }]} />
+            </View>
+
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-                style={styles.keyboardView}
+                style={styles.content}
             >
-                <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-                    <Ionicons name="arrow-back" size={24} color={colors.text} />
-                </TouchableOpacity>
-
-                <View style={styles.header}>
-                    <Text style={[styles.title, { color: colors.text }]}>Create Account</Text>
-                    <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-                        Join MuscliKnot and start your recovery
-                    </Text>
+                {/* Header */}
+                <View style={styles.headerRow}>
+                    <TouchableOpacity
+                        style={styles.backButton}
+                        onPress={() => router.back()}
+                        activeOpacity={0.7}
+                    >
+                        <Ionicons name="chevron-back" size={24} color="#fff" />
+                    </TouchableOpacity>
+                    <Text style={styles.stepText}>Step 5 of 5</Text>
+                    <View style={{ width: 40 }} />
                 </View>
 
-                <View style={styles.form}>
-                    <View style={styles.inputContainer}>
-                        <Ionicons name="person-outline" size={20} color={colors.textSecondary} style={styles.inputIcon} />
-                        <TextInput
-                            style={[styles.input, { color: colors.text, borderColor: colors.cardBorder, backgroundColor: colors.inputBackground }]}
-                            placeholder="Full Name"
-                            placeholderTextColor={colors.textSecondary}
-                            value={name}
-                            onChangeText={setName}
-                        />
+                {/* Main Content */}
+                <View style={styles.mainSection}>
+                    <View style={styles.titleBlock}>
+                        <Text style={styles.mainTitle}>Join MuscliKnot</Text>
+                        <Text style={[styles.subtitle, { color: THEME.textMuted }]}>
+                            Start your journey to peak performance and recovery.
+                        </Text>
                     </View>
 
-                    <View style={styles.inputContainer}>
-                        <Ionicons name="mail-outline" size={20} color={colors.textSecondary} style={styles.inputIcon} />
-                        <TextInput
-                            style={[styles.input, { color: colors.text, borderColor: colors.cardBorder, backgroundColor: colors.inputBackground }]}
-                            placeholder="Email"
-                            placeholderTextColor={colors.textSecondary}
-                            value={email}
-                            onChangeText={setEmail}
-                            autoCapitalize="none"
-                            keyboardType="email-address"
-                        />
-                    </View>
+                    {/* Form Fields */}
+                    <View style={styles.formContainer}>
+                        {/* Name */}
+                        <View style={styles.inputGroup}>
+                            <Text style={[styles.label, { color: 'rgba(255,255,255,0.8)' }]}>Full Name</Text>
+                            <View style={[styles.glassInput, { backgroundColor: THEME.inputBg, borderColor: THEME.inputBorder }]}>
+                                <Ionicons name="person-outline" size={20} color="rgba(255,255,255,0.4)" style={styles.inputIcon} />
+                                <TextInput
+                                    style={styles.textInput}
+                                    placeholder="Enter your name"
+                                    placeholderTextColor={THEME.textDim}
+                                    value={name}
+                                    onChangeText={setName}
+                                />
+                            </View>
+                        </View>
 
-                    <View style={styles.inputContainer}>
-                        <Ionicons name="lock-closed-outline" size={20} color={colors.textSecondary} style={styles.inputIcon} />
-                        <TextInput
-                            style={[styles.input, { color: colors.text, borderColor: colors.cardBorder, backgroundColor: colors.inputBackground }]}
-                            placeholder="Password"
-                            placeholderTextColor={colors.textSecondary}
-                            value={password}
-                            onChangeText={setPassword}
-                            secureTextEntry
-                        />
-                    </View>
+                        {/* Email */}
+                        <View style={styles.inputGroup}>
+                            <Text style={[styles.label, { color: 'rgba(255,255,255,0.8)' }]}>Email Address</Text>
+                            <View style={[styles.glassInput, { backgroundColor: THEME.inputBg, borderColor: THEME.inputBorder }]}>
+                                <Ionicons name="mail-outline" size={20} color="rgba(255,255,255,0.4)" style={styles.inputIcon} />
+                                <TextInput
+                                    style={styles.textInput}
+                                    placeholder="vitality@muscliknot.com"
+                                    placeholderTextColor={THEME.textDim}
+                                    value={email}
+                                    onChangeText={setEmail}
+                                    autoCapitalize="none"
+                                    keyboardType="email-address"
+                                />
+                            </View>
+                        </View>
 
+                        {/* Password */}
+                        <View style={styles.inputGroup}>
+                            <Text style={[styles.label, { color: 'rgba(255,255,255,0.8)' }]}>Password</Text>
+                            <View style={[styles.glassInput, { backgroundColor: THEME.inputBg, borderColor: THEME.inputBorder }]}>
+                                <Ionicons name="lock-closed-outline" size={20} color="rgba(255,255,255,0.4)" style={styles.inputIcon} />
+                                <TextInput
+                                    style={styles.textInput}
+                                    placeholder="••••••••"
+                                    placeholderTextColor={THEME.textDim}
+                                    value={password}
+                                    onChangeText={setPassword}
+                                    secureTextEntry={!showPassword}
+                                />
+                                <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+                                    <Ionicons
+                                        name={showPassword ? "eye-off-outline" : "eye-outline"}
+                                        size={20}
+                                        color="rgba(255,255,255,0.4)"
+                                    />
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </View>
+                </View>
+
+                {/* Footer Section (Pushed to bottom) */}
+                <View style={styles.footerContainer}>
                     <TouchableOpacity
-                        style={[styles.button, { backgroundColor: colors.accent }]}
+                        style={[styles.createButton, { backgroundColor: THEME.primary }]}
                         onPress={signUpWithEmail}
                         disabled={loading}
+                        activeOpacity={0.9}
                     >
                         {loading ? (
-                            <ActivityIndicator color="#000" />
+                            <ActivityIndicator color="#fff" />
                         ) : (
-                            <Text style={styles.buttonText}>Sign Up</Text>
+                            <Text style={styles.createButtonText}>Create Account</Text>
                         )}
                     </TouchableOpacity>
 
-                    <View style={styles.footer}>
-                        <Text style={[styles.footerText, { color: colors.textSecondary }]}>Already have an account?</Text>
-                        <TouchableOpacity onPress={() => router.push('/auth/login')}>
-                            <Text style={[styles.linkText, { color: colors.accent }]}>Sign In</Text>
-                        </TouchableOpacity>
+                    <View style={styles.termsContainer}>
+                        <Text style={[styles.termsText, { color: 'rgba(255,255,255,0.5)' }]}>
+                            By creating an account, you agree to our{'\n'}
+                            <Text style={{ color: THEME.primary }}>Terms</Text> & <Text style={{ color: THEME.primary }}>Privacy Policy</Text>
+                        </Text>
+
+                        <View style={styles.loginRow}>
+                            <Text style={{ color: 'rgba(255,255,255,0.8)', fontSize: 15, fontWeight: '500' }}>
+                                Already have an account?{' '}
+                            </Text>
+                            <TouchableOpacity onPress={() => router.push('/auth/login')}>
+                                <Text style={{ color: THEME.primary, textDecorationLine: 'underline', fontWeight: '600' }}>
+                                    Log In
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
                     </View>
                 </View>
+
+                {/* Bottom Bar Indicator */}
+                <View style={styles.bottomIndicator} />
             </KeyboardAvoidingView>
         </SafeAreaView>
     );
@@ -164,74 +232,135 @@ export default function RegisterScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-    },
-    keyboardView: {
-        flex: 1,
-        paddingHorizontal: 24,
-        justifyContent: 'center',
-    },
-    backButton: {
-        position: 'absolute',
-        top: 20,
-        left: 24,
-        zIndex: 10,
-    },
-    header: {
-        marginBottom: 48,
-        alignItems: 'center',
-    },
-    title: {
-        fontSize: 32,
-        fontWeight: 'bold',
-        marginBottom: 8,
-    },
-    subtitle: {
-        fontSize: 16,
-        textAlign: 'center',
-    },
-    form: {
-        gap: 16,
-    },
-    inputContainer: {
         position: 'relative',
     },
-    inputIcon: {
+    glowContainer: {
+        ...StyleSheet.absoluteFillObject,
+        zIndex: 0,
+        overflow: 'hidden',
+    },
+    glowOrb: {
         position: 'absolute',
-        left: 16,
-        top: 18,
-        zIndex: 1,
+        width: 300,
+        height: 300,
+        borderRadius: 150,
+        opacity: 0.15,
+        // Since we can't easily blur in vanilla RN without extra deps, 
+        // we use low opacity. If expo-blur is available, we could wrap this.
     },
-    input: {
-        height: 56,
-        borderWidth: 1,
-        borderRadius: 12,
-        paddingHorizontal: 16,
-        paddingLeft: 48,
-        fontSize: 16,
+    content: {
+        flex: 1,
+        paddingHorizontal: 24,
+        paddingTop: 16,
+        zIndex: 10,
     },
-    button: {
-        height: 56,
-        borderRadius: 12,
+    headerRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingVertical: 16,
+    },
+    backButton: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
         alignItems: 'center',
         justifyContent: 'center',
-        marginTop: 8,
+        backgroundColor: 'rgba(255,255,255,0.0)', // Hover effect not applicable, but placeholder
     },
-    buttonText: {
-        fontSize: 16,
+    stepText: {
+        color: '#fff',
+        fontSize: 18,
         fontWeight: 'bold',
-        color: '#000',
+        letterSpacing: 0.5,
     },
-    footer: {
+    mainSection: {
+        marginTop: 20,
+    },
+    titleBlock: {
+        marginBottom: 30,
+    },
+    mainTitle: {
+        color: '#fff',
+        fontSize: 36,
+        fontWeight: 'bold',
+        letterSpacing: -0.5,
+        marginBottom: 8,
+        lineHeight: 42,
+    },
+    subtitle: {
+        fontSize: 18,
+        lineHeight: 28,
+        fontWeight: '400',
+    },
+    formContainer: {
+        gap: 20,
+    },
+    inputGroup: {
+        gap: 8,
+    },
+    label: {
+        fontSize: 14,
+        fontWeight: '500',
+        paddingHorizontal: 4,
+    },
+    glassInput: {
         flexDirection: 'row',
+        alignItems: 'center',
+        height: 64, // h-16 = 64px
+        borderRadius: 12, // rounded-xl
+        borderWidth: 1,
+        paddingHorizontal: 16,
+    },
+    inputIcon: {
+        marginRight: 12,
+    },
+    textInput: {
+        flex: 1,
+        color: '#fff',
+        fontSize: 16,
+        height: '100%',
+    },
+    footerContainer: {
+        marginTop: 'auto',
+        marginBottom: 20,
+        gap: 24,
+    },
+    createButton: {
+        height: 60, // slightly larger for touch target
+        borderRadius: 12, // rounded-xl
+        alignItems: 'center',
         justifyContent: 'center',
-        gap: 4,
-        marginTop: 24,
+        shadowColor: '#f97316',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.2, // shadow-lg shadow-primary/20
+        shadowRadius: 10,
+        elevation: 5,
     },
-    footerText: {
-        fontSize: 14,
-    },
-    linkText: {
-        fontSize: 14,
+    createButtonText: {
+        color: '#fff',
+        fontSize: 18,
         fontWeight: 'bold',
+    },
+    termsContainer: {
+        alignItems: 'center',
+        gap: 16,
+    },
+    termsText: {
+        fontSize: 14,
+        textAlign: 'center',
+        lineHeight: 20,
+    },
+    loginRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    bottomIndicator: {
+        width: 128, // w-32
+        height: 6, // h-1.5
+        backgroundColor: 'rgba(255,255,255,0.2)',
+        borderRadius: 3, // rounded-full
+        alignSelf: 'center',
+        marginBottom: 8,
     },
 });
