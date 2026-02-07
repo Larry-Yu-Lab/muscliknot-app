@@ -169,6 +169,13 @@ export default function HomeScreen() {
         height: activePoint.height * scaleY
       });
 
+      console.log('Selection Debug:', {
+        activePoint,
+        normalizedY,
+        scaleY,
+        identifiedMuscles: muscleIds
+      });
+
       router.push({
         pathname: '/(tabs)/find-relief',
         params: {

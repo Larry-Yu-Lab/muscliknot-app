@@ -34,6 +34,8 @@ export default function FindReliefScreen() {
     const [exercises, setExercises] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
+    console.log('FindReliefScreen Params:', { muscleId, size, y });
+
     React.useEffect(() => {
         const fetchExercises = async () => {
             setIsLoading(true);
@@ -200,42 +202,55 @@ export default function FindReliefScreen() {
                     </View>
                 </View>
 
-                {/* Stretch Instructions List */}
+                {/* Dynamic Exercise List from Database */}
                 <View style={styles.instructionsSection}>
                     <Text style={styles.instructionsTitle}>{t('stretchInstructions')}</Text>
 
-                    {/* Step 1: Setup */}
-                    <View style={styles.instructionCard}>
-                        <View style={styles.stepNumber}>
-                            <Text style={styles.stepNumberText}>1</Text>
-                        </View>
-                        <View style={styles.stepContent}>
-                            <Text style={styles.stepTitle}>{t('setupTitle')}</Text>
-                            <Text style={styles.stepDescription}>{t('setupDesc')}</Text>
-                        </View>
-                    </View>
+                    {isLoading ? (
+                        <Text style={{ color: colors.textSecondary, textAlign: 'center', padding: 20 }}>Loading...</Text>
+                    ) : exercises.length === 0 ? (
+                        <Text style={{ color: colors.textSecondary, textAlign: 'center', padding: 20 }}>No exercises found for this area.</Text>
+                    ) : (
+                        exercises.map((ex, index) => (
+                            <View key={ex.id || index} style={styles.instructionCard}>
+                                <View style={styles.stepNumber}>
+                                    <Text style={styles.stepNumberText}>{index + 1}</Text>
+                                </View>
+                                <View style={styles.stepContent}>
+                                    {/* Title: common_name + solution_stretch */}
+                                    <Text style={styles.stepTitle}>
+                                        {ex.common_name || ex.solution_stretch || 'Exercise'}
+                                    </Text>
+                                    {ex.solution_stretch && ex.common_name && (
+                                        <Text style={[styles.stepTitle, { fontSize: 14, fontWeight: '600', marginTop: 2 }]}>
+                                            {ex.solution_stretch}
+                                        </Text>
+                                    )}
 
-                    {/* Step 2: Movement */}
-                    <View style={styles.instructionCard}>
-                        <View style={styles.stepNumber}>
-                            <Text style={styles.stepNumberText}>2</Text>
-                        </View>
-                        <View style={styles.stepContent}>
-                            <Text style={styles.stepTitle}>{t('movementTitle')}</Text>
-                            <Text style={styles.stepDescription}>{t('movementDesc')}</Text>
-                        </View>
-                    </View>
+                                    {/* Description: instructions */}
+                                    {ex.instructions && (
+                                        <Text style={[styles.stepDescription, { marginTop: 8 }]}>
+                                            {ex.instructions}
+                                        </Text>
+                                    )}
 
-                    {/* Step 3: Hold */}
-                    <View style={styles.instructionCard}>
-                        <View style={styles.stepNumber}>
-                            <Text style={styles.stepNumberText}>3</Text>
-                        </View>
-                        <View style={styles.stepContent}>
-                            <Text style={styles.stepTitle}>{t('holdTitle')}</Text>
-                            <Text style={styles.stepDescription}>{t('holdDesc')}</Text>
-                        </View>
-                    </View>
+                                    {/* Process */}
+                                    {ex.process && (
+                                        <Text style={[styles.stepDescription, { marginTop: 4, fontStyle: 'italic' }]}>
+                                            {ex.process}
+                                        </Text>
+                                    )}
+
+                                    {/* Why (optional context) */}
+                                    {ex.why && (
+                                        <Text style={[styles.stepDescription, { marginTop: 8, color: colors.accent }]}>
+                                            Why: {ex.why}
+                                        </Text>
+                                    )}
+                                </View>
+                            </View>
+                        ))
+                    )}
                 </View>
             </ScrollView>
 

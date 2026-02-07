@@ -93,17 +93,22 @@ export const fetchExercisesByMuscleAndSize = async (
     }
 
     try {
+        console.log(`Fetching exercises for muscle: ${muscleId} (ignoring size: ${size})`);
+
+        // Relaxed query: We now ignore 'target_area_size' to ensure we get results 
+        // regardless of the drawing size (Small/Medium/Large).
         const { data, error } = await supabase
             .from('recovery_knowledge_base')
             .select('*')
-            .contains('muscle_id', [muscleId])
-            .eq('target_area_size', size);
+            .contains('muscle_id', [muscleId]);
+        // .eq('target_area_size', size); // REMOVED: Caused strict filtering issues
 
         if (error) {
             console.error('Error fetching exercises:', error);
             return [];
         }
 
+        console.log(`Found ${data?.length} exercises for ${muscleId}`);
         return data || [];
     } catch (err) {
         console.error('Unexpected error:', err);
