@@ -202,7 +202,7 @@ export default function FindReliefScreen() {
                     </View>
                 </View>
 
-                {/* Dynamic Exercise List from Database */}
+                {/* Single Exercise with Detailed Instructions */}
                 <View style={styles.instructionsSection}>
                     <Text style={styles.instructionsTitle}>{t('stretchInstructions')}</Text>
 
@@ -211,45 +211,68 @@ export default function FindReliefScreen() {
                     ) : exercises.length === 0 ? (
                         <Text style={{ color: colors.textSecondary, textAlign: 'center', padding: 20 }}>No exercises found for this area.</Text>
                     ) : (
-                        exercises.map((ex, index) => (
-                            <View key={ex.id || index} style={styles.instructionCard}>
-                                <View style={styles.stepNumber}>
-                                    <Text style={styles.stepNumberText}>{index + 1}</Text>
+                        // Display the FIRST matched exercise with detailed instructions
+                        (() => {
+                            const ex = exercises[0];
+                            // Parse instructions into steps (split by newlines or periods)
+                            const instructionSteps = ex.instructions
+                                ? ex.instructions.split(/\n|(?<=\.)\s+/).filter((s: string) => s.trim().length > 0)
+                                : [];
+
+                            return (
+                                <View>
+                                    {/* Exercise Title Card */}
+                                    <View style={[styles.instructionCard, { marginBottom: 16 }]}>
+                                        <View style={[styles.stepNumber, { backgroundColor: colors.accent }]}>
+                                            <Ionicons name="fitness-outline" size={20} color="#000" />
+                                        </View>
+                                        <View style={styles.stepContent}>
+                                            <Text style={styles.stepTitle}>
+                                                {ex.solution_stretch || ex.common_name || 'Relief Exercise'}
+                                            </Text>
+                                            {ex.common_name && ex.solution_stretch && (
+                                                <Text style={[styles.stepDescription, { marginTop: 4 }]}>
+                                                    Target: {ex.common_name}
+                                                </Text>
+                                            )}
+                                            {ex.why && (
+                                                <Text style={[styles.stepDescription, { marginTop: 8, color: colors.accent, fontWeight: '600' }]}>
+                                                    Why: {ex.why}
+                                                </Text>
+                                            )}
+                                        </View>
+                                    </View>
+
+                                    {/* Step-by-step Instructions */}
+                                    {instructionSteps.length > 0 ? (
+                                        instructionSteps.map((step: string, index: number) => (
+                                            <View key={index} style={styles.instructionCard}>
+                                                <View style={styles.stepNumber}>
+                                                    <Text style={styles.stepNumberText}>{index + 1}</Text>
+                                                </View>
+                                                <View style={styles.stepContent}>
+                                                    <Text style={styles.stepDescription}>{step.trim()}</Text>
+                                                </View>
+                                            </View>
+                                        ))
+                                    ) : ex.process ? (
+                                        // Fallback to process if no instructions
+                                        <View style={styles.instructionCard}>
+                                            <View style={styles.stepNumber}>
+                                                <Text style={styles.stepNumberText}>1</Text>
+                                            </View>
+                                            <View style={styles.stepContent}>
+                                                <Text style={styles.stepDescription}>{ex.process}</Text>
+                                            </View>
+                                        </View>
+                                    ) : (
+                                        <Text style={{ color: colors.textSecondary, textAlign: 'center', padding: 20 }}>
+                                            No detailed instructions available.
+                                        </Text>
+                                    )}
                                 </View>
-                                <View style={styles.stepContent}>
-                                    {/* Title: common_name + solution_stretch */}
-                                    <Text style={styles.stepTitle}>
-                                        {ex.common_name || ex.solution_stretch || 'Exercise'}
-                                    </Text>
-                                    {ex.solution_stretch && ex.common_name && (
-                                        <Text style={[styles.stepTitle, { fontSize: 14, fontWeight: '600', marginTop: 2 }]}>
-                                            {ex.solution_stretch}
-                                        </Text>
-                                    )}
-
-                                    {/* Description: instructions */}
-                                    {ex.instructions && (
-                                        <Text style={[styles.stepDescription, { marginTop: 8 }]}>
-                                            {ex.instructions}
-                                        </Text>
-                                    )}
-
-                                    {/* Process */}
-                                    {ex.process && (
-                                        <Text style={[styles.stepDescription, { marginTop: 4, fontStyle: 'italic' }]}>
-                                            {ex.process}
-                                        </Text>
-                                    )}
-
-                                    {/* Why (optional context) */}
-                                    {ex.why && (
-                                        <Text style={[styles.stepDescription, { marginTop: 8, color: colors.accent }]}>
-                                            Why: {ex.why}
-                                        </Text>
-                                    )}
-                                </View>
-                            </View>
-                        ))
+                            );
+                        })()
                     )}
                 </View>
             </ScrollView>
