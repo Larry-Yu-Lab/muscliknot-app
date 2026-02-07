@@ -5,7 +5,7 @@ import * as React from 'react';
 import { useRef, useState } from 'react';
 import { Alert, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Colors } from '../../constants/theme';
-import { handleSelection, SelectionArea } from '../components/AnatomyMap';
+import { fetchExercisesByMuscleAndSize } from '../components/AnatomyMap';
 import { usePreferences } from '../context/PreferencesContext';
 import { getExercisesForPosition } from '../data/exercises';
 import { getTranslation } from '../utils/i18n';
@@ -13,7 +13,7 @@ import { saveToHistory } from '../utils/storage';
 
 export default function FindReliefScreen() {
     const router = useRouter();
-    const params = useLocalSearchParams(); // { x, y, view, timestamp }
+    const params = useLocalSearchParams(); // { x, y, view, timestamp, size, muscleId }
     const [painLevel, setPainLevel] = useState(6);
     const [isSliderActive, setIsSliderActive] = useState(false);
     const trackWidth = useRef(0);
@@ -28,6 +28,8 @@ export default function FindReliefScreen() {
     const width = Number(params.width) || 40;
     const height = Number(params.height) || 40;
     const view = (params.view as 'Front' | 'Back') || 'Front';
+    const size = (params.size as string) || 'medium';
+    const muscleId = (params.muscleId as string) || 'unknown';
 
     const [exercises, setExercises] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -35,23 +37,21 @@ export default function FindReliefScreen() {
     React.useEffect(() => {
         const fetchExercises = async () => {
             setIsLoading(true);
-            const selectionArea: SelectionArea = { x, y, width, height };
 
-            // Call the future-proof selection handler
-            await handleSelection(selectionArea, (data) => {
-                // If we get data from Supabase, use it. 
-                // Fallback to local data if nothing is returned (for development/testing)
-                if (data && data.length > 0) {
-                    setExercises(data);
-                } else {
-                    setExercises(getExercisesForPosition(y, view));
-                }
-                setIsLoading(false);
-            });
+            // Use the new function to fetch by muscleId and size
+            const data = await fetchExercisesByMuscleAndSize(muscleId, size);
+
+            if (data && data.length > 0) {
+                setExercises(data);
+            } else {
+                // Fallback to local data if nothing returned
+                setExercises(getExercisesForPosition(y, view));
+            }
+            setIsLoading(false);
         };
 
         fetchExercises();
-    }, [x, y, width, height, view]);
+    }, [muscleId, size, y, view]);
 
     const targetMuscle = exercises.length > 0 ? (exercises[0].muscleGroup || exercises[0].muscle_id) : 'General';
 

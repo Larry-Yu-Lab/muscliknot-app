@@ -78,3 +78,35 @@ export const handleSelection = async (
         console.error('Unexpected error during handleSelection:', err);
     }
 };
+
+/**
+ * Fetch exercises by specific muscle ID and target area size
+ * Uses .contains() for the text[] muscle_id column
+ */
+export const fetchExercisesByMuscleAndSize = async (
+    muscleId: string,
+    size: string
+): Promise<any[]> => {
+    if (!supabase) {
+        console.warn('Supabase client not initialized');
+        return [];
+    }
+
+    try {
+        const { data, error } = await supabase
+            .from('recovery_knowledge_base')
+            .select('*')
+            .contains('muscle_id', [muscleId])
+            .eq('target_area_size', size);
+
+        if (error) {
+            console.error('Error fetching exercises:', error);
+            return [];
+        }
+
+        return data || [];
+    } catch (err) {
+        console.error('Unexpected error:', err);
+        return [];
+    }
+};

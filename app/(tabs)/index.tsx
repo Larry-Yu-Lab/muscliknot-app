@@ -6,6 +6,7 @@ import { SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { runOnJS, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
 import { Colors } from '../../constants/theme';
+import { getMusclesInArea } from '../components/AnatomyMap';
 import { usePreferences } from '../context/PreferencesContext';
 import { getTranslation } from '../utils/i18n';
 
@@ -113,6 +114,7 @@ export default function HomeScreen() {
 
   const [view, setView] = useState<ViewState>('Front');
   const [activePoint, setActivePoint] = useState<{ x: number; y: number; width: number; height: number; rotation: number } | null>(null);
+  const [containerHeight, setContainerHeight] = useState(1); // Default to avoid div by zero
 
   const startCtx = useSharedValue({ x: 0, y: 0 });
 
@@ -137,12 +139,34 @@ export default function HomeScreen() {
       });
     });
 
+  const getTargetSize = (radius: number) => {
+    if (radius < 40) return 'small';
+    if (radius < 100) return 'medium';
+    return 'large';
+  };
+
   const updatePoint = (x: number, y: number, w: number, h: number, r: number) => {
     setActivePoint({ x, y, width: w, height: h, rotation: r });
   };
 
   const handleFindRelief = () => {
     if (activePoint) {
+      // Calculate size for the find-relief page
+      const avgRadius = (activePoint.width + activePoint.height) / 4;
+      const size = getTargetSize(avgRadius);
+
+      // Normalize Y coordinate
+      const scaleY = 1000 / (containerHeight || 1);
+      const normalizedY = activePoint.y * scaleY;
+
+      // Get muscle from selection
+      const muscleIds = getMusclesInArea({
+        x: activePoint.x,
+        y: normalizedY,
+        width: activePoint.width,
+        height: activePoint.height * scaleY
+      });
+
       router.push({
         pathname: '/(tabs)/find-relief',
         params: {
@@ -152,6 +176,8 @@ export default function HomeScreen() {
           height: activePoint.height,
           rotation: activePoint.rotation,
           view,
+          size,
+          muscleId: muscleIds.length > 0 ? muscleIds[0] : 'unknown',
           timestamp: Date.now()
         }
       });
@@ -212,7 +238,10 @@ export default function HomeScreen() {
           </View>
 
           {/* Image Area with Inteaction */}
-          <View style={[styles.bodyImageContainer, { backgroundColor: colors.muscleVisualizerBackground }]}>
+          <View
+            style={[styles.bodyImageContainer, { backgroundColor: colors.muscleVisualizerBackground }]}
+            onLayout={(e) => setContainerHeight(e.nativeEvent.layout.height)}
+          >
             {/* 1. Underlying Visual Layer - Full Width/Height */}
             <Image
               source={
@@ -530,6 +559,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 56,
     backgroundColor: '#f96b06',
+    zIndex: 999,
     borderRadius: 12,
     flexDirection: 'row',
     alignItems: 'center',
