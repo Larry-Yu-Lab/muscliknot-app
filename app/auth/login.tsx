@@ -1,4 +1,5 @@
 import { usePreferences } from '@/context/PreferencesContext';
+import { getTranslation } from '@/utils/i18n';
 import { supabase } from '@/utils/supabase';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -18,7 +19,9 @@ import {
 
 export default function LoginScreen() {
     const router = useRouter();
-    const { theme } = usePreferences();
+    const { theme, language } = usePreferences();
+
+    const t = (key: Parameters<typeof getTranslation>[1]) => getTranslation(language, key);
 
     // Explicit Design Constants (Matching RegisterScreen)
     const THEME = {
@@ -159,9 +162,9 @@ export default function LoginScreen() {
                 {/* Main Content */}
                 <View style={styles.mainSection}>
                     <View style={styles.titleBlock}>
-                        <Text style={styles.mainTitle}>Welcome Back</Text>
+                        <Text style={styles.mainTitle}>{t('loginTitle')}</Text>
                         <Text style={[styles.subtitle, { color: THEME.textMuted }]}>
-                            Sign in to continue your recovery journey.
+                            {t('loginSubtitle')}
                         </Text>
                     </View>
 
@@ -169,7 +172,7 @@ export default function LoginScreen() {
                     <View style={styles.formContainer}>
                         {/* Email */}
                         <View style={styles.inputGroup}>
-                            <Text style={[styles.label, { color: 'rgba(255,255,255,0.8)' }]}>Email Address</Text>
+                            <Text style={[styles.label, { color: 'rgba(255,255,255,0.8)' }]}>{t('email')}</Text>
                             <View style={[
                                 styles.glassInput,
                                 {
@@ -197,7 +200,7 @@ export default function LoginScreen() {
 
                         {/* Password */}
                         <View style={styles.inputGroup}>
-                            <Text style={[styles.label, { color: 'rgba(255,255,255,0.8)' }]}>Password</Text>
+                            <Text style={[styles.label, { color: 'rgba(255,255,255,0.8)' }]}>{t('password')}</Text>
                             <View style={[
                                 styles.glassInput,
                                 {
@@ -242,17 +245,17 @@ export default function LoginScreen() {
                         {loading ? (
                             <ActivityIndicator color="#fff" />
                         ) : (
-                            <Text style={styles.createButtonText}>Sign In</Text>
+                            <Text style={styles.createButtonText}>{t('signIn')}</Text>
                         )}
                     </TouchableOpacity>
 
                     <View style={styles.registerRow}>
                         <Text style={{ color: 'rgba(255,255,255,0.8)', fontSize: 15, fontWeight: '500' }}>
-                            Don't have an account?{' '}
+                            {t('dontHaveAccount')}{' '}
                         </Text>
                         <TouchableOpacity onPress={() => router.push('/auth/register')}>
                             <Text style={{ color: THEME.primary, textDecorationLine: 'underline', fontWeight: '600' }}>
-                                Sign Up
+                                {t('signUp')}
                             </Text>
                         </TouchableOpacity>
                     </View>

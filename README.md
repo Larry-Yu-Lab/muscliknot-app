@@ -40,10 +40,16 @@ A gamified user hub for settings and progress.
 *   **Gamification:** Features an "Athlete Level" with a visual progress ring and badges.
 *   **Health Vault:** Visualizes specific health metrics like "Injury History" and "Fitness Level".
 *   **Settings:**
-    *   **Theme:** Toggle **Dark Mode** / Light Mode.
+    *   **Theme:** **Dark Mode** (Default) / Light Mode.
     *   **Notifications:** Enable/Disable app alerts.
-    *   **Language:** Multi-language support (English, French, Spanish, Chinese, etc.).
+    *   **Language:** Global multi-language support (English, French, Spanish, Chinese).
 *   **Plans:** UI for viewing/upgrading subscription plans (Elite vs Pro).
+
+### 6. 🔐 Authentication & Onboarding
+Secure and personalized user entry.
+*   **Onboarding Flow:** Interactive setup for new users to define their **Lifestyle** (Sedentary, Active, Athlete) and **Goals** (Relief, Mobility, Maintenance).
+*   **Authentication:** Robust Email/Password login and registration powered by **Supabase Auth**.
+*   **Personalization:** User preferences are saved to the profile and used to tailor relief recommendations.
 
 ---
 

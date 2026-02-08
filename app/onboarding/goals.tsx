@@ -1,5 +1,6 @@
 import { Colors } from '@/constants/theme';
 import { usePreferences } from '@/context/PreferencesContext';
+import { getTranslation } from '@/utils/i18n';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
@@ -8,8 +9,8 @@ import { SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-na
 
 interface GoalOption {
     id: string;
-    title: string;
-    subtitle: string;
+    titleKey: string;
+    subtitleKey: string;
     icon: string;
     iconColor: string;
 }
@@ -17,22 +18,22 @@ interface GoalOption {
 const OPTIONS: GoalOption[] = [
     {
         id: 'relieve_pain',
-        title: 'Relieve Pain',
-        subtitle: 'Recovery and discomfort management',
+        titleKey: 'relievePain',
+        subtitleKey: 'relievePainDesc',
         icon: 'puzzle-outline',
         iconColor: '#f97316'
     },
     {
         id: 'improve_mobility',
-        title: 'Improve Mobility',
-        subtitle: 'Range of motion and flexibility',
+        titleKey: 'improveMobility',
+        subtitleKey: 'improveMobilityDesc',
         icon: 'accessibility',
         iconColor: '#f97316'
     },
     {
         id: 'daily_maintenance',
-        title: 'Daily Maintenance',
-        subtitle: 'Prevention and long-term wellness',
+        titleKey: 'dailyMaintenance',
+        subtitleKey: 'dailyMaintenanceDesc',
         icon: 'heart-outline',
         iconColor: '#f97316'
     },
@@ -40,9 +41,11 @@ const OPTIONS: GoalOption[] = [
 
 export default function GoalsScreen() {
     const router = useRouter();
-    const { theme } = usePreferences();
+    const { theme, language } = usePreferences();
     const colors = Colors[theme];
     const [selected, setSelected] = useState<string | null>(null);
+
+    const t = (key: Parameters<typeof getTranslation>[1]) => getTranslation(language, key);
 
     const handleSkip = async () => {
         await AsyncStorage.setItem('onboarding_complete', 'true');
@@ -73,9 +76,9 @@ export default function GoalsScreen() {
                 <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
                     <Ionicons name="chevron-back" size={24} color="#fff" />
                 </TouchableOpacity>
-                <Text style={styles.stepText}>Step 3 of 3</Text>
+                <Text style={styles.stepText}>{t('stepIndicator').replace('${step}', '3').replace('${total}', '3')}</Text>
                 <TouchableOpacity onPress={handleSkip}>
-                    <Text style={styles.skipText}>Skip</Text>
+                    <Text style={styles.skipText}>{t('skip')}</Text>
                 </TouchableOpacity>
             </View>
 
@@ -88,9 +91,9 @@ export default function GoalsScreen() {
 
             <View style={styles.content}>
                 {/* Title */}
-                <Text style={styles.title}>Define Your Path</Text>
+                <Text style={styles.title}>{t('goalsTitle')}</Text>
                 <Text style={styles.subtitle}>
-                    Tailor your MuscliKnot experience to your specific needs.
+                    {t('goalsSubtitle')}
                 </Text>
 
                 {/* Options */}
@@ -113,8 +116,8 @@ export default function GoalsScreen() {
                                     />
                                 </View>
                                 <View style={styles.textContainer}>
-                                    <Text style={styles.optionTitle}>{option.title}</Text>
-                                    <Text style={styles.optionSubtitle}>{option.subtitle}</Text>
+                                    <Text style={styles.optionTitle}>{t(option.titleKey as any)}</Text>
+                                    <Text style={styles.optionSubtitle}>{t(option.subtitleKey as any)}</Text>
                                 </View>
                             </View>
                             <View style={[
@@ -137,9 +140,9 @@ export default function GoalsScreen() {
                     onPress={handleComplete}
                     disabled={!selected}
                 >
-                    <Text style={styles.buttonText}>Next Step</Text>
+                    <Text style={styles.buttonText}>{t('nextStep')}</Text>
                 </TouchableOpacity>
-                <Text style={styles.note}>YOU CAN CHANGE THIS LATER IN SETTINGS</Text>
+                <Text style={styles.note}>{t('youCanChangeLater')}</Text>
             </View>
         </SafeAreaView>
     );

@@ -1,3 +1,5 @@
+import { usePreferences } from '@/context/PreferencesContext';
+import { getTranslation } from '@/utils/i18n';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React from 'react';
@@ -33,6 +35,9 @@ const SuccessIcon = () => (
 
 export default function SignupSuccessScreen() {
     const router = useRouter();
+    const { language } = usePreferences();
+
+    const t = (key: Parameters<typeof getTranslation>[1]) => getTranslation(language, key);
 
     const handleContinue = () => {
         router.replace('/(tabs)' as any);
@@ -45,7 +50,7 @@ export default function SignupSuccessScreen() {
             {/* Header */}
             <View style={styles.header}>
                 <View style={{ width: 48 }} />
-                <Text style={styles.headerTitle}>SUCCESS</Text>
+                <Text style={styles.headerTitle}>{t('successHeader')}</Text>
                 <TouchableOpacity style={styles.closeButton} onPress={handleContinue}>
                     <Ionicons name="close" size={24} color="rgba(255,255,255,0.5)" />
                 </TouchableOpacity>
@@ -56,9 +61,9 @@ export default function SignupSuccessScreen() {
                 <SuccessIcon />
 
                 <View style={styles.textContainer}>
-                    <Text style={styles.title}>You're all set!</Text>
+                    <Text style={styles.title}>{t('signupSuccessTitle')}</Text>
                     <Text style={styles.subtitle}>
-                        Ready to find relief? Your personalized recovery plan is waiting for you.
+                        {t('signupSuccessSubtitle')}
                     </Text>
                 </View>
             </View>
@@ -66,7 +71,7 @@ export default function SignupSuccessScreen() {
             {/* Bottom Button */}
             <View style={styles.bottom}>
                 <TouchableOpacity style={styles.button} onPress={handleContinue}>
-                    <Text style={styles.buttonText}>Go to Dashboard</Text>
+                    <Text style={styles.buttonText}>{t('goToDashboard')}</Text>
                 </TouchableOpacity>
             </View>
 

@@ -1,4 +1,6 @@
 import { useAuth } from '@/context/AuthContext';
+import { usePreferences } from '@/context/PreferencesContext';
+import { getTranslation } from '@/utils/i18n';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
@@ -35,7 +37,10 @@ const SuccessIcon = () => (
 export default function LoginWelcomeScreen() {
     const router = useRouter();
     const { session } = useAuth();
+    const { language } = usePreferences();
     const [userName, setUserName] = useState('');
+
+    const t = (key: Parameters<typeof getTranslation>[1]) => getTranslation(language, key);
 
     useEffect(() => {
         // Get user name from session metadata
@@ -63,7 +68,7 @@ export default function LoginWelcomeScreen() {
             {/* Header */}
             <View style={styles.header}>
                 <View style={{ width: 48 }} />
-                <Text style={styles.headerTitle}>WELCOME</Text>
+                <Text style={styles.headerTitle}>{t('welcomeHeader')}</Text>
                 <TouchableOpacity style={styles.closeButton} onPress={handleContinue}>
                     <Ionicons name="close" size={24} color="rgba(255,255,255,0.5)" />
                 </TouchableOpacity>
@@ -74,9 +79,9 @@ export default function LoginWelcomeScreen() {
                 <SuccessIcon />
 
                 <View style={styles.textContainer}>
-                    <Text style={styles.title}>Welcome back,{'\n'}{userName}!</Text>
+                    <Text style={styles.title}>{t('welcomeBackUser').replace('${name}', userName)}</Text>
                     <Text style={styles.subtitle}>
-                        It's great to see you again. Your personalized recovery journey awaits.
+                        {t('loginWelcomeSubtitle')}
                     </Text>
                 </View>
             </View>
@@ -84,7 +89,7 @@ export default function LoginWelcomeScreen() {
             {/* Bottom Button */}
             <View style={styles.bottom}>
                 <TouchableOpacity style={styles.button} onPress={handleContinue}>
-                    <Text style={styles.buttonText}>Go to Dashboard</Text>
+                    <Text style={styles.buttonText}>{t('goToDashboard')}</Text>
                 </TouchableOpacity>
             </View>
 

@@ -1,4 +1,5 @@
 import { usePreferences } from '@/context/PreferencesContext';
+import { getTranslation } from '@/utils/i18n';
 import { supabase } from '@/utils/supabase';
 import { saveUserPreferences } from '@/utils/userPreferences';
 import { Ionicons } from '@expo/vector-icons';
@@ -20,7 +21,9 @@ import {
 
 export default function RegisterScreen() {
     const router = useRouter();
-    const { theme } = usePreferences();
+    const { theme, language } = usePreferences();
+
+    const t = (key: Parameters<typeof getTranslation>[1]) => getTranslation(language, key);
 
     // Explicit Design Constants
     const THEME = {
@@ -191,16 +194,16 @@ export default function RegisterScreen() {
                     >
                         <Ionicons name="chevron-back" size={24} color="#fff" />
                     </TouchableOpacity>
-                    <Text style={styles.stepText}>Step 5 of 5</Text>
+                    <Text style={styles.stepText}>{t('stepIndicator').replace('${step}', '5').replace('${total}', '5')}</Text>
                     <View style={{ width: 40 }} />
                 </View>
 
                 {/* Main Content */}
                 <View style={styles.mainSection}>
                     <View style={styles.titleBlock}>
-                        <Text style={styles.mainTitle}>Join MuscliKnot</Text>
+                        <Text style={styles.mainTitle}>{t('registerTitle')}</Text>
                         <Text style={[styles.subtitle, { color: THEME.textMuted }]}>
-                            Start your journey to peak performance and recovery.
+                            {t('registerSubtitle')}
                         </Text>
                     </View>
 
@@ -208,7 +211,7 @@ export default function RegisterScreen() {
                     <View style={styles.formContainer}>
                         {/* Name */}
                         <View style={styles.inputGroup}>
-                            <Text style={[styles.label, { color: 'rgba(255,255,255,0.8)' }]}>Full Name</Text>
+                            <Text style={[styles.label, { color: 'rgba(255,255,255,0.8)' }]}>{t('fullName')}</Text>
                             <View style={[
                                 styles.glassInput,
                                 {
@@ -230,7 +233,7 @@ export default function RegisterScreen() {
 
                         {/* Email */}
                         <View style={styles.inputGroup}>
-                            <Text style={[styles.label, { color: 'rgba(255,255,255,0.8)' }]}>Email Address</Text>
+                            <Text style={[styles.label, { color: 'rgba(255,255,255,0.8)' }]}>{t('email')}</Text>
                             <View style={[
                                 styles.glassInput,
                                 {
@@ -258,7 +261,7 @@ export default function RegisterScreen() {
 
                         {/* Password */}
                         <View style={styles.inputGroup}>
-                            <Text style={[styles.label, { color: 'rgba(255,255,255,0.8)' }]}>Password</Text>
+                            <Text style={[styles.label, { color: 'rgba(255,255,255,0.8)' }]}>{t('password')}</Text>
                             <View style={[
                                 styles.glassInput,
                                 {
@@ -303,23 +306,23 @@ export default function RegisterScreen() {
                         {loading ? (
                             <ActivityIndicator color="#fff" />
                         ) : (
-                            <Text style={styles.createButtonText}>Create Account</Text>
+                            <Text style={styles.createButtonText}>{t('createAccount')}</Text>
                         )}
                     </TouchableOpacity>
 
                     <View style={styles.termsContainer}>
                         <Text style={[styles.termsText, { color: 'rgba(255,255,255,0.5)' }]}>
-                            By creating an account, you agree to our{'\n'}
-                            <Text style={{ color: THEME.primary }}>Terms</Text> & <Text style={{ color: THEME.primary }}>Privacy Policy</Text>
+                            {t('termsText')}{'\n'}
+                            <Text style={{ color: THEME.primary }}>{t('terms')}</Text> & <Text style={{ color: THEME.primary }}>{t('privacyPolicy')}</Text>
                         </Text>
 
                         <View style={styles.loginRow}>
                             <Text style={{ color: 'rgba(255,255,255,0.8)', fontSize: 15, fontWeight: '500' }}>
-                                Already have an account?{' '}
+                                {t('alreadyHaveAccount')}{' '}
                             </Text>
                             <TouchableOpacity onPress={() => router.push('/auth/login')}>
                                 <Text style={{ color: THEME.primary, textDecorationLine: 'underline', fontWeight: '600' }}>
-                                    Log In
+                                    {t('signIn')}
                                 </Text>
                             </TouchableOpacity>
                         </View>

@@ -1,5 +1,6 @@
 import { Colors } from '@/constants/theme';
 import { usePreferences } from '@/context/PreferencesContext';
+import { getTranslation } from '@/utils/i18n';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
@@ -8,22 +9,24 @@ import { SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-na
 
 interface LifestyleOption {
     id: string;
-    title: string;
-    subtitle: string;
+    titleKey: string;
+    subtitleKey: string;
     icon: string;
 }
 
 const OPTIONS: LifestyleOption[] = [
-    { id: 'sedentary', title: 'Sedentary', subtitle: 'Little to no exercise, desk job', icon: 'desktop-classic' },
-    { id: 'active', title: 'Active', subtitle: 'Regular exercise 3-5 times a week', icon: 'run' },
-    { id: 'athlete', title: 'Athlete', subtitle: 'Intensive training or professional sports', icon: 'weight-lifter' },
+    { id: 'sedentary', titleKey: 'sedentary', subtitleKey: 'sedentaryDesc', icon: 'desktop-classic' },
+    { id: 'active', titleKey: 'active', subtitleKey: 'activeDesc', icon: 'run' },
+    { id: 'athlete', titleKey: 'athlete', subtitleKey: 'athleteDesc', icon: 'weight-lifter' },
 ];
 
 export default function LifestyleScreen() {
     const router = useRouter();
-    const { theme } = usePreferences();
+    const { theme, language } = usePreferences();
     const colors = Colors[theme];
     const [selected, setSelected] = useState<string | null>(null);
+
+    const t = (key: Parameters<typeof getTranslation>[1]) => getTranslation(language, key);
 
     const handleSkip = async () => {
         await AsyncStorage.setItem('onboarding_complete', 'true');
@@ -44,9 +47,9 @@ export default function LifestyleScreen() {
                 <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
                     <Ionicons name="chevron-back" size={24} color="#fff" />
                 </TouchableOpacity>
-                <Text style={styles.stepText}>Step 2 of 3</Text>
+                <Text style={styles.stepText}>{t('stepIndicator').replace('${step}', '2').replace('${total}', '3')}</Text>
                 <TouchableOpacity onPress={handleSkip}>
-                    <Text style={styles.skipText}>Skip</Text>
+                    <Text style={styles.skipText}>{t('skip')}</Text>
                 </TouchableOpacity>
             </View>
 
@@ -59,10 +62,8 @@ export default function LifestyleScreen() {
 
             <View style={styles.content}>
                 {/* Title */}
-                <Text style={styles.title}>Tell us about your{'\n'}lifestyle.</Text>
-                <Text style={styles.subtitle}>
-                    This helps us calculate your daily calorie and recovery needs.
-                </Text>
+                <Text style={styles.title}>{t('lifestyleTitle')}</Text>
+                <Text style={styles.subtitle}>{t('lifestyleSubtitle')}</Text>
 
                 {/* Options */}
                 <View style={styles.optionsContainer}>
@@ -84,8 +85,8 @@ export default function LifestyleScreen() {
                                     />
                                 </View>
                                 <View>
-                                    <Text style={styles.optionTitle}>{option.title}</Text>
-                                    <Text style={styles.optionSubtitle}>{option.subtitle}</Text>
+                                    <Text style={styles.optionTitle}>{t(option.titleKey as any)}</Text>
+                                    <Text style={styles.optionSubtitle}>{t(option.subtitleKey as any)}</Text>
                                 </View>
                             </View>
                             <View style={[
@@ -108,9 +109,9 @@ export default function LifestyleScreen() {
                     onPress={handleContinue}
                     disabled={!selected}
                 >
-                    <Text style={styles.buttonText}>Continue</Text>
+                    <Text style={styles.buttonText}>{t('continue')}</Text>
                 </TouchableOpacity>
-                <Text style={styles.stepIndicator}>STEP 2 OF 3</Text>
+                <Text style={styles.stepIndicator}>{t('stepIndicatorCaps').replace('${step}', '2').replace('${total}', '3')}</Text>
             </View>
         </SafeAreaView>
     );
