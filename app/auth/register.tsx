@@ -1,6 +1,8 @@
 import { usePreferences } from '@/context/PreferencesContext';
 import { supabase } from '@/utils/supabase';
+import { saveUserPreferences } from '@/utils/userPreferences';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
@@ -129,7 +131,24 @@ export default function RegisterScreen() {
             if (error) {
                 Alert.alert('Registration Failed', error.message);
             } else if (data.session) {
-                router.replace('/(tabs)');
+                // Sync onboarding preferences to database
+                try {
+                    const lifestyle = await AsyncStorage.getItem('user_lifestyle');
+                    const goal = await AsyncStorage.getItem('user_goal');
+
+                    if (data.user?.id) {
+                        await saveUserPreferences(data.user.id, {
+                            lifestyle: lifestyle as 'sedentary' | 'active' | 'athlete' | null,
+                            primary_goal: goal as 'relieve_pain' | 'improve_mobility' | 'daily_maintenance' | null,
+                            onboarding_completed: true,
+                        });
+                    }
+                } catch (syncError) {
+                    console.log('Error syncing preferences:', syncError);
+                    // Continue anyway - preferences saved locally
+                }
+
+                router.replace('/auth/signup-success' as any);
             } else {
                 Alert.alert(
                     'Success',

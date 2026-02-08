@@ -115,7 +115,7 @@ export default function LoginScreen() {
             if (error) {
                 Alert.alert('Login Failed', error.message);
             } else {
-                router.replace('/(tabs)');
+                router.replace('/auth/login-welcome' as any);
             }
         } catch (e) {
             Alert.alert('Error', 'An unexpected error occurred. Please try again.');

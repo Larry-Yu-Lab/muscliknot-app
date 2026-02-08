@@ -30,6 +30,13 @@ export default function LifestyleScreen() {
         router.replace('/auth/login' as any);
     };
 
+    const handleContinue = async () => {
+        if (!selected) return;
+        // Save lifestyle selection to AsyncStorage
+        await AsyncStorage.setItem('user_lifestyle', selected);
+        router.push('/onboarding/goals');
+    };
+
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: '#1a1a1a' }]}>
             {/* Header */}
@@ -98,7 +105,7 @@ export default function LifestyleScreen() {
             <View style={styles.bottom}>
                 <TouchableOpacity
                     style={[styles.button, !selected && styles.buttonDisabled]}
-                    onPress={() => selected && router.push('/onboarding/goals')}
+                    onPress={handleContinue}
                     disabled={!selected}
                 >
                     <Text style={styles.buttonText}>Continue</Text>
