@@ -44,6 +44,11 @@ export default function GoalsScreen() {
     const colors = Colors[theme];
     const [selected, setSelected] = useState<string | null>(null);
 
+    const handleSkip = async () => {
+        await AsyncStorage.setItem('onboarding_complete', 'true');
+        router.replace('/auth/login' as any);
+    };
+
     const handleComplete = async () => {
         if (!selected) return;
 
@@ -62,8 +67,10 @@ export default function GoalsScreen() {
                 <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
                     <Ionicons name="chevron-back" size={24} color="#fff" />
                 </TouchableOpacity>
-                <Text style={styles.stepText}>Step 3 of 5</Text>
-                <View style={styles.backButton} />
+                <Text style={styles.stepText}>Step 3 of 3</Text>
+                <TouchableOpacity onPress={handleSkip}>
+                    <Text style={styles.skipText}>Skip</Text>
+                </TouchableOpacity>
             </View>
 
             {/* Progress Bar */}
@@ -71,8 +78,6 @@ export default function GoalsScreen() {
                 <View style={styles.progressSegment} />
                 <View style={styles.progressSegment} />
                 <View style={[styles.progressSegment, styles.progressActive]} />
-                <View style={styles.progressSegment} />
-                <View style={styles.progressSegment} />
             </View>
 
             <View style={styles.content}>
@@ -155,6 +160,11 @@ const styles = StyleSheet.create({
     },
     stepText: {
         color: '#fff',
+        fontSize: 16,
+        fontWeight: '500',
+    },
+    skipText: {
+        color: '#f97316',
         fontSize: 16,
         fontWeight: '500',
     },

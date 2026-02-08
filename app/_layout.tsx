@@ -35,6 +35,7 @@ function RootLayoutNav() {
   const segments = useSegments();
   const router = useRouter();
   const [onboardingComplete, setOnboardingComplete] = useState<boolean | null>(null);
+  const [initialRouteHandled, setInitialRouteHandled] = useState(false);
 
   // Check onboarding status on mount
   useEffect(() => {
@@ -45,25 +46,38 @@ function RootLayoutNav() {
     checkOnboarding();
   }, []);
 
+  // Handle initial routing only once
   useEffect(() => {
-    if (isLoading || onboardingComplete === null) return;
+    if (isLoading || onboardingComplete === null || initialRouteHandled) return;
 
     const inAuthGroup = segments[0] === 'auth';
     const inOnboarding = segments[0] === 'onboarding';
 
     // If onboarding not complete, redirect to onboarding
     if (!onboardingComplete && !inOnboarding) {
-      router.replace('/onboarding/welcome');
+      setInitialRouteHandled(true);
+      router.replace('/onboarding/welcome' as any);
       return;
     }
 
     // If onboarding complete but not logged in
-    if (onboardingComplete && !session && !inAuthGroup && !inOnboarding) {
-      router.replace('/auth/login');
-    } else if (session && (inAuthGroup || inOnboarding)) {
-      router.replace('/(tabs)');
+    if (onboardingComplete && !session && !inAuthGroup) {
+      setInitialRouteHandled(true);
+      router.replace('/auth/login' as any);
+      return;
     }
-  }, [session, segments, isLoading, onboardingComplete]);
+
+    // If logged in, go to tabs
+    if (session) {
+      setInitialRouteHandled(true);
+      router.replace('/(tabs)' as any);
+      return;
+    }
+
+    // Mark as handled if we're already in correct location
+    setInitialRouteHandled(true);
+  }, [isLoading, onboardingComplete, session]);
+
 
   if (isLoading || onboardingComplete === null) {
     return (
@@ -87,3 +101,4 @@ function RootLayoutNav() {
     </ThemeProvider>
   );
 }
+

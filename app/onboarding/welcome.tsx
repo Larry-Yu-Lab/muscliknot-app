@@ -1,5 +1,6 @@
 import { Colors } from '@/constants/theme';
 import { usePreferences } from '@/context/PreferencesContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import { Dimensions, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -65,8 +66,22 @@ export default function WelcomeScreen() {
     const { theme } = usePreferences();
     const colors = Colors[theme];
 
+    const handleSkip = async () => {
+        await AsyncStorage.setItem('onboarding_complete', 'true');
+        router.replace('/auth/login' as any);
+    };
+
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: '#1a1a1a' }]}>
+            {/* Skip Button */}
+            <View style={styles.header}>
+                <View style={{ width: 50 }} />
+                <Text style={styles.stepText}>Step 1 of 3</Text>
+                <TouchableOpacity onPress={handleSkip}>
+                    <Text style={styles.skipText}>Skip</Text>
+                </TouchableOpacity>
+            </View>
+
             <View style={styles.content}>
                 {/* Body Figure */}
                 <View style={styles.figureContainer}>
@@ -99,6 +114,23 @@ export default function WelcomeScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+    },
+    header: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: 20,
+        paddingVertical: 12,
+    },
+    stepText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: '500',
+    },
+    skipText: {
+        color: '#f97316',
+        fontSize: 16,
+        fontWeight: '500',
     },
     content: {
         flex: 1,
