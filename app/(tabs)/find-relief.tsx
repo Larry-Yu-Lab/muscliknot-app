@@ -222,9 +222,6 @@ export default function FindReliefScreen() {
                                                     <Text style={[styles.stepNumberText, { color: '#000', fontWeight: '800' }]}>{step.number}</Text>
                                                 </View>
                                                 <View style={styles.stepContent}>
-                                                    <Text style={{ fontSize: 14, fontWeight: '700', color: '#00CED1', marginBottom: 6 }}>
-                                                        STEP {step.number} ({step.label}):
-                                                    </Text>
                                                     <Text style={{ color: '#fff', lineHeight: 24, fontSize: 15 }}>{step.content}</Text>
                                                 </View>
                                             </View>
