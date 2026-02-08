@@ -117,6 +117,8 @@ export default function HomeScreen() {
   const [view, setView] = useState<ViewState>('Front');
   const [activePoint, setActivePoint] = useState<{ x: number; y: number; width: number; height: number; rotation: number } | null>(null);
   const [containerHeight, setContainerHeight] = useState(1); // Default to avoid div by zero
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchError, setSearchError] = useState('');
 
   const startCtx = useSharedValue({ x: 0, y: 0 });
 
@@ -193,6 +195,103 @@ export default function HomeScreen() {
     }
   };
 
+  // Muscle search mapping - maps common terms to muscle IDs
+  const SEARCHABLE_MUSCLES: Record<string, { id: string; name: string }> = {
+    // Head and Neck
+    'head': { id: 'head', name: 'Head' },
+    'temple': { id: 'head', name: 'Head' },
+    'jaw': { id: 'head', name: 'Head' },
+    'neck': { id: 'neck', name: 'Neck' },
+    'cervical': { id: 'neck', name: 'Neck' },
+
+    // Upper Body
+    'shoulder': { id: 'traps', name: 'Shoulders' },
+    'shoulders': { id: 'traps', name: 'Shoulders' },
+    'traps': { id: 'traps', name: 'Trapezius' },
+    'trapezius': { id: 'traps', name: 'Trapezius' },
+    'chest': { id: 'chest', name: 'Chest' },
+    'pec': { id: 'chest', name: 'Chest' },
+    'arm': { id: 'arms', name: 'Arms' },
+    'arms': { id: 'arms', name: 'Arms' },
+    'bicep': { id: 'arms', name: 'Arms' },
+    'tricep': { id: 'arms', name: 'Arms' },
+    'forearm': { id: 'arms', name: 'Arms' },
+    'upper back': { id: 'upper_back', name: 'Upper Back' },
+    'upperback': { id: 'upper_back', name: 'Upper Back' },
+    'mid back': { id: 'upper_back', name: 'Upper Back' },
+
+    // Core
+    'lower back': { id: 'lower_back', name: 'Lower Back' },
+    'lowerback': { id: 'lower_back', name: 'Lower Back' },
+    'lumbar': { id: 'lower_back', name: 'Lower Back' },
+    'abdomen': { id: 'abdomen', name: 'Abdomen' },
+    'abs': { id: 'abdomen', name: 'Abdomen' },
+    'core': { id: 'abdomen', name: 'Core' },
+    'stomach': { id: 'abdomen', name: 'Abdomen' },
+    'hip': { id: 'hips', name: 'Hips' },
+    'hips': { id: 'hips', name: 'Hips' },
+    'glute': { id: 'glutes', name: 'Glutes' },
+    'glutes': { id: 'glutes', name: 'Glutes' },
+    'butt': { id: 'glutes', name: 'Glutes' },
+    'buttocks': { id: 'glutes', name: 'Glutes' },
+
+    // Legs
+    'thigh': { id: 'thighs', name: 'Thighs' },
+    'thighs': { id: 'thighs', name: 'Thighs' },
+    'quad': { id: 'thighs', name: 'Quadriceps' },
+    'quads': { id: 'thighs', name: 'Quadriceps' },
+    'quadriceps': { id: 'thighs', name: 'Quadriceps' },
+    'hamstring': { id: 'thighs', name: 'Hamstrings' },
+    'hamstrings': { id: 'thighs', name: 'Hamstrings' },
+    'knee': { id: 'knees', name: 'Knees' },
+    'knees': { id: 'knees', name: 'Knees' },
+    'calf': { id: 'calves', name: 'Calves' },
+    'calves': { id: 'calves', name: 'Calves' },
+    'shin': { id: 'calves', name: 'Shins' },
+    'ankle': { id: 'ankles', name: 'Ankles' },
+    'ankles': { id: 'ankles', name: 'Ankles' },
+    'foot': { id: 'feet', name: 'Feet' },
+    'feet': { id: 'feet', name: 'Feet' },
+    'toe': { id: 'feet', name: 'Feet' },
+    'toes': { id: 'feet', name: 'Feet' },
+    'heel': { id: 'feet', name: 'Heel' },
+    'plantar': { id: 'feet', name: 'Plantar' },
+    'leg': { id: 'thighs', name: 'Legs' },
+    'legs': { id: 'thighs', name: 'Legs' },
+  };
+
+  const handleSearch = () => {
+    const query = searchQuery.trim().toLowerCase();
+    if (!query) {
+      setSearchError('');
+      return;
+    }
+
+    // Find matching muscle
+    const match = SEARCHABLE_MUSCLES[query];
+
+    if (match) {
+      setSearchError('');
+      setSearchQuery('');
+      router.push({
+        pathname: '/(tabs)/pain-assessment',
+        params: {
+          x: 150,
+          y: 500,
+          width: 80,
+          height: 80,
+          rotation: 0,
+          view: 'Front',
+          size: 'medium',
+          muscleId: match.id,
+          muscleName: match.name,
+          timestamp: Date.now()
+        }
+      });
+    } else {
+      setSearchError('No body part found. Try: neck, shoulder, back, knee, foot, etc.');
+    }
+  };
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
@@ -215,17 +314,23 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </View>
         {/* Search */}
-        <View style={[styles.searchContainer, { backgroundColor: colors.inputBackground, borderColor: colors.cardBorder }]}>
-          <View style={styles.searchIconContainer}>
+        <View style={[styles.searchContainer, { backgroundColor: colors.inputBackground, borderColor: searchError ? '#ef4444' : colors.cardBorder }]}>
+          <TouchableOpacity style={styles.searchIconContainer} onPress={handleSearch}>
             <Ionicons name="search" size={20} color="#fff" />
-          </View>
+          </TouchableOpacity>
           <TextInput
             style={[styles.searchInput, { color: colors.text }]}
-            placeholder={activePoint ? t('painPointSelected') : t('dragToMap')}
+            placeholder="Search body part (e.g. neck, knee, foot...)"
             placeholderTextColor={colors.textSecondary}
-            editable={false}
+            value={searchQuery}
+            onChangeText={(text) => { setSearchQuery(text); setSearchError(''); }}
+            onSubmitEditing={handleSearch}
+            returnKeyType="search"
           />
         </View>
+        {searchError ? (
+          <Text style={{ color: '#ef4444', fontSize: 13, marginHorizontal: 16, marginTop: 4, marginBottom: 8 }}>{searchError}</Text>
+        ) : null}
 
         {/* Body Visualizer */}
         <View style={[styles.bodyVisualizerContainer, { backgroundColor: colors.muscleVisualizerBackground }]}>
