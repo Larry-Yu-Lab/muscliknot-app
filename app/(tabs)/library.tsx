@@ -61,8 +61,6 @@ const ExerciseCard = ({ id, title, duration, target, image, t, colors }: Exercis
 
 
 export default function LibraryScreen() {
-    const [activeCategory, setActiveCategory] = useState('All');
-    const [activeMuscleGroup, setActiveMuscleGroup] = useState('All');
     const [searchQuery, setSearchQuery] = useState('');
     const [supabaseExercises, setSupabaseExercises] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -122,46 +120,15 @@ export default function LibraryScreen() {
         fetchAllExercises();
     }, []);
 
-    // Combine local exercises with Supabase exercises (prioritize Supabase for Relief)
+    // Combine local exercises with Supabase exercises
     const allExercises = useMemo(() => {
-        // For Relief category, use Supabase exercises
-        // For other categories, use local exercises
         return [...EXERCISES, ...supabaseExercises];
     }, [supabaseExercises]);
 
-    const filteredExercises = useMemo(() => {
-        return allExercises.filter(ex => {
-            // 1. Search Query
-            if (searchQuery && !ex.title.toLowerCase().includes(searchQuery.toLowerCase())) return false;
-
-            // 2. Category Filter
-            if (activeCategory !== 'All' && ex.category !== activeCategory) return false;
-
-            // 3. Sub-category (Muscle Group) for Relief
-            if (activeCategory === 'Relief' && activeMuscleGroup !== 'All') {
-                const muscleMatch = ex.muscleGroup?.toLowerCase().includes(activeMuscleGroup.toLowerCase()) ||
-                    ex.target?.toLowerCase().includes(activeMuscleGroup.toLowerCase());
-                if (!muscleMatch) return false;
-            }
-
-            return true;
-        });
-    }, [activeCategory, activeMuscleGroup, searchQuery, allExercises]);
-
-    const isFiltering = activeCategory !== 'All' || searchQuery.length > 0;
-
     // Helpers for dynamic keys
     const getCategoryKey = (cat: string) => {
-        if (cat === 'All') return 'catAll';
         // 'Warm-ups' -> 'catWarmups'
         return `cat${cat.replace(/[-\s]/g, '')}` as any;
-    };
-
-    // getMuscleKey defined above, but we need it here too or reuse logic
-    const getMuscleDisplay = (name: string) => {
-        const key = name === 'All' ? 'catAll' : `mg${name.replace(/\s/g, '')}` as any;
-        const trans = t(key);
-        return trans !== key ? trans : name;
     };
 
     const getCategoryDisplay = (name: string) => {
@@ -170,6 +137,15 @@ export default function LibraryScreen() {
         return trans !== key ? trans : name;
     };
 
+    // Filtered list for Search
+    const searchResults = useMemo(() => {
+        if (!searchQuery) return [];
+        return allExercises.filter(ex =>
+            ex.title.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+    }, [searchQuery, allExercises]);
+
+    const displayCategories = categories.filter(c => c !== 'All');
 
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
@@ -193,77 +169,15 @@ export default function LibraryScreen() {
             </View>
 
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-                {/* Main Categories */}
-                <ScrollView
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={styles.categoriesContainer}
-                >
-                    {categories.map((category) => (
-                        <TouchableOpacity
-                            key={category}
-                            style={[
-                                styles.categoryButton,
-                                { borderColor: 'rgba(249, 107, 6, 0.4)' },
-                                activeCategory === category && { backgroundColor: 'rgba(249, 107, 6, 0.1)', borderColor: colors.accent },
-                            ]}
-                            onPress={() => {
-                                setActiveCategory(category);
-                                setActiveMuscleGroup('All'); // Reset sub-filter
-                            }}
-                        >
-                            <Text
-                                style={[
-                                    styles.categoryText,
-                                    { color: colors.text },
-                                    activeCategory === category && { color: colors.text, fontWeight: '700' },
-                                ]}
-                            >
-                                {getCategoryDisplay(category)}
-                            </Text>
-                        </TouchableOpacity>
-                    ))}
-                </ScrollView>
 
-                {/* Sub-Category (Muscle Group) - Only visible for Relief */}
-                {activeCategory === 'Relief' && (
-                    <ScrollView
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
-                        contentContainerStyle={[styles.categoriesContainer, { paddingTop: 0, paddingBottom: 16 }]}
-                    >
-                        {reliefMuscleGroups.map((group) => (
-                            <TouchableOpacity
-                                key={group}
-                                style={[
-                                    styles.subCategoryButton,
-                                    { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder },
-                                    activeMuscleGroup === group && { backgroundColor: colors.accent, borderColor: colors.accent },
-                                ]}
-                                onPress={() => setActiveMuscleGroup(group)}
-                            >
-                                <Text
-                                    style={[
-                                        styles.subCategoryText,
-                                        { color: colors.textSecondary },
-                                        activeMuscleGroup === group && { color: '#fff', fontWeight: '700' },
-                                    ]}
-                                >
-                                    {getMuscleDisplay(group)}
-                                </Text>
-                            </TouchableOpacity>
-                        ))}
-                    </ScrollView>
-                )}
-
-                {/* Content */}
-                {isFiltering ? (
+                {searchQuery.length > 0 ? (
+                    // 1. Search Results View
                     <View style={styles.section}>
                         <Text style={[styles.sectionTitle, { color: colors.text }]}>
-                            {filteredExercises.length} {t('results')}
+                            {searchResults.length} {t('results')}
                         </Text>
                         <View style={styles.exerciseList}>
-                            {filteredExercises.map((exercise) => (
+                            {searchResults.map((exercise) => (
                                 <ExerciseCard
                                     key={exercise.id}
                                     id={exercise.id}
@@ -278,55 +192,35 @@ export default function LibraryScreen() {
                         </View>
                     </View>
                 ) : (
-                    <>
-                        {/* Recommended Section (Default View) */}
-                        <View style={styles.section}>
-                            <View style={styles.sectionHeader}>
-                                <Text style={[styles.sectionTitle, { color: colors.text }]}>{t('recommendedForYou')}</Text>
-                                <TouchableOpacity onPress={() => setActiveCategory('Relief')}>
-                                    <Text style={[styles.seeAllText, { color: colors.accent }]}>{t('seeAll')}</Text>
-                                </TouchableOpacity>
-                            </View>
-                            <View style={styles.exerciseList}>
-                                {EXERCISES.slice(0, 3).map((exercise) => (
-                                    <ExerciseCard
-                                        key={exercise.id}
-                                        id={exercise.id}
-                                        title={exercise.title}
-                                        duration={exercise.duration}
-                                        target={exercise.muscleGroup}
-                                        image={exercise.image}
-                                        t={t as any}
-                                        colors={colors}
-                                    />
-                                ))}
-                            </View>
-                        </View>
+                    // 2. Categorized View
+                    displayCategories.map((category) => {
+                        const categoryExercises = allExercises.filter(ex => ex.category === category);
+                        if (categoryExercises.length === 0) return null;
 
-                        {/* New Routines Section */}
-                        <View style={styles.section}>
-                            <View style={styles.sectionHeader}>
-                                <Text style={[styles.sectionTitle, { color: colors.text }]}>{t('newRoutines')}</Text>
-                                <TouchableOpacity onPress={() => setActiveCategory('All')}>
-                                    <Text style={[styles.seeAllText, { color: colors.accent }]}>{t('explore')}</Text>
-                                </TouchableOpacity>
+                        return (
+                            <View key={category} style={styles.section}>
+                                <View style={styles.sectionHeader}>
+                                    <Text style={[styles.sectionTitle, { color: colors.text }]}>
+                                        {getCategoryDisplay(category)}
+                                    </Text>
+                                </View>
+                                <View style={styles.exerciseList}>
+                                    {categoryExercises.map((exercise) => (
+                                        <ExerciseCard
+                                            key={exercise.id}
+                                            id={exercise.id}
+                                            title={exercise.title}
+                                            duration={exercise.duration}
+                                            target={exercise.muscleGroup}
+                                            image={exercise.image}
+                                            t={t as any}
+                                            colors={colors}
+                                        />
+                                    ))}
+                                </View>
                             </View>
-                            <View style={styles.exerciseList}>
-                                {EXERCISES.slice(3, 6).map((exercise) => (
-                                    <ExerciseCard
-                                        key={exercise.id}
-                                        id={exercise.id}
-                                        title={exercise.title}
-                                        duration={exercise.duration}
-                                        target={exercise.muscleGroup}
-                                        image={exercise.image}
-                                        t={t as any}
-                                        colors={colors}
-                                    />
-                                ))}
-                            </View>
-                        </View>
-                    </>
+                        );
+                    })
                 )}
             </ScrollView>
         </SafeAreaView>
