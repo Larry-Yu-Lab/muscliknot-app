@@ -20,7 +20,8 @@ const PreferencesContext = createContext<PreferencesContextType | undefined>(und
 
 export const PreferencesProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const systemColorScheme = _useColorScheme();
-    const [theme, setTheme] = useState<Theme>(systemColorScheme === 'dark' ? 'dark' : 'light');
+    // Default to dark mode unless user has set a preference (handled in useEffect)
+    const [theme, setTheme] = useState<Theme>('dark');
     const [language, setLanguageState] = useState<Language>('en');
     const [notificationsEnabled, setNotificationsEnabled] = useState(true);
 
