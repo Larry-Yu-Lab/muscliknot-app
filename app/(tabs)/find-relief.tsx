@@ -216,16 +216,21 @@ export default function FindReliefScreen() {
                                             }
                                         }
 
-                                        return steps.length > 0 ? steps.map((step, idx) => (
-                                            <View key={idx} style={[styles.instructionCard, { backgroundColor: 'rgba(30, 30, 35, 0.9)', borderRadius: 16, marginBottom: 16 }]}>
-                                                <View style={[styles.stepNumber, { backgroundColor: '#f97316', borderRadius: 8, alignSelf: 'flex-start' }]}>
-                                                    <Text style={[styles.stepNumberText, { color: '#000', fontWeight: '800' }]}>{step.number}</Text>
-                                                </View>
-                                                <View style={styles.stepContent}>
-                                                    <Text style={{ color: '#fff', lineHeight: 24, fontSize: 15 }}>{step.content}</Text>
-                                                </View>
-                                            </View>
-                                        )) : (
+                                        return steps.length > 0 ? (
+                                            <>
+                                                <Text style={{ fontSize: 18, fontWeight: '700', color: colors.accent, marginBottom: 12, marginTop: 8 }}>Instructions</Text>
+                                                {steps.map((step, idx) => (
+                                                    <View key={idx} style={[styles.instructionCard, { backgroundColor: 'rgba(30, 30, 35, 0.9)', borderRadius: 16, marginBottom: 16 }]}>
+                                                        <View style={[styles.stepNumber, { backgroundColor: '#f97316', borderRadius: 8, alignSelf: 'flex-start' }]}>
+                                                            <Text style={[styles.stepNumberText, { color: '#000', fontWeight: '800' }]}>{step.number}</Text>
+                                                        </View>
+                                                        <View style={styles.stepContent}>
+                                                            <Text style={{ color: '#fff', lineHeight: 24, fontSize: 15 }}>{step.content}</Text>
+                                                        </View>
+                                                    </View>
+                                                ))}
+                                            </>
+                                        ) : (
                                             // Fallback if no steps found - show as single card
                                             <View style={[styles.instructionCard, { backgroundColor: 'rgba(30, 30, 35, 0.9)', borderRadius: 16, marginBottom: 16 }]}>
                                                 <View style={[styles.stepNumber, { backgroundColor: '#f97316', borderRadius: 8, alignSelf: 'flex-start' }]}>
@@ -259,7 +264,7 @@ export default function FindReliefScreen() {
                                             No detailed instructions available for this exercise.
                                         </Text>
                                     )}
-                                </View>
+                                </View >
                             );
                         })()
                     )}
