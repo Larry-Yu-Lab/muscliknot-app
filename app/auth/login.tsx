@@ -2,6 +2,7 @@ import { usePreferences } from '@/context/PreferencesContext';
 import { getTranslation } from '@/utils/i18n';
 import { supabase } from '@/utils/supabase';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
@@ -19,7 +20,7 @@ import {
 
 export default function LoginScreen() {
     const router = useRouter();
-    const { theme, language } = usePreferences();
+    const { theme, language, refreshPreferences } = usePreferences();
 
     const t = (key: Parameters<typeof getTranslation>[1]) => getTranslation(language, key);
 
@@ -118,6 +119,35 @@ export default function LoginScreen() {
             if (error) {
                 Alert.alert('Login Failed', error.message);
             } else {
+                // Sync User Data
+                try {
+                    if (data.user) {
+                        // 1. Sync Preferences
+                        const { getUserPreferences } = await import('@/utils/userPreferences');
+                        const { data: prefs } = await getUserPreferences(data.user.id);
+
+                        if (prefs) {
+                            if (prefs.lifestyle) await AsyncStorage.setItem('user_lifestyle', prefs.lifestyle);
+                            if (prefs.primary_goal) await AsyncStorage.setItem('user_goal', prefs.primary_goal);
+                            if (prefs.onboarding_completed) await AsyncStorage.setItem('onboarding_complete', 'true');
+                            if (prefs.theme) await AsyncStorage.setItem('app_theme', prefs.theme);
+                            if (prefs.language) await AsyncStorage.setItem('app_language', prefs.language);
+                        }
+
+                        // Refresh context to apply theme/language immediately
+                        if (refreshPreferences) {
+                            await refreshPreferences();
+                        }
+
+                        // 2. Sync History
+                        const { getHistory } = await import('@/utils/storage');
+                        await getHistory(); // This will fetch from Supabase and update local storage
+                    }
+                } catch (syncError) {
+                    console.error('Error syncing user data on login:', syncError);
+                    // verified - proceed even if sync fails
+                }
+
                 router.replace('/auth/login-welcome' as any);
             }
         } catch (e) {

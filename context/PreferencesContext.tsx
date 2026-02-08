@@ -14,6 +14,7 @@ interface PreferencesContextType {
     setLanguage: (lang: Language) => void;
     toggleNotifications: () => void;
     isDarkMode: boolean;
+    refreshPreferences: () => Promise<void>;
 }
 
 const PreferencesContext = createContext<PreferencesContextType | undefined>(undefined);
@@ -87,7 +88,8 @@ export const PreferencesProvider: React.FC<{ children: React.ReactNode }> = ({ c
             toggleTheme,
             setLanguage,
             toggleNotifications,
-            isDarkMode: theme === 'dark'
+            isDarkMode: theme === 'dark',
+            refreshPreferences: loadPreferences
         }}>
             {children}
         </PreferencesContext.Provider>

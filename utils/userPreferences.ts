@@ -6,6 +6,8 @@ export interface UserPreferences {
     lifestyle: 'sedentary' | 'active' | 'athlete' | null;
     primary_goal: 'relieve_pain' | 'improve_mobility' | 'daily_maintenance' | null;
     onboarding_completed: boolean;
+    theme?: 'light' | 'dark' | null;
+    language?: 'en' | 'zh' | 'fr' | 'es' | null;
     created_at?: string;
     updated_at?: string;
 }
@@ -15,7 +17,7 @@ export interface UserPreferences {
  */
 export async function saveUserPreferences(
     userId: string,
-    preferences: Partial<Pick<UserPreferences, 'lifestyle' | 'primary_goal' | 'onboarding_completed'>>
+    preferences: Partial<Pick<UserPreferences, 'lifestyle' | 'primary_goal' | 'onboarding_completed' | 'theme' | 'language'>>
 ): Promise<{ data: UserPreferences | null; error: Error | null }> {
     if (!supabase) {
         console.warn('Supabase not configured, preferences not saved to database');

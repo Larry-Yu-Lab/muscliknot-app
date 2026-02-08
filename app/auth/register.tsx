@@ -144,6 +144,8 @@ export default function RegisterScreen() {
                             lifestyle: lifestyle as 'sedentary' | 'active' | 'athlete' | null,
                             primary_goal: goal as 'relieve_pain' | 'improve_mobility' | 'daily_maintenance' | null,
                             onboarding_completed: true,
+                            theme: theme as 'light' | 'dark',
+                            language: language as 'en' | 'zh' | 'fr' | 'es',
                         });
                     }
                 } catch (syncError) {
