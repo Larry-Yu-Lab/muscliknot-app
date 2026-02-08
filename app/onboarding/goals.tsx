@@ -76,7 +76,7 @@ export default function GoalsScreen() {
                 <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
                     <Ionicons name="chevron-back" size={24} color="#fff" />
                 </TouchableOpacity>
-                <Text style={styles.stepText}>{t('stepIndicator').replace('${step}', '3').replace('${total}', '3')}</Text>
+                <Text style={styles.stepText}>{t('stepIndicator').replace('${step}', '3').replace('${total}', '4')}</Text>
                 <TouchableOpacity onPress={handleSkip}>
                     <Text style={styles.skipText}>{t('skip')}</Text>
                 </TouchableOpacity>
@@ -87,6 +87,7 @@ export default function GoalsScreen() {
                 <View style={styles.progressSegment} />
                 <View style={styles.progressSegment} />
                 <View style={[styles.progressSegment, styles.progressActive]} />
+                <View style={styles.progressSegment} />
             </View>
 
             <View style={styles.content}>

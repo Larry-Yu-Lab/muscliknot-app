@@ -47,7 +47,7 @@ export default function LifestyleScreen() {
                 <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
                     <Ionicons name="chevron-back" size={24} color="#fff" />
                 </TouchableOpacity>
-                <Text style={styles.stepText}>{t('stepIndicator').replace('${step}', '2').replace('${total}', '3')}</Text>
+                <Text style={styles.stepText}>{t('stepIndicator').replace('${step}', '2').replace('${total}', '4')}</Text>
                 <TouchableOpacity onPress={handleSkip}>
                     <Text style={styles.skipText}>{t('skip')}</Text>
                 </TouchableOpacity>
@@ -57,6 +57,7 @@ export default function LifestyleScreen() {
             <View style={styles.progressContainer}>
                 <View style={styles.progressSegment} />
                 <View style={[styles.progressSegment, styles.progressActive]} />
+                <View style={styles.progressSegment} />
                 <View style={styles.progressSegment} />
             </View>
 

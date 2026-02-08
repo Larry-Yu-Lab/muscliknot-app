@@ -194,7 +194,7 @@ export default function RegisterScreen() {
                     >
                         <Ionicons name="chevron-back" size={24} color="#fff" />
                     </TouchableOpacity>
-                    <Text style={styles.stepText}>{t('stepIndicator').replace('${step}', '5').replace('${total}', '5')}</Text>
+                    <Text style={styles.stepText}>{t('stepIndicator').replace('${step}', '4').replace('${total}', '4')}</Text>
                     <View style={{ width: 40 }} />
                 </View>
 
