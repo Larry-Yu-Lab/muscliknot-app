@@ -163,10 +163,6 @@ export default function FindReliefScreen() {
                     ) : (
                         (() => {
                             const ex = exercises[0];
-                            // Parse instructions into actual steps (split by newlines or numbered patterns like "1.", "2.")
-                            const instructionSteps = ex.instructions
-                                ? ex.instructions.split(/\n|(?:\d+\.\s*)/).filter((s: string) => s.trim().length > 0)
-                                : [];
 
                             return (
                                 <View>
@@ -187,40 +183,75 @@ export default function FindReliefScreen() {
                                         </View>
                                     </View>
 
-                                    {/* Why This Helps - Widget with orange rounded square number */}
+                                    {/* Why This Helps - Card with icon, no number */}
                                     {ex.why && (
-                                        <View style={styles.instructionCard}>
-                                            <View style={[styles.stepNumber, { backgroundColor: '#f97316', borderRadius: 8 }]}>
-                                                <Text style={[styles.stepNumberText, { color: '#000', fontWeight: '800' }]}>1</Text>
+                                        <View style={[styles.instructionCard, { backgroundColor: 'rgba(30, 30, 35, 0.9)', borderRadius: 16, marginBottom: 16 }]}>
+                                            <View style={[styles.stepNumber, { backgroundColor: 'transparent' }]}>
+                                                <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(249, 115, 22, 0.2)', justifyContent: 'center', alignItems: 'center' }}>
+                                                    <Ionicons name="bulb-outline" size={20} color={colors.accent} />
+                                                </View>
                                             </View>
                                             <View style={styles.stepContent}>
-                                                <Text style={{ fontSize: 14, fontWeight: '700', color: colors.accent, marginBottom: 4 }}>Why This Helps</Text>
-                                                <Text style={{ color: '#fff', lineHeight: 22 }}>{ex.why}</Text>
+                                                <Text style={{ fontSize: 16, fontWeight: '700', color: colors.accent, marginBottom: 8 }}>Why This Helps</Text>
+                                                <Text style={{ color: '#fff', lineHeight: 24, fontSize: 15 }}>{ex.why}</Text>
                                             </View>
                                         </View>
                                     )}
 
-                                    {/* Each Instruction Step as its own numbered widget */}
-                                    {instructionSteps.length > 0 && instructionSteps.map((step: string, index: number) => (
-                                        <View key={index} style={styles.instructionCard}>
-                                            <View style={[styles.stepNumber, { backgroundColor: '#f97316', borderRadius: 8 }]}>
-                                                <Text style={[styles.stepNumberText, { color: '#000', fontWeight: '800' }]}>{(ex.why ? 2 : 1) + index}</Text>
-                                            </View>
-                                            <View style={styles.stepContent}>
-                                                <Text style={{ color: '#fff', lineHeight: 22 }}>{step.trim()}</Text>
-                                            </View>
-                                        </View>
-                                    ))}
+                                    {/* Instructions - Each step in its own widget */}
+                                    {ex.instructions && (() => {
+                                        // Parse instructions into steps by splitting on **STEP X**
+                                        const stepRegex = /\*\*STEP\s*(\d+)\s*\(([^)]+)\):\*\*/g;
+                                        const parts = ex.instructions.split(stepRegex);
+                                        const steps: { number: string; label: string; content: string }[] = [];
 
-                                    {/* Process - Widget with orange rounded square number */}
+                                        // parts array: [before, stepNum1, label1, content1, stepNum2, label2, content2, ...]
+                                        for (let i = 1; i < parts.length; i += 3) {
+                                            if (parts[i] && parts[i + 1] && parts[i + 2] !== undefined) {
+                                                steps.push({
+                                                    number: parts[i],
+                                                    label: parts[i + 1],
+                                                    content: parts[i + 2].trim()
+                                                });
+                                            }
+                                        }
+
+                                        return steps.length > 0 ? steps.map((step, idx) => (
+                                            <View key={idx} style={[styles.instructionCard, { backgroundColor: 'rgba(30, 30, 35, 0.9)', borderRadius: 16, marginBottom: 16 }]}>
+                                                <View style={[styles.stepNumber, { backgroundColor: '#f97316', borderRadius: 8, alignSelf: 'flex-start' }]}>
+                                                    <Text style={[styles.stepNumberText, { color: '#000', fontWeight: '800' }]}>{step.number}</Text>
+                                                </View>
+                                                <View style={styles.stepContent}>
+                                                    <Text style={{ fontSize: 14, fontWeight: '700', color: '#00CED1', marginBottom: 6 }}>
+                                                        STEP {step.number} ({step.label}):
+                                                    </Text>
+                                                    <Text style={{ color: '#fff', lineHeight: 24, fontSize: 15 }}>{step.content}</Text>
+                                                </View>
+                                            </View>
+                                        )) : (
+                                            // Fallback if no steps found - show as single card
+                                            <View style={[styles.instructionCard, { backgroundColor: 'rgba(30, 30, 35, 0.9)', borderRadius: 16, marginBottom: 16 }]}>
+                                                <View style={[styles.stepNumber, { backgroundColor: '#f97316', borderRadius: 8, alignSelf: 'flex-start' }]}>
+                                                    <Text style={[styles.stepNumberText, { color: '#000', fontWeight: '800' }]}>1</Text>
+                                                </View>
+                                                <View style={styles.stepContent}>
+                                                    <Text style={{ color: '#fff', lineHeight: 24, fontSize: 15 }}>{ex.instructions}</Text>
+                                                </View>
+                                            </View>
+                                        );
+                                    })()}
+
+                                    {/* Process - Card with icon, no number */}
                                     {ex.process && (
-                                        <View style={styles.instructionCard}>
-                                            <View style={[styles.stepNumber, { backgroundColor: '#f97316', borderRadius: 8 }]}>
-                                                <Text style={[styles.stepNumberText, { color: '#000', fontWeight: '800' }]}>{(ex.why ? 1 : 0) + instructionSteps.length + 1}</Text>
+                                        <View style={[styles.instructionCard, { backgroundColor: 'rgba(30, 30, 35, 0.9)', borderRadius: 16, marginBottom: 16 }]}>
+                                            <View style={[styles.stepNumber, { backgroundColor: 'transparent' }]}>
+                                                <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(249, 115, 22, 0.2)', justifyContent: 'center', alignItems: 'center' }}>
+                                                    <Ionicons name="settings-outline" size={20} color={colors.accent} />
+                                                </View>
                                             </View>
                                             <View style={styles.stepContent}>
-                                                <Text style={{ fontSize: 14, fontWeight: '700', color: colors.accent, marginBottom: 4 }}>Process</Text>
-                                                <Text style={{ color: '#fff', lineHeight: 22 }}>{ex.process}</Text>
+                                                <Text style={{ fontSize: 16, fontWeight: '700', color: colors.accent, marginBottom: 8 }}>Process</Text>
+                                                <Text style={{ color: '#fff', lineHeight: 24, fontSize: 15 }}>{ex.process}</Text>
                                             </View>
                                         </View>
                                     )}
