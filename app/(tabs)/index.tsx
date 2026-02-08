@@ -320,7 +320,7 @@ export default function HomeScreen() {
           </TouchableOpacity>
           <TextInput
             style={[styles.searchInput, { color: colors.text }]}
-            placeholder="Search body part (e.g. neck, knee, foot...)"
+            placeholder="Search body part"
             placeholderTextColor={colors.textSecondary}
             value={searchQuery}
             onChangeText={(text) => { setSearchQuery(text); setSearchError(''); }}

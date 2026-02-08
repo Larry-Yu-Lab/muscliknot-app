@@ -63,7 +63,7 @@ function RootLayoutNav() {
         <Stack.Screen name="auth/login" options={{ headerShown: false }} />
         <Stack.Screen name="auth/register" options={{ headerShown: false }} />
         <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-        <Stack.Screen name="settings" options={{ presentation: 'card', title: 'Settings' }} />
+        <Stack.Screen name="settings" options={{ presentation: 'card', headerShown: false }} />
       </Stack>
       <StatusBar style={theme === 'dark' ? 'light' : 'dark'} />
     </ThemeProvider>

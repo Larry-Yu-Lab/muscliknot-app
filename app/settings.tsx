@@ -63,15 +63,6 @@ export default function SettingsScreen() {
             </View>
 
             <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-                {/* Account */}
-                <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>{t('account').toUpperCase()}</Text>
-                    <View style={styles.glassCard}>
-                        <SettingsRow icon="person" label={t('editProfile')} />
-                        <SettingsRow icon="lock" label={t('changePassword')} isLast={true} />
-                    </View>
-                </View>
-
                 {/* Preferences */}
                 <View style={styles.section}>
                     <Text style={styles.sectionTitle}>{t('preferences').toUpperCase()}</Text>

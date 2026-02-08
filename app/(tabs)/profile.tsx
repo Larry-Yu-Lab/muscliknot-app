@@ -1,5 +1,6 @@
 import { CustomToggle } from '@/components/ui/CustomToggle';
 import { Colors } from '@/constants/theme';
+import { useAuth } from '@/context/AuthContext';
 import { usePreferences } from '@/context/PreferencesContext';
 import { useUser } from '@/context/UserContext';
 import { getTranslation, LANGUAGES } from '@/utils/i18n';
@@ -17,6 +18,7 @@ export default function ProfileScreen() {
     const router = useRouter();
     const { theme, language, toggleTheme, setLanguage, notificationsEnabled, toggleNotifications } = usePreferences();
     const { user, updateUser } = useUser();
+    const { signOut } = useAuth();
     const colors = Colors[theme];
     const isDark = theme === 'dark';
     const t = (key: Parameters<typeof getTranslation>[1]) => getTranslation(language, key);
@@ -335,10 +337,16 @@ export default function ProfileScreen() {
                         {/* Account Actions */}
                         <View style={styles.settingsSection}>
                             <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>{t('account')}</Text>
-                            <TouchableOpacity style={[
-                                styles.logoutButton,
-                                { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }
-                            ]}>
+                            <TouchableOpacity
+                                style={[
+                                    styles.logoutButton,
+                                    { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }
+                                ]}
+                                onPress={async () => {
+                                    await signOut();
+                                    router.replace('/auth/login' as any);
+                                }}
+                            >
                                 <Ionicons name="log-out-outline" size={20} color={colors.danger} />
                                 <Text style={[styles.logoutText, { color: colors.danger }]}>{t('logout')}</Text>
                             </TouchableOpacity>
