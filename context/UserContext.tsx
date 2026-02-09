@@ -1,3 +1,4 @@
+import { supabase } from '@/utils/supabase';
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useAuth } from './AuthContext';
 
@@ -50,23 +51,102 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [user, setUser] = useState<UserData>(defaultUser);
 
     useEffect(() => {
-        if (authUser) {
-            // Update user data from Supabase Auth metadata
-            const meta = authUser.user_metadata;
-            setUser(prev => ({
-                ...prev,
-                name: meta.full_name || 'User',
-                avatarUrl: meta.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(meta.full_name || 'User')}&background=f97316&color=fff`,
-                isPremium: true, // simplified for demo
-            }));
-        } else {
-            // Reset to guest/default if logged out (though route protection should prevent this screen access)
-            setUser(defaultUser);
-        }
+        let mounted = true;
+
+        const fetchUserStats = async () => {
+            if (authUser) {
+                try {
+                    // 1. Fetch Stats from Supabase
+                    const { data: statsData, error } = await supabase
+                        .from('user_stats')
+                        .select('*')
+                        .eq('user_id', authUser.id)
+                        .single();
+
+                    if (mounted) {
+                        const meta = authUser.user_metadata;
+
+                        // Use fetched stats or fallback to defaults if strictly necessary (though trigger should create them)
+                        const stats = statsData ? {
+                            workouts: statsData.workouts,
+                            recoveryScore: statsData.recovery_score,
+                            streakDays: statsData.streak_days,
+                        } : defaultUser.stats;
+
+                        const attributes = statsData ? {
+                            fitnessLevel: statsData.fitness_level,
+                            level: statsData.level,
+                            levelProgress: statsData.level_progress,
+                            injuryRecovery: statsData.injury_recovery,
+                        } : defaultUser.attributes;
+
+                        setUser({
+                            name: meta.full_name || 'User',
+                            avatarUrl: meta.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(meta.full_name || 'User')}&background=f97316&color=fff`,
+                            status: 'DATA-DRIVEN ATHLETE', // could also be DB field
+                            isPremium: true,
+                            stats,
+                            attributes,
+                        });
+                    }
+                } catch (e) {
+                    console.error('Error fetching user stats:', e);
+                    // Fallback to basic auth info but default stats
+                    if (mounted) {
+                        const meta = authUser.user_metadata;
+                        setUser(prev => ({
+                            ...prev,
+                            name: meta.full_name || 'User',
+                            avatarUrl: meta.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(meta.full_name || 'User')}&background=f97316&color=fff`,
+                        }));
+                    }
+                }
+            } else {
+                if (mounted) {
+                    setUser(defaultUser);
+                }
+            }
+        };
+
+        fetchUserStats();
+
+        return () => { mounted = false; };
     }, [authUser]);
 
-    const updateUser = (data: Partial<UserData>) => {
+    const updateUser = async (data: Partial<UserData>) => {
+        // Optimistic update
         setUser(prev => ({ ...prev, ...data }));
+
+        // Write to Supabase if logged in
+        if (authUser) {
+            try {
+                const updates: any = {};
+                if (data.stats) {
+                    updates.workouts = data.stats.workouts;
+                    updates.recovery_score = data.stats.recoveryScore;
+                    updates.streak_days = data.stats.streakDays;
+                }
+                if (data.attributes) {
+                    updates.fitness_level = data.attributes.fitnessLevel;
+                    updates.level = data.attributes.level;
+                    updates.level_progress = data.attributes.levelProgress;
+                    updates.injury_recovery = data.attributes.injuryRecovery;
+                }
+
+                if (Object.keys(updates).length > 0) {
+                    updates.updated_at = new Date().toISOString();
+                    const { error } = await supabase
+                        .from('user_stats')
+                        .update(updates)
+                        .eq('user_id', authUser.id);
+
+                    if (error) throw error;
+                }
+            } catch (err) {
+                console.error('Failed to sync user stats:', err);
+                // In a real app, might want to revert optimistic update or show error
+            }
+        }
     };
 
     return (
