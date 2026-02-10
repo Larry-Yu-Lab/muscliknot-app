@@ -61,6 +61,8 @@ const ExerciseCard = ({ id, title, duration, target, image, t, colors }: Exercis
 
 
 export default function LibraryScreen() {
+    const [activeCategory, setActiveCategory] = useState('All');
+    const [activeMuscleGroup, setActiveMuscleGroup] = useState('All');
     const [searchQuery, setSearchQuery] = useState('');
     const [supabaseExercises, setSupabaseExercises] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -103,7 +105,7 @@ export default function LibraryScreen() {
                         target: ex.common_name || 'General',
                         muscleGroup: ex.common_name?.split(' ')[0] || 'General',
                         category: categoryMap[ex.exercise_type?.toLowerCase()] || 'Relief',
-                        image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAQvExJHNf-gPBvV9mafHYX_QH4RDM2a10DReFfan-2uta-tGIgoYLy2YcqV88Fw966WlK2bhvku-3_4e5f88wGpuO0qaD_Yr1qPxSQtigGhxM0Sq6uOtWbw-JV0RDp_0RmODacO147g0dvAY693HSe3XPVdm2eTzs6ER9VAKERpdSDpdD1MgVcJ8HJCDesjsxF-hhw0aRZc-sY0sB3sHox58BbJ7vYjkyyLq8KDnpbu4x0PolLYeNnsL3Q3fcRFHU5BkgY0KWaZ8NP',
+                        image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAQvExJHNf-gPBvV9mafHYX_QH4RDM2a10DReFfan-2uta-tGIgoYLy2YcqV88wGpuO0qaD_Yr1qPxSQtigGhxM0Sq6uOtWbw-JV0RDp_0RmODacO147g0dvAY693HSe3XPVdm2eTzs6ER9VAKERpdSDpdD1MgVcJ8HJCDesjsxF-hhw0aRZc-sY0sB3sHox58BbJ7vYjkyyLq8KDnpbu4x0PolLYeNnsL3Q3fcRFHU5BkgY0KWaZ8NP',
                         instructions: ex.instructions,
                         why: ex.why,
                         process: ex.process,
@@ -127,6 +129,7 @@ export default function LibraryScreen() {
 
     // Helpers for dynamic keys
     const getCategoryKey = (cat: string) => {
+        if (cat === 'All') return 'catAll';
         // 'Warm-ups' -> 'catWarmups'
         return `cat${cat.replace(/[-\s]/g, '')}` as any;
     };
@@ -137,13 +140,31 @@ export default function LibraryScreen() {
         return trans !== key ? trans : name;
     };
 
-    // Filtered list for Search
-    const searchResults = useMemo(() => {
-        if (!searchQuery) return [];
-        return allExercises.filter(ex =>
-            ex.title.toLowerCase().includes(searchQuery.toLowerCase())
-        );
-    }, [searchQuery, allExercises]);
+    const getMuscleDisplay = (name: string) => {
+        const key = name === 'All' ? 'catAll' : `mg${name.replace(/\s/g, '')}` as any;
+        const trans = t(key);
+        return trans !== key ? trans : name;
+    };
+
+    // Filtered list 
+    const filteredExercises = useMemo(() => {
+        return allExercises.filter(ex => {
+            // 1. Search Query
+            if (searchQuery && !ex.title.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+
+            // 2. Category Filter
+            if (activeCategory !== 'All' && ex.category !== activeCategory) return false;
+
+            // 3. Sub-category (Muscle Group) for Relief
+            if (activeCategory === 'Relief' && activeMuscleGroup !== 'All') {
+                const muscleMatch = ex.muscleGroup?.toLowerCase().includes(activeMuscleGroup.toLowerCase()) ||
+                    ex.target?.toLowerCase().includes(activeMuscleGroup.toLowerCase());
+                if (!muscleMatch) return false;
+            }
+
+            return true;
+        });
+    }, [activeCategory, activeMuscleGroup, searchQuery, allExercises]);
 
     const displayCategories = categories.filter(c => c !== 'All');
 
@@ -170,14 +191,78 @@ export default function LibraryScreen() {
 
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
 
+                {/* Main Categories */}
+                <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={styles.categoriesContainer}
+                >
+                    {categories.map((category) => (
+                        <TouchableOpacity
+                            key={category}
+                            style={[
+                                styles.categoryButton,
+                                { borderColor: 'rgba(249, 107, 6, 0.4)' },
+                                activeCategory === category && { backgroundColor: 'rgba(249, 107, 6, 0.1)', borderColor: colors.accent },
+                            ]}
+                            onPress={() => {
+                                setActiveCategory(category);
+                                setActiveMuscleGroup('All'); // Reset sub-filter
+                            }}
+                        >
+                            <Text
+                                style={[
+                                    styles.categoryText,
+                                    { color: colors.text },
+                                    activeCategory === category && { color: colors.text, fontWeight: '700' },
+                                ]}
+                            >
+                                {getCategoryDisplay(category)}
+                            </Text>
+                        </TouchableOpacity>
+                    ))}
+                </ScrollView>
+
+                {/* Sub-Category (Muscle Group) - Only visible for Relief */}
+                {activeCategory === 'Relief' && (
+                    <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        contentContainerStyle={[styles.categoriesContainer, { paddingTop: 0, paddingBottom: 16 }]}
+                    >
+                        {reliefMuscleGroups.map((group) => (
+                            <TouchableOpacity
+                                key={group}
+                                style={[
+                                    styles.subCategoryButton,
+                                    { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder },
+                                    activeMuscleGroup === group && { backgroundColor: colors.accent, borderColor: colors.accent },
+                                ]}
+                                onPress={() => setActiveMuscleGroup(group)}
+                            >
+                                <Text
+                                    style={[
+                                        styles.subCategoryText,
+                                        { color: colors.textSecondary },
+                                        activeMuscleGroup === group && { color: '#fff', fontWeight: '700' },
+                                    ]}
+                                >
+                                    {getMuscleDisplay(group)}
+                                </Text>
+                            </TouchableOpacity>
+                        ))}
+                    </ScrollView>
+                )}
+
+                {/* Content Logic */}
                 {searchQuery.length > 0 ? (
-                    // 1. Search Results View
+                    // Search Results
                     <View style={styles.section}>
                         <Text style={[styles.sectionTitle, { color: colors.text }]}>
-                            {searchResults.length} {t('results')}
+                            {filteredExercises.length} {t('results')}
                         </Text>
                         <View style={styles.exerciseList}>
-                            {searchResults.map((exercise) => (
+                            {filteredExercises.map((exercise) => (
                                 <ExerciseCard
                                     key={exercise.id}
                                     id={exercise.id}
@@ -191,8 +276,36 @@ export default function LibraryScreen() {
                             ))}
                         </View>
                     </View>
+                ) : activeCategory !== 'All' ? (
+                    // Filtered View (Single Category)
+                    <View style={styles.section}>
+                        <View style={styles.sectionHeader}>
+                            <Text style={[styles.sectionTitle, { color: colors.text }]}>
+                                {filteredExercises.length} {t('exercises')}
+                            </Text>
+                        </View>
+                        <View style={styles.exerciseList}>
+                            {filteredExercises.map((exercise) => (
+                                <ExerciseCard
+                                    key={exercise.id}
+                                    id={exercise.id}
+                                    title={exercise.title}
+                                    duration={exercise.duration}
+                                    target={exercise.muscleGroup}
+                                    image={exercise.image}
+                                    t={t as any}
+                                    colors={colors}
+                                />
+                            ))}
+                        </View>
+                        {filteredExercises.length === 0 && (
+                            <Text style={{ color: colors.textSecondary, textAlign: 'center', marginTop: 20 }}>
+                                No exercises found.
+                            </Text>
+                        )}
+                    </View>
                 ) : (
-                    // 2. Categorized View
+                    // "All" View - Show Sections/Categories
                     displayCategories.map((category) => {
                         const categoryExercises = allExercises.filter(ex => ex.category === category);
                         if (categoryExercises.length === 0) return null;
@@ -203,9 +316,12 @@ export default function LibraryScreen() {
                                     <Text style={[styles.sectionTitle, { color: colors.text }]}>
                                         {getCategoryDisplay(category)}
                                     </Text>
+                                    <TouchableOpacity onPress={() => setActiveCategory(category)}>
+                                        <Text style={[styles.seeAllText, { color: colors.accent }]}>{t('seeAll')}</Text>
+                                    </TouchableOpacity>
                                 </View>
                                 <View style={styles.exerciseList}>
-                                    {categoryExercises.map((exercise) => (
+                                    {categoryExercises.slice(0, 3).map((exercise) => (
                                         <ExerciseCard
                                             key={exercise.id}
                                             id={exercise.id}
