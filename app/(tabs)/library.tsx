@@ -5,6 +5,7 @@ import { getTranslation } from '@/utils/i18n';
 import { supabase } from '@/utils/supabase';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
+import { useRouter } from 'expo-router';
 import React, { useEffect, useMemo, useState } from 'react';
 import { SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
@@ -27,12 +28,33 @@ const getMuscleKey = (name: string) => {
     return `mg${name.replace(/\s/g, '')}` as any;
 };
 
-const ExerciseCard = ({ id, title, duration, target, image, t, colors }: ExerciseCardProps) => {
+const ExerciseCard = ({ id, title, duration, target, image, t, colors, exercise }: ExerciseCardProps & { exercise: any }) => {
+    const router = useRouter();
     const titleKey = `ex_${id}_title` as any;
     const translatedTitle = t(titleKey) !== titleKey ? t(titleKey) : title;
 
+    const handlePress = () => {
+        router.push({
+            pathname: `/exercise/${id}` as any,
+            params: {
+                id,
+                title: translatedTitle,
+                duration,
+                target,
+                image,
+                why: exercise.why,
+                process: exercise.process,
+                instructions: exercise.instructions,
+                muscleGroup: exercise.muscleGroup
+            }
+        });
+    };
+
     return (
-        <TouchableOpacity style={[styles.exerciseCard, { backgroundColor: colors.cardBackground, borderColor: 'rgba(249, 107, 6, 0.3)' }]}>
+        <TouchableOpacity
+            style={[styles.exerciseCard, { backgroundColor: colors.cardBackground, borderColor: 'rgba(249, 107, 6, 0.3)' }]}
+            onPress={handlePress}
+        >
             <View style={[styles.exerciseImageContainer, { borderColor: colors.accent }]}>
                 <Image
                     source={{ uri: image }}
@@ -272,6 +294,7 @@ export default function LibraryScreen() {
                                     image={exercise.image}
                                     t={t as any}
                                     colors={colors}
+                                    exercise={exercise}
                                 />
                             ))}
                         </View>
@@ -281,7 +304,7 @@ export default function LibraryScreen() {
                     <View style={styles.section}>
                         <View style={styles.sectionHeader}>
                             <Text style={[styles.sectionTitle, { color: colors.text }]}>
-                                {filteredExercises.length} {t('exercises')}
+                                {filteredExercises.length} {t('exercises' as any)}
                             </Text>
                         </View>
                         <View style={styles.exerciseList}>
@@ -295,6 +318,7 @@ export default function LibraryScreen() {
                                     image={exercise.image}
                                     t={t as any}
                                     colors={colors}
+                                    exercise={exercise}
                                 />
                             ))}
                         </View>
@@ -331,6 +355,7 @@ export default function LibraryScreen() {
                                             image={exercise.image}
                                             t={t as any}
                                             colors={colors}
+                                            exercise={exercise}
                                         />
                                     ))}
                                 </View>
