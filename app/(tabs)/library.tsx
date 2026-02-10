@@ -9,7 +9,9 @@ import { useRouter } from 'expo-router';
 import React, { useEffect, useMemo, useState } from 'react';
 import { SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
-const categories = ['All', 'Relief', 'Warm-ups', 'Yoga', 'Posture', 'Strength'];
+import { fetchSavedExercises, saveExercise, unsaveExercise } from '@/utils/savedExercises';
+
+const categories = ['All', 'Saved', 'Relief', 'Warm-ups', 'Yoga', 'Posture', 'Strength'];
 const reliefMuscleGroups = ['All', 'Neck', 'Shoulders', 'Upper Back', 'Lower Back', 'Glutes', 'Legs'];
 
 type ExerciseCardProps = {
@@ -20,6 +22,8 @@ type ExerciseCardProps = {
     image: string;
     t: (key: string) => string;
     colors: any;
+    isSaved?: boolean;
+    onToggleSave?: () => void;
 };
 
 // Helper for mapped muscle group translation inside card
@@ -28,7 +32,7 @@ const getMuscleKey = (name: string) => {
     return `mg${name.replace(/\s/g, '')}` as any;
 };
 
-const ExerciseCard = ({ id, title, duration, target, image, t, colors, exercise }: ExerciseCardProps & { exercise: any }) => {
+const ExerciseCard = ({ id, title, duration, target, image, t, colors, exercise, isSaved, onToggleSave }: ExerciseCardProps & { exercise: any }) => {
     const router = useRouter();
     const titleKey = `ex_${id}_title` as any;
     const translatedTitle = t(titleKey) !== titleKey ? t(titleKey) : title;
@@ -74,8 +78,8 @@ const ExerciseCard = ({ id, title, duration, target, image, t, colors, exercise 
                     </View>
                 </View>
             </View>
-            <TouchableOpacity style={styles.favoriteButton}>
-                <Ionicons name="heart-outline" size={20} color={colors.textSecondary} />
+            <TouchableOpacity style={styles.favoriteButton} onPress={onToggleSave}>
+                <Ionicons name={isSaved ? "heart" : "heart-outline"} size={20} color={isSaved ? colors.accent : colors.textSecondary} />
             </TouchableOpacity>
         </TouchableOpacity>
     );
@@ -87,6 +91,7 @@ export default function LibraryScreen() {
     const [activeMuscleGroup, setActiveMuscleGroup] = useState('All');
     const [searchQuery, setSearchQuery] = useState('');
     const [supabaseExercises, setSupabaseExercises] = useState<any[]>([]);
+    const [savedExerciseIds, setSavedExerciseIds] = useState<string[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
     const { language, theme } = usePreferences();
@@ -144,6 +149,35 @@ export default function LibraryScreen() {
         fetchAllExercises();
     }, []);
 
+    // Fetch saved exercises
+    useEffect(() => {
+        const loadSaved = async () => {
+            const user = (await supabase?.auth.getUser())?.data.user;
+            if (user) {
+                const saved = await fetchSavedExercises(user.id);
+                setSavedExerciseIds(saved);
+            }
+        };
+        loadSaved();
+    }, []);
+
+    const toggleSave = async (exerciseId: string) => {
+        const isSaved = savedExerciseIds.includes(exerciseId);
+        // Optimistic update
+        setSavedExerciseIds(prev =>
+            isSaved ? prev.filter(id => id !== exerciseId) : [...prev, exerciseId]
+        );
+
+        const user = (await supabase?.auth.getUser())?.data.user;
+        if (user) {
+            if (isSaved) {
+                await unsaveExercise(user.id, exerciseId);
+            } else {
+                await saveExercise(user.id, exerciseId);
+            }
+        }
+    };
+
     // Combine local exercises with Supabase exercises
     const allExercises = useMemo(() => {
         return [...EXERCISES, ...supabaseExercises];
@@ -182,6 +216,11 @@ export default function LibraryScreen() {
                 const muscleMatch = ex.muscleGroup?.toLowerCase().includes(activeMuscleGroup.toLowerCase()) ||
                     ex.target?.toLowerCase().includes(activeMuscleGroup.toLowerCase());
                 if (!muscleMatch) return false;
+            }
+
+            // 4. Saved Filter
+            if (activeCategory === 'Saved') {
+                return savedExerciseIds.includes(ex.id);
             }
 
             return true;
@@ -295,6 +334,8 @@ export default function LibraryScreen() {
                                     t={t as any}
                                     colors={colors}
                                     exercise={exercise}
+                                    isSaved={savedExerciseIds.includes(exercise.id)}
+                                    onToggleSave={() => toggleSave(exercise.id)}
                                 />
                             ))}
                         </View>
@@ -319,6 +360,8 @@ export default function LibraryScreen() {
                                     t={t as any}
                                     colors={colors}
                                     exercise={exercise}
+                                    isSaved={savedExerciseIds.includes(exercise.id)}
+                                    onToggleSave={() => toggleSave(exercise.id)}
                                 />
                             ))}
                         </View>
@@ -356,6 +399,8 @@ export default function LibraryScreen() {
                                             t={t as any}
                                             colors={colors}
                                             exercise={exercise}
+                                            isSaved={savedExerciseIds.includes(exercise.id)}
+                                            onToggleSave={() => toggleSave(exercise.id)}
                                         />
                                     ))}
                                 </View>
