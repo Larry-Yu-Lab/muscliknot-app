@@ -102,7 +102,8 @@ export const handleSelection = async (
  */
 export const fetchExercisesByMuscleAndSize = async (
     muscleId: string,
-    size: string
+    size: string,
+    activityType: string = 'relief'
 ): Promise<any[]> => {
     if (!supabase) {
         console.warn('Supabase client not initialized');
@@ -141,7 +142,7 @@ export const fetchExercisesByMuscleAndSize = async (
     const keywords = muscleKeywords[muscleId] || [muscleId];
 
     try {
-        console.log(`Searching for exercises matching: ${keywords.join(', ')}`);
+        console.log(`Searching for ${activityType} exercises matching: ${keywords.join(', ')}`);
 
         // Build OR conditions for all keywords
         const orConditions = keywords.map(k => `common_name.ilike.%${k}%`).join(',');
@@ -149,6 +150,7 @@ export const fetchExercisesByMuscleAndSize = async (
         const { data, error } = await supabase
             .from('recovery_knowledge_base')
             .select('*')
+            .eq('exercise_type', activityType) // Filter by activity type
             .or(orConditions);
 
         if (error) {

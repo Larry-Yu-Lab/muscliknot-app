@@ -94,6 +94,32 @@ export default function TabLayout() {
           href: null,
         }}
       />
+
+      {/* New Activity Pages - Hidden from tabs */}
+      <Tabs.Screen
+        name="warm-up"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="yoga"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="fix-posture"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="strengthen"
+        options={{
+          href: null,
+        }}
+      />
     </Tabs>
   );
 }
