@@ -28,6 +28,7 @@ export default function FindReliefScreen() {
     const view = (params.view as 'Front' | 'Back') || 'Front';
     const size = (params.size as string) || 'medium';
     const muscleId = (params.muscleId as string) || 'unknown';
+    const activityType = (params.activityType as string) || 'relief';
 
     const [exercises, setExercises] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);

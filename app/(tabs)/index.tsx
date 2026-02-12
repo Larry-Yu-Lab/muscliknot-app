@@ -179,7 +179,7 @@ export default function HomeScreen() {
       });
 
       router.push({
-        pathname: '/(tabs)/pain-assessment',
+        pathname: '/(tabs)/activity-selection',
         params: {
           x: activePoint.x,
           y: activePoint.y,
@@ -392,7 +392,7 @@ export default function HomeScreen() {
           {/* Contextual Action Button */}
           {activePoint && (
             <TouchableOpacity style={styles.generateButton} onPress={handleFindRelief}>
-              <Text style={styles.generateButtonText}>{t('generateReliefPlan')}</Text>
+              <Text style={styles.generateButtonText}>{t('generatePlan')}</Text>
               <Ionicons name="arrow-forward" size={20} color="#000" />
             </TouchableOpacity>
           )}

@@ -36,6 +36,7 @@ export default function PainAssessmentScreen() {
     const view = params.view;
     const size = params.size;
     const muscleId = params.muscleId;
+    const activityType = params.activityType;
 
     const handleSliderTouch = (event: any) => {
         setIsSliderActive(true);
@@ -49,7 +50,7 @@ export default function PainAssessmentScreen() {
         router.push({
             pathname: '/(tabs)/find-relief',
             params: {
-                x, y, width, height, rotation, view, size, muscleId,
+                x, y, width, height, rotation, view, size, muscleId, activityType,
                 painLevel,
                 duration: selectedDuration || 'unknown',
                 cause: injuryCause || 'unknown',

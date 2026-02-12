@@ -80,7 +80,8 @@ export const translations = {
 
         // Tabs
         tabHome: 'Home',
-        tabFindRelief: 'Find Relief',
+        tabFindRelief: 'Activity', // Renamed from Find Relief
+        tabActivity: 'Activity',
         tabHistory: 'History',
         tabLibrary: 'Library',
         tabProfile: 'Profile',
@@ -92,7 +93,8 @@ export const translations = {
         painPointSelected: 'Pain point selected',
         front: 'FRONT',
         back: 'BACK',
-        generateReliefPlan: 'GENERATE RELIEF PLAN',
+        generateReliefPlan: 'GENERATE PLAN', // Renamed from GENERATE RELIEF PLAN
+        generatePlan: 'GENERATE PLAN',
         recentPlans: 'Recent Plans',
         seeAllHistory: 'History',
         neckRelief: 'Neck Relief',
@@ -114,6 +116,19 @@ export const translations = {
         markAsComplete: 'MARK AS COMPLETE',
         planCompletedTitle: 'Relief Plan Completed',
         planCompletedMessage: 'Your session has been saved to history.',
+
+        // Activity Selection
+        selectActivityType: 'What do you want to do?',
+        activityRelief: 'Find Relief',
+        activityWarmup: 'Warm up this area',
+        activityYoga: 'Do yoga around this area',
+        activityPosture: 'Fix posture around this area',
+        activityStrength: 'Strengthen muscle in this area',
+        activityReliefDesc: 'Targeted exercises to reduce pain',
+        activityWarmupDesc: 'Prepare muscles for activity',
+        activityYogaDesc: 'Improve flexibility and balance',
+        activityPostureDesc: 'Correct alignment issues',
+        activityStrengthDesc: 'Build muscle resilience',
 
         // History
         recoveryHistory: 'Recovery History',

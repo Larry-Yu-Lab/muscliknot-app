@@ -39,8 +39,8 @@ export default function TabLayout() {
       <Tabs.Screen
         name="find-relief"
         options={{
-          title: t('tabFindRelief'),
-          tabBarIcon: ({ color }) => <MaterialIcons size={24} name="health-and-safety" color={color} />,
+          title: t('tabActivity'),
+          tabBarIcon: ({ color }) => <MaterialIcons size={24} name="fitness-center" color={color} />,
         }}
       />
 
@@ -81,7 +81,14 @@ export default function TabLayout() {
 
       {/* Hide Pain Assessment - only accessible via navigation from Generate Relief Plan */}
       <Tabs.Screen
-        name="pain-assessment"
+        options={{
+          href: null,
+        }}
+      />
+
+      {/* Activity Selection - Intermediate screen */}
+      <Tabs.Screen
+        name="activity-selection"
         options={{
           href: null,
         }}
