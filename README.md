@@ -9,8 +9,9 @@
 ### 1. 🏠 Interactive Body Visualizer (Home)
 The core feature of the app is an interactive human anatomy model that allows users to pinpoint pain with precision.
 *   **Dual View:** Toggle between **Front** and **Back** muscle views.
+*   **Zoom Control:** Magnifying buttons (+/-) allow users to zoom in/out (up to 2x) on specific body areas for precise selection.
 *   **Smart Pain Mapping:** Users can drag, place, resize, and rotate a "Pain Marker" oval on the body map.
-*   **Relief Generation:** The app analyzes the marker's position and size to identify underlying muscle groups and generates a tailored relief plan.
+*   **Activity Selection:** Upon generating a plan, users can choose their specific goal: **Find Relief**, **Warm Up**, **Yoga**, **Fix Posture**, or **Strengthen**.
 *   **Quick Access:** "Recent Plans" for quick re-access to previous relief sessions.
 
 ### 2. 🚑 Relief Plan Generator (Find Relief)
@@ -88,7 +89,7 @@ Secure and personalized user entry.
 
 ## 📂 Project Structure
 
-*   `app/(tabs)`: Main tab-based screens (`index`, `find-relief`, `history`, `library`, `profile`).
+*   `app/(tabs)`: Main tab-based screens (`index`, `find-relief`, `history`, `library`, `profile`) and activity-specific pages (`warm-up`, `yoga`, `fix-posture`, `strengthen`).
 *   `components/`: Reusable UI components (e.g., `AnatomyMap.ts`, custom toggles).
 *   `context/`: Global state providers (`PreferencesContext`, `UserContext`).
 *   `constants/`: Theme colors and configuration.
