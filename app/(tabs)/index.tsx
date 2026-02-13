@@ -292,6 +292,17 @@ export default function HomeScreen() {
       setSearchError('No body part found. Try: neck, shoulder, back, knee, foot, etc.');
     }
   };
+  /* ZOOM STATE */
+  const [zoomLevel, setZoomLevel] = useState(1);
+
+  const handleZoomIn = () => {
+    setZoomLevel(prev => Math.min(prev + 0.25, 2.0)); // Max 2x zoom
+  };
+
+  const handleZoomOut = () => {
+    setZoomLevel(prev => Math.max(prev - 0.25, 1.0)); // Min 1x zoom
+  };
+
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
@@ -333,26 +344,32 @@ export default function HomeScreen() {
         ) : null}
 
         {/* Body Visualizer */}
-        <View style={[styles.bodyVisualizerContainer, { backgroundColor: colors.muscleVisualizerBackground }]}>
+        <View style={[styles.bodyVisualizerContainer, { backgroundColor: colors.muscleVisualizerBackground, overflow: 'hidden' }]}>
           {/* Toggle */}
-          <View style={[styles.toggleContainer, { backgroundColor: isDark ? 'rgba(24, 24, 27, 0.5)' : '#e0e0e0', borderColor: colors.cardBorder }]}>
+          <View style={[styles.toggleContainer, { backgroundColor: isDark ? 'rgba(24, 24, 27, 0.5)' : '#e0e0e0', borderColor: colors.cardBorder, zIndex: 10 }]}>
             <TouchableOpacity
               style={[styles.toggleButton, view === 'Front' && styles.toggleButtonActive]}
-              onPress={() => { setView('Front'); setActivePoint(null); }}
+              onPress={() => { setView('Front'); setActivePoint(null); setZoomLevel(1); }}
             >
               <Text style={[styles.toggleText, view === 'Front' && styles.toggleTextActive]}>{t('front')}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.toggleButton, view === 'Back' && styles.toggleButtonActive]}
-              onPress={() => { setView('Back'); setActivePoint(null); }}
+              onPress={() => { setView('Back'); setActivePoint(null); setZoomLevel(1); }}
             >
               <Text style={[styles.toggleText, view === 'Back' && styles.toggleTextActive]}>{t('back')}</Text>
             </TouchableOpacity>
           </View>
 
-          {/* Image Area with Inteaction */}
+          {/* Image Area with Interaction - Scaled by Zoom */}
           <View
-            style={[styles.bodyImageContainer, { backgroundColor: colors.muscleVisualizerBackground }]}
+            style={[
+              styles.bodyImageContainer,
+              {
+                backgroundColor: colors.muscleVisualizerBackground,
+                transform: [{ scale: zoomLevel }]
+              }
+            ]}
             onLayout={(e) => setContainerHeight(e.nativeEvent.layout.height)}
           >
             {/* 1. Underlying Visual Layer - Full Width/Height */}
@@ -387,6 +404,16 @@ export default function HomeScreen() {
                 </View>
               )}
             </View>
+          </View>
+
+          {/* Zoom Controls */}
+          <View style={styles.zoomControls}>
+            <TouchableOpacity style={styles.zoomButton} onPress={handleZoomIn}>
+              <Ionicons name="add" size={20} color="#fff" />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.zoomButton} onPress={handleZoomOut}>
+              <Ionicons name="remove" size={20} color="#fff" />
+            </TouchableOpacity>
           </View>
 
           {/* Contextual Action Button */}
@@ -689,5 +716,22 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '800',
     letterSpacing: 1,
+  },
+  zoomControls: {
+    position: 'absolute',
+    bottom: 90,
+    right: 16,
+    gap: 8,
+    zIndex: 20,
+  },
+  zoomButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: 'rgba(30,30,30,0.8)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
   },
 });
