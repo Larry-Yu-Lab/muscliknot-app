@@ -6,6 +6,8 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useRef, useState } from 'react';
 import { SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
+// --- Configuration for Questions ---
+
 const DURATION_OPTIONS = [
     { id: 'today', label: 'Today' },
     { id: 'this_week', label: 'This Week' },
@@ -13,50 +15,257 @@ const DURATION_OPTIONS = [
     { id: 'longer', label: 'More than a month' },
 ];
 
-export default function PainAssessmentScreen() {
+const WARMUP_GOAL_OPTIONS = [
+    { id: 'workout', label: 'Workout' },
+    { id: 'sports', label: 'Sports' },
+    { id: 'daily', label: 'Daily Activity' },
+    { id: 'other', label: 'Other' },
+];
+
+const WARMUP_FEEL_OPTIONS = [
+    { id: 'cold', label: 'Cold' },
+    { id: 'stiff', label: 'Stiff' },
+    { id: 'normal', label: 'Normal' },
+    { id: 'warm', label: 'Already Warm' },
+];
+
+const YOGA_MOBILITY_OPTIONS = [
+    { id: 'yes', label: 'Yes, fully' },
+    { id: 'limited', label: 'Limited range' },
+    { id: 'no', label: 'No, painful' },
+];
+
+const STRENGTH_EXP_OPTIONS = [
+    { id: 'beginner', label: 'Beginner' },
+    { id: 'intermediate', label: 'Intermediate' },
+    { id: 'advanced', label: 'Advanced' },
+];
+
+const POSTURE_DURATION_OPTIONS = [
+    { id: 'short', label: '< 1 Hour' },
+    { id: 'medium', label: '1 - 4 Hours' },
+    { id: 'long', label: '4+ Hours' },
+    { id: 'all_day', label: 'All Day' },
+];
+
+export default function AssessmentScreen() {
     const router = useRouter();
     const params = useLocalSearchParams();
     const { language, theme } = usePreferences();
     const t = (key: Parameters<typeof getTranslation>[1]) => getTranslation(language, key);
     const colors = Colors[theme];
 
-    // Form state
-    const [selectedDuration, setSelectedDuration] = useState<string | null>(null);
-    const [injuryCause, setInjuryCause] = useState('');
-    const [painLevel, setPainLevel] = useState(5);
+    // Form state (Generic)
+    const [q1Answer, setQ1Answer] = useState<string | null>(null); // e.g., Duration / Goal
+    const [q2Answer, setQ2Answer] = useState<string | null>(null); // e.g., Cause / Feel
+    const [sliderValue, setSliderValue] = useState(5); // e.g., Pain / Tension
+    const [textInput, setTextInput] = useState('');
+
     const [isSliderActive, setIsSliderActive] = useState(false);
     const trackWidth = useRef(0);
 
-    // Pass through params from previous screen
-    const x = params.x;
-    const y = params.y;
-    const width = params.width;
-    const height = params.height;
-    const rotation = params.rotation;
-    const view = params.view;
-    const size = params.size;
-    const muscleId = params.muscleId;
-    const activityType = params.activityType;
+    // Params
+    const { x, y, width, height, rotation, view, size, muscleId, activityType = 'relief' } = params;
 
     const handleSliderTouch = (event: any) => {
         setIsSliderActive(true);
         const { locationX } = event.nativeEvent;
         const percentage = Math.max(0, Math.min(1, locationX / trackWidth.current));
         const newValue = Math.round(percentage * 9) + 1;
-        setPainLevel(newValue);
+        setSliderValue(newValue);
     };
 
     const handleContinue = () => {
+        // Route map
+        const routeMap: Record<string, string> = {
+            'warmup': '/(tabs)/warm-up',
+            'yoga': '/(tabs)/yoga',
+            'posture': '/(tabs)/fix-posture',
+            'strength': '/(tabs)/strengthen',
+            'relief': '/(tabs)/find-relief',
+        };
+
+        const targetPath = routeMap[activityType as string] || '/(tabs)/find-relief';
+
         router.push({
-            pathname: '/(tabs)/find-relief',
+            pathname: targetPath as any,
             params: {
                 x, y, width, height, rotation, view, size, muscleId, activityType,
-                painLevel,
-                duration: selectedDuration || 'unknown',
-                cause: injuryCause || 'unknown',
+                assessment_q1: q1Answer || 'unknown',
+                assessment_q2: q2Answer || 'unknown',
+                assessment_slider: sliderValue,
+                assessment_note: textInput || 'unknown',
                 timestamp: Date.now()
             }
         });
+    };
+
+    // --- Render Helpers ---
+
+    const renderOption = (id: string, label: string, selectedId: string | null, onSelect: (id: string) => void) => (
+        <TouchableOpacity
+            key={id}
+            style={[
+                styles.optionButton,
+                { borderColor: colors.cardBorder },
+                selectedId === id && { backgroundColor: colors.accent, borderColor: colors.accent }
+            ]}
+            onPress={() => onSelect(id)}
+        >
+            <Text style={[
+                styles.optionText,
+                { color: colors.text },
+                selectedId === id && { color: '#000', fontWeight: '700' }
+            ]}>
+                {label}
+            </Text>
+        </TouchableOpacity>
+    );
+
+    const renderSlider = (label: string, subLabel: string, lowLabel: string, highLabel: string) => (
+        <View style={[styles.questionCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
+            <View style={styles.questionHeader}>
+                <Ionicons name="analytics-outline" size={24} color={colors.accent} />
+                <Text style={[styles.questionTitle, { color: colors.text }]}>{label}</Text>
+            </View>
+            <View style={styles.assessmentContent}>
+                <View style={styles.scaleHeader}>
+                    <Text style={[styles.scaleLabel, { color: colors.textSecondary }]}>{subLabel}</Text>
+                    <View style={[styles.scaleBadge, { backgroundColor: colors.accent }]}>
+                        <Text style={styles.scaleBadgeText}>{t('scale1to10')}</Text>
+                    </View>
+                </View>
+                <View style={styles.sliderContainer}>
+                    <View
+                        style={styles.sliderTrack}
+                        hitSlop={{ top: 20, bottom: 20, left: 10, right: 10 }}
+                        onLayout={(e) => { trackWidth.current = e.nativeEvent.layout.width; }}
+                        onStartShouldSetResponder={() => true}
+                        onMoveShouldSetResponder={() => true}
+                        onResponderGrant={handleSliderTouch}
+                        onResponderMove={handleSliderTouch}
+                        onResponderRelease={() => setIsSliderActive(false)}
+                    >
+                        <View pointerEvents="none" style={[styles.sliderFill, { width: `${sliderValue * 10}%` }]} />
+                        <View pointerEvents="none" style={[styles.sliderThumb, { left: `${sliderValue * 10}%` }]} />
+                    </View>
+                    <Text style={[styles.painNumber, { color: colors.accent }]}>{sliderValue}</Text>
+                </View>
+                <View style={styles.sliderLabels}>
+                    <Text style={[styles.sliderLabel, { color: colors.textSecondary }]}>{lowLabel}</Text>
+                    <Text style={[styles.sliderLabel, { color: colors.textSecondary }]}>{highLabel}</Text>
+                </View>
+            </View>
+        </View>
+    );
+
+    // --- Content Logic ---
+
+    const renderContent = () => {
+        switch (activityType) {
+            case 'warmup':
+                return (
+                    <>
+                        <View style={[styles.questionCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
+                            <View style={styles.questionHeader}>
+                                <Ionicons name="flame-outline" size={24} color={colors.accent} />
+                                <Text style={[styles.questionTitle, { color: colors.text }]}>What are you warming up for?</Text>
+                            </View>
+                            <View style={styles.optionsContainer}>
+                                {WARMUP_GOAL_OPTIONS.map(opt => renderOption(opt.id, opt.label, q1Answer, setQ1Answer))}
+                            </View>
+                        </View>
+
+                        <View style={[styles.questionCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
+                            <View style={styles.questionHeader}>
+                                <Ionicons name="thermometer-outline" size={24} color={colors.accent} />
+                                <Text style={[styles.questionTitle, { color: colors.text }]}>How does this area feel?</Text>
+                            </View>
+                            <View style={styles.optionsContainer}>
+                                {WARMUP_FEEL_OPTIONS.map(opt => renderOption(opt.id, opt.label, q2Answer, setQ2Answer))}
+                            </View>
+                        </View>
+                    </>
+                );
+
+            case 'yoga':
+                return (
+                    <>
+                        {renderSlider('Tension Assessment', 'Rate current tension', t('mild'), t('severe'))}
+
+                        <View style={[styles.questionCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
+                            <View style={styles.questionHeader}>
+                                <Ionicons name="body-outline" size={24} color={colors.accent} />
+                                <Text style={[styles.questionTitle, { color: colors.text }]}>Can you move joints in this area?</Text>
+                            </View>
+                            <View style={styles.optionsContainer}>
+                                {YOGA_MOBILITY_OPTIONS.map(opt => renderOption(opt.id, opt.label, q1Answer, setQ1Answer))}
+                            </View>
+                        </View>
+                    </>
+                );
+
+            case 'strength':
+                return (
+                    <View style={[styles.questionCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
+                        <View style={styles.questionHeader}>
+                            <Ionicons name="barbell-outline" size={24} color={colors.accent} />
+                            <Text style={[styles.questionTitle, { color: colors.text }]}>Experience level with this muscle?</Text>
+                        </View>
+                        <View style={styles.optionsContainer}>
+                            {STRENGTH_EXP_OPTIONS.map(opt => renderOption(opt.id, opt.label, q1Answer, setQ1Answer))}
+                        </View>
+                    </View>
+                );
+
+            case 'posture':
+                return (
+                    <View style={[styles.questionCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
+                        <View style={styles.questionHeader}>
+                            <Ionicons name="time-outline" size={24} color={colors.accent} />
+                            <Text style={[styles.questionTitle, { color: colors.text }]}>How long were you in a fixed position?</Text>
+                        </View>
+                        <View style={styles.optionsContainer}>
+                            {POSTURE_DURATION_OPTIONS.map(opt => renderOption(opt.id, opt.label, q1Answer, setQ1Answer))}
+                        </View>
+                    </View>
+                );
+
+            case 'relief':
+            default:
+                // Default Pain Assessment
+                return (
+                    <>
+                        <View style={[styles.questionCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
+                            <View style={styles.questionHeader}>
+                                <Ionicons name="time-outline" size={24} color={colors.accent} />
+                                <Text style={[styles.questionTitle, { color: colors.text }]}>How long ago did this occur?</Text>
+                            </View>
+                            <View style={styles.optionsContainer}>
+                                {DURATION_OPTIONS.map(opt => renderOption(opt.id, opt.label, q1Answer, setQ1Answer))}
+                            </View>
+                        </View>
+
+                        <View style={[styles.questionCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
+                            <View style={styles.questionHeader}>
+                                <Ionicons name="help-circle-outline" size={24} color={colors.accent} />
+                                <Text style={[styles.questionTitle, { color: colors.text }]}>Do you know what caused this?</Text>
+                            </View>
+                            <TextInput
+                                style={[styles.textInput, { backgroundColor: colors.inputBackground, color: colors.text, borderColor: colors.cardBorder }]}
+                                placeholder="e.g., Slept wrong, lifted heavy object..."
+                                placeholderTextColor={colors.textSecondary}
+                                value={textInput}
+                                onChangeText={setTextInput}
+                                multiline
+                                numberOfLines={3}
+                            />
+                        </View>
+
+                        {renderSlider(t('painAssessment'), t('rateIntensity'), t('mild'), t('severe'))}
+                    </>
+                );
+        }
     };
 
     return (
@@ -67,92 +276,14 @@ export default function PainAssessmentScreen() {
                     <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
                         <Ionicons name="arrow-back" size={24} color={colors.text} />
                     </TouchableOpacity>
-                    <Text style={[styles.headerTitle, { color: colors.text }]}>Pain Assessment</Text>
+                    <Text style={[styles.headerTitle, { color: colors.text }]}>
+                        {activityType === 'relief' ? 'Pain Assessment' : 'Activity Check-in'}
+                    </Text>
                     <View style={{ width: 40 }} />
                 </View>
 
-                {/* Question 1: Duration */}
-                <View style={[styles.questionCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
-                    <View style={styles.questionHeader}>
-                        <Ionicons name="time-outline" size={24} color={colors.accent} />
-                        <Text style={[styles.questionTitle, { color: colors.text }]}>How long ago did this occur?</Text>
-                    </View>
-                    <View style={styles.optionsContainer}>
-                        {DURATION_OPTIONS.map((option) => (
-                            <TouchableOpacity
-                                key={option.id}
-                                style={[
-                                    styles.optionButton,
-                                    { borderColor: colors.cardBorder },
-                                    selectedDuration === option.id && { backgroundColor: colors.accent, borderColor: colors.accent }
-                                ]}
-                                onPress={() => setSelectedDuration(option.id)}
-                            >
-                                <Text style={[
-                                    styles.optionText,
-                                    { color: colors.text },
-                                    selectedDuration === option.id && { color: '#000', fontWeight: '700' }
-                                ]}>
-                                    {option.label}
-                                </Text>
-                            </TouchableOpacity>
-                        ))}
-                    </View>
-                </View>
+                {renderContent()}
 
-                {/* Question 2: Cause */}
-                <View style={[styles.questionCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
-                    <View style={styles.questionHeader}>
-                        <Ionicons name="help-circle-outline" size={24} color={colors.accent} />
-                        <Text style={[styles.questionTitle, { color: colors.text }]}>Do you know what caused this?</Text>
-                    </View>
-                    <TextInput
-                        style={[styles.textInput, { backgroundColor: colors.inputBackground, color: colors.text, borderColor: colors.cardBorder }]}
-                        placeholder="e.g., Slept wrong, lifted heavy object, exercise..."
-                        placeholderTextColor={colors.textSecondary}
-                        value={injuryCause}
-                        onChangeText={setInjuryCause}
-                        multiline
-                        numberOfLines={3}
-                    />
-                </View>
-
-                {/* Pain Scale */}
-                <View style={[styles.questionCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
-                    <View style={styles.questionHeader}>
-                        <Ionicons name="analytics-outline" size={24} color={colors.accent} />
-                        <Text style={[styles.questionTitle, { color: colors.text }]}>{t('painAssessment')}</Text>
-                    </View>
-                    <View style={styles.assessmentContent}>
-                        <View style={styles.scaleHeader}>
-                            <Text style={[styles.scaleLabel, { color: colors.textSecondary }]}>{t('rateIntensity')}</Text>
-                            <View style={[styles.scaleBadge, { backgroundColor: colors.accent }]}>
-                                <Text style={styles.scaleBadgeText}>{t('scale1to10')}</Text>
-                            </View>
-                        </View>
-                        <View style={styles.sliderContainer}>
-                            <View
-                                style={styles.sliderTrack}
-                                hitSlop={{ top: 20, bottom: 20, left: 10, right: 10 }}
-                                onLayout={(e) => { trackWidth.current = e.nativeEvent.layout.width; }}
-                                onStartShouldSetResponder={() => true}
-                                onMoveShouldSetResponder={() => true}
-                                onResponderGrant={handleSliderTouch}
-                                onResponderMove={handleSliderTouch}
-                                onResponderRelease={() => setIsSliderActive(false)}
-                            >
-                                <View pointerEvents="none" style={[styles.sliderFill, { width: `${painLevel * 10}%` }]} />
-                                <View pointerEvents="none" style={[styles.sliderThumb, { left: `${painLevel * 10}%` }]} />
-                            </View>
-                            <Text style={[styles.painNumber, { color: colors.accent }]}>{painLevel}</Text>
-                        </View>
-                        <View style={styles.sliderLabels}>
-                            <Text style={[styles.sliderLabel, { color: colors.textSecondary }]}>{t('mild')}</Text>
-                            <Text style={[styles.sliderLabel, { color: colors.textSecondary }]}>{t('moderate')}</Text>
-                            <Text style={[styles.sliderLabel, { color: colors.textSecondary }]}>{t('severe')}</Text>
-                        </View>
-                    </View>
-                </View>
             </ScrollView>
 
             {/* Continue Button */}
@@ -193,6 +324,7 @@ const styles = StyleSheet.create({
     headerTitle: {
         fontSize: 20,
         fontWeight: '700',
+        textTransform: 'capitalize',
     },
     questionCard: {
         borderRadius: 16,
