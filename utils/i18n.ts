@@ -281,6 +281,7 @@ export const translations = {
         termsText: 'By creating an account, you agree to our',
         terms: 'Terms',
         fullName: 'Full Name',
+        loginError: 'Email or password is incorrect',
     },
     zh: {
         // General
@@ -540,6 +541,7 @@ export const translations = {
         termsText: '创建帐户即表示您同意我们的',
         terms: '条款',
         fullName: '全名',
+        loginError: '邮箱或密码不正确',
     },
     fr: {
         // General
@@ -799,6 +801,7 @@ export const translations = {
         termsText: 'En créant un compte, vous acceptez nos',
         terms: 'Conditions',
         fullName: 'Nom complet',
+        loginError: 'Email ou mot de passe incorrect',
     },
     es: {
         // General
@@ -1058,6 +1061,7 @@ export const translations = {
         termsText: 'Al crear una cuenta, aceptas nuestros',
         terms: 'Términos',
         fullName: 'Nombre completo',
+        loginError: 'Correo electrónico o contraseña incorrectos',
     },
 };
 

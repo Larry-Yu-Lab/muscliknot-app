@@ -50,6 +50,7 @@ export default function LoginScreen() {
 
     const [emailSuccess, setEmailSuccess] = useState('');
     const [passwordSuccess, setPasswordSuccess] = useState('');
+    const [loginError, setLoginError] = useState('');
 
     const validateEmail = (email: string) => {
         const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -58,6 +59,7 @@ export default function LoginScreen() {
 
     // Real-time validation effects
     useEffect(() => {
+        setLoginError('');
         if (email) {
             if (!validateEmail(email)) {
                 setEmailError('Please enter a valid email.');
@@ -73,6 +75,7 @@ export default function LoginScreen() {
     }, [email]);
 
     useEffect(() => {
+        setLoginError('');
         if (password) {
             if (password.length < 1) {
                 setPasswordError('Password is required.');
@@ -117,7 +120,11 @@ export default function LoginScreen() {
             });
 
             if (error) {
-                Alert.alert('Login Failed', error.message);
+                if (error.message.includes('Invalid login credentials')) {
+                    setLoginError(t('loginError'));
+                } else {
+                    Alert.alert('Login Failed', error.message);
+                }
             } else {
                 // Sync User Data
                 try {
@@ -266,6 +273,11 @@ export default function LoginScreen() {
 
                 {/* Footer Section */}
                 <View style={styles.footerContainer}>
+                    {loginError ? (
+                        <Text style={[styles.validationText, { color: THEME.errorText, textAlign: 'center', marginBottom: 8 }]}>
+                            {loginError}
+                        </Text>
+                    ) : null}
                     <TouchableOpacity
                         style={[styles.createButton, { backgroundColor: THEME.primary }]}
                         onPress={signInWithEmail}
