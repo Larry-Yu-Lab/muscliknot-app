@@ -17,8 +17,29 @@ export default function ActivitySelectionScreen() {
     const { x, y, width, height, rotation, view, size, muscleId, timestamp } = params;
 
     const handleSelection = (type: string) => {
+        let pathname = '/(tabs)/pain-assessment';
+
+        switch (type) {
+            case 'warmup':
+                pathname = '/(tabs)/warm-up';
+                break;
+            case 'yoga':
+                pathname = '/(tabs)/yoga';
+                break;
+            case 'posture':
+                pathname = '/(tabs)/fix-posture';
+                break;
+            case 'strength':
+                pathname = '/(tabs)/strengthen';
+                break;
+            case 'relief':
+            default:
+                pathname = '/(tabs)/pain-assessment';
+                break;
+        }
+
         router.push({
-            pathname: '/(tabs)/pain-assessment',
+            pathname: pathname as any,
             params: {
                 x, y, width, height, rotation, view, size, muscleId, timestamp,
                 activityType: type
