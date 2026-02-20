@@ -98,10 +98,10 @@ export const handleSelection = async (
 
 /**
  * Fetch exercises by specific muscle ID
- * Since your database has muscle_id = null, we search by common_name instead.
- * First tries to fetch exercises filtered by activityType.
- * If nothing is returned (DB may only have 'relief' entries), falls back to
- * fetching all exercises for that muscle regardless of type.
+ * Uses a three-pass strategy for best results:
+ *   Pass 1: muscle_id array match + exercise_type filter
+ *   Pass 2: common_name keyword search + exercise_type filter
+ *   Pass 3: common_name keyword search, any exercise_type (fallback)
  */
 export const fetchExercisesByMuscleAndSize = async (
     muscleId: string,
@@ -117,7 +117,7 @@ export const fetchExercisesByMuscleAndSize = async (
     const muscleKeywords: Record<string, string[]> = {
         // Head and Neck
         'head': ['temporalis', 'masseter', 'frontalis', 'occipitalis'],
-        'neck': ['trapezius', 'levator', 'sternocleidomastoid', 'scalene', 'splenius', 'cervic'],
+        'neck': ['trapezius', 'levator', 'sternocleidomastoid', 'scalene', 'splenius', 'cervic', 'neck'],
 
         // Upper Body
         'traps': ['trapezius', 'levator', 'scapulae', 'shoulder'],
@@ -126,7 +126,7 @@ export const fetchExercisesByMuscleAndSize = async (
         'arms': ['bicep', 'tricep', 'forearm', 'brachii', 'brachialis', 'deltoid'],
 
         // Core
-        'lower_back': ['lumbar', 'erector', 'quadratus', 'lower back'],
+        'lower_back': ['lumbar', 'erector', 'quadratus', 'lower back', 'lumborum'],
         'abdomen': ['abdominal', 'rectus', 'oblique', 'transverse', 'core'],
         'hips': ['hip', 'iliopsoas', 'tensor', 'flexor'],
         'glutes': ['gluteus', 'piriformis', 'glute'],
@@ -146,36 +146,50 @@ export const fetchExercisesByMuscleAndSize = async (
     const orConditions = keywords.map(k => `common_name.ilike.%${k}%`).join(',');
 
     try {
-        // PASS 1: Try to fetch exercises filtered by activityType
-        console.log(`[Pass 1] Searching for ${activityType} exercises matching: ${keywords.join(', ')}`);
-        const { data: typedData, error: typedError } = await supabase
+        // PASS 1: Try exact muscle_id array match + activity type
+        console.log(`[Pass 1] Searching by muscle_id array: ${muscleId}, type: ${activityType}`);
+        const { data: pass1Data, error: pass1Error } = await supabase
+            .from('recovery_knowledge_base')
+            .select('*')
+            .eq('exercise_type', activityType)
+            .contains('muscle_id', [muscleId]);
+
+        if (!pass1Error && pass1Data && pass1Data.length > 0) {
+            console.log(`[Pass 1] Found ${pass1Data.length} exercises by muscle_id`);
+            return pass1Data;
+        }
+
+        // PASS 2: Keyword search on common_name + activity type
+        console.log(`[Pass 2] Searching by common_name keywords, type: ${activityType}`);
+        const { data: pass2Data, error: pass2Error } = await supabase
             .from('recovery_knowledge_base')
             .select('*')
             .eq('exercise_type', activityType)
             .or(orConditions);
 
-        if (!typedError && typedData && typedData.length > 0) {
-            console.log(`[Pass 1] Found ${typedData.length} exercises`);
-            return typedData;
+        if (!pass2Error && pass2Data && pass2Data.length > 0) {
+            console.log(`[Pass 2] Found ${pass2Data.length} exercises by keyword`);
+            return pass2Data;
         }
 
-        // PASS 2: Fallback - fetch any exercises for this muscle regardless of type
-        console.log(`[Pass 2] No typed exercises found, fetching all for muscle: ${muscleId}`);
-        const { data: allData, error: allError } = await supabase
+        // PASS 3: Any exercises for this muscle, any activity type (broadest fallback)
+        console.log(`[Pass 3] Broadest search — any type for muscle: ${muscleId}`);
+        const { data: pass3Data, error: pass3Error } = await supabase
             .from('recovery_knowledge_base')
             .select('*')
             .or(orConditions);
 
-        if (allError) {
-            console.error('Error fetching exercises (pass 2):', allError);
+        if (pass3Error) {
+            console.error('Error fetching exercises (pass 3):', pass3Error);
             return [];
         }
 
-        console.log(`[Pass 2] Found ${allData?.length || 0} exercises`);
-        return allData || [];
+        console.log(`[Pass 3] Found ${pass3Data?.length || 0} exercises`);
+        return pass3Data || [];
     } catch (err) {
         console.error('Unexpected error:', err);
         return [];
     }
 };
+
 
