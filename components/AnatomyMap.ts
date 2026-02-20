@@ -98,7 +98,10 @@ export const handleSelection = async (
 
 /**
  * Fetch exercises by specific muscle ID
- * Since your database has muscle_id = null, we search by common_name instead
+ * Since your database has muscle_id = null, we search by common_name instead.
+ * First tries to fetch exercises filtered by activityType.
+ * If nothing is returned (DB may only have 'relief' entries), falls back to
+ * fetching all exercises for that muscle regardless of type.
  */
 export const fetchExercisesByMuscleAndSize = async (
     muscleId: string,
@@ -140,28 +143,39 @@ export const fetchExercisesByMuscleAndSize = async (
     };
 
     const keywords = muscleKeywords[muscleId] || [muscleId];
+    const orConditions = keywords.map(k => `common_name.ilike.%${k}%`).join(',');
 
     try {
-        console.log(`Searching for ${activityType} exercises matching: ${keywords.join(', ')}`);
-
-        // Build OR conditions for all keywords
-        const orConditions = keywords.map(k => `common_name.ilike.%${k}%`).join(',');
-
-        const { data, error } = await supabase
+        // PASS 1: Try to fetch exercises filtered by activityType
+        console.log(`[Pass 1] Searching for ${activityType} exercises matching: ${keywords.join(', ')}`);
+        const { data: typedData, error: typedError } = await supabase
             .from('recovery_knowledge_base')
             .select('*')
-            .eq('exercise_type', activityType) // Filter by activity type
+            .eq('exercise_type', activityType)
             .or(orConditions);
 
-        if (error) {
-            console.error('Error fetching exercises:', error);
+        if (!typedError && typedData && typedData.length > 0) {
+            console.log(`[Pass 1] Found ${typedData.length} exercises`);
+            return typedData;
+        }
+
+        // PASS 2: Fallback - fetch any exercises for this muscle regardless of type
+        console.log(`[Pass 2] No typed exercises found, fetching all for muscle: ${muscleId}`);
+        const { data: allData, error: allError } = await supabase
+            .from('recovery_knowledge_base')
+            .select('*')
+            .or(orConditions);
+
+        if (allError) {
+            console.error('Error fetching exercises (pass 2):', allError);
             return [];
         }
 
-        console.log(`Found ${data?.length || 0} exercises`);
-        return data || [];
+        console.log(`[Pass 2] Found ${allData?.length || 0} exercises`);
+        return allData || [];
     } catch (err) {
         console.error('Unexpected error:', err);
         return [];
     }
 };
+

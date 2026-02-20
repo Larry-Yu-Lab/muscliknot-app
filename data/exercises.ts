@@ -165,3 +165,33 @@ export const getExercisesForPosition = (y: number, view: 'Front' | 'Back'): Exer
     // Simple filter
     return EXERCISES.filter(e => e.muscleGroup === target || e.muscleGroup === 'General');
 };
+
+// Maps activityType (from params) to exercise category in local data
+const ACTIVITY_TYPE_TO_CATEGORY: Record<string, Exercise['category']> = {
+    'relief': 'Relief',
+    'warmup': 'Warm-ups',
+    'yoga': 'Yoga',
+    'posture': 'Posture',
+    'strength': 'Strength',
+};
+
+/**
+ * Fallback: returns local exercises filtered by activity type and optionally muscle position.
+ * Used when Supabase returns no results.
+ */
+export const getExercisesByActivityType = (
+    activityType: string,
+    y: number,
+    view: 'Front' | 'Back'
+): Exercise[] => {
+    const category = ACTIVITY_TYPE_TO_CATEGORY[activityType] || 'Relief';
+
+    // For type-specific categories, return all matching exercises
+    if (category !== 'Relief') {
+        return EXERCISES.filter(e => e.category === category);
+    }
+
+    // For Relief, narrow by body position as before
+    return getExercisesForPosition(y, view);
+};
+
