@@ -14,45 +14,73 @@ export interface muscleRegion {
     maxY: number;
 }
 
-// Coordinate mapping based on approximately 1000px height coordinate system used in HomeScreen
-// More granular regions for better exercise matching
+// Coordinate mapping based on approximately 1000px height coordinate system.
+// X axis: body center is ~150px. Trunk = X 70–230. Arms/hands hang outside.
 const MUSCLE_REGIONS: muscleRegion[] = [
     // Head and Neck
-    { id: 'head', name: 'Head', minY: 0, maxY: 100 },
-    { id: 'neck', name: 'Neck', minY: 100, maxY: 200 },
+    { id: 'head', name: 'Head', minY: 0, maxY: 110 },
+    { id: 'neck', name: 'Neck', minY: 100, maxY: 210 },
 
-    // Upper Body
-    { id: 'traps', name: 'Traps/Shoulders', minY: 200, maxY: 300 },
-    { id: 'chest', name: 'Chest', minY: 300, maxY: 400 },
-    { id: 'upper_back', name: 'Upper Back', minY: 300, maxY: 450 },
-    { id: 'arms', name: 'Arms', minY: 280, maxY: 480 },
+    // Upper Body (trunk only)
+    { id: 'traps', name: 'Traps/Shoulders', minY: 200, maxY: 310 },
+    { id: 'chest', name: 'Chest', minY: 290, maxY: 420 },
+    { id: 'upper_back', name: 'Upper Back', minY: 290, maxY: 460 },
 
-    // Core
-    { id: 'lower_back', name: 'Lower Back', minY: 450, maxY: 580 },
-    { id: 'abdomen', name: 'Abdomen', minY: 400, maxY: 550 },
-    { id: 'hips', name: 'Hips', minY: 550, maxY: 650 },
-    { id: 'glutes', name: 'Glutes', minY: 600, maxY: 700 },
+    // Core (trunk)
+    { id: 'lower_back', name: 'Lower Back', minY: 440, maxY: 590 },
+    { id: 'abdomen', name: 'Abdomen', minY: 400, maxY: 560 },
+    { id: 'hips', name: 'Hips', minY: 540, maxY: 660 },
+    { id: 'glutes', name: 'Glutes', minY: 610, maxY: 710 },
 
-    // Legs - More granular
-    { id: 'thighs', name: 'Thighs', minY: 680, maxY: 780 },
-    { id: 'knees', name: 'Knees', minY: 770, maxY: 820 },
-    { id: 'calves', name: 'Calves', minY: 810, maxY: 900 },
-    { id: 'ankles', name: 'Ankles', minY: 890, maxY: 940 },
+    // Legs
+    { id: 'thighs', name: 'Thighs', minY: 680, maxY: 790 },
+    { id: 'knees', name: 'Knees', minY: 770, maxY: 830 },
+    { id: 'calves', name: 'Calves', minY: 810, maxY: 910 },
+    { id: 'ankles', name: 'Ankles', minY: 890, maxY: 950 },
     { id: 'feet', name: 'Feet', minY: 930, maxY: 1000 },
+
+    // Arms (lateral — detected by X coordinate, not Y alone)
+    { id: 'arms', name: 'Arms', minY: 270, maxY: 500 },
+    { id: 'forearms', name: 'Forearms', minY: 460, maxY: 650 },
+    { id: 'hands', name: 'Hands/Wrists', minY: 620, maxY: 780 },
 ];
 
+// Body model center X and half-width of trunk in the ~300px wide image
+const TRUNK_MIN_X = 80;
+const TRUNK_MAX_X = 220;
+
 /**
- * Identifies all muscle IDs inside the drag area
+ * Identifies the best muscle ID for the tapped area.
+ * Uses BOTH X and Y coordinates so lateral taps correctly resolve
+ * to arms/forearms/hands rather than trunk muscles.
  */
 export const getMusclesInArea = (selectionArea: SelectionArea): string[] => {
-    const { y, height } = selectionArea;
+    const { x, y, height } = selectionArea;
     const selectionMinY = y - height / 2;
     const selectionMaxY = y + height / 2;
 
-    return MUSCLE_REGIONS.filter(region => {
-        // Check for overlap between selection area and muscle region
-        return selectionMinY <= region.maxY && selectionMaxY >= region.minY;
-    }).map(region => region.id);
+    // Determine if the tap is clearly outside the trunk (i.e. arm/hand area)
+    const isLateral = x < TRUNK_MIN_X || x > TRUNK_MAX_X;
+
+    if (isLateral) {
+        // Only return lateral regions
+        const lateralIds = ['arms', 'forearms', 'hands'];
+        const lateralRegions = MUSCLE_REGIONS.filter(r => lateralIds.includes(r.id));
+        const matched = lateralRegions.filter(r =>
+            selectionMinY <= r.maxY && selectionMaxY >= r.minY
+        ).map(r => r.id);
+        // Return most specific match, or arms as default for lateral
+        return matched.length > 0 ? [matched[matched.length - 1]] : ['arms'];
+    }
+
+    // Trunk tap — exclude lateral-only regions, prioritise best Y match
+    const trunkExclusions = ['arms', 'forearms', 'hands'];
+    const candidates = MUSCLE_REGIONS
+        .filter(r => !trunkExclusions.includes(r.id))
+        .filter(r => selectionMinY <= r.maxY && selectionMaxY >= r.minY)
+        .map(r => r.id);
+
+    return candidates.length > 0 ? [candidates[0]] : ['abdomen'];
 };
 
 /**
@@ -116,14 +144,16 @@ export const fetchExercisesByMuscleAndSize = async (
     // Map app muscle zones to search keywords that match your database's common_name values
     const muscleKeywords: Record<string, string[]> = {
         // Head and Neck
-        'head': ['temporalis', 'masseter', 'frontalis', 'occipitalis'],
+        'head': ['temporalis', 'masseter', 'frontalis', 'occipitalis', 'face', 'jaw', 'temple'],
         'neck': ['trapezius', 'levator', 'sternocleidomastoid', 'scalene', 'splenius', 'cervic', 'neck'],
 
         // Upper Body
         'traps': ['trapezius', 'levator', 'scapulae', 'shoulder'],
         'chest': ['pectoralis', 'chest', 'pec'],
         'upper_back': ['rhomboid', 'trapezius', 'thoracic', 'latissimus', 'dorsi'],
-        'arms': ['bicep', 'tricep', 'forearm', 'brachii', 'brachialis', 'deltoid'],
+        'arms': ['bicep', 'tricep', 'brachii', 'brachialis', 'deltoid', 'arm'],
+        'forearms': ['forearm', 'wrist flexor', 'wrist extensor', 'brachioradialis', 'pronator', 'forearm'],
+        'hands': ['hand', 'wrist', 'finger', 'thumb', 'carpal', 'grip', 'metacarpal'],
 
         // Core
         'lower_back': ['lumbar', 'erector', 'quadratus', 'lower back', 'lumborum'],
@@ -131,7 +161,7 @@ export const fetchExercisesByMuscleAndSize = async (
         'hips': ['hip', 'iliopsoas', 'tensor', 'flexor'],
         'glutes': ['gluteus', 'piriformis', 'glute'],
 
-        // Legs - Granular
+        // Legs
         'thighs': ['hamstring', 'quadriceps', 'quad', 'femor', 'adductor', 'thigh'],
         'knees': ['knee', 'patella', 'popliteus'],
         'calves': ['calf', 'gastrocnemius', 'soleus', 'achilles'],
