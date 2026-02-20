@@ -170,123 +170,123 @@ export default function FindReliefScreen() {
                     ) : exercises.length === 0 ? (
                         <Text style={{ color: 'rgba(255,255,255,0.6)', textAlign: 'center', padding: 20 }}>No exercises found for this area.</Text>
                     ) : (
-                        <View>
-                            {exercises.map((ex: any, index: number) => {
-                                // Determine if this is a local exercise (has 'title') or Supabase exercise
-                                const isLocal = !!ex.title && !ex.solution_stretch;
-                                const exerciseTitle = ex.solution_stretch || ex.title || ex.common_name || 'Exercise';
-                                const exerciseSubtitle = ex.common_name && !isLocal ? `Target Muscle: ${ex.common_name}` : ex.duration || null;
+                        (() => {
+                            const ex = exercises[0];
+                            const isLocal = !!ex.title && !ex.solution_stretch;
+                            const exerciseTitle = ex.solution_stretch || ex.title || ex.common_name || 'Exercise';
+                            const exerciseSubtitle = ex.common_name && !isLocal
+                                ? `Target Muscle: ${ex.common_name}`
+                                : ex.duration || null;
 
-                                return (
-                                    <View key={ex.id || index} style={{ marginBottom: 20 }}>
-                                        {/* Exercise Header Card */}
-                                        <View style={[styles.instructionCard, { backgroundColor: 'rgba(249, 115, 22, 0.15)', borderColor: colors.accent, borderWidth: 1, marginBottom: 12 }]}>
-                                            <View style={[styles.stepNumber, { backgroundColor: colors.accent }]}>
-                                                <Ionicons name="fitness-outline" size={20} color="#000" />
+                            return (
+                                <View>
+                                    {/* Exercise Header Card */}
+                                    <View style={[styles.instructionCard, { backgroundColor: 'rgba(249, 115, 22, 0.15)', borderColor: colors.accent, borderWidth: 1, marginBottom: 12 }]}>
+                                        <View style={[styles.stepNumber, { backgroundColor: colors.accent }]}>
+                                            <Ionicons name="fitness-outline" size={20} color="#000" />
+                                        </View>
+                                        <View style={styles.stepContent}>
+                                            <Text style={{ fontSize: 18, fontWeight: '800', color: '#fff' }}>
+                                                {exerciseTitle}
+                                            </Text>
+                                            {exerciseSubtitle ? (
+                                                <Text style={{ marginTop: 4, color: 'rgba(255,255,255,0.6)', fontSize: 14 }}>
+                                                    {exerciseSubtitle}
+                                                </Text>
+                                            ) : null}
+                                        </View>
+                                    </View>
+
+                                    {/* Local Exercise: show description */}
+                                    {isLocal && ex.description ? (
+                                        <View style={[styles.instructionCard, { backgroundColor: 'rgba(30, 30, 35, 0.9)', borderRadius: 16, marginBottom: 16 }]}>
+                                            <View style={[styles.stepNumber, { backgroundColor: 'transparent' }]}>
+                                                <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(249, 115, 22, 0.2)', justifyContent: 'center', alignItems: 'center' }}>
+                                                    <Ionicons name="information-circle-outline" size={20} color={colors.accent} />
+                                                </View>
                                             </View>
                                             <View style={styles.stepContent}>
-                                                <Text style={{ fontSize: 18, fontWeight: '800', color: '#fff' }}>
-                                                    {exerciseTitle}
-                                                </Text>
-                                                {exerciseSubtitle ? (
-                                                    <Text style={{ marginTop: 4, color: 'rgba(255,255,255,0.6)', fontSize: 14 }}>
-                                                        {exerciseSubtitle}
-                                                    </Text>
-                                                ) : null}
+                                                <Text style={{ fontSize: 16, fontWeight: '700', color: colors.accent, marginBottom: 8 }}>How to do it</Text>
+                                                <Text style={{ color: '#fff', lineHeight: 24, fontSize: 15 }}>{ex.description}</Text>
                                             </View>
                                         </View>
+                                    ) : null}
 
-                                        {/* Local Exercise: show description */}
-                                        {isLocal && ex.description ? (
-                                            <View style={[styles.instructionCard, { backgroundColor: 'rgba(30, 30, 35, 0.9)', borderRadius: 16, marginBottom: 16 }]}>
-                                                <View style={[styles.stepNumber, { backgroundColor: 'transparent' }]}>
-                                                    <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(249, 115, 22, 0.2)', justifyContent: 'center', alignItems: 'center' }}>
-                                                        <Ionicons name="information-circle-outline" size={20} color={colors.accent} />
-                                                    </View>
-                                                </View>
-                                                <View style={styles.stepContent}>
-                                                    <Text style={{ fontSize: 16, fontWeight: '700', color: colors.accent, marginBottom: 8 }}>How to do it</Text>
-                                                    <Text style={{ color: '#fff', lineHeight: 24, fontSize: 15 }}>{ex.description}</Text>
+                                    {/* Supabase Exercise: Why This Helps */}
+                                    {!isLocal && ex.why ? (
+                                        <View style={[styles.instructionCard, { backgroundColor: 'rgba(30, 30, 35, 0.9)', borderRadius: 16, marginBottom: 16 }]}>
+                                            <View style={[styles.stepNumber, { backgroundColor: 'transparent' }]}>
+                                                <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(249, 115, 22, 0.2)', justifyContent: 'center', alignItems: 'center' }}>
+                                                    <Ionicons name="bulb-outline" size={20} color={colors.accent} />
                                                 </View>
                                             </View>
-                                        ) : null}
-
-                                        {/* Supabase Exercise: Why This Helps */}
-                                        {!isLocal && ex.why ? (
-                                            <View style={[styles.instructionCard, { backgroundColor: 'rgba(30, 30, 35, 0.9)', borderRadius: 16, marginBottom: 16 }]}>
-                                                <View style={[styles.stepNumber, { backgroundColor: 'transparent' }]}>
-                                                    <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(249, 115, 22, 0.2)', justifyContent: 'center', alignItems: 'center' }}>
-                                                        <Ionicons name="bulb-outline" size={20} color={colors.accent} />
-                                                    </View>
-                                                </View>
-                                                <View style={styles.stepContent}>
-                                                    <Text style={{ fontSize: 16, fontWeight: '700', color: colors.accent, marginBottom: 8 }}>Why This Helps</Text>
-                                                    <Text style={{ color: '#fff', lineHeight: 24, fontSize: 15 }}>{ex.why}</Text>
-                                                </View>
+                                            <View style={styles.stepContent}>
+                                                <Text style={{ fontSize: 16, fontWeight: '700', color: colors.accent, marginBottom: 8 }}>Why This Helps</Text>
+                                                <Text style={{ color: '#fff', lineHeight: 24, fontSize: 15 }}>{ex.why}</Text>
                                             </View>
-                                        ) : null}
+                                        </View>
+                                    ) : null}
 
-                                        {/* Supabase Exercise: Step-by-step instructions */}
-                                        {!isLocal && ex.instructions ? (() => {
-                                            const stepRegex = /\*\*STEP\s*(\d+)\s*\(([^)]+)\):\*\*/g;
-                                            const parts = ex.instructions.split(stepRegex);
-                                            const steps: { number: string; label: string; content: string }[] = [];
-                                            for (let i = 1; i < parts.length; i += 3) {
-                                                if (parts[i] && parts[i + 1] && parts[i + 2] !== undefined) {
-                                                    steps.push({ number: parts[i], label: parts[i + 1], content: parts[i + 2].trim() });
-                                                }
+                                    {/* Supabase Exercise: Step-by-step instructions */}
+                                    {!isLocal && ex.instructions ? (() => {
+                                        const stepRegex = /\*\*STEP\s*(\d+)\s*\(([^)]+)\):\*\*/g;
+                                        const parts = ex.instructions.split(stepRegex);
+                                        const steps: { number: string; label: string; content: string }[] = [];
+                                        for (let i = 1; i < parts.length; i += 3) {
+                                            if (parts[i] && parts[i + 1] && parts[i + 2] !== undefined) {
+                                                steps.push({ number: parts[i], label: parts[i + 1], content: parts[i + 2].trim() });
                                             }
-                                            return steps.length > 0 ? (
-                                                <>
-                                                    <Text style={{ fontSize: 18, fontWeight: '700', color: colors.accent, marginBottom: 12, marginTop: 8 }}>Instructions</Text>
-                                                    {steps.map((step, idx) => (
-                                                        <View key={idx} style={[styles.instructionCard, { backgroundColor: 'rgba(30, 30, 35, 0.9)', borderRadius: 16, marginBottom: 16 }]}>
-                                                            <View style={[styles.stepNumber, { backgroundColor: '#f97316', borderRadius: 8, alignSelf: 'flex-start' }]}>
-                                                                <Text style={[styles.stepNumberText, { color: '#000', fontWeight: '800' }]}>{step.number}</Text>
-                                                            </View>
-                                                            <View style={styles.stepContent}>
-                                                                <Text style={{ color: '#fff', lineHeight: 24, fontSize: 15 }}>{step.content}</Text>
-                                                            </View>
+                                        }
+                                        return steps.length > 0 ? (
+                                            <>
+                                                <Text style={{ fontSize: 18, fontWeight: '700', color: colors.accent, marginBottom: 12, marginTop: 8 }}>Instructions</Text>
+                                                {steps.map((step, idx) => (
+                                                    <View key={idx} style={[styles.instructionCard, { backgroundColor: 'rgba(30, 30, 35, 0.9)', borderRadius: 16, marginBottom: 16 }]}>
+                                                        <View style={[styles.stepNumber, { backgroundColor: '#f97316', borderRadius: 8, alignSelf: 'flex-start' }]}>
+                                                            <Text style={[styles.stepNumberText, { color: '#000', fontWeight: '800' }]}>{step.number}</Text>
                                                         </View>
-                                                    ))}
-                                                </>
-                                            ) : (
-                                                <View style={[styles.instructionCard, { backgroundColor: 'rgba(30, 30, 35, 0.9)', borderRadius: 16, marginBottom: 16 }]}>
-                                                    <View style={[styles.stepNumber, { backgroundColor: '#f97316', borderRadius: 8, alignSelf: 'flex-start' }]}>
-                                                        <Text style={[styles.stepNumberText, { color: '#000', fontWeight: '800' }]}>1</Text>
+                                                        <View style={styles.stepContent}>
+                                                            <Text style={{ color: '#fff', lineHeight: 24, fontSize: 15 }}>{step.content}</Text>
+                                                        </View>
                                                     </View>
-                                                    <View style={styles.stepContent}>
-                                                        <Text style={{ color: '#fff', lineHeight: 24, fontSize: 15 }}>{ex.instructions}</Text>
-                                                    </View>
-                                                </View>
-                                            );
-                                        })() : null}
-
-                                        {/* Supabase Exercise: Process */}
-                                        {!isLocal && ex.process ? (
+                                                ))}
+                                            </>
+                                        ) : (
                                             <View style={[styles.instructionCard, { backgroundColor: 'rgba(30, 30, 35, 0.9)', borderRadius: 16, marginBottom: 16 }]}>
-                                                <View style={[styles.stepNumber, { backgroundColor: 'transparent' }]}>
-                                                    <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(249, 115, 22, 0.2)', justifyContent: 'center', alignItems: 'center' }}>
-                                                        <Ionicons name="settings-outline" size={20} color={colors.accent} />
-                                                    </View>
+                                                <View style={[styles.stepNumber, { backgroundColor: '#f97316', borderRadius: 8, alignSelf: 'flex-start' }]}>
+                                                    <Text style={[styles.stepNumberText, { color: '#000', fontWeight: '800' }]}>1</Text>
                                                 </View>
                                                 <View style={styles.stepContent}>
-                                                    <Text style={{ fontSize: 16, fontWeight: '700', color: colors.accent, marginBottom: 8 }}>Process</Text>
-                                                    <Text style={{ color: '#fff', lineHeight: 24, fontSize: 15 }}>{ex.process}</Text>
+                                                    <Text style={{ color: '#fff', lineHeight: 24, fontSize: 15 }}>{ex.instructions}</Text>
                                                 </View>
                                             </View>
-                                        ) : null}
+                                        );
+                                    })() : null}
 
-                                        {/* Nothing available at all */}
-                                        {!isLocal && !ex.why && !ex.instructions && !ex.process && (
-                                            <Text style={{ color: 'rgba(255,255,255,0.6)', textAlign: 'center', padding: 20 }}>
-                                                No detailed instructions available for this exercise.
-                                            </Text>
-                                        )}
-                                    </View>
-                                );
-                            })}
-                        </View>
+                                    {/* Supabase Exercise: Process */}
+                                    {!isLocal && ex.process ? (
+                                        <View style={[styles.instructionCard, { backgroundColor: 'rgba(30, 30, 35, 0.9)', borderRadius: 16, marginBottom: 16 }]}>
+                                            <View style={[styles.stepNumber, { backgroundColor: 'transparent' }]}>
+                                                <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(249, 115, 22, 0.2)', justifyContent: 'center', alignItems: 'center' }}>
+                                                    <Ionicons name="settings-outline" size={20} color={colors.accent} />
+                                                </View>
+                                            </View>
+                                            <View style={styles.stepContent}>
+                                                <Text style={{ fontSize: 16, fontWeight: '700', color: colors.accent, marginBottom: 8 }}>Process</Text>
+                                                <Text style={{ color: '#fff', lineHeight: 24, fontSize: 15 }}>{ex.process}</Text>
+                                            </View>
+                                        </View>
+                                    ) : null}
+
+                                    {/* Nothing available */}
+                                    {!isLocal && !ex.why && !ex.instructions && !ex.process && (
+                                        <Text style={{ color: 'rgba(255,255,255,0.6)', textAlign: 'center', padding: 20 }}>
+                                            No detailed instructions available for this exercise.
+                                        </Text>
+                                    )}
+                                </View>
+                            );
+                        })()
                     )}
                 </View>
             </ScrollView>
