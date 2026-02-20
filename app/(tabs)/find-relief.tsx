@@ -40,7 +40,7 @@ export default function FindReliefScreen() {
             setIsLoading(true);
 
             // Use the new function to fetch by muscleId and size
-            const data = await fetchExercisesByMuscleAndSize(muscleId, size);
+            const data = await fetchExercisesByMuscleAndSize(muscleId, size, activityType);
 
             if (data && data.length > 0) {
                 setExercises(data);
@@ -109,7 +109,9 @@ export default function FindReliefScreen() {
                     <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
                         <Ionicons name="arrow-back" size={24} color={colors.text} />
                     </TouchableOpacity>
-                    <Text style={[styles.headerTitle, { color: colors.text }]}>{displayTarget} {t('relief')}</Text>
+                    <Text style={[styles.headerTitle, { color: colors.text }]}>
+                        {displayTarget} {activityType === 'relief' ? t('relief') : activityType.charAt(0).toUpperCase() + activityType.slice(1)}
+                    </Text>
                     <View style={styles.headerSpacer} />
                 </View>
 

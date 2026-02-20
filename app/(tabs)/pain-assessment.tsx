@@ -76,16 +76,8 @@ export default function AssessmentScreen() {
     };
 
     const handleContinue = () => {
-        // Route map
-        const routeMap: Record<string, string> = {
-            'warmup': '/(tabs)/warm-up',
-            'yoga': '/(tabs)/yoga',
-            'posture': '/(tabs)/fix-posture',
-            'strength': '/(tabs)/strengthen',
-            'relief': '/(tabs)/find-relief',
-        };
-
-        const targetPath = routeMap[activityType as string] || '/(tabs)/find-relief';
+        // Route everything to the main Activity page (Find Relief)
+        const targetPath = '/(tabs)/find-relief';
 
         router.push({
             pathname: targetPath as any,
