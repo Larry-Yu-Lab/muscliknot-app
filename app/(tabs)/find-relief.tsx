@@ -2,8 +2,9 @@ import { fetchExercisesByMuscleAndSize } from '@/components/AnatomyMap';
 import { Colors } from '@/constants/theme';
 import { usePreferences } from '@/context/PreferencesContext';
 import { getExercisesByActivityType } from '@/data/exercises';
+import { categoryLabel, getExerciseRecommendation, RecommendationResult } from '@/utils/assessmentEngine';
 import { getTranslation } from '@/utils/i18n';
-import { AssessmentData, saveToHistory } from '@/utils/storage';
+import { AssessmentData, savePainSession, saveToHistory } from '@/utils/storage';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -40,17 +41,34 @@ export default function FindReliefScreen() {
         q2: params.assessment_q2 !== 'unknown' ? (params.assessment_q2 as string) : undefined,
     };
 
+    // ─── Assessment Engine ───────────────────────────────────────
+    const recommendation: RecommendationResult = React.useMemo(
+        () => getExerciseRecommendation(assessment),
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        [activityType, assessment.painLevel, assessment.q1, assessment.q2, assessment.duration]
+    );
+
+    // Store recommendation outputs back into assessment for history
+    assessment.recommendationCategory = recommendation.category;
+    assessment.recommendationAdvisory = recommendation.advisory;
+
     const [exercises, setExercises] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
     console.log('FindReliefScreen Params:', { muscleId, size, y });
+    console.log('Recommendation:', { category: recommendation.category, advisory: recommendation.advisory, filter: recommendation.difficultyFilter });
 
     React.useEffect(() => {
         const fetchExercises = async () => {
             setIsLoading(true);
 
-            // Use the new function to fetch by muscleId and size
-            const data = await fetchExercisesByMuscleAndSize(muscleId, size, activityType);
+            // Fetch with difficulty filter derived from assessment
+            const data = await fetchExercisesByMuscleAndSize(
+                muscleId,
+                size,
+                activityType,
+                recommendation.difficultyFilter
+            );
 
             if (data && data.length > 0) {
                 setExercises(data);
@@ -62,7 +80,7 @@ export default function FindReliefScreen() {
         };
 
         fetchExercises();
-    }, [muscleId, size, y, view, activityType]);
+    }, [muscleId, size, y, view, activityType, recommendation.difficultyFilter]);
 
     const targetMuscle = React.useMemo(() => {
         if (exercises.length === 0) return 'General';
@@ -75,7 +93,6 @@ export default function FindReliefScreen() {
 
     // Helper to get translated muscle name if available, else fallback to English name
     const getMuscleName = (name: string) => {
-        const key = `mg${name.replace(/\s/g, '')}` as any;
         const mappedKey = `mg${name.replace(/\s+/g, '')}`;
         return t(mappedKey as any) !== mappedKey ? t(mappedKey as any) : name;
     };
@@ -90,15 +107,51 @@ export default function FindReliefScreen() {
             assessment,
         };
         await saveToHistory(item);
+
+        // Also save detailed session to pain_sessions table
+        await savePainSession({
+            activityType,
+            muscleGroup: targetMuscle,
+            painLevel: assessment.painLevel,
+            painDuration: assessment.duration,
+            painLocation: assessment.location,
+            causeNote: assessment.cause,
+            q1: assessment.q1,
+            q2: assessment.q2,
+            recommendationCategory: recommendation.category,
+            recommendationAdvisory: recommendation.advisory,
+            exercisesShown: exercises,
+        });
+
         Alert.alert(t('planCompletedTitle'), t('planCompletedMessage'), [
             { text: "OK", onPress: () => router.navigate('/(tabs)') }
         ]);
     };
 
-
-
-
     const totalMinutes = exercises.length * 3; // Approx duration
+
+    // ─── Advisory Banner ────────────────────────────────────────
+    const renderAdvisoryBanner = () => {
+        if (!recommendation.advisory) return null;
+        return (
+            <View style={[styles.advisoryBanner, { borderColor: recommendation.accentColor, backgroundColor: `${recommendation.accentColor}18` }]}>
+                <Ionicons
+                    name={recommendation.showRestWarning ? 'warning-outline' : 'information-circle-outline'}
+                    size={20}
+                    color={recommendation.accentColor}
+                    style={{ marginTop: 2 }}
+                />
+                <View style={{ flex: 1 }}>
+                    <Text style={[styles.advisoryTitle, { color: recommendation.accentColor }]}>
+                        {categoryLabel(recommendation.category)}
+                    </Text>
+                    <Text style={[styles.advisoryText, { color: recommendation.accentColor }]}>
+                        {recommendation.advisory}
+                    </Text>
+                </View>
+            </View>
+        );
+    };
 
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
@@ -143,8 +196,11 @@ export default function FindReliefScreen() {
 
                 {/* Exercise Info Badges */}
                 <View style={styles.badgeContainer}>
-                    <View style={[styles.badge, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
-                        <Ionicons name="fitness-outline" size={20} color={colors.accent} />
+                    <View style={[
+                        styles.badge,
+                        { backgroundColor: colors.cardBackground, borderColor: recommendation.advisory ? recommendation.accentColor : colors.cardBorder }
+                    ]}>
+                        <Ionicons name="fitness-outline" size={20} color={recommendation.advisory ? recommendation.accentColor : colors.accent} />
                         <Text style={[styles.badgeText, { color: colors.text }]}>
                             {isLoading ? '...' : t('exercisesCount').replace('${count}', (exercises?.length || 0).toString())}
                         </Text>
@@ -155,8 +211,25 @@ export default function FindReliefScreen() {
                             {isLoading ? '...' : t('approxMins').replace('${min}', String((exercises?.length || 0) * 4))}
                         </Text>
                     </View>
+                    {/* Recommendation category badge */}
+                    {!isLoading && (
+                        <View style={[styles.badge, { backgroundColor: `${recommendation.accentColor}18`, borderColor: recommendation.accentColor }]}>
+                            <Ionicons
+                                name="shield-checkmark-outline"
+                                size={20}
+                                color={recommendation.accentColor}
+                            />
+                            <Text style={[styles.badgeText, { color: recommendation.accentColor }]}>
+                                {categoryLabel(recommendation.category)}
+                            </Text>
+                        </View>
+                    )}
                 </View>
 
+                {/* Advisory Banner — shown before exercises when non-null */}
+                <View style={styles.advisoryContainer}>
+                    {renderAdvisoryBanner()}
+                </View>
 
                 {/* Organized Exercise Instructions */}
                 <View style={styles.instructionsSection}>
@@ -382,7 +455,6 @@ const styles = StyleSheet.create({
         paddingBottom: 16,
         paddingTop: 24,
         backgroundColor: 'transparent',
-        // Gradient effect simulated
     },
     progressBar: {
         height: 10,
@@ -419,17 +491,18 @@ const styles = StyleSheet.create({
     },
     badgeContainer: {
         flexDirection: 'row',
-        gap: 12,
+        flexWrap: 'wrap',
+        gap: 10,
         paddingHorizontal: 16,
         marginTop: 16,
-        marginBottom: 8,
+        marginBottom: 4,
     },
     badge: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 8,
         backgroundColor: '#1A1A1A',
-        paddingHorizontal: 16,
+        paddingHorizontal: 14,
         paddingVertical: 10,
         borderRadius: 12,
         borderWidth: 1,
@@ -437,112 +510,33 @@ const styles = StyleSheet.create({
     },
     badgeText: {
         color: '#fff',
-        fontSize: 14,
+        fontSize: 13,
         fontWeight: '700',
     },
-    assessmentCard: {
-        marginHorizontal: 16,
+    advisoryContainer: {
+        paddingHorizontal: 16,
         marginTop: 8,
-        backgroundColor: '#1A1A1A',
-        borderRadius: 16,
-        padding: 24,
-        borderWidth: 1,
-        borderColor: 'rgba(255, 255, 255, 0.1)',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.3,
-        shadowRadius: 16,
-        elevation: 8,
+        marginBottom: 4,
     },
-    assessmentHeader: {
+    advisoryBanner: {
         flexDirection: 'row',
-        alignItems: 'center',
         gap: 12,
-        marginBottom: 24,
+        padding: 16,
+        borderRadius: 14,
+        borderWidth: 1.5,
+        alignItems: 'flex-start',
     },
-    assessmentTitle: {
-        color: '#fff',
-        fontSize: 18,
-        fontWeight: '700',
-    },
-    assessmentContent: {
-        gap: 20,
-    },
-    scaleHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-    },
-    scaleLabel: {
-        color: '#71717a',
-        fontSize: 16,
-        fontWeight: '500',
-    },
-    scaleBadge: {
-        backgroundColor: 'rgba(255, 107, 0, 0.2)',
-        paddingHorizontal: 12,
-        paddingVertical: 4,
-        borderRadius: 4,
-        borderWidth: 1,
-        borderColor: 'rgba(255, 107, 0, 0.2)',
-    },
-    scaleBadgeText: {
-        color: '#FF9D42',
-        fontSize: 10,
-        fontWeight: '900',
-        letterSpacing: 1,
-    },
-    sliderContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 16,
-    },
-    sliderTrack: {
-        flex: 1,
-        height: 16,
-        backgroundColor: '#27272a',
-        borderRadius: 8,
-        position: 'relative',
-    },
-    sliderFill: {
-        height: '100%',
-        backgroundColor: '#FF9D42',
-        borderRadius: 8,
-    },
-    sliderThumb: {
-        position: 'absolute',
-        top: -8,
-        width: 32,
-        height: 32,
-        borderRadius: 16,
-        backgroundColor: '#fff',
-        borderWidth: 6,
-        borderColor: '#FF9D42',
-        marginLeft: -16,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 8,
-        elevation: 5,
-    },
-    painNumber: {
-        color: '#FF9D42',
-        fontSize: 32,
-        fontWeight: '900',
-        width: 40,
-        textAlign: 'right',
-    },
-    sliderLabels: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        paddingHorizontal: 4,
-    },
-    sliderLabel: {
-        color: '#52525b',
-        fontSize: 10,
+    advisoryTitle: {
+        fontSize: 13,
         fontWeight: '800',
         textTransform: 'uppercase',
-        letterSpacing: 2,
+        letterSpacing: 0.8,
+        marginBottom: 4,
+    },
+    advisoryText: {
+        fontSize: 13,
+        lineHeight: 20,
+        fontWeight: '500',
     },
     instructionsSection: {
         paddingHorizontal: 16,

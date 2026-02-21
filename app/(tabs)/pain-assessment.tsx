@@ -1,5 +1,6 @@
 import { Colors } from '@/constants/theme';
 import { usePreferences } from '@/context/PreferencesContext';
+import { painLevelColor } from '@/utils/assessmentEngine';
 import { getTranslation } from '@/utils/i18n';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -90,6 +91,41 @@ export default function AssessmentScreen() {
     // Params
     const { x, y, width, height, rotation, view, size, muscleId, activityType = 'relief' } = params;
 
+    // Derived live pain/tension colour for the slider
+    const liveSliderColor = painLevelColor(sliderValue);
+
+    // ─── Inline hints (non-blocking; shown live to inform the user) ──────────
+    const getInlineHint = (): string | null => {
+        if (activityType === 'relief') {
+            if (sliderValue >= 8) {
+                return '⚠️ At this level, prioritize rest. We\'ll recommend only gentle exercises and suggest seeing a doctor if pain persists.';
+            }
+            if (sliderValue >= 5) {
+                return 'Moderate pain — we\'ll keep recommendations low-impact to avoid aggravating this area.';
+            }
+        }
+        if (activityType === 'yoga' && q1Answer === 'no') {
+            return '⚠️ Painful joint movement detected — we\'ll suggest restorative poses only. Avoid active stretching.';
+        }
+        if (activityType === 'warmup' && (q2Answer === 'cold' || q2Answer === 'stiff')) {
+            return '💡 Extra warm-up steps recommended — we\'ll ease you in before any high-intensity movements.';
+        }
+        if (activityType === 'strength' && q1Answer) {
+            const labels: Record<string, string> = {
+                beginner: '💪 Beginner plan — we\'ll focus on form and foundational movements.',
+                intermediate: '💪 Intermediate plan — progressive exercises to build on your base.',
+                advanced: '🔥 Advanced plan — full program unlocked.',
+            };
+            return labels[q1Answer] ?? null;
+        }
+        if (activityType === 'posture' && (q1Answer === 'long' || q1Answer === 'all_day')) {
+            return '⏰ Extended sitting detected — start with gentle decompression. Aim for movement breaks every 45 min.';
+        }
+        return null;
+    };
+
+    const inlineHint = getInlineHint();
+
     // Returns an error string if required fields are missing, null if valid
     const getValidationError = (): string | null => {
         switch (activityType) {
@@ -171,22 +207,23 @@ export default function AssessmentScreen() {
         </TouchableOpacity>
     );
 
+    // ─── Slider — dynamic colour based on value ─────────────────
     const renderSlider = (label: string, subLabel: string, lowLabel: string, highLabel: string) => (
         <View style={[styles.questionCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
             <View style={styles.questionHeader}>
-                <Ionicons name="analytics-outline" size={24} color={colors.accent} />
+                <Ionicons name="analytics-outline" size={24} color={liveSliderColor} />
                 <Text style={[styles.questionTitle, { color: colors.text }]}>{label}</Text>
             </View>
             <View style={styles.assessmentContent}>
                 <View style={styles.scaleHeader}>
                     <Text style={[styles.scaleLabel, { color: colors.textSecondary }]}>{subLabel}</Text>
-                    <View style={[styles.scaleBadge, { backgroundColor: colors.accent }]}>
+                    <View style={[styles.scaleBadge, { backgroundColor: liveSliderColor }]}>
                         <Text style={styles.scaleBadgeText}>{t('scale1to10')}</Text>
                     </View>
                 </View>
                 <View style={styles.sliderContainer}>
                     <View
-                        style={styles.sliderTrack}
+                        style={[styles.sliderTrack, { backgroundColor: 'rgba(255,255,255,0.1)' }]}
                         hitSlop={{ top: 20, bottom: 20, left: 10, right: 10 }}
                         onLayout={(e) => { trackWidth.current = e.nativeEvent.layout.width; }}
                         onStartShouldSetResponder={() => true}
@@ -195,15 +232,26 @@ export default function AssessmentScreen() {
                         onResponderMove={handleSliderTouch}
                         onResponderRelease={() => setIsSliderActive(false)}
                     >
-                        <View pointerEvents="none" style={[styles.sliderFill, { width: `${sliderValue * 10}%` }]} />
-                        <View pointerEvents="none" style={[styles.sliderThumb, { left: `${sliderValue * 10}%` }]} />
+                        <View pointerEvents="none" style={[styles.sliderFill, { width: `${sliderValue * 10}%`, backgroundColor: liveSliderColor }]} />
+                        <View pointerEvents="none" style={[styles.sliderThumb, { left: `${sliderValue * 10}%`, backgroundColor: liveSliderColor }]} />
                     </View>
-                    <Text style={[styles.painNumber, { color: colors.accent }]}>{sliderValue}</Text>
+                    <Text style={[styles.painNumber, { color: liveSliderColor }]}>{sliderValue}</Text>
                 </View>
                 <View style={styles.sliderLabels}>
                     <Text style={[styles.sliderLabel, { color: colors.textSecondary }]}>{lowLabel}</Text>
                     <Text style={[styles.sliderLabel, { color: colors.textSecondary }]}>{highLabel}</Text>
                 </View>
+                {/* Live inline hint beneath slider */}
+                {inlineHint && activityType === 'relief' && (
+                    <View style={[styles.inlineHint, { backgroundColor: `${liveSliderColor}18`, borderColor: liveSliderColor }]}>
+                        <Ionicons
+                            name={sliderValue >= 8 ? 'warning-outline' : 'information-circle-outline'}
+                            size={16}
+                            color={liveSliderColor}
+                        />
+                        <Text style={[styles.inlineHintText, { color: liveSliderColor }]}>{inlineHint}</Text>
+                    </View>
+                )}
             </View>
         </View>
     );
@@ -233,6 +281,13 @@ export default function AssessmentScreen() {
                             <View style={styles.optionsContainer}>
                                 {WARMUP_FEEL_OPTIONS.map(opt => renderOption(opt.id, opt.label, q2Answer, setQ2Answer))}
                             </View>
+                            {/* Inline hint for cold/stiff warmup */}
+                            {inlineHint && (q2Answer === 'cold' || q2Answer === 'stiff') && (
+                                <View style={[styles.inlineHint, { backgroundColor: 'rgba(249, 115, 22, 0.1)', borderColor: colors.accent, marginTop: 12 }]}>
+                                    <Ionicons name="information-circle-outline" size={16} color={colors.accent} />
+                                    <Text style={[styles.inlineHintText, { color: colors.accent }]}>{inlineHint}</Text>
+                                </View>
+                            )}
                         </View>
                     </>
                 );
@@ -250,6 +305,13 @@ export default function AssessmentScreen() {
                             <View style={styles.optionsContainer}>
                                 {YOGA_MOBILITY_OPTIONS.map(opt => renderOption(opt.id, opt.label, q1Answer, setQ1Answer))}
                             </View>
+                            {/* Inline hint for painful joints */}
+                            {inlineHint && q1Answer === 'no' && (
+                                <View style={[styles.inlineHint, { backgroundColor: 'rgba(239, 68, 68, 0.1)', borderColor: '#ef4444', marginTop: 12 }]}>
+                                    <Ionicons name="warning-outline" size={16} color="#ef4444" />
+                                    <Text style={[styles.inlineHintText, { color: '#ef4444' }]}>{inlineHint}</Text>
+                                </View>
+                            )}
                         </View>
                     </>
                 );
@@ -264,6 +326,13 @@ export default function AssessmentScreen() {
                         <View style={styles.optionsContainer}>
                             {STRENGTH_EXP_OPTIONS.map(opt => renderOption(opt.id, opt.label, q1Answer, setQ1Answer))}
                         </View>
+                        {/* Inline hint for selected experience */}
+                        {inlineHint && q1Answer && (
+                            <View style={[styles.inlineHint, { backgroundColor: 'rgba(34, 197, 94, 0.1)', borderColor: '#22c55e', marginTop: 12 }]}>
+                                <Ionicons name="shield-checkmark-outline" size={16} color="#22c55e" />
+                                <Text style={[styles.inlineHintText, { color: '#22c55e' }]}>{inlineHint}</Text>
+                            </View>
+                        )}
                     </View>
                 );
 
@@ -277,6 +346,13 @@ export default function AssessmentScreen() {
                         <View style={styles.optionsContainer}>
                             {POSTURE_DURATION_OPTIONS.map(opt => renderOption(opt.id, opt.label, q1Answer, setQ1Answer))}
                         </View>
+                        {/* Inline hint for long/all-day sitting */}
+                        {inlineHint && (q1Answer === 'long' || q1Answer === 'all_day') && (
+                            <View style={[styles.inlineHint, { backgroundColor: 'rgba(249, 115, 22, 0.1)', borderColor: colors.accent, marginTop: 12 }]}>
+                                <Ionicons name="information-circle-outline" size={16} color={colors.accent} />
+                                <Text style={[styles.inlineHintText, { color: colors.accent }]}>{inlineHint}</Text>
+                            </View>
+                        )}
                     </View>
                 );
 
@@ -323,6 +399,7 @@ export default function AssessmentScreen() {
                             />
                         </View>
 
+                        {/* Pain intensity slider with live colour + hint */}
                         {renderSlider(t('painAssessment'), t('rateIntensity'), t('mild'), t('severe'))}
                     </>
                 );
@@ -498,6 +575,20 @@ const styles = StyleSheet.create({
     sliderLabel: {
         fontSize: 12,
     },
+    inlineHint: {
+        flexDirection: 'row',
+        gap: 10,
+        padding: 12,
+        borderRadius: 10,
+        borderWidth: 1,
+        alignItems: 'flex-start',
+    },
+    inlineHintText: {
+        flex: 1,
+        fontSize: 13,
+        lineHeight: 19,
+        fontWeight: '500',
+    },
     bottomContainer: {
         position: 'absolute',
         bottom: 0,
@@ -527,4 +618,3 @@ const styles = StyleSheet.create({
         marginBottom: 10,
     },
 });
-

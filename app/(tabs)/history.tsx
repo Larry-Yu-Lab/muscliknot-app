@@ -1,5 +1,6 @@
 import { Colors } from '@/constants/theme';
 import { usePreferences } from '@/context/PreferencesContext';
+import { painLevelColor } from '@/utils/assessmentEngine';
 import { getTranslation } from '@/utils/i18n';
 import { getHistory, HistoryItem } from '@/utils/storage';
 import { Ionicons } from '@expo/vector-icons';
@@ -175,9 +176,11 @@ export default function HistoryScreen() {
                                                 </View>
                                             )}
                                             {a.painLevel !== undefined && a.activityType === 'relief' && (
-                                                <View style={styles.assessmentChip}>
-                                                    <Ionicons name="analytics-outline" size={12} color="#a39587" />
-                                                    <Text style={styles.assessmentChipText}>Pain: {a.painLevel}/10</Text>
+                                                <View style={[styles.assessmentChip, { borderColor: `${painLevelColor(a.painLevel)}40`, backgroundColor: `${painLevelColor(a.painLevel)}12` }]}>
+                                                    {/* Colored severity dot */}
+                                                    <View style={[styles.painDot, { backgroundColor: painLevelColor(a.painLevel) }]} />
+                                                    <Ionicons name="analytics-outline" size={12} color={painLevelColor(a.painLevel)} />
+                                                    <Text style={[styles.assessmentChipText, { color: painLevelColor(a.painLevel) }]}>Pain: {a.painLevel}/10</Text>
                                                 </View>
                                             )}
                                             {a.location && (
@@ -192,11 +195,21 @@ export default function HistoryScreen() {
                                                     <Text style={styles.assessmentChipText}>{durationLabel}</Text>
                                                 </View>
                                             )}
+                                            {a.recommendationCategory && (
+                                                <View style={styles.assessmentChip}>
+                                                    <Ionicons name="shield-checkmark-outline" size={12} color="#a39587" />
+                                                    <Text style={styles.assessmentChipText}>{a.recommendationCategory} plan</Text>
+                                                </View>
+                                            )}
                                             {a.cause && a.cause.trim().length > 0 && (
                                                 <Text style={styles.causeText} numberOfLines={2}>"{a.cause}"</Text>
                                             )}
+                                            {a.recommendationAdvisory && (
+                                                <Text style={styles.advisoryText} numberOfLines={2}>{a.recommendationAdvisory}</Text>
+                                            )}
                                         </View>
                                     )}
+
                                 </View>
                             </View>
                         );
@@ -470,6 +483,19 @@ const styles = StyleSheet.create({
         fontStyle: 'italic',
         marginTop: 4,
         width: '100%',
+    },
+    painDot: {
+        width: 7,
+        height: 7,
+        borderRadius: 4,
+    },
+    advisoryText: {
+        color: '#a39587',
+        fontSize: 11,
+        fontStyle: 'italic',
+        marginTop: 4,
+        width: '100%',
+        lineHeight: 16,
     },
 });
 

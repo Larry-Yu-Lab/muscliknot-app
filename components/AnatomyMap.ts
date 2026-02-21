@@ -130,11 +130,16 @@ export const handleSelection = async (
  *   Pass 1: muscle_id array match + exercise_type filter
  *   Pass 2: common_name keyword search + exercise_type filter
  *   Pass 3: common_name keyword search, any exercise_type (fallback)
+ *
+ * @param difficultyFilter - Optional list of allowed difficulty_level values.
+ *   Derived from the assessment engine (e.g. ['beginner'] for high pain).
+ *   When omitted, no difficulty filtering is applied.
  */
 export const fetchExercisesByMuscleAndSize = async (
     muscleId: string,
     size: string,
-    activityType: string = 'relief'
+    activityType: string = 'relief',
+    difficultyFilter?: string[]
 ): Promise<any[]> => {
     if (!supabase) {
         console.warn('Supabase client not initialized');
@@ -178,11 +183,15 @@ export const fetchExercisesByMuscleAndSize = async (
     try {
         // PASS 1: Try exact muscle_id array match + activity type
         console.log(`[Pass 1] Searching by muscle_id array: ${muscleId}, type: ${activityType}`);
-        const { data: pass1Data, error: pass1Error } = await supabase
+        let pass1Query = supabase
             .from('recovery_knowledge_base')
             .select('*')
             .eq('exercise_type', activityType)
             .contains('muscle_id', [muscleId]);
+        if (difficultyFilter && difficultyFilter.length > 0) {
+            pass1Query = pass1Query.in('difficulty_level', difficultyFilter);
+        }
+        const { data: pass1Data, error: pass1Error } = await pass1Query;
 
         if (!pass1Error && pass1Data && pass1Data.length > 0) {
             console.log(`[Pass 1] Found ${pass1Data.length} exercises by muscle_id`);
@@ -191,11 +200,15 @@ export const fetchExercisesByMuscleAndSize = async (
 
         // PASS 2: Keyword search on common_name + activity type
         console.log(`[Pass 2] Searching by common_name keywords, type: ${activityType}`);
-        const { data: pass2Data, error: pass2Error } = await supabase
+        let pass2Query = supabase
             .from('recovery_knowledge_base')
             .select('*')
             .eq('exercise_type', activityType)
             .or(orConditions);
+        if (difficultyFilter && difficultyFilter.length > 0) {
+            pass2Query = pass2Query.in('difficulty_level', difficultyFilter);
+        }
+        const { data: pass2Data, error: pass2Error } = await pass2Query;
 
         if (!pass2Error && pass2Data && pass2Data.length > 0) {
             console.log(`[Pass 2] Found ${pass2Data.length} exercises by keyword`);
@@ -204,10 +217,14 @@ export const fetchExercisesByMuscleAndSize = async (
 
         // PASS 3: Any exercises for this muscle, any activity type (broadest fallback)
         console.log(`[Pass 3] Broadest search — any type for muscle: ${muscleId}`);
-        const { data: pass3Data, error: pass3Error } = await supabase
+        let pass3Query = supabase
             .from('recovery_knowledge_base')
             .select('*')
             .or(orConditions);
+        if (difficultyFilter && difficultyFilter.length > 0) {
+            pass3Query = pass3Query.in('difficulty_level', difficultyFilter);
+        }
+        const { data: pass3Data, error: pass3Error } = await pass3Query;
 
         if (pass3Error) {
             console.error('Error fetching exercises (pass 3):', pass3Error);
