@@ -82,12 +82,39 @@ export default function AssessmentScreen() {
     const [sliderValue, setSliderValue] = useState(5); // e.g., Pain / Tension
     const [textInput, setTextInput] = useState('');
     const [painLocation, setPainLocation] = useState<string | null>(null); // Specific body part
+    const [validationError, setValidationError] = useState<string | null>(null);
 
     const [isSliderActive, setIsSliderActive] = useState(false);
     const trackWidth = useRef(0);
 
     // Params
     const { x, y, width, height, rotation, view, size, muscleId, activityType = 'relief' } = params;
+
+    // Returns an error string if required fields are missing, null if valid
+    const getValidationError = (): string | null => {
+        switch (activityType) {
+            case 'warmup':
+                if (!q1Answer) return 'Please select what you are warming up for.';
+                if (!q2Answer) return 'Please select how this area feels.';
+                return null;
+            case 'yoga':
+                if (!q1Answer) return 'Please select your current joint mobility.';
+                return null;
+            case 'strength':
+                if (!q1Answer) return 'Please select your experience level.';
+                return null;
+            case 'posture':
+                if (!q1Answer) return 'Please select how long you were in a fixed position.';
+                return null;
+            case 'relief':
+            default: {
+                if (!q1Answer) return 'Please select how long ago this occurred.';
+                const locationOptions = PAIN_LOCATION_MAP[muscleId as string] ?? [];
+                if (locationOptions.length > 0 && !painLocation) return 'Please select where exactly it hurts.';
+                return null;
+            }
+        }
+    };
 
     const handleSliderTouch = (event: any) => {
         setIsSliderActive(true);
@@ -98,6 +125,13 @@ export default function AssessmentScreen() {
     };
 
     const handleContinue = () => {
+        const error = getValidationError();
+        if (error) {
+            setValidationError(error);
+            return;
+        }
+        setValidationError(null);
+
         // Route everything to the main Activity page (Find Relief)
         const targetPath = '/(tabs)/find-relief';
 
@@ -315,8 +349,15 @@ export default function AssessmentScreen() {
 
             {/* Continue Button */}
             <View style={[styles.bottomContainer, { backgroundColor: colors.headerBackground, borderTopColor: colors.cardBorder }]}>
+                {validationError && (
+                    <Text style={styles.validationError}>{validationError}</Text>
+                )}
                 <TouchableOpacity
-                    style={[styles.continueButton, { backgroundColor: colors.accent }]}
+                    style={[
+                        styles.continueButton,
+                        { backgroundColor: colors.accent },
+                        !!getValidationError() && { opacity: 0.5 }
+                    ]}
                     onPress={handleContinue}
                 >
                     <Text style={styles.continueButtonText}>Continue</Text>
@@ -478,4 +519,12 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: '700',
     },
+    validationError: {
+        color: '#ef4444',
+        fontSize: 13,
+        fontWeight: '500',
+        textAlign: 'center',
+        marginBottom: 10,
+    },
 });
+
