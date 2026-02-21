@@ -3,7 +3,7 @@ import { Colors } from '@/constants/theme';
 import { usePreferences } from '@/context/PreferencesContext';
 import { getExercisesByActivityType } from '@/data/exercises';
 import { getTranslation } from '@/utils/i18n';
-import { saveToHistory } from '@/utils/storage';
+import { AssessmentData, saveToHistory } from '@/utils/storage';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -13,8 +13,7 @@ import { Alert, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, Vi
 
 export default function FindReliefScreen() {
     const router = useRouter();
-    const params = useLocalSearchParams(); // { x, y, view, timestamp, size, muscleId, painLevel, duration, cause }
-
+    const params = useLocalSearchParams();
 
     const { language, theme } = usePreferences();
     const t = (key: Parameters<typeof getTranslation>[1]) => getTranslation(language, key);
@@ -29,6 +28,17 @@ export default function FindReliefScreen() {
     const size = (params.size as string) || 'medium';
     const muscleId = (params.muscleId as string) || 'unknown';
     const activityType = (params.activityType as string) || 'relief';
+
+    // Assessment data from pain-assessment screen
+    const assessment: AssessmentData = {
+        activityType,
+        painLevel: params.assessment_slider ? Number(params.assessment_slider) : undefined,
+        duration: params.assessment_q1 !== 'unknown' ? (params.assessment_q1 as string) : undefined,
+        location: params.assessment_location !== 'unknown' ? (params.assessment_location as string) : undefined,
+        cause: params.assessment_note !== 'unknown' ? (params.assessment_note as string) : undefined,
+        q1: params.assessment_q1 !== 'unknown' ? (params.assessment_q1 as string) : undefined,
+        q2: params.assessment_q2 !== 'unknown' ? (params.assessment_q2 as string) : undefined,
+    };
 
     const [exercises, setExercises] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -66,15 +76,7 @@ export default function FindReliefScreen() {
     // Helper to get translated muscle name if available, else fallback to English name
     const getMuscleName = (name: string) => {
         const key = `mg${name.replace(/\s/g, '')}` as any;
-        // Try to find if key exists in current language via getTranslation, 
-        // but getTranslation is strict on keys. 
-        // For now, let's simplistic check or just display raw name if not mapped.
-        // Given complexity, valid keys are: mgNeck, mgShoulders, etc.
         const mappedKey = `mg${name.replace(/\s+/g, '')}`;
-        // We can try to fetch it, if it returns key itself (fallback), we show name.
-        // Actually getTranslation returns key if missing/fallback. 
-        // Let's rely on standard names matching keys carefully.
-        // "Neck" -> "mgNeck", "Upper Back" -> "mgUpperBack"
         return t(mappedKey as any) !== mappedKey ? t(mappedKey as any) : name;
     };
 
@@ -85,6 +87,7 @@ export default function FindReliefScreen() {
             date: Date.now(),
             muscleGroup: targetMuscle,
             exercises: exercises,
+            assessment,
         };
         await saveToHistory(item);
         Alert.alert(t('planCompletedTitle'), t('planCompletedMessage'), [

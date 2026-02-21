@@ -7,6 +7,26 @@ import { useFocusEffect } from 'expo-router';
 import React, { useCallback, useState } from 'react';
 import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
+// Human-readable labels for duration / q1 answers
+const DURATION_LABELS: Record<string, string> = {
+    today: 'Today',
+    this_week: 'This Week',
+    this_month: 'This Month',
+    longer: 'More than a month',
+    short: '< 1 Hour',
+    medium: '1–4 Hours',
+    long: '4+ Hours',
+    all_day: 'All Day',
+};
+
+const ACTIVITY_LABELS: Record<string, string> = {
+    relief: 'Pain Relief',
+    warmup: 'Warm-Up',
+    yoga: 'Yoga',
+    strength: 'Strength',
+    posture: 'Posture',
+};
+
 export default function HistoryScreen() {
     const [history, setHistory] = useState<HistoryItem[]>([]);
     const { language, theme } = usePreferences();
@@ -32,7 +52,6 @@ export default function HistoryScreen() {
     // Format Date Helper - Simple dynamic locale
     const formatDate = (timestamp: number) => {
         const d = new Date(timestamp);
-        // Map our language codes to standard locales if needed, but en, fr, es, zh work well
         const localeMap: Record<string, string> = {
             en: 'en-US',
             zh: 'zh-CN',
@@ -103,45 +122,85 @@ export default function HistoryScreen() {
                     {/* Timeline line */}
                     <View style={[styles.timelineLine, { backgroundColor: colors.cardBorder }]} />
 
-                    {history.map((item) => (
-                        <View key={item.id} style={[styles.timelineItem]}>
-                            {/* Timeline dot */}
-                            <View style={styles.timelineDotContainer}>
-                                <View style={[styles.timelineDot, styles.timelineDotActive, { backgroundColor: colors.background, borderColor: colors.accent }]}>
-                                    <Ionicons
-                                        name={'body-outline'}
-                                        size={20}
-                                        color={colors.accent}
-                                    />
+                    {history.map((item) => {
+                        const a = item.assessment;
+                        const actLabel = a?.activityType ? (ACTIVITY_LABELS[a.activityType] ?? a.activityType) : null;
+                        const durationLabel = a?.duration ? (DURATION_LABELS[a.duration] ?? a.duration) : null;
+                        return (
+                            <View key={item.id} style={[styles.timelineItem]}>
+                                {/* Timeline dot */}
+                                <View style={styles.timelineDotContainer}>
+                                    <View style={[styles.timelineDot, styles.timelineDotActive, { backgroundColor: colors.background, borderColor: colors.accent }]}>
+                                        <Ionicons
+                                            name={'body-outline'}
+                                            size={20}
+                                            color={colors.accent}
+                                        />
+                                    </View>
                                 </View>
-                            </View>
 
-                            {/* Card */}
-                            <View style={[styles.historyCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
-                                <View style={styles.cardHeader}>
-                                    <View>
-                                        <Text style={[styles.cardDate, styles.cardDateActive, { color: colors.accent }]}>
-                                            {formatDate(item.date)}
-                                        </Text>
-                                        <Text style={[styles.cardTitle, { color: colors.text }]}>
-                                            {(() => {
-                                                const muscleKey = `mg${item.muscleGroup.replace(/\s/g, '')}` as any;
-                                                const translatedMuscle = t(muscleKey) !== muscleKey ? t(muscleKey) : item.muscleGroup;
-                                                return `${translatedMuscle} ${t('relief')}`;
-                                            })()}
-                                        </Text>
+                                {/* Card */}
+                                <View style={[styles.historyCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
+                                    <View style={styles.cardHeader}>
+                                        <View style={{ flex: 1 }}>
+                                            <Text style={[styles.cardDate, styles.cardDateActive, { color: colors.accent }]}>
+                                                {formatDate(item.date)}
+                                            </Text>
+                                            <Text style={[styles.cardTitle, { color: colors.text }]}>
+                                                {(() => {
+                                                    const muscleKey = `mg${item.muscleGroup.replace(/\s/g, '')}` as any;
+                                                    const translatedMuscle = t(muscleKey) !== muscleKey ? t(muscleKey) : item.muscleGroup;
+                                                    return `${translatedMuscle} ${t('relief')}`;
+                                                })()}
+                                            </Text>
+                                        </View>
+                                        <View style={[styles.completedBadge, { backgroundColor: colors.background, borderColor: colors.accent }]}>
+                                            <Text style={[styles.completedBadgeText, { color: colors.accent }]}>{t('completed')}</Text>
+                                        </View>
                                     </View>
-                                    <View style={[styles.completedBadge, { backgroundColor: colors.background, borderColor: colors.accent }]}>
-                                        <Text style={[styles.completedBadgeText, { color: colors.accent }]}>{t('completed')}</Text>
+
+                                    {/* Exercise count */}
+                                    <View style={styles.cardMeta}>
+                                        <Ionicons name="fitness-outline" size={14} color="#a39587" />
+                                        <Text style={styles.metaText}>{t('exercisesCount').replace('${count}', item.exercises.length.toString())}</Text>
                                     </View>
-                                </View>
-                                <View style={styles.cardMeta}>
-                                    <Ionicons name="fitness-outline" size={14} color="#a39587" />
-                                    <Text style={styles.metaText}>{t('exercisesCount').replace('${count}', item.exercises.length.toString())}</Text>
+
+                                    {/* Assessment details */}
+                                    {a && (
+                                        <View style={styles.assessmentDetails}>
+                                            {actLabel && (
+                                                <View style={styles.assessmentChip}>
+                                                    <Ionicons name="pulse-outline" size={12} color="#a39587" />
+                                                    <Text style={styles.assessmentChipText}>{actLabel}</Text>
+                                                </View>
+                                            )}
+                                            {a.painLevel !== undefined && a.activityType === 'relief' && (
+                                                <View style={styles.assessmentChip}>
+                                                    <Ionicons name="analytics-outline" size={12} color="#a39587" />
+                                                    <Text style={styles.assessmentChipText}>Pain: {a.painLevel}/10</Text>
+                                                </View>
+                                            )}
+                                            {a.location && (
+                                                <View style={styles.assessmentChip}>
+                                                    <Ionicons name="location-outline" size={12} color="#a39587" />
+                                                    <Text style={styles.assessmentChipText}>{a.location.replace(/_/g, ' ')}</Text>
+                                                </View>
+                                            )}
+                                            {durationLabel && (
+                                                <View style={styles.assessmentChip}>
+                                                    <Ionicons name="time-outline" size={12} color="#a39587" />
+                                                    <Text style={styles.assessmentChipText}>{durationLabel}</Text>
+                                                </View>
+                                            )}
+                                            {a.cause && a.cause.trim().length > 0 && (
+                                                <Text style={styles.causeText} numberOfLines={2}>"{a.cause}"</Text>
+                                            )}
+                                        </View>
+                                    )}
                                 </View>
                             </View>
-                        </View>
-                    ))}
+                        );
+                    })}
                     {history.length === 0 && (
                         <Text style={{ color: '#666', textAlign: 'center', marginTop: 20 }}>{t('noHistory')}</Text>
                     )}
@@ -150,6 +209,9 @@ export default function HistoryScreen() {
         </SafeAreaView>
     );
 }
+
+
+
 
 const styles = StyleSheet.create({
     container: {
@@ -379,4 +441,35 @@ const styles = StyleSheet.create({
         color: '#a39587',
         marginHorizontal: 2,
     },
+    assessmentDetails: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: 6,
+        marginTop: 8,
+    },
+    assessmentChip: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+        backgroundColor: 'rgba(255,153,0,0.08)',
+        borderRadius: 8,
+        paddingHorizontal: 8,
+        paddingVertical: 3,
+        borderWidth: 1,
+        borderColor: 'rgba(255,153,0,0.15)',
+    },
+    assessmentChipText: {
+        color: '#a39587',
+        fontSize: 11,
+        fontWeight: '600',
+        textTransform: 'capitalize',
+    },
+    causeText: {
+        color: '#a39587',
+        fontSize: 12,
+        fontStyle: 'italic',
+        marginTop: 4,
+        width: '100%',
+    },
 });
+

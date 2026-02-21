@@ -2,11 +2,22 @@ import { Exercise } from '@/data/exercises';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { supabase } from './supabase';
 
+export interface AssessmentData {
+    activityType?: string;
+    painLevel?: number;
+    duration?: string;       // how long ago (relief) or how long sitting (posture)
+    location?: string;       // specific body part
+    cause?: string;          // what caused it (relief)
+    q1?: string;             // generic first answer (warmup/yoga/strength/posture)
+    q2?: string;             // generic second answer (warmup feel, etc.)
+}
+
 export interface HistoryItem {
     id: string;
     date: number; // timestamp
     muscleGroup: string;
     exercises: Exercise[];
+    assessment?: AssessmentData;
 }
 
 const HISTORY_KEY = '@muscliknot_history';
@@ -29,6 +40,7 @@ export const saveToHistory = async (item: Omit<HistoryItem, 'id'>) => {
                     date: timestamp,
                     muscle_group: item.muscleGroup,
                     exercises: item.exercises,
+                    assessment: item.assessment ?? null,
                 });
 
                 if (error) {
@@ -48,6 +60,7 @@ export const saveToHistory = async (item: Omit<HistoryItem, 'id'>) => {
         throw e;
     }
 };
+
 
 // Helper for local storage only
 const getLocalHistory = async (): Promise<HistoryItem[]> => {
@@ -78,6 +91,7 @@ export const getHistory = async (): Promise<HistoryItem[]> => {
                         date: Number(row.date),
                         muscleGroup: row.muscle_group,
                         exercises: row.exercises,
+                        assessment: row.assessment ?? undefined,
                     }));
 
                     // Sync to local storage for offline use next time
