@@ -197,25 +197,26 @@ export default function LibraryScreen() {
         return trans !== key ? trans : name;
     };
 
-    // Filtered list 
+    // Filtered list
     const filteredExercises = useMemo(() => {
         return allExercises.filter(ex => {
-            // 1. Search Query
+            // 1. Saved filter — must run FIRST (exercises have no category 'Saved')
+            if (activeCategory === 'Saved') {
+                if (searchQuery && !ex.title.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+                return savedExerciseIds.includes(ex.id);
+            }
+
+            // 2. Search Query
             if (searchQuery && !ex.title.toLowerCase().includes(searchQuery.toLowerCase())) return false;
 
-            // 2. Category Filter
+            // 3. Category Filter
             if (activeCategory !== 'All' && ex.category !== activeCategory) return false;
 
-            // 3. Sub-category (Muscle Group) for Relief
+            // 4. Sub-category (Muscle Group) for Relief
             if (activeCategory === 'Relief' && activeMuscleGroup !== 'All') {
                 const muscleMatch = ex.muscleGroup?.toLowerCase().includes(activeMuscleGroup.toLowerCase()) ||
                     ex.target?.toLowerCase().includes(activeMuscleGroup.toLowerCase());
                 if (!muscleMatch) return false;
-            }
-
-            // 4. Saved Filter
-            if (activeCategory === 'Saved') {
-                return savedExerciseIds.includes(ex.id);
             }
 
             return true;
