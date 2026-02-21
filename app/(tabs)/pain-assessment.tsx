@@ -48,6 +48,27 @@ const POSTURE_DURATION_OPTIONS = [
     { id: 'all_day', label: 'All Day' },
 ];
 
+// Map each muscle zone → specific sub-location options shown to the user
+const PAIN_LOCATION_MAP: Record<string, { id: string; label: string }[]> = {
+    hands: [{ id: 'fingers', label: 'Fingers' }, { id: 'thumb', label: 'Thumb' }, { id: 'wrist', label: 'Wrist' }, { id: 'palm', label: 'Palm' }, { id: 'pinky', label: 'Pinky' }, { id: 'ring_finger', label: 'Ring Finger' }],
+    forearms: [{ id: 'inner_forearm', label: 'Inner Forearm' }, { id: 'outer_forearm', label: 'Outer Forearm' }, { id: 'elbow', label: 'Elbow' }, { id: 'wrist', label: 'Wrist' }],
+    arms: [{ id: 'bicep', label: 'Bicep' }, { id: 'tricep', label: 'Tricep' }, { id: 'shoulder', label: 'Shoulder' }, { id: 'elbow', label: 'Elbow' }],
+    traps: [{ id: 'left_shoulder', label: 'Left Shoulder' }, { id: 'right_shoulder', label: 'Right Shoulder' }, { id: 'upper_traps', label: 'Upper Traps' }, { id: 'base_neck', label: 'Base of Neck' }],
+    neck: [{ id: 'left_side', label: 'Left Side' }, { id: 'right_side', label: 'Right Side' }, { id: 'back_neck', label: 'Back of Neck' }, { id: 'front_neck', label: 'Front of Neck' }],
+    head: [{ id: 'temples', label: 'Temples' }, { id: 'forehead', label: 'Forehead' }, { id: 'back_head', label: 'Back of Head' }, { id: 'jaw', label: 'Jaw' }],
+    chest: [{ id: 'left_chest', label: 'Left Chest' }, { id: 'right_chest', label: 'Right Chest' }, { id: 'sternum', label: 'Sternum' }, { id: 'collarbone', label: 'Collarbone' }],
+    upper_back: [{ id: 'left_blade', label: 'Left Shoulder Blade' }, { id: 'right_blade', label: 'Right Shoulder Blade' }, { id: 'between_blades', label: 'Between Blades' }, { id: 'mid_spine', label: 'Mid Spine' }],
+    lower_back: [{ id: 'left_lower', label: 'Left Side' }, { id: 'right_lower', label: 'Right Side' }, { id: 'tailbone', label: 'Tailbone' }, { id: 'sacrum', label: 'Sacrum' }],
+    abdomen: [{ id: 'upper_abs', label: 'Upper Abdomen' }, { id: 'lower_abs', label: 'Lower Abdomen' }, { id: 'left_side', label: 'Left Side' }, { id: 'right_side', label: 'Right Side' }],
+    hips: [{ id: 'left_hip', label: 'Left Hip' }, { id: 'right_hip', label: 'Right Hip' }, { id: 'hip_flexor', label: 'Hip Flexor' }, { id: 'groin', label: 'Groin' }],
+    glutes: [{ id: 'left_glute', label: 'Left Glute' }, { id: 'right_glute', label: 'Right Glute' }, { id: 'tailbone', label: 'Tailbone' }, { id: 'piriformis', label: 'Deep / Piriformis' }],
+    thighs: [{ id: 'front_thigh', label: 'Front (Quad)' }, { id: 'back_thigh', label: 'Back (Hamstring)' }, { id: 'inner_thigh', label: 'Inner Thigh' }, { id: 'outer_thigh', label: 'Outer Thigh' }],
+    knees: [{ id: 'kneecap', label: 'Kneecap' }, { id: 'inner_knee', label: 'Inner Knee' }, { id: 'outer_knee', label: 'Outer Knee' }, { id: 'behind_knee', label: 'Behind Knee' }],
+    calves: [{ id: 'upper_calf', label: 'Upper Calf' }, { id: 'lower_calf', label: 'Lower Calf' }, { id: 'achilles', label: 'Achilles' }, { id: 'shin', label: 'Shin' }],
+    ankles: [{ id: 'inner_ankle', label: 'Inner Ankle' }, { id: 'outer_ankle', label: 'Outer Ankle' }, { id: 'front_ankle', label: 'Front of Ankle' }, { id: 'achilles', label: 'Achilles' }],
+    feet: [{ id: 'heel', label: 'Heel' }, { id: 'arch', label: 'Arch' }, { id: 'ball_foot', label: 'Ball of Foot' }, { id: 'toes', label: 'Toes' }],
+};
+
 export default function AssessmentScreen() {
     const router = useRouter();
     const params = useLocalSearchParams();
@@ -60,6 +81,7 @@ export default function AssessmentScreen() {
     const [q2Answer, setQ2Answer] = useState<string | null>(null); // e.g., Cause / Feel
     const [sliderValue, setSliderValue] = useState(5); // e.g., Pain / Tension
     const [textInput, setTextInput] = useState('');
+    const [painLocation, setPainLocation] = useState<string | null>(null); // Specific body part
 
     const [isSliderActive, setIsSliderActive] = useState(false);
     const trackWidth = useRef(0);
@@ -87,6 +109,7 @@ export default function AssessmentScreen() {
                 assessment_q2: q2Answer || 'unknown',
                 assessment_slider: sliderValue,
                 assessment_note: textInput || 'unknown',
+                assessment_location: painLocation || 'unknown',
                 timestamp: Date.now()
             }
         });
@@ -237,6 +260,18 @@ export default function AssessmentScreen() {
                                 {DURATION_OPTIONS.map(opt => renderOption(opt.id, opt.label, q1Answer, setQ1Answer))}
                             </View>
                         </View>
+
+                        {(PAIN_LOCATION_MAP[muscleId as string] ?? []).length > 0 && (
+                            <View style={[styles.questionCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
+                                <View style={styles.questionHeader}>
+                                    <Ionicons name="location-outline" size={24} color={colors.accent} />
+                                    <Text style={[styles.questionTitle, { color: colors.text }]}>Where exactly does it hurt?</Text>
+                                </View>
+                                <View style={styles.optionsContainer}>
+                                    {(PAIN_LOCATION_MAP[muscleId as string] ?? []).map((opt: { id: string; label: string }) => renderOption(opt.id, opt.label, painLocation, setPainLocation))}
+                                </View>
+                            </View>
+                        )}
 
                         <View style={[styles.questionCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
                             <View style={styles.questionHeader}>
