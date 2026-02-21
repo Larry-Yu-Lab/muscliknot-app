@@ -225,7 +225,7 @@ export default function LibraryScreen() {
 
             return true;
         });
-    }, [activeCategory, activeMuscleGroup, searchQuery, allExercises]);
+    }, [activeCategory, activeMuscleGroup, searchQuery, allExercises, savedExerciseIds]);
 
     const displayCategories = categories.filter(c => c !== 'All');
 
