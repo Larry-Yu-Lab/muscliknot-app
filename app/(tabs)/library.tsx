@@ -149,14 +149,11 @@ export default function LibraryScreen() {
         fetchAllExercises();
     }, []);
 
-    // Fetch saved exercises
+    // Fetch saved exercises (AsyncStorage-backed, no auth required)
     useEffect(() => {
         const loadSaved = async () => {
-            const user = (await supabase?.auth.getUser())?.data.user;
-            if (user) {
-                const saved = await fetchSavedExercises(user.id);
-                setSavedExerciseIds(saved);
-            }
+            const saved = await fetchSavedExercises();
+            setSavedExerciseIds(saved);
         };
         loadSaved();
     }, []);
@@ -168,13 +165,11 @@ export default function LibraryScreen() {
             isSaved ? prev.filter(id => id !== exerciseId) : [...prev, exerciseId]
         );
 
-        const user = (await supabase?.auth.getUser())?.data.user;
-        if (user) {
-            if (isSaved) {
-                await unsaveExercise(user.id, exerciseId);
-            } else {
-                await saveExercise(user.id, exerciseId);
-            }
+        // AsyncStorage-backed save (no auth required)
+        if (isSaved) {
+            await unsaveExercise('', exerciseId);
+        } else {
+            await saveExercise('', exerciseId);
         }
     };
 
