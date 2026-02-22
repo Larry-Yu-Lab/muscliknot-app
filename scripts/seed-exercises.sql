@@ -2,14 +2,12 @@
 -- MuscliKnot Exercise Database — Part 1
 -- Muscle groups: head, neck, traps, chest, upper_back,
 --                arms, forearms, hands
--- Run AFTER the CREATE TABLE statement.
+-- Safe to run against existing data — uses ON CONFLICT DO NOTHING.
 -- ============================================================
-TRUNCATE TABLE recovery_knowledge_base;
 
 INSERT INTO recovery_knowledge_base
   (id, muscle_id, exercise_type, difficulty_level, common_name, area_of_pain, solution_stretch, why, instructions, process)
 VALUES
-
 -- ── HEAD ────────────────────────────────────────────────────
 ('h-001', ARRAY['head'], 'relief', 'beginner', 'temple pressure relief temporalis',
  'temples', 'Temple Pressure Point Release',
