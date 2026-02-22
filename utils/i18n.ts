@@ -142,6 +142,20 @@ export const translations = {
         completed: 'COMPLETED',
         noHistory: 'No history yet. Start a session!',
 
+        // Activity Titles
+        titleRelief: '{{muscle}} Relief',
+        titleWarmup: '{{muscle}} Warm Up',
+        titleYoga: '{{muscle}} Yoga',
+        titleStrength: '{{muscle}} Strength',
+        titlePosture: '{{muscle}} Posture',
+
+        // Activity Labels (Short)
+        shortRelief: 'Relief',
+        shortWarmup: 'Warm Up',
+        shortYoga: 'Yoga',
+        shortStrength: 'Strength',
+        shortPosture: 'Posture',
+
         // Library
         library: 'Library',
         searchExercises: 'Search exercises...',
@@ -165,6 +179,20 @@ export const translations = {
         mgLowerBack: 'Lower Back',
         mgGlutes: 'Glutes',
         mgLegs: 'Legs',
+        mgHead: 'Head',
+        mgTraps: 'Traps',
+        mgChest: 'Chest',
+        mgAbdomen: 'Abdomen',
+        mgHips: 'Hips',
+        mgThighs: 'Thighs',
+        mgKnees: 'Knees',
+        mgCalves: 'Calves',
+        mgAnkles: 'Ankles',
+        mgFeet: 'Feet',
+        mgArms: 'Arms',
+        mgForearms: 'Forearms',
+        mgHands: 'Hands',
+        fullBody: 'Full Body',
 
         // Time
         yesterday: 'YESTERDAY',
@@ -586,6 +614,20 @@ export const translations = {
         completed: '已完成',
         noHistory: '尚无历史记录。开始会话！',
 
+        // Activity Titles
+        titleRelief: '{{muscle}}缓解',
+        titleWarmup: '{{muscle}}热身',
+        titleYoga: '{{muscle}}瑜伽',
+        titleStrength: '{{muscle}}加强',
+        titlePosture: '{{muscle}}体态',
+
+        // Activity Labels (Short)
+        shortRelief: '缓解',
+        shortWarmup: '热身',
+        shortYoga: '瑜伽',
+        shortStrength: '加强',
+        shortPosture: '体态',
+
         // Library
         library: '运动库',
         searchExercises: '搜索动作...',
@@ -609,6 +651,20 @@ export const translations = {
         mgLowerBack: '下背',
         mgGlutes: '臀部',
         mgLegs: '腿部',
+        mgHead: '头部',
+        mgTraps: '斜方肌',
+        mgChest: '胸部',
+        mgAbdomen: '腹部',
+        mgHips: '髋部',
+        mgThighs: '大腿',
+        mgKnees: '膝盖',
+        mgCalves: '小腿',
+        mgAnkles: '脚踝',
+        mgFeet: '脚部',
+        mgArms: '手臂',
+        mgForearms: '前臂',
+        mgHands: '手部',
+        fullBody: '全身',
 
         // Time
         yesterday: '昨天',
@@ -1030,6 +1086,20 @@ export const translations = {
         completed: 'TERMINÉ',
         noHistory: 'Pas encore d\'historique. Commencez une session !',
 
+        // Activity Titles
+        titleRelief: 'Soulagement {{muscle}}',
+        titleWarmup: 'Échauffement {{muscle}}',
+        titleYoga: 'Yoga {{muscle}}',
+        titleStrength: 'Renforcement {{muscle}}',
+        titlePosture: 'Posture {{muscle}}',
+
+        // Activity Labels (Short)
+        shortRelief: 'Soulagement',
+        shortWarmup: 'Échauffement',
+        shortYoga: 'Yoga',
+        shortStrength: 'Renforcement',
+        shortPosture: 'Posture',
+
         // Library
         library: 'Bibliothèque',
         searchExercises: 'Rechercher des exercices...',
@@ -1281,6 +1351,20 @@ export const translations = {
         locArch: 'Voute plantaire',
         locBallFoot: 'Avant-pied',
         locToes: 'Orteils',
+        mgHead: 'Tête',
+        mgTraps: 'Trapèzes',
+        mgChest: 'Poitrine',
+        mgAbdomen: 'Abdomen',
+        mgHips: 'Hanches',
+        mgThighs: 'Cuisses',
+        mgKnees: 'Genoux',
+        mgCalves: 'Mollet',
+        mgAnkles: 'Chevilles',
+        mgFeet: 'Pieds',
+        mgArms: 'Bras',
+        mgForearms: 'Avant-bras',
+        mgHands: 'Mains',
+        fullBody: 'Tout le corps',
 
         // Validation
         validationWarmup1: 'Veuillez selectionner pour quoi vous vous echauffez.',
@@ -1412,6 +1496,20 @@ export const translations = {
         progressJourney: 'Tu viaje de progreso',
         completed: 'COMPLETADO',
         noHistory: 'Aún no hay historial. ¡Comienza una sesión!',
+
+        // Activity Titles
+        titleRelief: 'Alivio de {{muscle}}',
+        titleWarmup: 'Calentamiento de {{muscle}}',
+        titleYoga: 'Yoga de {{muscle}}',
+        titleStrength: 'Fortalecimiento de {{muscle}}',
+        titlePosture: 'Postura de {{muscle}}',
+
+        // Activity Labels (Short)
+        shortRelief: 'Alivio',
+        shortWarmup: 'Calentamiento',
+        shortYoga: 'Yoga',
+        shortStrength: 'Fortalecimiento',
+        shortPosture: 'Postura',
 
         // Library
         library: 'Biblioteca',
@@ -1725,6 +1823,20 @@ export const translations = {
         locArch: 'Arco plantar',
         locBallFoot: 'Metatarso',
         locToes: 'Dedos del pie',
+        mgHead: 'Cabeza',
+        mgTraps: 'Trapecios',
+        mgChest: 'Pecho',
+        mgAbdomen: 'Abdomen',
+        mgHips: 'Caderas',
+        mgThighs: 'Muslos',
+        mgKnees: 'Rodillas',
+        mgCalves: 'Pantorrillas',
+        mgAnkles: 'Tobillos',
+        mgFeet: 'Pies',
+        mgArms: 'Brazos',
+        mgForearms: 'Antebrazos',
+        mgHands: 'Manos',
+        fullBody: 'Cuerpo completo',
 
         // Validation
         validationWarmup1: 'Por favor selecciona para que te vas a calentar.',

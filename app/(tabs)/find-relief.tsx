@@ -226,10 +226,27 @@ export default function FindReliefScreen() {
         return muscleId.replace(/_/g, ' ');
     }, [exercises, muscleId]);
 
+    const targetMuscleTrans = React.useMemo(() => {
+        if (targetMuscle === 'fullBody') return t('fullBody');
+        const mgKey = `mg${targetMuscle.charAt(0).toUpperCase()}${targetMuscle.slice(1).replace(/\s/g, '')}` as any;
+        const trans = t(mgKey);
+        return trans !== mgKey ? trans : targetMuscle;
+    }, [targetMuscle, t]);
+
     const locationLabel = painLocation ? painLocation.replace(/_/g, ' ') : null;
-    const titleLine = locationLabel
-        ? `${locationLabel.charAt(0).toUpperCase() + locationLabel.slice(1)} Relief`
-        : `${targetMuscle.charAt(0).toUpperCase() + targetMuscle.slice(1)} ${activityType === 'relief' ? 'Relief' : activityType.charAt(0).toUpperCase() + activityType.slice(1)}`;
+    const titleLine = React.useMemo(() => {
+        const target = locationLabel
+            ? locationLabel.charAt(0).toUpperCase() + locationLabel.slice(1)
+            : targetMuscleTrans;
+
+        const patternKey = `title${activityType.charAt(0).toUpperCase()}${activityType.slice(1)}` as any;
+        const pattern = t(patternKey);
+
+        if (pattern && pattern.includes('{{muscle}}')) {
+            return pattern.replace('{{muscle}}', target);
+        }
+        return `${target} ${activityType}`;
+    }, [locationLabel, targetMuscleTrans, activityType, t]);
 
     const handleComplete = async () => {
         const item = { date: Date.now(), muscleGroup: targetMuscle, exercises, assessment };

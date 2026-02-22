@@ -121,13 +121,53 @@ export default function HomeScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchError, setSearchError] = useState('');
   const [recentPlans, setRecentPlans] = useState<HistoryItem[]>([]);
-
   const startCtx = useSharedValue({ x: 0, y: 0 });
+
+  const STATIC_QUICK_FIXES: HistoryItem[] = [
+    {
+      id: 'static-warmup-full',
+      date: Date.now(),
+      muscleGroup: 'fullBody',
+      exercises: [],
+      assessment: { activityType: 'warmup' }
+    },
+    {
+      id: 'static-strength-bicep',
+      date: Date.now(),
+      muscleGroup: 'arms',
+      exercises: [],
+      assessment: { activityType: 'strength', location: 'bicep' }
+    },
+    {
+      id: 'static-yoga-full',
+      date: Date.now(),
+      muscleGroup: 'fullBody',
+      exercises: [],
+      assessment: { activityType: 'yoga' }
+    }
+  ];
 
   useFocusEffect(
     useCallback(() => {
       getHistory().then(data => {
-        setRecentPlans(data.slice(0, 5));
+        // Group everything by activityType and limit to 2 per category
+        // Categories: relief, warmup, yoga, strength, posture
+        const categories = ['relief', 'warmup', 'yoga', 'strength', 'posture'];
+        const finalPlans: HistoryItem[] = [];
+
+        categories.forEach(cat => {
+          // Get items from history for this category
+          const historyItems = data.filter(item => (item.assessment?.activityType || 'relief') === cat);
+
+          // Get static items for this category
+          const staticItems = STATIC_QUICK_FIXES.filter(item => (item.assessment?.activityType || 'relief') === cat);
+
+          // Combine and take top 2 (History first to prioritize user's recent work)
+          const merged = [...historyItems, ...staticItems].slice(0, 2);
+          finalPlans.push(...merged);
+        });
+
+        setRecentPlans(finalPlans);
       });
     }, [])
   );
@@ -308,9 +348,6 @@ export default function HomeScreen() {
   };
 
   const handleQuickFix = (item: HistoryItem) => {
-    // If it's a relief plan, we can go to results with the first exercise
-    // or we can go to activity-selection with the saved params if we had them.
-    // For now, let's navigate to results with the first exercise or the full assessment.
     if (item.exercises && item.exercises.length > 0) {
       router.push({
         pathname: '/results',
@@ -318,6 +355,17 @@ export default function HomeScreen() {
           exercise: JSON.stringify(item.exercises[0]),
           muscleId: item.muscleGroup,
           timestamp: item.date
+        }
+      });
+    } else {
+      // Static quick fix or item without stored exercises
+      router.push({
+        pathname: '/(tabs)/pain-assessment',
+        params: {
+          muscleId: item.muscleGroup === 'fullBody' ? 'neck' : item.muscleGroup, // Default neck as proxy for full body if needed, or handle in assessment
+          activityType: item.assessment?.activityType || 'relief',
+          painLocation: item.assessment?.location, // Pass sub-location like 'bicep'
+          timestamp: Date.now()
         }
       });
     }
@@ -467,35 +515,71 @@ export default function HomeScreen() {
           {recentPlans.map((item) => {
             const date = new Date(item.date);
             const timeStr = date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+            const activityType = item.assessment?.activityType || 'relief';
 
-            // Determine icon based on activity type
-            let iconName: any = 'medkit-outline';
-            if (item.assessment?.activityType === 'yoga') iconName = 'leaf-outline';
-            else if (item.assessment?.activityType === 'strength') iconName = 'fitness-outline';
-            else if (item.assessment?.activityType === 'posture') iconName = 'body-outline';
-            else if (item.assessment?.activityType === 'warmup') iconName = 'flame-outline';
+            // Category Styles & Config
+            const CATEGORY_CONFIG: Record<string, { icon: any; color: string }> = {
+              relief: { icon: 'medkit-outline', color: '#ef4444' },
+              warmup: { icon: 'flame-outline', color: '#f97316' },
+              yoga: { icon: 'leaf-outline', color: '#8b5cf6' },
+              posture: { icon: 'body-outline', color: '#06b6d4' },
+              strength: { icon: 'fitness-outline', color: '#10b981' },
+            };
+
+            const config = CATEGORY_CONFIG[activityType] || CATEGORY_CONFIG.relief;
+            const accentColor = config.color;
+
+            // Title Logic
+            const cardTitle = (() => {
+              const location = item.assessment?.location;
+              const muscleGroup = item.muscleGroup;
+
+              // 1. Get Translated Target (Muscle or Location)
+              let targetName = '';
+              if (muscleGroup === 'fullBody') {
+                targetName = t('fullBody');
+              } else if (location) {
+                const locKey = `loc${location.charAt(0).toUpperCase()}${location.slice(1)}` as any;
+                const transLoc = t(locKey);
+                targetName = transLoc !== locKey ? transLoc : location;
+              } else if (muscleGroup) {
+                const mgKey = `mg${muscleGroup.charAt(0).toUpperCase()}${muscleGroup.slice(1).replace(/\s/g, '')}` as any;
+                const transMg = t(mgKey);
+                targetName = transMg !== mgKey ? transMg : muscleGroup;
+              }
+
+              // 2. Wrap in Pattern (e.g., "Neck Relief")
+              const patternKey = `title${activityType.charAt(0).toUpperCase()}${activityType.slice(1)}` as any;
+              const pattern = t(patternKey);
+              if (pattern && pattern.includes('{{muscle}}')) {
+                return pattern.replace('{{muscle}}', targetName);
+              }
+
+              return targetName || t('relief');
+            })();
 
             return (
               <TouchableOpacity
                 key={item.id}
-                style={[styles.card, { backgroundColor: colors.cardBackground, borderLeftColor: colors.accent }]}
+                style={[styles.card, { backgroundColor: colors.cardBackground, borderLeftColor: accentColor }]}
                 onPress={() => handleQuickFix(item)}
               >
-                <View style={[styles.cardIcon, { backgroundColor: isDark ? 'rgba(249, 115, 22, 0.2)' : 'rgba(249, 115, 22, 0.1)' }]}>
-                  <Ionicons name={iconName} size={24} color={colors.accent} />
+                <View style={[styles.cardIcon, { backgroundColor: isDark ? `${accentColor}33` : `${accentColor}1A` }]}>
+                  <Ionicons name={config.icon} size={24} color={accentColor} />
                 </View>
-                <View>
+                <View style={{ flex: 1, paddingRight: 8 }}>
                   <Text style={[styles.cardTitle, { color: colors.text }]} numberOfLines={1}>
-                    {(() => {
-                      const muscleKey = `mg${item.muscleGroup.replace(/\s/g, '')}` as any;
-                      const translatedMuscle = t(muscleKey) !== muscleKey ? t(muscleKey) : item.muscleGroup;
-                      return `${translatedMuscle} ${t('relief')}`;
-                    })()}
+                    {cardTitle}
                   </Text>
-                  <Text style={[styles.cardSubtitle, { color: colors.textSecondary }]}>{timeStr}</Text>
+                  <Text style={[styles.cardSubtitle, { color: colors.textSecondary }]}>
+                    {item.id.startsWith('static')
+                      ? t(`short${activityType.charAt(0).toUpperCase()}${activityType.slice(1)}` as any)
+                      : timeStr
+                    }
+                  </Text>
                 </View>
                 <View style={styles.cardArrow}>
-                  <Ionicons name="chevron-forward" size={20} color={colors.accent} />
+                  <Ionicons name="chevron-forward" size={20} color={accentColor} />
                 </View>
               </TouchableOpacity>
             );
