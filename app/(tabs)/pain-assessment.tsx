@@ -9,73 +9,73 @@ import { SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity
 
 // --- Configuration for Questions ---
 
-const DURATION_OPTIONS = [
-    { id: 'today', label: 'Today' },
-    { id: 'this_week', label: 'This Week' },
-    { id: 'this_month', label: 'This Month' },
-    { id: 'longer', label: 'More than a month' },
-];
-
-const WARMUP_GOAL_OPTIONS = [
-    { id: 'workout', label: 'Workout' },
-    { id: 'sports', label: 'Sports' },
-    { id: 'daily', label: 'Daily Activity' },
-    { id: 'other', label: 'Other' },
-];
-
-const WARMUP_FEEL_OPTIONS = [
-    { id: 'cold', label: 'Cold' },
-    { id: 'stiff', label: 'Stiff' },
-    { id: 'normal', label: 'Normal' },
-    { id: 'warm', label: 'Already Warm' },
-];
-
-const YOGA_MOBILITY_OPTIONS = [
-    { id: 'yes', label: 'Yes, fully' },
-    { id: 'limited', label: 'Limited range' },
-    { id: 'no', label: 'No, painful' },
-];
-
-const STRENGTH_EXP_OPTIONS = [
-    { id: 'beginner', label: 'Beginner' },
-    { id: 'intermediate', label: 'Intermediate' },
-    { id: 'advanced', label: 'Advanced' },
-];
-
-const POSTURE_DURATION_OPTIONS = [
-    { id: 'short', label: '< 1 Hour' },
-    { id: 'medium', label: '1 - 4 Hours' },
-    { id: 'long', label: '4+ Hours' },
-    { id: 'all_day', label: 'All Day' },
-];
-
-// Map each muscle zone → specific sub-location options shown to the user
-const PAIN_LOCATION_MAP: Record<string, { id: string; label: string }[]> = {
-    hands: [{ id: 'fingers', label: 'Fingers' }, { id: 'thumb', label: 'Thumb' }, { id: 'wrist', label: 'Wrist' }, { id: 'palm', label: 'Palm' }, { id: 'pinky', label: 'Pinky' }, { id: 'ring_finger', label: 'Ring Finger' }],
-    forearms: [{ id: 'inner_forearm', label: 'Inner Forearm' }, { id: 'outer_forearm', label: 'Outer Forearm' }, { id: 'elbow', label: 'Elbow' }, { id: 'wrist', label: 'Wrist' }],
-    arms: [{ id: 'bicep', label: 'Bicep' }, { id: 'tricep', label: 'Tricep' }, { id: 'shoulder', label: 'Shoulder' }, { id: 'elbow', label: 'Elbow' }],
-    traps: [{ id: 'left_shoulder', label: 'Left Shoulder' }, { id: 'right_shoulder', label: 'Right Shoulder' }, { id: 'upper_traps', label: 'Upper Traps' }, { id: 'base_neck', label: 'Base of Neck' }],
-    neck: [{ id: 'left_side', label: 'Left Side' }, { id: 'right_side', label: 'Right Side' }, { id: 'back_neck', label: 'Back of Neck' }, { id: 'front_neck', label: 'Front of Neck' }],
-    head: [{ id: 'temples', label: 'Temples' }, { id: 'forehead', label: 'Forehead' }, { id: 'back_head', label: 'Back of Head' }, { id: 'jaw', label: 'Jaw' }],
-    chest: [{ id: 'left_chest', label: 'Left Chest' }, { id: 'right_chest', label: 'Right Chest' }, { id: 'sternum', label: 'Sternum' }, { id: 'collarbone', label: 'Collarbone' }],
-    upper_back: [{ id: 'left_blade', label: 'Left Shoulder Blade' }, { id: 'right_blade', label: 'Right Shoulder Blade' }, { id: 'between_blades', label: 'Between Blades' }, { id: 'mid_spine', label: 'Mid Spine' }],
-    lower_back: [{ id: 'left_lower', label: 'Left Side' }, { id: 'right_lower', label: 'Right Side' }, { id: 'tailbone', label: 'Tailbone' }, { id: 'sacrum', label: 'Sacrum' }],
-    abdomen: [{ id: 'upper_abs', label: 'Upper Abdomen' }, { id: 'lower_abs', label: 'Lower Abdomen' }, { id: 'left_side', label: 'Left Side' }, { id: 'right_side', label: 'Right Side' }],
-    hips: [{ id: 'left_hip', label: 'Left Hip' }, { id: 'right_hip', label: 'Right Hip' }, { id: 'hip_flexor', label: 'Hip Flexor' }, { id: 'groin', label: 'Groin' }],
-    glutes: [{ id: 'left_glute', label: 'Left Glute' }, { id: 'right_glute', label: 'Right Glute' }, { id: 'tailbone', label: 'Tailbone' }, { id: 'piriformis', label: 'Deep / Piriformis' }],
-    thighs: [{ id: 'front_thigh', label: 'Front (Quad)' }, { id: 'back_thigh', label: 'Back (Hamstring)' }, { id: 'inner_thigh', label: 'Inner Thigh' }, { id: 'outer_thigh', label: 'Outer Thigh' }],
-    knees: [{ id: 'kneecap', label: 'Kneecap' }, { id: 'inner_knee', label: 'Inner Knee' }, { id: 'outer_knee', label: 'Outer Knee' }, { id: 'behind_knee', label: 'Behind Knee' }],
-    calves: [{ id: 'upper_calf', label: 'Upper Calf' }, { id: 'lower_calf', label: 'Lower Calf' }, { id: 'achilles', label: 'Achilles' }, { id: 'shin', label: 'Shin' }],
-    ankles: [{ id: 'inner_ankle', label: 'Inner Ankle' }, { id: 'outer_ankle', label: 'Outer Ankle' }, { id: 'front_ankle', label: 'Front of Ankle' }, { id: 'achilles', label: 'Achilles' }],
-    feet: [{ id: 'heel', label: 'Heel' }, { id: 'arch', label: 'Arch' }, { id: 'ball_foot', label: 'Ball of Foot' }, { id: 'toes', label: 'Toes' }],
-};
-
 export default function AssessmentScreen() {
     const router = useRouter();
     const params = useLocalSearchParams();
     const { language, theme } = usePreferences();
     const t = (key: Parameters<typeof getTranslation>[1]) => getTranslation(language, key);
     const colors = Colors[theme];
+
+    // --- Translated Options ---
+    const DURATION_OPTIONS = [
+        { id: 'today', label: t('optToday') },
+        { id: 'this_week', label: t('optThisWeek') },
+        { id: 'this_month', label: t('optThisMonth') },
+        { id: 'longer', label: t('optLonger') },
+    ];
+
+    const WARMUP_GOAL_OPTIONS = [
+        { id: 'workout', label: t('optWorkout') },
+        { id: 'sports', label: t('optSports') },
+        { id: 'daily', label: t('optDaily') },
+        { id: 'other', label: t('optOther') },
+    ];
+
+    const WARMUP_FEEL_OPTIONS = [
+        { id: 'cold', label: t('optCold') },
+        { id: 'stiff', label: t('optStiff') },
+        { id: 'normal', label: t('optNormal') },
+        { id: 'warm', label: t('optAlreadyWarm') },
+    ];
+
+    const YOGA_MOBILITY_OPTIONS = [
+        { id: 'yes', label: t('optYesFully') },
+        { id: 'limited', label: t('optLimitedRange') },
+        { id: 'no', label: t('optNoPainful') },
+    ];
+
+    const STRENGTH_EXP_OPTIONS = [
+        { id: 'beginner', label: t('optBeginner') },
+        { id: 'intermediate', label: t('optIntermediate') },
+        { id: 'advanced', label: t('optAdvanced') },
+    ];
+
+    const POSTURE_DURATION_OPTIONS = [
+        { id: 'short', label: t('optLess1Hr') },
+        { id: 'medium', label: t('opt1to4Hr') },
+        { id: 'long', label: t('opt4PlusHr') },
+        { id: 'all_day', label: t('optAllDay') },
+    ];
+
+    const PAIN_LOCATION_MAP: Record<string, { id: string; label: string }[]> = {
+        hands: [{ id: 'fingers', label: t('locFingers') }, { id: 'thumb', label: t('locThumb') }, { id: 'wrist', label: t('locWrist') }, { id: 'palm', label: t('locPalm') }, { id: 'pinky', label: t('locPinky') }, { id: 'ring_finger', label: t('locRingFinger') }],
+        forearms: [{ id: 'inner_forearm', label: t('locInnerForearm') }, { id: 'outer_forearm', label: t('locOuterForearm') }, { id: 'elbow', label: t('locElbow') }, { id: 'wrist', label: t('locWrist') }],
+        arms: [{ id: 'bicep', label: t('locBicep') }, { id: 'tricep', label: t('locTricep') }, { id: 'shoulder', label: t('locShoulder') }, { id: 'elbow', label: t('locElbow') }],
+        traps: [{ id: 'left_shoulder', label: t('locLeftShoulder') }, { id: 'right_shoulder', label: t('locRightShoulder') }, { id: 'upper_traps', label: t('locUpperTraps') }, { id: 'base_neck', label: t('locBaseNeck') }],
+        neck: [{ id: 'left_side', label: t('locLeftSide') }, { id: 'right_side', label: t('locRightSide') }, { id: 'back_neck', label: t('locBackNeck') }, { id: 'front_neck', label: t('locFrontNeck') }],
+        head: [{ id: 'temples', label: t('locTemples') }, { id: 'forehead', label: t('locForehead') }, { id: 'back_head', label: t('locBackHead') }, { id: 'jaw', label: t('locJaw') }],
+        chest: [{ id: 'left_chest', label: t('locLeftChest') }, { id: 'right_chest', label: t('locRightChest') }, { id: 'sternum', label: t('locSternum') }, { id: 'collarbone', label: t('locCollarbone') }],
+        upper_back: [{ id: 'left_blade', label: t('locLeftBlade') }, { id: 'right_blade', label: t('locRightBlade') }, { id: 'between_blades', label: t('locBetweenBlades') }, { id: 'mid_spine', label: t('locMidSpine') }],
+        lower_back: [{ id: 'left_lower', label: t('locLeftSide') }, { id: 'right_lower', label: t('locRightSide') }, { id: 'tailbone', label: t('locTailbone') }, { id: 'sacrum', label: t('locSacrum') }],
+        abdomen: [{ id: 'upper_abs', label: t('locUpperAbs') }, { id: 'lower_abs', label: t('locLowerAbs') }, { id: 'left_side', label: t('locLeftSide') }, { id: 'right_side', label: t('locRightSide') }],
+        hips: [{ id: 'left_hip', label: t('locLeftHip') }, { id: 'right_hip', label: t('locRightHip') }, { id: 'hip_flexor', label: t('locHipFlexor') }, { id: 'groin', label: t('locGroin') }],
+        glutes: [{ id: 'left_glute', label: t('locLeftGlute') }, { id: 'right_glute', label: t('locRightGlute') }, { id: 'tailbone', label: t('locTailbone') }, { id: 'piriformis', label: t('locPiriformis') }],
+        thighs: [{ id: 'front_thigh', label: t('locFrontThigh') }, { id: 'back_thigh', label: t('locBackThigh') }, { id: 'inner_thigh', label: t('locInnerThigh') }, { id: 'outer_thigh', label: t('locOuterThigh') }],
+        knees: [{ id: 'kneecap', label: t('locKneecap') }, { id: 'inner_knee', label: t('locInnerKnee') }, { id: 'outer_knee', label: t('locOuterKnee') }, { id: 'behind_knee', label: t('locBehindKnee') }],
+        calves: [{ id: 'upper_calf', label: t('locUpperCalf') }, { id: 'lower_calf', label: t('locLowerCalf') }, { id: 'achilles', label: t('locAchilles') }, { id: 'shin', label: t('locShin') }],
+        ankles: [{ id: 'inner_ankle', label: t('locInnerAnkle') }, { id: 'outer_ankle', label: t('locOuterAnkle') }, { id: 'front_ankle', label: t('locFrontAnkle') }, { id: 'achilles', label: t('locAchilles') }],
+        feet: [{ id: 'heel', label: t('locHeel') }, { id: 'arch', label: t('locArch') }, { id: 'ball_foot', label: t('locBallFoot') }, { id: 'toes', label: t('locToes') }],
+    };
 
     // Form state (Generic)
     const [q1Answer, setQ1Answer] = useState<string | null>(null); // e.g., Duration / Goal
@@ -98,28 +98,28 @@ export default function AssessmentScreen() {
     const getInlineHint = (): string | null => {
         if (activityType === 'relief') {
             if (sliderValue >= 8) {
-                return '⚠️ At this level, prioritize rest. We\'ll recommend only gentle exercises and suggest seeing a doctor if pain persists.';
+                return t('hintHighPain');
             }
             if (sliderValue >= 5) {
-                return 'Moderate pain — we\'ll keep recommendations low-impact to avoid aggravating this area.';
+                return t('hintModeratePain');
             }
         }
         if (activityType === 'yoga' && q1Answer === 'no') {
-            return '⚠️ Painful joint movement detected — we\'ll suggest restorative poses only. Avoid active stretching.';
+            return t('hintPainfulJoint');
         }
         if (activityType === 'warmup' && (q2Answer === 'cold' || q2Answer === 'stiff')) {
-            return '💡 Extra warm-up steps recommended — we\'ll ease you in before any high-intensity movements.';
+            return t('hintColdStiff');
         }
         if (activityType === 'strength' && q1Answer) {
             const labels: Record<string, string> = {
-                beginner: '💪 Beginner plan — we\'ll focus on form and foundational movements.',
-                intermediate: '💪 Intermediate plan — progressive exercises to build on your base.',
-                advanced: '🔥 Advanced plan — full program unlocked.',
+                beginner: t('hintBeginner'),
+                intermediate: t('hintIntermediate'),
+                advanced: t('hintAdvanced'),
             };
             return labels[q1Answer] ?? null;
         }
         if (activityType === 'posture' && (q1Answer === 'long' || q1Answer === 'all_day')) {
-            return '⏰ Extended sitting detected — start with gentle decompression. Aim for movement breaks every 45 min.';
+            return t('hintLongSitting');
         }
         return null;
     };
@@ -130,23 +130,23 @@ export default function AssessmentScreen() {
     const getValidationError = (): string | null => {
         switch (activityType) {
             case 'warmup':
-                if (!q1Answer) return 'Please select what you are warming up for.';
-                if (!q2Answer) return 'Please select how this area feels.';
+                if (!q1Answer) return t('validationWarmup1');
+                if (!q2Answer) return t('validationWarmup2');
                 return null;
             case 'yoga':
-                if (!q1Answer) return 'Please select your current joint mobility.';
+                if (!q1Answer) return t('validationYoga');
                 return null;
             case 'strength':
-                if (!q1Answer) return 'Please select your experience level.';
+                if (!q1Answer) return t('validationStrength');
                 return null;
             case 'posture':
-                if (!q1Answer) return 'Please select how long you were in a fixed position.';
+                if (!q1Answer) return t('validationPosture');
                 return null;
             case 'relief':
             default: {
-                if (!q1Answer) return 'Please select how long ago this occurred.';
+                if (!q1Answer) return t('validationRelief1');
                 const locationOptions = PAIN_LOCATION_MAP[muscleId as string] ?? [];
-                if (locationOptions.length > 0 && !painLocation) return 'Please select where exactly it hurts.';
+                if (locationOptions.length > 0 && !painLocation) return t('validationRelief2');
                 return null;
             }
         }
@@ -266,7 +266,7 @@ export default function AssessmentScreen() {
                         <View style={[styles.questionCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
                             <View style={styles.questionHeader}>
                                 <Ionicons name="flame-outline" size={24} color={colors.accent} />
-                                <Text style={[styles.questionTitle, { color: colors.text }]}>What are you warming up for?</Text>
+                                <Text style={[styles.questionTitle, { color: colors.text }]}>{t('warmupQuestion1')}</Text>
                             </View>
                             <View style={styles.optionsContainer}>
                                 {WARMUP_GOAL_OPTIONS.map(opt => renderOption(opt.id, opt.label, q1Answer, setQ1Answer))}
@@ -276,7 +276,7 @@ export default function AssessmentScreen() {
                         <View style={[styles.questionCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
                             <View style={styles.questionHeader}>
                                 <Ionicons name="thermometer-outline" size={24} color={colors.accent} />
-                                <Text style={[styles.questionTitle, { color: colors.text }]}>How does this area feel?</Text>
+                                <Text style={[styles.questionTitle, { color: colors.text }]}>{t('warmupQuestion2')}</Text>
                             </View>
                             <View style={styles.optionsContainer}>
                                 {WARMUP_FEEL_OPTIONS.map(opt => renderOption(opt.id, opt.label, q2Answer, setQ2Answer))}
@@ -295,12 +295,12 @@ export default function AssessmentScreen() {
             case 'yoga':
                 return (
                     <>
-                        {renderSlider('Tension Assessment', 'Rate current tension', t('mild'), t('severe'))}
+                        {renderSlider(t('tensionAssessment'), t('rateTension'), t('mild'), t('severe'))}
 
                         <View style={[styles.questionCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
                             <View style={styles.questionHeader}>
                                 <Ionicons name="body-outline" size={24} color={colors.accent} />
-                                <Text style={[styles.questionTitle, { color: colors.text }]}>Can you move joints in this area?</Text>
+                                <Text style={[styles.questionTitle, { color: colors.text }]}>{t('yogaQuestion1')}</Text>
                             </View>
                             <View style={styles.optionsContainer}>
                                 {YOGA_MOBILITY_OPTIONS.map(opt => renderOption(opt.id, opt.label, q1Answer, setQ1Answer))}
@@ -321,7 +321,7 @@ export default function AssessmentScreen() {
                     <View style={[styles.questionCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
                         <View style={styles.questionHeader}>
                             <Ionicons name="barbell-outline" size={24} color={colors.accent} />
-                            <Text style={[styles.questionTitle, { color: colors.text }]}>Experience level with this muscle?</Text>
+                            <Text style={[styles.questionTitle, { color: colors.text }]}>{t('strengthQuestion1')}</Text>
                         </View>
                         <View style={styles.optionsContainer}>
                             {STRENGTH_EXP_OPTIONS.map(opt => renderOption(opt.id, opt.label, q1Answer, setQ1Answer))}
@@ -341,7 +341,7 @@ export default function AssessmentScreen() {
                     <View style={[styles.questionCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
                         <View style={styles.questionHeader}>
                             <Ionicons name="time-outline" size={24} color={colors.accent} />
-                            <Text style={[styles.questionTitle, { color: colors.text }]}>How long were you in a fixed position?</Text>
+                            <Text style={[styles.questionTitle, { color: colors.text }]}>{t('postureQuestion1')}</Text>
                         </View>
                         <View style={styles.optionsContainer}>
                             {POSTURE_DURATION_OPTIONS.map(opt => renderOption(opt.id, opt.label, q1Answer, setQ1Answer))}
@@ -364,7 +364,7 @@ export default function AssessmentScreen() {
                         <View style={[styles.questionCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
                             <View style={styles.questionHeader}>
                                 <Ionicons name="time-outline" size={24} color={colors.accent} />
-                                <Text style={[styles.questionTitle, { color: colors.text }]}>How long ago did this occur?</Text>
+                                <Text style={[styles.questionTitle, { color: colors.text }]}>{t('reliefQuestion1')}</Text>
                             </View>
                             <View style={styles.optionsContainer}>
                                 {DURATION_OPTIONS.map(opt => renderOption(opt.id, opt.label, q1Answer, setQ1Answer))}
@@ -375,7 +375,7 @@ export default function AssessmentScreen() {
                             <View style={[styles.questionCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
                                 <View style={styles.questionHeader}>
                                     <Ionicons name="location-outline" size={24} color={colors.accent} />
-                                    <Text style={[styles.questionTitle, { color: colors.text }]}>Where exactly does it hurt?</Text>
+                                    <Text style={[styles.questionTitle, { color: colors.text }]}>{t('reliefQuestion2')}</Text>
                                 </View>
                                 <View style={styles.optionsContainer}>
                                     {(PAIN_LOCATION_MAP[muscleId as string] ?? []).map((opt: { id: string; label: string }) => renderOption(opt.id, opt.label, painLocation, setPainLocation))}
@@ -386,11 +386,11 @@ export default function AssessmentScreen() {
                         <View style={[styles.questionCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
                             <View style={styles.questionHeader}>
                                 <Ionicons name="help-circle-outline" size={24} color={colors.accent} />
-                                <Text style={[styles.questionTitle, { color: colors.text }]}>Do you know what caused this?</Text>
+                                <Text style={[styles.questionTitle, { color: colors.text }]}>{t('reliefQuestion3')}</Text>
                             </View>
                             <TextInput
                                 style={[styles.textInput, { backgroundColor: colors.inputBackground, color: colors.text, borderColor: colors.cardBorder }]}
-                                placeholder="e.g., Slept wrong, lifted heavy object..."
+                                placeholder={t('placeholderCause')}
                                 placeholderTextColor={colors.textSecondary}
                                 value={textInput}
                                 onChangeText={setTextInput}
@@ -415,7 +415,7 @@ export default function AssessmentScreen() {
                         <Ionicons name="arrow-back" size={24} color={colors.text} />
                     </TouchableOpacity>
                     <Text style={[styles.headerTitle, { color: colors.text }]}>
-                        {activityType === 'relief' ? 'Pain Assessment' : 'Activity Check-in'}
+                        {activityType === 'relief' ? t('painAssessment') : t('assessmentCheckin')}
                     </Text>
                     <View style={{ width: 40 }} />
                 </View>
@@ -437,7 +437,7 @@ export default function AssessmentScreen() {
                     ]}
                     onPress={handleContinue}
                 >
-                    <Text style={styles.continueButtonText}>Continue</Text>
+                    <Text style={styles.continueButtonText}>{t('continueButton')}</Text>
                     <Ionicons name="arrow-forward" size={20} color="#000" />
                 </TouchableOpacity>
             </View>

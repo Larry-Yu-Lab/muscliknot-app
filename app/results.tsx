@@ -20,9 +20,9 @@ export default function ResultsScreen() {
         return (
             <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
                 <View style={styles.errorContainer}>
-                    <Text style={[styles.errorText, { color: colors.text }]}>No exercise data found.</Text>
+                    <Text style={[styles.errorText, { color: colors.text }]}>{t('noExerciseData')}</Text>
                     <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-                        <Text style={styles.backButtonText}>Go Back</Text>
+                        <Text style={styles.backButtonText}>{t('goBack')}</Text>
                     </TouchableOpacity>
                 </View>
             </SafeAreaView>
@@ -43,7 +43,7 @@ export default function ResultsScreen() {
                 {/* Title Section */}
                 <View style={styles.titleSection}>
                     <Text style={[styles.exerciseTitle, { color: colors.accent }]}>
-                        {exercise.name || 'Muscle Relief'}
+                        {exercise.name || t('tensionAssessment')}
                     </Text>
                     <View style={[styles.sizeBadge, { backgroundColor: colors.accent + '20' }]}>
                         <Text style={[styles.sizeBadgeText, { color: colors.accent }]}>
@@ -56,10 +56,10 @@ export default function ResultsScreen() {
                 <View style={[styles.card, { backgroundColor: colors.cardBackground, borderLeftColor: colors.accent }]}>
                     <View style={styles.sectionHeader}>
                         <Ionicons name="help-circle-outline" size={22} color={colors.accent} />
-                        <Text style={[styles.sectionTitle, { color: colors.text }]}>Why this works</Text>
+                        <Text style={[styles.sectionTitle, { color: colors.text }]}>{t('whyThisWorks')}</Text>
                     </View>
                     <Text style={[styles.cardText, { color: colors.textSecondary }]}>
-                        {exercise.why || 'This exercise targets the specific muscle knots identified in your scan.'}
+                        {exercise.why || t('fallbackWhy')}
                     </Text>
                 </View>
 
@@ -67,10 +67,10 @@ export default function ResultsScreen() {
                 <View style={[styles.card, { backgroundColor: colors.cardBackground, borderLeftColor: colors.accent }]}>
                     <View style={styles.sectionHeader}>
                         <Ionicons name="repeat-outline" size={22} color={colors.accent} />
-                        <Text style={[styles.sectionTitle, { color: colors.text }]}>Process</Text>
+                        <Text style={[styles.sectionTitle, { color: colors.text }]}>{t('process')}</Text>
                     </View>
                     <Text style={[styles.cardText, { color: colors.textSecondary }]}>
-                        {exercise.process || 'Follow the steps below to release tension.'}
+                        {exercise.process || t('fallbackProcess')}
                     </Text>
                 </View>
 
@@ -78,10 +78,10 @@ export default function ResultsScreen() {
                 <View style={[styles.card, { backgroundColor: colors.cardBackground, borderLeftColor: colors.accent }]}>
                     <View style={styles.sectionHeader}>
                         <Ionicons name="list-outline" size={22} color={colors.accent} />
-                        <Text style={[styles.sectionTitle, { color: colors.text }]}>Instructions</Text>
+                        <Text style={[styles.sectionTitle, { color: colors.text }]}>{t('instructions')}</Text>
                     </View>
                     <Text style={[styles.cardText, { color: colors.textSecondary }]}>
-                        {exercise.instructions || 'No specific instructions provided.'}
+                        {exercise.instructions || t('fallbackInstructions')}
                     </Text>
                 </View>
 
@@ -89,7 +89,7 @@ export default function ResultsScreen() {
                     style={[styles.doneButton, { backgroundColor: colors.accent }]}
                     onPress={() => router.push('/(tabs)/history')}
                 >
-                    <Text style={styles.doneButtonText}>Finish Session</Text>
+                    <Text style={styles.doneButtonText}>{t('finishSession')}</Text>
                 </TouchableOpacity>
             </ScrollView>
         </SafeAreaView>

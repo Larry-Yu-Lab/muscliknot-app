@@ -3,10 +3,11 @@ import { Colors } from '@/constants/theme';
 import { usePreferences } from '@/context/PreferencesContext';
 import { useUser } from '@/context/UserContext';
 import { getTranslation } from '@/utils/i18n';
+import { getHistory, HistoryItem } from '@/utils/storage';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
-import { useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import { useFocusEffect, useRouter } from 'expo-router';
+import React, { useCallback, useEffect, useState } from 'react';
 import { SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { runOnJS, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
@@ -119,8 +120,17 @@ export default function HomeScreen() {
   const [containerHeight, setContainerHeight] = useState(1); // Default to avoid div by zero
   const [searchQuery, setSearchQuery] = useState('');
   const [searchError, setSearchError] = useState('');
+  const [recentPlans, setRecentPlans] = useState<HistoryItem[]>([]);
 
   const startCtx = useSharedValue({ x: 0, y: 0 });
+
+  useFocusEffect(
+    useCallback(() => {
+      getHistory().then(data => {
+        setRecentPlans(data.slice(0, 5));
+      });
+    }, [])
+  );
 
   const creationGesture = Gesture.Pan()
     .minDistance(0)
@@ -169,13 +179,6 @@ export default function HomeScreen() {
         y: normalizedY,
         width: activePoint.width,
         height: activePoint.height * scaleY
-      });
-
-      console.log('Selection Debug:', {
-        activePoint,
-        normalizedY,
-        scaleY,
-        identifiedMuscles: muscleIds
       });
 
       router.push({
@@ -301,6 +304,22 @@ export default function HomeScreen() {
       });
     } else {
       setSearchError('No body part found. Try: neck, shoulder, back, knee, foot, etc.');
+    }
+  };
+
+  const handleQuickFix = (item: HistoryItem) => {
+    // If it's a relief plan, we can go to results with the first exercise
+    // or we can go to activity-selection with the saved params if we had them.
+    // For now, let's navigate to results with the first exercise or the full assessment.
+    if (item.exercises && item.exercises.length > 0) {
+      router.push({
+        pathname: '/results',
+        params: {
+          exercise: JSON.stringify(item.exercises[0]),
+          muscleId: item.muscleGroup,
+          timestamp: item.date
+        }
+      });
     }
   };
   /* ZOOM STATE */
@@ -445,33 +464,47 @@ export default function HomeScreen() {
         </View>
 
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.cardsScroll}>
-          {/* Card 1 */}
-          <TouchableOpacity style={[styles.card, { backgroundColor: colors.cardBackground, borderLeftColor: colors.accent }]}>
-            <View style={[styles.cardIcon, { backgroundColor: isDark ? 'rgba(249, 115, 22, 0.2)' : 'rgba(249, 115, 22, 0.1)' }]}>
-              <Ionicons name="medkit-outline" size={24} color={colors.accent} />
-            </View>
-            <View>
-              <Text style={[styles.cardTitle, { color: colors.text }]}>{t('neckRelief')}</Text>
-              <Text style={[styles.cardSubtitle, { color: colors.textSecondary }]}>{t('yesterday')}</Text>
-            </View>
-            <View style={styles.cardArrow}>
-              <Ionicons name="chevron-forward" size={20} color={colors.accent} />
-            </View>
-          </TouchableOpacity>
+          {recentPlans.map((item) => {
+            const date = new Date(item.date);
+            const timeStr = date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
 
-          {/* Card 2 */}
-          <TouchableOpacity style={[styles.card, { backgroundColor: colors.cardBackground, borderLeftColor: colors.accent }]}>
-            <View style={[styles.cardIcon, { backgroundColor: isDark ? 'rgba(249, 115, 22, 0.2)' : 'rgba(249, 115, 22, 0.1)' }]}>
-              <Ionicons name="fitness-outline" size={24} color={colors.accent} />
-            </View>
-            <View>
-              <Text style={[styles.cardTitle, { color: colors.text }]}>{t('lowerBack')}</Text>
-              <Text style={[styles.cardSubtitle, { color: colors.textSecondary }]}>{t('daysAgo').replace('${days}', '2')}</Text>
-            </View>
-            <View style={styles.cardArrow}>
-              <Ionicons name="chevron-forward" size={20} color={colors.accent} />
-            </View>
-          </TouchableOpacity>
+            // Determine icon based on activity type
+            let iconName: any = 'medkit-outline';
+            if (item.assessment?.activityType === 'yoga') iconName = 'leaf-outline';
+            else if (item.assessment?.activityType === 'strength') iconName = 'fitness-outline';
+            else if (item.assessment?.activityType === 'posture') iconName = 'body-outline';
+            else if (item.assessment?.activityType === 'warmup') iconName = 'flame-outline';
+
+            return (
+              <TouchableOpacity
+                key={item.id}
+                style={[styles.card, { backgroundColor: colors.cardBackground, borderLeftColor: colors.accent }]}
+                onPress={() => handleQuickFix(item)}
+              >
+                <View style={[styles.cardIcon, { backgroundColor: isDark ? 'rgba(249, 115, 22, 0.2)' : 'rgba(249, 115, 22, 0.1)' }]}>
+                  <Ionicons name={iconName} size={24} color={colors.accent} />
+                </View>
+                <View>
+                  <Text style={[styles.cardTitle, { color: colors.text }]} numberOfLines={1}>
+                    {(() => {
+                      const muscleKey = `mg${item.muscleGroup.replace(/\s/g, '')}` as any;
+                      const translatedMuscle = t(muscleKey) !== muscleKey ? t(muscleKey) : item.muscleGroup;
+                      return `${translatedMuscle} ${t('relief')}`;
+                    })()}
+                  </Text>
+                  <Text style={[styles.cardSubtitle, { color: colors.textSecondary }]}>{timeStr}</Text>
+                </View>
+                <View style={styles.cardArrow}>
+                  <Ionicons name="chevron-forward" size={20} color={colors.accent} />
+                </View>
+              </TouchableOpacity>
+            );
+          })}
+          {recentPlans.length === 0 && (
+            <Text style={{ color: colors.textSecondary, marginLeft: 24, paddingVertical: 20 }}>
+              {t('noHistory')}
+            </Text>
+          )}
         </ScrollView>
 
       </ScrollView>

@@ -5,9 +5,15 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Collapsible } from '@/components/ui/collapsible';
 import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Fonts } from '@/constants/theme';
+import { Colors, Fonts } from '@/constants/theme';
+import { usePreferences } from '@/context/PreferencesContext';
+import { getTranslation } from '@/utils/i18n';
 
 export default function TabTwoScreen() {
+  const { language, theme } = usePreferences();
+  const t = (key: Parameters<typeof getTranslation>[1]) => getTranslation(language, key);
+  const colors = Colors[theme];
+
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
@@ -25,27 +31,27 @@ export default function TabTwoScreen() {
           style={{
             fontFamily: Fonts.rounded,
           }}>
-          Explore
+          {t('exploreTitle')}
         </ThemedText>
       </ThemedView>
 
-      <ThemedText>Welcome to the MuscliKnot exploration page.</ThemedText>
+      <ThemedText>{t('exploreWelcome')}</ThemedText>
 
-      <Collapsible title="App Information">
+      <Collapsible title={t('exploreAppInfoTitle')}>
         <ThemedText>
-          This app helps you track muscle tension points. Use the Home tab to pinpoint pain locations.
+          {t('exploreAppInfoDesc')}
         </ThemedText>
       </Collapsible>
 
-      <Collapsible title="Android and iOS support">
+      <Collapsible title={t('explorePlatformTitle')}>
         <ThemedText>
-          MuscliKnot is optimized for mobile tracking. You can view your front and back muscle profiles on both platforms.
+          {t('explorePlatformDesc')}
         </ThemedText>
       </Collapsible>
 
-      <Collapsible title="Light and dark mode">
+      <Collapsible title={t('exploreThemeTitle')}>
         <ThemedText>
-          We recommend using Dark Mode for the best visual experience when viewing muscle models.
+          {t('exploreThemeDesc')}
         </ThemedText>
       </Collapsible>
     </ParallaxScrollView>

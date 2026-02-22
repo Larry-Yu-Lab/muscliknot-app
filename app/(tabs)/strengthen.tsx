@@ -33,7 +33,7 @@ export default function StrengthenScreen() {
     }, [muscleId, size]);
 
     const handleComplete = () => {
-        Alert.alert("Strength Workout Complete", "Stronger every day!", [
+        Alert.alert(t('alertStrengthTitle'), t('alertStrengthMsg'), [
             { text: "OK", onPress: () => router.navigate('/(tabs)') }
         ]);
     };
@@ -45,19 +45,19 @@ export default function StrengthenScreen() {
                     <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
                         <Ionicons name="arrow-back" size={24} color={colors.text} />
                     </TouchableOpacity>
-                    <Text style={[styles.headerTitle, { color: colors.text }]}>Strengthen ({muscleId})</Text>
+                    <Text style={[styles.headerTitle, { color: colors.text }]}>{t('strengthenTitle')} ({muscleId})</Text>
                     <View style={styles.headerSpacer} />
                 </View>
 
                 {isLoading ? (
-                    <Text style={{ color: colors.text, textAlign: 'center', marginTop: 20 }}>Loading Strength Exercises...</Text>
+                    <Text style={{ color: colors.text, textAlign: 'center', marginTop: 20 }}>{t('loadingStrength')}</Text>
                 ) : exercises.length === 0 ? (
-                    <Text style={{ color: colors.textSecondary, textAlign: 'center', marginTop: 20 }}>No strength exercises found for this area.</Text>
+                    <Text style={{ color: colors.textSecondary, textAlign: 'center', marginTop: 20 }}>{t('noStrength')}</Text>
                 ) : (
                     exercises.map((ex, index) => (
                         <View key={index} style={[styles.card, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
                             <Text style={[styles.cardTitle, { color: colors.text }]}>{ex.solution_stretch || ex.common_name}</Text>
-                            <Text style={{ color: colors.textSecondary }}>{ex.instructions || "Follow the instructions to build strength."}</Text>
+                            <Text style={{ color: colors.textSecondary }}>{ex.instructions || t('fallbackStrength')}</Text>
                         </View>
                     ))
                 )}

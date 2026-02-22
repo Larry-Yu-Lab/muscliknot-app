@@ -33,7 +33,7 @@ export default function YogaScreen() {
     }, [muscleId, size]);
 
     const handleComplete = () => {
-        Alert.alert("Yoga Session Complete", "Namaste!", [
+        Alert.alert(t('alertYogaTitle'), t('alertYogaMsg'), [
             { text: "OK", onPress: () => router.navigate('/(tabs)') }
         ]);
     };
@@ -45,19 +45,19 @@ export default function YogaScreen() {
                     <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
                         <Ionicons name="arrow-back" size={24} color={colors.text} />
                     </TouchableOpacity>
-                    <Text style={[styles.headerTitle, { color: colors.text }]}>Yoga ({muscleId})</Text>
+                    <Text style={[styles.headerTitle, { color: colors.text }]}>{t('yogaTitle')} ({muscleId})</Text>
                     <View style={styles.headerSpacer} />
                 </View>
 
                 {isLoading ? (
-                    <Text style={{ color: colors.text, textAlign: 'center', marginTop: 20 }}>Loading Yoga Poses...</Text>
+                    <Text style={{ color: colors.text, textAlign: 'center', marginTop: 20 }}>{t('loadingYoga')}</Text>
                 ) : exercises.length === 0 ? (
-                    <Text style={{ color: colors.textSecondary, textAlign: 'center', marginTop: 20 }}>No yoga poses found for this area.</Text>
+                    <Text style={{ color: colors.textSecondary, textAlign: 'center', marginTop: 20 }}>{t('noYoga')}</Text>
                 ) : (
                     exercises.map((ex, index) => (
                         <View key={index} style={[styles.card, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
                             <Text style={[styles.cardTitle, { color: colors.text }]}>{ex.solution_stretch || ex.common_name}</Text>
-                            <Text style={{ color: colors.textSecondary }}>{ex.instructions || "Follow the instructions to perform the pose."}</Text>
+                            <Text style={{ color: colors.textSecondary }}>{ex.instructions || t('fallbackYoga')}</Text>
                         </View>
                     ))
                 )}

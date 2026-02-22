@@ -37,7 +37,7 @@ export default function WarmUpScreen() {
     }, [muscleId, size]);
 
     const handleComplete = () => {
-        Alert.alert("Warm Up Complete", "Great job getting ready!", [
+        Alert.alert(t('alertWarmUpTitle'), t('alertWarmUpMsg'), [
             { text: "OK", onPress: () => router.navigate('/(tabs)') }
         ]);
     };
@@ -50,19 +50,19 @@ export default function WarmUpScreen() {
                     <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
                         <Ionicons name="arrow-back" size={24} color={colors.text} />
                     </TouchableOpacity>
-                    <Text style={[styles.headerTitle, { color: colors.text }]}>Warm Up ({muscleId})</Text>
+                    <Text style={[styles.headerTitle, { color: colors.text }]}>{t('warmUpTitle')} ({muscleId})</Text>
                     <View style={styles.headerSpacer} />
                 </View>
 
                 {isLoading ? (
-                    <Text style={{ color: colors.text, textAlign: 'center', marginTop: 20 }}>Loading Warm Up Exercises...</Text>
+                    <Text style={{ color: colors.text, textAlign: 'center', marginTop: 20 }}>{t('loadingWarmUp')}</Text>
                 ) : exercises.length === 0 ? (
-                    <Text style={{ color: colors.textSecondary, textAlign: 'center', marginTop: 20 }}>No warm up exercises found for this area.</Text>
+                    <Text style={{ color: colors.textSecondary, textAlign: 'center', marginTop: 20 }}>{t('noWarmUp')}</Text>
                 ) : (
                     exercises.map((ex, index) => (
                         <View key={index} style={[styles.card, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
                             <Text style={[styles.cardTitle, { color: colors.text }]}>{ex.solution_stretch || ex.common_name}</Text>
-                            <Text style={{ color: colors.textSecondary }}>{ex.instructions || "Follow the video to warm up properly."}</Text>
+                            <Text style={{ color: colors.textSecondary }}>{ex.instructions || t('fallbackWarmUp')}</Text>
                         </View>
                     ))
                 )}
