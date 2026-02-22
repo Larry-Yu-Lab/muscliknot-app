@@ -126,20 +126,22 @@ export const handleSelection = async (
 
 /**
  * Fetch exercises by specific muscle ID
- * Uses a three-pass strategy for best results:
+ * Uses a four-pass strategy for best results:
+ *   Pass 0: muscle_id + exercise_type + area_of_pain (most specific — sub-location match)
  *   Pass 1: muscle_id array match + exercise_type filter
  *   Pass 2: common_name keyword search + exercise_type filter
  *   Pass 3: common_name keyword search, any exercise_type (fallback)
  *
  * @param difficultyFilter - Optional list of allowed difficulty_level values.
- *   Derived from the assessment engine (e.g. ['beginner'] for high pain).
- *   When omitted, no difficulty filtering is applied.
+ * @param painLocation     - Optional sub-location (e.g. 'tailbone', 'kneecap').
+ *   When provided, Pass 0 returns only exercises tagged to that exact area first.
  */
 export const fetchExercisesByMuscleAndSize = async (
     muscleId: string,
     size: string,
     activityType: string = 'relief',
-    difficultyFilter?: string[]
+    difficultyFilter?: string[],
+    painLocation?: string
 ): Promise<any[]> => {
     if (!supabase) {
         console.warn('Supabase client not initialized');
@@ -181,6 +183,28 @@ export const fetchExercisesByMuscleAndSize = async (
     const orConditions = keywords.map(k => `common_name.ilike.%${k}%`).join(',');
 
     try {
+        // PASS 0: Sub-location specific match (most targeted)
+        // Only runs when the user selected a specific pain sub-location (e.g. tailbone, kneecap)
+        if (painLocation) {
+            console.log(`[Pass 0] Searching by area_of_pain: ${painLocation}, muscle: ${muscleId}, type: ${activityType}`);
+            let pass0Query = supabase
+                .from('recovery_knowledge_base')
+                .select('*')
+                .eq('exercise_type', activityType)
+                .eq('area_of_pain', painLocation)
+                .contains('muscle_id', [muscleId]);
+            if (difficultyFilter && difficultyFilter.length > 0) {
+                pass0Query = pass0Query.in('difficulty_level', difficultyFilter);
+            }
+            const { data: pass0Data, error: pass0Error } = await pass0Query;
+
+            if (!pass0Error && pass0Data && pass0Data.length > 0) {
+                console.log(`[Pass 0] Found ${pass0Data.length} location-specific exercises for: ${painLocation}`);
+                return pass0Data;
+            }
+            console.log(`[Pass 0] No location-specific exercises found, falling through to broader search.`);
+        }
+
         // PASS 1: Try exact muscle_id array match + activity type
         console.log(`[Pass 1] Searching by muscle_id array: ${muscleId}, type: ${activityType}`);
         let pass1Query = supabase
@@ -197,6 +221,7 @@ export const fetchExercisesByMuscleAndSize = async (
             console.log(`[Pass 1] Found ${pass1Data.length} exercises by muscle_id`);
             return pass1Data;
         }
+
 
         // PASS 2: Keyword search on common_name + activity type
         console.log(`[Pass 2] Searching by common_name keywords, type: ${activityType}`);
