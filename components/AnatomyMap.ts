@@ -136,6 +136,16 @@ export const handleSelection = async (
  * @param painLocation     - Optional sub-location (e.g. 'tailbone', 'kneecap').
  *   When provided, Pass 0 returns only exercises tagged to that exact area first.
  */
+/** Remove duplicate exercises by their primary key. */
+const dedupeById = (exercises: any[]): any[] => {
+    const seen = new Set<string>();
+    return exercises.filter(ex => {
+        if (seen.has(ex.id)) return false;
+        seen.add(ex.id);
+        return true;
+    });
+};
+
 export const fetchExercisesByMuscleAndSize = async (
     muscleId: string,
     size: string,
@@ -199,8 +209,9 @@ export const fetchExercisesByMuscleAndSize = async (
             const { data: pass0Data, error: pass0Error } = await pass0Query;
 
             if (!pass0Error && pass0Data && pass0Data.length > 0) {
-                console.log(`[Pass 0] Found ${pass0Data.length} location-specific exercises for: ${painLocation}`);
-                return pass0Data;
+                const deduped = dedupeById(pass0Data);
+                console.log(`[Pass 0] Found ${deduped.length} location-specific exercises for: ${painLocation}`);
+                return deduped;
             }
             console.log(`[Pass 0] No location-specific exercises found, falling through to broader search.`);
         }
@@ -218,8 +229,9 @@ export const fetchExercisesByMuscleAndSize = async (
         const { data: pass1Data, error: pass1Error } = await pass1Query;
 
         if (!pass1Error && pass1Data && pass1Data.length > 0) {
-            console.log(`[Pass 1] Found ${pass1Data.length} exercises by muscle_id`);
-            return pass1Data;
+            const deduped = dedupeById(pass1Data);
+            console.log(`[Pass 1] Found ${deduped.length} exercises by muscle_id`);
+            return deduped;
         }
 
 
@@ -236,8 +248,9 @@ export const fetchExercisesByMuscleAndSize = async (
         const { data: pass2Data, error: pass2Error } = await pass2Query;
 
         if (!pass2Error && pass2Data && pass2Data.length > 0) {
-            console.log(`[Pass 2] Found ${pass2Data.length} exercises by keyword`);
-            return pass2Data;
+            const deduped = dedupeById(pass2Data);
+            console.log(`[Pass 2] Found ${deduped.length} exercises by keyword`);
+            return deduped;
         }
 
         // PASS 3: Any exercises for this muscle, any activity type (broadest fallback)
@@ -256,8 +269,9 @@ export const fetchExercisesByMuscleAndSize = async (
             return [];
         }
 
-        console.log(`[Pass 3] Found ${pass3Data?.length || 0} exercises`);
-        return pass3Data || [];
+        const deduped = dedupeById(pass3Data || []);
+        console.log(`[Pass 3] Found ${deduped.length} exercises`);
+        return deduped;
     } catch (err) {
         console.error('Unexpected error:', err);
         return [];
