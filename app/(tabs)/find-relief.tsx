@@ -199,6 +199,7 @@ export default function FindReliefScreen() {
     const [showMore, setShowMore] = useState(false);
 
     React.useEffect(() => {
+        setShowMore(false); // Reset "See More" toggle whenever parameters change
         const fetchExercises = async () => {
             setIsLoading(true);
             const data = await fetchExercisesByMuscleAndSize(
