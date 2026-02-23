@@ -62,11 +62,11 @@ export default function LoginScreen() {
         setLoginError('');
         if (email) {
             if (!validateEmail(email)) {
-                setEmailError('Please enter a valid email.');
+                setEmailError(t('emailInvalid'));
                 setEmailSuccess('');
             } else {
                 setEmailError('');
-                setEmailSuccess('Valid email format.');
+                setEmailSuccess(t('validEmail'));
             }
         } else {
             setEmailError('');
@@ -78,11 +78,11 @@ export default function LoginScreen() {
         setLoginError('');
         if (password) {
             if (password.length < 1) {
-                setPasswordError('Password is required.');
+                setPasswordError(t('passwordRequired'));
                 setPasswordSuccess('');
             } else {
                 setPasswordError('');
-                setPasswordSuccess('Password entered.');
+                setPasswordSuccess(t('passwordEntered'));
             }
         } else {
             setPasswordError('');
@@ -95,12 +95,12 @@ export default function LoginScreen() {
         let isValid = true;
 
         if (!validateEmail(email)) {
-            setEmailError('Please enter a valid email.');
+            setEmailError(t('emailInvalid'));
             isValid = false;
         }
 
         if (!password) {
-            setPasswordError('Password is required.');
+            setPasswordError(t('passwordRequired'));
             isValid = false;
         }
 
@@ -108,7 +108,7 @@ export default function LoginScreen() {
 
         console.log('Attempting to sign in with:', email);
         if (!supabase) {
-            Alert.alert('Configuration Error', 'Supabase client is not initialized.');
+            Alert.alert(t('configError'), 'Supabase client is not initialized.');
             return;
         }
 
@@ -123,7 +123,7 @@ export default function LoginScreen() {
                 if (error.message.includes('Invalid login credentials')) {
                     setLoginError(t('loginError'));
                 } else {
-                    Alert.alert('Login Failed', error.message);
+                    Alert.alert(t('loginFailed'), error.message);
                 }
             } else {
                 // Sync User Data
@@ -158,7 +158,7 @@ export default function LoginScreen() {
                 router.replace('/auth/login-welcome' as any);
             }
         } catch (e) {
-            Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+            Alert.alert(t('error') || 'Error', t('unexpectedError'));
         } finally {
             setLoading(false);
         }
@@ -220,7 +220,7 @@ export default function LoginScreen() {
                                 <Ionicons name="mail-outline" size={20} color="rgba(255,255,255,0.4)" style={styles.inputIcon} />
                                 <TextInput
                                     style={styles.textInput}
-                                    placeholder="vitality@muscliknot.com"
+                                    placeholder={t('emailPlaceholder')}
                                     placeholderTextColor={THEME.textDim}
                                     value={email}
                                     onChangeText={setEmail}
@@ -248,7 +248,7 @@ export default function LoginScreen() {
                                 <Ionicons name="lock-closed-outline" size={20} color="rgba(255,255,255,0.4)" style={styles.inputIcon} />
                                 <TextInput
                                     style={styles.textInput}
-                                    placeholder="••••••••"
+                                    placeholder={t('passwordPlaceholder')}
                                     placeholderTextColor={THEME.textDim}
                                     value={password}
                                     onChangeText={setPassword}

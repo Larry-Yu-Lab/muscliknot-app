@@ -53,7 +53,7 @@ export default function LoginWelcomeScreen() {
             const emailPrefix = session.user.email.split('@')[0];
             setUserName(emailPrefix.charAt(0).toUpperCase() + emailPrefix.slice(1));
         } else {
-            setUserName('there');
+            setUserName(t('there'));
         }
     }, [session]);
 

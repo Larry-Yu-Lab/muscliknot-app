@@ -28,7 +28,7 @@ function parseSteps(instructions: string): { number: string; label: string; cont
 
 // ─── Exercise Card ─────────────────────────────────────────────────────────
 
-function ExerciseCard({ ex, index, colors }: { ex: any; index: number; colors: any }) {
+function ExerciseCard({ ex, index, colors, language }: { ex: any; index: number; colors: any; language: any }) {
     const [expanded, setExpanded] = useState(index === 0); // First card expanded by default
     const isLocal = !!ex.title && !ex.solution_stretch;
     const title = ex.solution_stretch || ex.title || ex.common_name || 'Exercise';
@@ -67,7 +67,7 @@ function ExerciseCard({ ex, index, colors }: { ex: any; index: number; colors: a
                         <View style={cardStyles.section}>
                             <View style={cardStyles.sectionHeader}>
                                 <Ionicons name="bulb-outline" size={16} color={colors.accent} />
-                                <Text style={[cardStyles.sectionTitle, { color: colors.accent }]}>Why This Helps</Text>
+                                <Text style={[cardStyles.sectionTitle, { color: colors.accent }]}>{getTranslation(language, 'whyThisWorks')}</Text>
                             </View>
                             <Text style={cardStyles.bodyText}>{ex.why}</Text>
                         </View>
@@ -77,7 +77,7 @@ function ExerciseCard({ ex, index, colors }: { ex: any; index: number; colors: a
                         <View style={cardStyles.section}>
                             <View style={cardStyles.sectionHeader}>
                                 <Ionicons name="information-circle-outline" size={16} color={colors.accent} />
-                                <Text style={[cardStyles.sectionTitle, { color: colors.accent }]}>How To Do It</Text>
+                                <Text style={[cardStyles.sectionTitle, { color: colors.accent }]}>{getTranslation(language, 'instructions')}</Text>
                             </View>
                             <Text style={cardStyles.bodyText}>{ex.description}</Text>
                         </View>
@@ -85,7 +85,7 @@ function ExerciseCard({ ex, index, colors }: { ex: any; index: number; colors: a
 
                     {steps.length > 0 ? (
                         <View style={cardStyles.section}>
-                            <Text style={[cardStyles.sectionTitle, { color: colors.accent, marginBottom: 10 }]}>Instructions</Text>
+                            <Text style={[cardStyles.sectionTitle, { color: colors.accent, marginBottom: 10 }]}>{getTranslation(language, 'instructions')}</Text>
                             {steps.map((s, i) => (
                                 <View key={i} style={cardStyles.step}>
                                     <View style={[cardStyles.stepNum, { backgroundColor: colors.accent }]}>
@@ -100,7 +100,7 @@ function ExerciseCard({ ex, index, colors }: { ex: any; index: number; colors: a
                         </View>
                     ) : ex.instructions && steps.length === 0 ? (
                         <View style={cardStyles.section}>
-                            <Text style={[cardStyles.sectionTitle, { color: colors.accent, marginBottom: 6 }]}>Instructions</Text>
+                            <Text style={[cardStyles.sectionTitle, { color: colors.accent, marginBottom: 6 }]}>{getTranslation(language, 'instructions')}</Text>
                             <Text style={cardStyles.bodyText}>{ex.instructions}</Text>
                         </View>
                     ) : null}
@@ -196,6 +196,7 @@ export default function FindReliefScreen() {
 
     const [exercises, setExercises] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [showMore, setShowMore] = useState(false);
 
     React.useEffect(() => {
         const fetchExercises = async () => {
@@ -320,7 +321,7 @@ export default function FindReliefScreen() {
                     <View style={[styles.badge, { backgroundColor: colors.cardBackground, borderColor: recommendation.advisory ? recommendation.accentColor : colors.cardBorder }]}>
                         <Ionicons name="fitness-outline" size={18} color={recommendation.advisory ? recommendation.accentColor : colors.accent} />
                         <Text style={[styles.badgeText, { color: colors.text }]}>
-                            {isLoading ? '…' : `${exercises.length} Exercise${exercises.length !== 1 ? 's' : ''}`}
+                            {isLoading ? '…' : `${exercises.length} ${t(exercises.length === 1 ? 'shortRelief' : 'shortRelief')}`}
                         </Text>
                     </View>
                     <View style={[styles.badge, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
@@ -351,24 +352,43 @@ export default function FindReliefScreen() {
                 {/* Exercise list */}
                 <View style={styles.exerciseSection}>
                     <Text style={[styles.sectionTitle, { color: '#fff' }]}>
-                        {isLoading ? 'Loading exercises…' :
-                            activityType === 'warmup' ? 'Warm-up Exercises' :
-                                activityType === 'yoga' ? 'Yoga Poses' :
-                                    activityType === 'posture' ? 'Posture Corrections' :
-                                        activityType === 'strength' ? 'Strengthening Exercises' :
-                                            `${locationLabel ? locationLabel.charAt(0).toUpperCase() + locationLabel.slice(1) + ' ' : ''}Relief Exercises`}
+                        {isLoading ? (t('loadingRelief') || 'Loading...') :
+                            activityType === 'warmup' ? (t('warmUpTitle') || 'Warm-up Exercises') :
+                                activityType === 'yoga' ? (t('yogaTitle') || 'Yoga Poses') :
+                                    activityType === 'posture' ? (t('fixPostureTitle') || 'Posture Corrections') :
+                                        activityType === 'strength' ? (t('strengthenTitle') || 'Strengthening Exercises') :
+                                            `${locationLabel ? locationLabel.charAt(0).toUpperCase() + locationLabel.slice(1) + ' ' : ''}${t('relief')}`}
                     </Text>
 
                     {isLoading ? (
-                        <Text style={{ color: 'rgba(255,255,255,0.5)', textAlign: 'center', padding: 24 }}>Loading…</Text>
+                        <Text style={{ color: 'rgba(255,255,255,0.5)', textAlign: 'center', padding: 24 }}>{t('loadingRelief') || 'Loading…'}</Text>
                     ) : exercises.length === 0 ? (
                         <Text style={{ color: 'rgba(255,255,255,0.5)', textAlign: 'center', padding: 24 }}>
-                            No exercises found for this area. Try a different selection.
+                            {t('noRelief') || 'No exercises found for this area. Try a different selection.'}
                         </Text>
                     ) : (
-                        exercises.map((ex, i) => (
-                            <ExerciseCard key={ex.id ?? i} ex={ex} index={i} colors={colors} />
-                        ))
+                        <View>
+                            {/* Show only the first exercise initially */}
+                            <ExerciseCard ex={exercises[0]} index={0} colors={colors} language={language} />
+
+                            {/* Show more button if there are more exercises */}
+                            {exercises.length > 1 && !showMore && (
+                                <TouchableOpacity
+                                    style={[styles.moreButton, { borderColor: colors.accent }]}
+                                    onPress={() => setShowMore(true)}
+                                >
+                                    <Ionicons name="add-circle-outline" size={20} color={colors.accent} />
+                                    <Text style={[styles.moreButtonText, { color: colors.accent }]}>
+                                        {t('moreStretches')} ({exercises.length - 1} {t('similarStretches')})
+                                    </Text>
+                                </TouchableOpacity>
+                            )}
+
+                            {/* Remaining exercises */}
+                            {showMore && exercises.slice(1).map((ex, i) => (
+                                <ExerciseCard key={ex.id ?? i + 1} ex={ex} index={i + 1} colors={colors} language={language} />
+                            ))}
+                        </View>
                     )}
                 </View>
             </ScrollView>
@@ -429,4 +449,20 @@ const styles = StyleSheet.create({
         height: 48, borderRadius: 12, alignItems: 'center', justifyContent: 'center',
     },
     completeBtnText: { color: '#000', fontSize: 16, fontWeight: '900', letterSpacing: 1.5 },
+    moreButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 8,
+        paddingVertical: 12,
+        borderRadius: 12,
+        borderWidth: 1,
+        borderStyle: 'dashed',
+        marginTop: 4,
+        backgroundColor: 'rgba(255,255,255,0.02)',
+    },
+    moreButtonText: {
+        fontSize: 14,
+        fontWeight: '700',
+    },
 });
