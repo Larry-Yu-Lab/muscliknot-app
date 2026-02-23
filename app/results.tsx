@@ -35,7 +35,7 @@ export default function ResultsScreen() {
                 <TouchableOpacity onPress={() => router.back()} style={styles.closeButton}>
                     <Ionicons name="chevron-back" size={28} color={colors.text} />
                 </TouchableOpacity>
-                <Text style={[styles.headerTitle, { color: colors.text }]}>{t('results') || 'Relief Plan'}</Text>
+                <Text style={[styles.headerTitle, { color: colors.text }]}>{t('results')}</Text>
                 <View style={{ width: 40 }} />
             </View>
 
@@ -43,11 +43,16 @@ export default function ResultsScreen() {
                 {/* Title Section */}
                 <View style={styles.titleSection}>
                     <Text style={[styles.exerciseTitle, { color: colors.accent }]}>
-                        {exercise.name || t('tensionAssessment')}
+                        {(() => {
+                            if (!exercise.id) return exercise.name || t('tensionAssessment');
+                            const titleKey = `ex_${exercise.id}_title` as any;
+                            const trans = t(titleKey);
+                            return trans !== titleKey ? trans : (exercise.name || t('tensionAssessment'));
+                        })()}
                     </Text>
                     <View style={[styles.sizeBadge, { backgroundColor: colors.accent + '20' }]}>
                         <Text style={[styles.sizeBadgeText, { color: colors.accent }]}>
-                            {exercise.target_area_size?.toUpperCase()}
+                            {exercise.target_area_size ? (t(`size${exercise.target_area_size.charAt(0).toUpperCase()}${exercise.target_area_size.slice(1)}` as any) || exercise.target_area_size.toUpperCase()) : ''}
                         </Text>
                     </View>
                 </View>

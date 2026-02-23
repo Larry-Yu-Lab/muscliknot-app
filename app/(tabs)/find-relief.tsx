@@ -2,7 +2,7 @@ import { fetchExercisesByMuscleAndSize } from '@/components/AnatomyMap';
 import { Colors } from '@/constants/theme';
 import { usePreferences } from '@/context/PreferencesContext';
 import { getExercisesByActivityType } from '@/data/exercises';
-import { categoryLabel, getExerciseRecommendation, RecommendationResult } from '@/utils/assessmentEngine';
+import { categoryLabelKey, getExerciseRecommendation, RecommendationResult } from '@/utils/assessmentEngine';
 import { getTranslation } from '@/utils/i18n';
 import { AssessmentData, savePainSession, saveToHistory } from '@/utils/storage';
 import { Ionicons } from '@expo/vector-icons';
@@ -282,10 +282,10 @@ export default function FindReliefScreen() {
                 />
                 <View style={{ flex: 1 }}>
                     <Text style={[styles.advisoryTitle, { color: recommendation.accentColor }]}>
-                        {categoryLabel(recommendation.category)}
+                        {t(categoryLabelKey(recommendation.category) as any)}
                     </Text>
                     <Text style={[styles.advisoryText, { color: recommendation.accentColor }]}>
-                        {recommendation.advisory}
+                        {t(recommendation.advisory as any)}
                     </Text>
                 </View>
             </View>
@@ -321,7 +321,7 @@ export default function FindReliefScreen() {
                     <View style={[styles.badge, { backgroundColor: colors.cardBackground, borderColor: recommendation.advisory ? recommendation.accentColor : colors.cardBorder }]}>
                         <Ionicons name="fitness-outline" size={18} color={recommendation.advisory ? recommendation.accentColor : colors.accent} />
                         <Text style={[styles.badgeText, { color: colors.text }]}>
-                            {isLoading ? '…' : `${exercises.length} ${t(exercises.length === 1 ? 'shortRelief' : 'shortRelief')}`}
+                            {isLoading ? '…' : `${exercises.length} ${t(exercises.length === 1 ? 'exercisesSingle' : 'exercisesCount').replace('${count}', '')}`}
                         </Text>
                     </View>
                     <View style={[styles.badge, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
@@ -332,14 +332,20 @@ export default function FindReliefScreen() {
                         <View style={[styles.badge, { backgroundColor: `${recommendation.accentColor}18`, borderColor: recommendation.accentColor }]}>
                             <Ionicons name="shield-checkmark-outline" size={18} color={recommendation.accentColor} />
                             <Text style={[styles.badgeText, { color: recommendation.accentColor }]}>
-                                {categoryLabel(recommendation.category)}
+                                {t(categoryLabelKey(recommendation.category) as any)}
                             </Text>
                         </View>
                     )}
                     {locationLabel && (
                         <View style={[styles.badge, { backgroundColor: 'rgba(99,102,241,0.12)', borderColor: '#6366f1' }]}>
                             <Ionicons name="location-outline" size={18} color="#6366f1" />
-                            <Text style={[styles.badgeText, { color: '#6366f1' }]}>{locationLabel}</Text>
+                            <Text style={[styles.badgeText, { color: '#6366f1' }]}>
+                                {(() => {
+                                    const locKey = `loc${painLocation?.charAt(0).toUpperCase()}${painLocation?.slice(1).replace(/_/g, '')}` as any;
+                                    const trans = t(locKey);
+                                    return trans !== locKey ? trans : locationLabel;
+                                })()}
+                            </Text>
                         </View>
                     )}
                 </View>

@@ -50,7 +50,13 @@ export default function WarmUpScreen() {
                     <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
                         <Ionicons name="arrow-back" size={24} color={colors.text} />
                     </TouchableOpacity>
-                    <Text style={[styles.headerTitle, { color: colors.text }]}>{t('warmUpTitle')} ({muscleId})</Text>
+                    <Text style={[styles.headerTitle, { color: colors.text }]}>
+                        {t('warmUpTitle')} ({(() => {
+                            const locKey = `loc${muscleId.charAt(0).toUpperCase()}${muscleId.slice(1).replace(/_/g, '')}` as any;
+                            const trans = t(locKey);
+                            return trans !== locKey ? trans : muscleId;
+                        })()})
+                    </Text>
                     <View style={styles.headerSpacer} />
                 </View>
 

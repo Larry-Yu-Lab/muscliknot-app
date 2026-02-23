@@ -1,6 +1,6 @@
 import { Colors } from '@/constants/theme';
 import { usePreferences } from '@/context/PreferencesContext';
-import { painLevelColor } from '@/utils/assessmentEngine';
+import { categoryLabelKey, getExerciseRecommendation, painLevelColor } from '@/utils/assessmentEngine';
 import { getTranslation } from '@/utils/i18n';
 import { getHistory, HistoryItem } from '@/utils/storage';
 import { Ionicons } from '@expo/vector-icons';
@@ -9,29 +9,29 @@ import React, { useCallback, useState } from 'react';
 import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 // Human-readable labels for duration / q1 answers
-const DURATION_LABELS: Record<string, string> = {
-    today: 'Today',
-    this_week: 'This Week',
-    this_month: 'This Month',
-    longer: 'More than a month',
-    short: '< 1 Hour',
-    medium: '1–4 Hours',
-    long: '4+ Hours',
-    all_day: 'All Day',
+const DURATION_KEY_MAP: Record<string, string> = {
+    today: 'optToday',
+    this_week: 'optThisWeek',
+    this_month: 'optThisMonth',
+    longer: 'optLonger',
+    short: 'optLess1Hr',
+    medium: 'opt1to4Hr',
+    long: 'opt4PlusHr',
+    all_day: 'optAllDay',
 };
 
-const ACTIVITY_LABELS: Record<string, string> = {
-    relief: 'Pain Relief',
-    warmup: 'Warm-Up',
-    yoga: 'Yoga',
-    strength: 'Strength',
-    posture: 'Posture',
+const ACTIVITY_KEY_MAP: Record<string, string> = {
+    relief: 'shortRelief',
+    warmup: 'shortWarmup',
+    yoga: 'shortYoga',
+    strength: 'shortStrength',
+    posture: 'shortPosture',
 };
 
 export default function HistoryScreen() {
     const [history, setHistory] = useState<HistoryItem[]>([]);
     const { language, theme } = usePreferences();
-    const t = (key: Parameters<typeof getTranslation>[1]) => getTranslation(language, key);
+    const t = (key: Parameters<typeof getTranslation>[1], params?: Record<string, string>) => getTranslation(language, key, params);
     const colors = Colors[theme];
 
     useFocusEffect(
@@ -46,7 +46,9 @@ export default function HistoryScreen() {
     // Calculate most targeted muscle
     const muscleCounts: Record<string, number> = {};
     history.forEach(h => {
-        muscleCounts[h.muscleGroup] = (muscleCounts[h.muscleGroup] || 0) + 1;
+        const muscleKey = `mg${h.muscleGroup.charAt(0).toUpperCase()}${h.muscleGroup.slice(1).replace(/\s/g, '')}` as any;
+        const translatedMuscle = t(muscleKey) !== muscleKey ? t(muscleKey) : h.muscleGroup;
+        muscleCounts[translatedMuscle] = (muscleCounts[translatedMuscle] || 0) + 1;
     });
     const topTarget = Object.entries(muscleCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || '-';
 
@@ -92,7 +94,7 @@ export default function HistoryScreen() {
                     </View>
                     <View style={[styles.statItem, styles.statBorder, { borderRightColor: colors.cardBorder }]}>
                         <Text style={[styles.statLabel, { color: colors.textSecondary }]}>{t('streakUpper')}</Text>
-                        <Text style={[styles.statValue, { color: colors.accent }]}>{totalSessions > 0 ? '1d' : '0d'}</Text>
+                        <Text style={[styles.statValue, { color: colors.accent }]}>{totalSessions > 0 ? t('streakDays', { days: '1' }) : t('streakDays', { days: '0' })}</Text>
                     </View>
                     <View style={styles.statItem}>
                         <Text style={[styles.statLabel, { color: colors.textSecondary }]}>{t('targeted')}</Text>
@@ -125,8 +127,14 @@ export default function HistoryScreen() {
 
                     {history.map((item) => {
                         const a = item.assessment;
-                        const actLabel = a?.activityType ? (ACTIVITY_LABELS[a.activityType] ?? a.activityType) : null;
-                        const durationLabel = a?.duration ? (DURATION_LABELS[a.duration] ?? a.duration) : null;
+                        const actTranslation = a?.activityType ? t(ACTIVITY_KEY_MAP[a.activityType] as any) : null;
+                        const durationTranslation = a?.duration ? t(DURATION_KEY_MAP[a.duration] as any) : null;
+
+                        // Re-run recommendation to get localized category and advisory
+                        const rec = a ? getExerciseRecommendation(a) : null;
+                        const categoryTrans = rec?.category ? t(categoryLabelKey(rec.category) as any) : null;
+                        const advisoryTrans = rec?.advisory ? t(rec.advisory as any) : null;
+
                         return (
                             <View key={item.id} style={[styles.timelineItem]}>
                                 {/* Timeline dot */}
@@ -151,7 +159,7 @@ export default function HistoryScreen() {
                                                 {(() => {
                                                     const muscleKey = `mg${item.muscleGroup.replace(/\s/g, '')}` as any;
                                                     const translatedMuscle = t(muscleKey) !== muscleKey ? t(muscleKey) : item.muscleGroup;
-                                                    return `${translatedMuscle} ${t('relief')}`;
+                                                    return `${translatedMuscle} ${actTranslation || ''}`;
                                                 })()}
                                             </Text>
                                         </View>
@@ -163,49 +171,54 @@ export default function HistoryScreen() {
                                     {/* Exercise count */}
                                     <View style={styles.cardMeta}>
                                         <Ionicons name="fitness-outline" size={14} color="#a39587" />
-                                        <Text style={styles.metaText}>{t('exercisesCount').replace('${count}', item.exercises.length.toString())}</Text>
+                                        <Text style={styles.metaText}>{t('exercisesCount', { count: item.exercises.length.toString() })}</Text>
                                     </View>
 
                                     {/* Assessment details */}
                                     {a && (
                                         <View style={styles.assessmentDetails}>
-                                            {actLabel && (
+                                            {actTranslation && (
                                                 <View style={styles.assessmentChip}>
                                                     <Ionicons name="pulse-outline" size={12} color="#a39587" />
-                                                    <Text style={styles.assessmentChipText}>{actLabel}</Text>
+                                                    <Text style={styles.assessmentChipText}>{actTranslation}</Text>
                                                 </View>
                                             )}
                                             {a.painLevel !== undefined && a.activityType === 'relief' && (
                                                 <View style={[styles.assessmentChip, { borderColor: `${painLevelColor(a.painLevel)}40`, backgroundColor: `${painLevelColor(a.painLevel)}12` }]}>
-                                                    {/* Colored severity dot */}
                                                     <View style={[styles.painDot, { backgroundColor: painLevelColor(a.painLevel) }]} />
                                                     <Ionicons name="analytics-outline" size={12} color={painLevelColor(a.painLevel)} />
-                                                    <Text style={[styles.assessmentChipText, { color: painLevelColor(a.painLevel) }]}>Pain: {a.painLevel}/10</Text>
+                                                    <Text style={[styles.assessmentChipText, { color: painLevelColor(a.painLevel) }]}>{t('painLevelPrefix')}{a.painLevel}/10</Text>
                                                 </View>
                                             )}
                                             {a.location && (
                                                 <View style={styles.assessmentChip}>
                                                     <Ionicons name="location-outline" size={12} color="#a39587" />
-                                                    <Text style={styles.assessmentChipText}>{a.location.replace(/_/g, ' ')}</Text>
+                                                    <Text style={styles.assessmentChipText}>
+                                                        {(() => {
+                                                            const locKey = `loc${a.location.charAt(0).toUpperCase()}${a.location.slice(1).replace(/_/g, '')}` as any;
+                                                            const trans = t(locKey);
+                                                            return trans !== locKey ? trans : a.location.replace(/_/g, ' ');
+                                                        })()}
+                                                    </Text>
                                                 </View>
                                             )}
-                                            {durationLabel && (
+                                            {durationTranslation && (
                                                 <View style={styles.assessmentChip}>
                                                     <Ionicons name="time-outline" size={12} color="#a39587" />
-                                                    <Text style={styles.assessmentChipText}>{durationLabel}</Text>
+                                                    <Text style={styles.assessmentChipText}>{durationTranslation}</Text>
                                                 </View>
                                             )}
-                                            {a.recommendationCategory && (
+                                            {categoryTrans && (
                                                 <View style={styles.assessmentChip}>
                                                     <Ionicons name="shield-checkmark-outline" size={12} color="#a39587" />
-                                                    <Text style={styles.assessmentChipText}>{a.recommendationCategory} plan</Text>
+                                                    <Text style={styles.assessmentChipText}>{categoryTrans}</Text>
                                                 </View>
                                             )}
-                                            {a.cause && a.cause.trim().length > 0 && (
+                                            {a.cause && a.cause.trim().length > 0 && a.cause !== 'unknown' && (
                                                 <Text style={styles.causeText} numberOfLines={2}>"{a.cause}"</Text>
                                             )}
-                                            {a.recommendationAdvisory && (
-                                                <Text style={styles.advisoryText} numberOfLines={2}>{a.recommendationAdvisory}</Text>
+                                            {advisoryTrans && (
+                                                <Text style={styles.advisoryText} numberOfLines={2}>{advisoryTrans}</Text>
                                             )}
                                         </View>
                                     )}
@@ -222,8 +235,6 @@ export default function HistoryScreen() {
         </SafeAreaView>
     );
 }
-
-
 
 
 const styles = StyleSheet.create({

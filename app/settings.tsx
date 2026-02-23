@@ -58,7 +58,7 @@ export default function SettingsScreen() {
                 <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
                     <Ionicons name="chevron-back" size={24} color="#fff" />
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>SETTINGS</Text>
+                <Text style={styles.headerTitle}>{t('settings').toUpperCase()}</Text>
                 <View style={styles.backButton} />
             </View>
 
@@ -184,9 +184,13 @@ export default function SettingsScreen() {
                 </View>
 
                 {/* Logout */}
-                <TouchableOpacity style={styles.logoutButton} activeOpacity={0.7}>
+                <TouchableOpacity
+                    style={styles.logoutButton}
+                    activeOpacity={0.7}
+                    onPress={() => router.replace('/auth/login' as any)}
+                >
                     <MaterialIcons name="logout" size={20} color="#ef4444" />
-                    <Text style={styles.logoutText}>LOGOUT</Text>
+                    <Text style={styles.logoutText}>{t('logout').toUpperCase()}</Text>
                 </TouchableOpacity>
             </ScrollView>
         </SafeAreaView>

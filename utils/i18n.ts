@@ -155,11 +155,39 @@ export const translations = {
         titlePosture: '{{muscle}} Posture',
 
         // Activity Labels (Short)
-        shortRelief: 'Relief',
+        exercisesSingle: 'Exercise',
+        locNeck: 'Neck',
+        locShoulders: 'Shoulders',
         shortWarmup: 'Warm Up',
         shortYoga: 'Yoga',
         shortStrength: 'Strength',
         shortPosture: 'Posture',
+
+        // Assessment Engine Categories
+        catGentle: 'Gentle',
+        catModerate: 'Moderate',
+        catFull: 'Full',
+        catGentleProgram: 'Gentle Program',
+        catModerateProgram: 'Moderate Program',
+        catFullProgram: 'Full Program',
+
+        // Assessment Engine Advisories
+        advHighPain: '⚠️ High pain detected — rest is recommended. We\'ve selected gentle exercises only. If pain persists, please see a doctor.',
+        advModeratePain: 'Moderate pain — we\'ve limited recommendations to low-impact movements to avoid aggravating the area.',
+        advChronicPain: 'Chronic pain detected — consistency with low-load exercises is key. We\'ve adjusted your plan accordingly.',
+        advWarmupStiff: 'Your muscles are cold/stiff — we\'ve added extra prep steps. Ease in slowly before increasing intensity.',
+        advWarmupWarm: '🔥 You\'re already warm — your plan jumps straight to activation exercises.',
+        advYogaPain: '⚠️ Painful joint movement detected — only restorative / Yin yoga poses will be shown. Avoid active stretching.',
+        advYogaLimited: 'Limited mobility noted — we\'ve selected poses that work within your current range of motion.',
+        advStrengthBeginner: '💪 Beginner program — we\'ll focus on proper form and foundational movements.',
+        advStrengthIntermediate: '💪 Intermediate program — progressive exercises to build on your existing base.',
+        advPostureAllDay: '⏰ All-day sitting detected — we\'re starting with gentle decompression. Aim for a 5-min movement break every 45 min.',
+        advPostureLong: 'Extended sitting detected — gentle postural resets recommended before progressing.',
+        advPostureMedium: 'Moderate sitting time — we\'ve included postural stretches and activation exercises.',
+
+        // History
+        painLevelPrefix: 'Pain: ',
+        streakDays: '${days}d',
 
         // Library
         library: 'Library',
@@ -617,11 +645,39 @@ export const translations = {
         titlePosture: '{{muscle}}体态',
 
         // Activity Labels (Short)
-        shortRelief: '缓解',
+        exercisesSingle: '练习',
+        locNeck: '颈部',
+        locShoulders: '肩部',
         shortWarmup: '热身',
         shortYoga: '瑜伽',
         shortStrength: '加强',
         shortPosture: '体态',
+
+        // Assessment Engine Categories
+        catGentle: '轻柔',
+        catModerate: '适中',
+        catFull: '全面',
+        catGentleProgram: '轻柔计划',
+        catModerateProgram: '适中计划',
+        catFullProgram: '全面计划',
+
+        // Assessment Engine Advisories
+        advHighPain: '⚠️ 检测到高度疼痛——建议休息。我们只选择了轻柔的练习。如果疼痛持续，请咨询医生。',
+        advModeratePain: '中度疼痛——我们限制了低冲击力的动作，以避免加重该区域。',
+        advChronicPain: '检测到慢性疼痛——坚持低负荷练习是关键。我们已相应调整了您的计划。',
+        advWarmupStiff: '您的肌肉寒冷/僵硬——我们增加了额外的准备步骤。在增加强度之前慢慢适应。',
+        advWarmupWarm: '🔥 您已经热身了——您的计划直接跳转到激活练习。',
+        advYogaPain: '⚠️ 检测到疼痛的关节活动——仅显示恢复性/阴瑜伽姿势。避免主动拉伸。',
+        advYogaLimited: '注意到灵活性受限——我们选择了在您当前运动范围内进行的姿势。',
+        advStrengthBeginner: '💪 初学者计划——我们将专注于正确的姿势和基础动作。',
+        advStrengthIntermediate: '💪 中级计划——在您现有基础上进行的渐进式练习。',
+        advPostureAllDay: '⏰ 检测到整天久坐——我们从轻柔的减压开始。目标是每 45 分钟进行 5 分钟的活动休息。',
+        advPostureLong: '检测到长时间久坐——建议在进行之前先进行轻柔的姿势重置。',
+        advPostureMedium: '中等坐姿时间——我们包含了姿势拉伸和激活练习。',
+
+        // History
+        painLevelPrefix: '疼痛：',
+        streakDays: '${days}天',
 
         // Library
         library: '运动库',
@@ -792,7 +848,7 @@ export const translations = {
         welcomeHeader: '欢迎回来',
         welcomeBackUser: '欢迎回来，${name}！',
         loginWelcomeSubtitle: '准备好继续您的恢复之旅了吗？',
-        goToDashboard: '前往仪表板',
+        goToDashboard: '前往仪表盘',
         there: '这里',
 
         // Pain Assessment - Questions
@@ -921,7 +977,7 @@ export const translations = {
         hintPainfulJoint: '检测到关节运动疼痛——我们只会建议恢复性姿势。避免主动拉伸。',
         hintColdStiff: '建议额外热身步骤——我们会在进行高强度运动前循序渐进。',
         hintBeginner: '初学者计划——我们将专注于姿势和基础动作。',
-        hintIntermediate: '中级计划——渐进式练习以巩固基础。',
+        hintIntermediate: '中级计划——在您现有基础上进行的渐进式练习。',
         hintAdvanced: '高级计划——完整计划已解锁。',
         hintLongSitting: '检测到长时间久坐——从轻柔减压开始。目标是每45分钟活动一次。',
 
@@ -1111,10 +1167,39 @@ export const translations = {
 
         // Activity Labels (Short)
         shortRelief: 'Soulagement',
+        exercisesSingle: 'Exercice',
+        locNeck: 'Cou',
+        locShoulders: 'Épaules',
         shortWarmup: 'Échauffement',
         shortYoga: 'Yoga',
         shortStrength: 'Renforcement',
         shortPosture: 'Posture',
+
+        // Assessment Engine Categories
+        catGentle: 'Doux',
+        catModerate: 'Modéré',
+        catFull: 'Complet',
+        catGentleProgram: 'Programme doux',
+        catModerateProgram: 'Programme modéré',
+        catFullProgram: 'Programme complet',
+
+        // Assessment Engine Advisories
+        advHighPain: '⚠️ Douleur intense détectée — le repos est recommandé. Nous avons sélectionné uniquement des exercices doux. Si la douleur persiste, veuillez consulter un médecin.',
+        advModeratePain: 'Douleur modérée — nous avons limité les recommandations aux mouvements à faible impact pour éviter d\'aggraver la zone.',
+        advChronicPain: 'Douleur chronique détectée — la régularité avec des exercices à faible charge est la clé. Nous avons ajusté votre plan en conséquence.',
+        advWarmupStiff: 'Vos muscles sont froids/raides — nous avons ajouté des étapes de préparation supplémentaires. Allez-y doucement avant d\'augmenter l\'intensité.',
+        advWarmupWarm: '🔥 Vous êtes déjà échauffé — votre plan passe directement aux exercices d\'activation.',
+        advYogaPain: '⚠️ Mouvement articulaire douloureux détecté — seules les poses de yoga restauratrices / Yin seront affichées. Évitez les étirements actifs.',
+        advYogaLimited: 'Mobilité limitée notée — nous avons sélectionné des poses qui correspondent à votre amplitude de mouvement actuelle.',
+        advStrengthBeginner: '💪 Programme débutant — nous nous concentrerons sur la forme appropriée et les mouvements fondamentaux.',
+        advStrengthIntermediate: '💪 Programme intermédiaire — exercices progressifs pour s\'appuyer sur votre base existante.',
+        advPostureAllDay: '⏰ Position assise toute la journée détectée — nous commençons par une décompression douce. Visez une pause mouvement de 5 min toutes les 45 min.',
+        advPostureLong: 'Position assise prolongée détectée — réinitialisations posturales douces recommandées avant de progresser.',
+        advPostureMedium: 'Temps d\'assise modéré — nous avons inclus des étirements posturaux et des exercices d\'activation.',
+
+        // History
+        painLevelPrefix: 'Douleur : ',
+        streakDays: '${days}j',
 
         // Library
         library: 'Bibliothèque',
@@ -1548,6 +1633,32 @@ export const translations = {
         shortStrength: 'Fortalecimiento',
         shortPosture: 'Postura',
 
+        // Assessment Engine Categories
+        catGentle: 'Suave',
+        catModerate: 'Moderado',
+        catFull: 'Completo',
+        catGentleProgram: 'Programa suave',
+        catModerateProgram: 'Programa moderado',
+        catFullProgram: 'Programa completo',
+
+        // Assessment Engine Advisories
+        advHighPain: '⚠️ Dolor intenso detectado — se recomienda descanso. Hemos seleccionado solo ejercicios suaves. Si el dolor persiste, consulte a un médico.',
+        advModeratePain: 'Dolor moderado — hemos limitado las recomendaciones a movimientos de bajo impacto para evitar agravar el área.',
+        advChronicPain: 'Dolor crónico detectado — la consistencia con ejercicios de baja carga es clave. Hemos ajustado su plan en consecuencia.',
+        advWarmupStiff: 'Sus músculos están fríos/rígidos — hemos añadido pasos de preparación extra. Comience despacio antes de aumentar la intensidad.',
+        advWarmupWarm: '🔥 Ya está caliente — su plan salta directamente a los ejercicios de activación.',
+        advYogaPain: '⚠️ Se detectó movimiento articular doloroso — solo se mostrarán posturas de yoga restaurativo / Yin. Evite los estiramientos activos.',
+        advYogaLimited: 'Movilidad limitada — hemos seleccionado posturas que funcionan dentro de su rango de movimiento actual.',
+        advStrengthBeginner: '💪 Programa para principiantes — nos enfocaremos en la forma adecuada y los movimientos fundamentales.',
+        advStrengthIntermediate: '💪 Programa intermedio — ejercicios progresivos para construir sobre su base existente.',
+        advPostureAllDay: '⏰ Se detectó estar sentado todo el día — comenzamos con una descompresión suave. Intente hacer un descanso de movimiento de 5 minutos cada 45 minutos.',
+        advPostureLong: 'Se detectó estar sentado por tiempo prolongado — se recomiendan reajustes posturales suaves antes de progresar.',
+        advPostureMedium: 'Tiempo de estar sentado moderado — hemos incluido estiramientos posturales y ejercicios de activación.',
+
+        // History
+        painLevelPrefix: 'Dolor: ',
+        streakDays: '${days}d',
+
         // Library
         library: 'Biblioteca',
         searchExercises: 'Buscar ejercicios...',
@@ -1972,12 +2083,21 @@ export const isSupportedLanguage = (lang: string): lang is Language => {
     return LANGUAGES.some(l => l.code === lang);
 };
 
-export const getTranslation = (lang: Language, key: keyof typeof translations['en']) => {
+export const getTranslation = (lang: Language, key: keyof typeof translations['en'], params?: Record<string, string>) => {
     // Safety check: if lang is not in translations, fallback to en
     const targetLang = translations[lang] ? lang : 'en';
     const translation = translations[targetLang] as Record<string, string>;
     const fallback = translations['en'] as Record<string, string>;
 
-    const result = translation[key] || fallback[key] || key;
-    return String(result || '');
+    let result = translation[key] || fallback[key] || key;
+    result = String(result || '');
+
+    // Handle template variables like ${name}
+    if (params) {
+        Object.entries(params).forEach(([k, v]) => {
+            result = result.replace(`\${${k}}`, v);
+        });
+    }
+
+    return result;
 };
