@@ -16,12 +16,12 @@ const { width } = Dimensions.get('window');
 
 const CATEGORIES = [
     { id: 'All', icon: 'apps-outline', label: 'catAll' },
+    { id: 'Saved', icon: 'heart-outline', label: 'catSaved' },
     { id: 'Relief', icon: 'fitness-outline', label: 'catRelief' },
     { id: 'Warm-ups', icon: 'thermometer-outline', label: 'catWarmups' },
     { id: 'Yoga', icon: 'body-outline', label: 'catYoga' },
     { id: 'Posture', icon: 'accessibility-outline', label: 'catPosture' },
     { id: 'Strength', icon: 'barbell-outline', label: 'catStrength' },
-    { id: 'Saved', icon: 'heart-outline', label: 'catSaved' },
 ];
 
 type ExerciseCardProps = {
@@ -30,14 +30,15 @@ type ExerciseCardProps = {
     duration: string;
     target: string;
     image: string;
-    t: (key: string) => string;
+    t: (key: any, params?: Record<string, string>) => string;
     colors: any;
     isSaved?: boolean;
     onToggleSave?: () => void;
 };
 
 // Helper for mapped muscle group translation inside card
-const getMuscleKey = (name: string) => {
+const getMuscleKey = (name: string | undefined) => {
+    if (!name) return 'catAll';
     if (name === 'All') return 'catAll';
     return `mg${name.replace(/\s/g, '')}` as any;
 };
@@ -78,15 +79,17 @@ const ExerciseCard = ({ id, title, duration, target, image, t, colors, exercise,
             </View>
             <View style={styles.exerciseContent}>
                 <Text style={[styles.exerciseTitle, { color: colors.text }]}>{translatedTitle}</Text>
-                <div style={styles.exerciseMeta}>
+                <View style={styles.exerciseMeta}>
                     <View style={styles.durationContainer}>
                         <Ionicons name="timer-outline" size={14} color={colors.textSecondary} />
                         <Text style={[styles.durationText, { color: colors.textSecondary }]}>{duration}</Text>
                     </View>
                     <View style={[styles.targetBadge, { backgroundColor: colors.accent + '15', borderColor: colors.accent + '30' }]}>
-                        <Text style={[styles.targetText, { color: colors.accent }]}>{t('target').replace('${target}', t(getMuscleKey(target)) !== getMuscleKey(target) ? t(getMuscleKey(target)) : target)}</Text>
+                        <Text style={[styles.targetText, { color: colors.accent }]}>
+                            {t('target', { target: t(getMuscleKey(target)) !== getMuscleKey(target) ? t(getMuscleKey(target)) : target })}
+                        </Text>
                     </View>
-                </div>
+                </View>
             </View>
             <TouchableOpacity style={styles.favoriteButton} onPress={onToggleSave}>
                 <Ionicons name={isSaved ? "heart" : "heart-outline"} size={20} color={isSaved ? colors.accent : colors.textSecondary} />
@@ -103,7 +106,7 @@ export default function LibraryScreen() {
     const [isLoading, setIsLoading] = useState(true);
 
     const { language, theme } = usePreferences();
-    const t = (key: Parameters<typeof getTranslation>[1]) => getTranslation(language, key);
+    const t = (key: Parameters<typeof getTranslation>[1], params?: Record<string, string>) => getTranslation(language, key, params);
     const colors = Colors[theme];
 
     useEffect(() => {
@@ -145,7 +148,13 @@ export default function LibraryScreen() {
         else await saveExercise('', exerciseId);
     };
 
-    const allExercises = useMemo(() => [...EXERCISES, ...supabaseExercises], [supabaseExercises]);
+    const allExercises = useMemo(() => {
+        const local = EXERCISES.map(ex => ({
+            ...ex,
+            target: ex.muscleGroup || 'General'
+        }));
+        return [...local, ...supabaseExercises];
+    }, [supabaseExercises]);
 
     const filteredExercises = useMemo(() => {
         return allExercises.filter(ex => {
@@ -159,7 +168,7 @@ export default function LibraryScreen() {
         });
     }, [activeCategory, searchQuery, allExercises, savedExerciseIds]);
 
-    const displayCategories = ['Relief', 'Warm-ups', 'Yoga', 'Posture', 'Strength'];
+    const displayCategories = ['Saved', 'Relief', 'Warm-ups', 'Yoga', 'Posture', 'Strength'];
 
     const getCategoryDisplay = (name: string) => {
         const key = name === 'All' ? 'catAll' : `cat${name.replace(/[-\s]/g, '')}` as any;
@@ -213,7 +222,9 @@ export default function LibraryScreen() {
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
                 {activeCategory !== 'All' ? (
                     <View style={styles.section}>
-                        <Text style={[styles.sectionTitle, { color: colors.text }]}>{filteredExercises.length} {t('exercisesCount' as any)}</Text>
+                        <Text style={[styles.sectionTitle, { color: colors.text }]}>
+                            {t('exercisesCount' as any, { count: filteredExercises.length.toString() })}
+                        </Text>
                         <View style={styles.exerciseList}>
                             {filteredExercises.map((ex) => (
                                 <ExerciseCard key={ex.id} {...ex} exercise={ex} t={t as any} colors={colors} isSaved={savedExerciseIds.includes(ex.id)} onToggleSave={() => toggleSave(ex.id)} />
@@ -222,7 +233,10 @@ export default function LibraryScreen() {
                     </View>
                 ) : (
                     displayCategories.map(cat => {
-                        const catEx = allExercises.filter(ex => ex.category === cat);
+                        const catEx = cat === 'Saved'
+                            ? allExercises.filter(ex => savedExerciseIds.includes(ex.id))
+                            : allExercises.filter(ex => ex.category === cat);
+
                         if (catEx.length === 0) return null;
                         return (
                             <View key={cat} style={styles.section}>
