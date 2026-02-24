@@ -196,10 +196,10 @@ export default function FindReliefScreen() {
 
     const [exercises, setExercises] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [showMore, setShowMore] = useState(false);
+    const [visibleCount, setVisibleCount] = useState(1);
 
     React.useEffect(() => {
-        setShowMore(false); // Reset "See More" toggle whenever parameters change
+        setVisibleCount(1); // Reset "visibleCount" whenever parameters change
         const fetchExercises = async () => {
             setIsLoading(true);
             const data = await fetchExercisesByMuscleAndSize(
@@ -375,26 +375,23 @@ export default function FindReliefScreen() {
                         </Text>
                     ) : (
                         <View>
-                            {/* Show only the first exercise initially */}
-                            <ExerciseCard ex={exercises[0]} index={0} colors={colors} language={language} />
+                            {/* Show exercises incrementally */}
+                            {exercises.slice(0, visibleCount).map((ex, i) => (
+                                <ExerciseCard key={ex.id ?? i} ex={ex} index={i} colors={colors} language={language} />
+                            ))}
 
                             {/* Show more button if there are more exercises */}
-                            {exercises.length > 1 && !showMore && (
+                            {visibleCount < exercises.length && (
                                 <TouchableOpacity
                                     style={[styles.moreButton, { borderColor: colors.accent }]}
-                                    onPress={() => setShowMore(true)}
+                                    onPress={() => setVisibleCount(v => v + 1)}
                                 >
                                     <Ionicons name="add-circle-outline" size={20} color={colors.accent} />
                                     <Text style={[styles.moreButtonText, { color: colors.accent }]}>
-                                        {t('moreStretches')} ({exercises.length - 1} {t('similarStretches')})
+                                        {t('moreStretches')} ({exercises.length - visibleCount} {t('similarStretches')})
                                     </Text>
                                 </TouchableOpacity>
                             )}
-
-                            {/* Remaining exercises */}
-                            {showMore && exercises.slice(1).map((ex, i) => (
-                                <ExerciseCard key={ex.id ?? i + 1} ex={ex} index={i + 1} colors={colors} language={language} />
-                            ))}
                         </View>
                     )}
                 </View>
