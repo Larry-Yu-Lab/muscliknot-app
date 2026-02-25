@@ -57,8 +57,22 @@ export default function ExerciseDetails() {
                 <View style={styles.content}>
                     <View style={styles.headerRow}>
                         <View style={{ flex: 1 }}>
-                            <Text style={[styles.targetText, { color: colors.accent }]}>{target || muscleGroup}</Text>
-                            <Text style={[styles.title, { color: colors.text }]}>{title}</Text>
+                            <Text style={[styles.targetText, { color: colors.accent }]}>
+                                {(() => {
+                                    const rawMg = target || muscleGroup;
+                                    if (!rawMg) return '';
+                                    const mgKey = `mg${rawMg.charAt(0).toUpperCase()}${rawMg.slice(1).replace(/\s/g, '')}` as any;
+                                    const trans = t(mgKey);
+                                    return trans !== mgKey ? trans : rawMg;
+                                })()}
+                            </Text>
+                            <Text style={[styles.title, { color: colors.text }]}>
+                                {(() => {
+                                    const titleKey = `ex_${id}_title` as any;
+                                    const trans = t(titleKey);
+                                    return trans !== titleKey ? trans : title;
+                                })()}
+                            </Text>
                         </View>
                         <View style={styles.durationBadge}>
                             <Ionicons name="timer-outline" size={16} color={colors.text} />
@@ -71,7 +85,7 @@ export default function ExerciseDetails() {
                     {/* Why Section */}
                     {why && (
                         <View style={styles.section}>
-                            <Text style={[styles.sectionTitle, { color: colors.text }]}>Benefits</Text>
+                            <Text style={[styles.sectionTitle, { color: colors.text }]}>{t('benefits')}</Text>
                             <Text style={[styles.bodyText, { color: colors.textSecondary }]}>{why}</Text>
                         </View>
                     )}
@@ -79,7 +93,7 @@ export default function ExerciseDetails() {
                     {/* Instructions Section */}
                     {instructions && (
                         <View style={styles.section}>
-                            <Text style={[styles.sectionTitle, { color: colors.text }]}>Instructions</Text>
+                            <Text style={[styles.sectionTitle, { color: colors.text }]}>{t('instructions')}</Text>
                             <Text style={[styles.bodyText, { color: colors.textSecondary }]}>{instructions}</Text>
                         </View>
                     )}
@@ -87,7 +101,7 @@ export default function ExerciseDetails() {
                     {/* Process/How-to Section (if distinct from instructions) */}
                     {process && (
                         <View style={styles.section}>
-                            <Text style={[styles.sectionTitle, { color: colors.text }]}>Process</Text>
+                            <Text style={[styles.sectionTitle, { color: colors.text }]}>{t('process')}</Text>
                             <Text style={[styles.bodyText, { color: colors.textSecondary }]}>{process}</Text>
                         </View>
                     )}

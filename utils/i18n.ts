@@ -89,6 +89,9 @@ export const translations = {
         // Home
         letsRecover: "Let's recover",
         welcomeBack: 'Welcome Back',
+        greetingHello: 'Hello',
+        searchBodyPartPlaceholder: 'Search body part',
+        searchErrorNoPart: 'No body part found. Try: neck, shoulder, back, knee, foot, etc.',
         dragToMap: 'Drag to map your pain',
         painPointSelected: 'Pain point selected',
         front: 'FRONT',
@@ -526,6 +529,7 @@ export const translations = {
         alertStrengthMsg: 'Stronger every day!',
 
         // Results Screen
+        benefits: 'Benefits',
         whyThisWorks: 'Why this works',
         process: 'Process',
         instructions: 'Instructions',
@@ -619,6 +623,7 @@ export const translations = {
 
         // Tabs
         tabHome: '首页',
+        tabActivity: '活动',
         tabFindRelief: '缓解',
         tabHistory: '历史',
         tabLibrary: '库',
@@ -627,15 +632,32 @@ export const translations = {
         // Home
         letsRecover: '开始恢复',
         welcomeBack: '欢迎回来',
+        greetingHello: '你好',
+        searchBodyPartPlaceholder: '搜索身体部位',
+        searchErrorNoPart: '未找到身体部位。尝试：颈部、肩膀、背部、膝盖、脚部等。',
         dragToMap: '拖动以定位疼痛',
         painPointSelected: '已选择痛点',
         front: '正面',
         back: '背面',
+        generatePlan: '生成计划',
         generateReliefPlan: '生成缓解计划',
         recentPlans: '最近计划',
         seeAllHistory: '历史记录',
         neckRelief: '颈部缓解',
         lowerBack: '下背部',
+
+        // Activity Selection
+        selectActivityType: '您想做什么？',
+        activityRelief: '寻找缓解',
+        activityWarmup: '该区域热身',
+        activityYoga: '该区域瑜伽',
+        activityPosture: '修正该区域姿态',
+        activityStrength: '加强该区域肌肉',
+        activityReliefDesc: '针对性动作以减轻疼痛',
+        activityWarmupDesc: '为活动准备肌肉',
+        activityYogaDesc: '提高灵活性和平衡',
+        activityPostureDesc: '纠正对齐问题',
+        activityStrengthDesc: '增强肌肉弹性',
 
         // Find Relief
         relief: '缓解',
@@ -1048,6 +1070,7 @@ export const translations = {
         alertStrengthMsg: '每天都在进步！',
 
         // Results Screen
+        benefits: '益处',
         whyThisWorks: '为什么有效',
         process: '流程',
         instructions: '说明',
@@ -1141,6 +1164,7 @@ export const translations = {
 
         // Tabs
         tabHome: 'Accueil',
+        tabActivity: 'Activité',
         tabFindRelief: 'Soulagement',
         tabHistory: 'Historique',
         tabLibrary: 'Bibliothèque',
@@ -1149,15 +1173,32 @@ export const translations = {
         // Home
         letsRecover: 'Récupérons',
         welcomeBack: 'Bon retour',
+        greetingHello: 'Bonjour',
+        searchBodyPartPlaceholder: 'Rechercher une partie du corps',
+        searchErrorNoPart: 'Aucune partie du corps trouvée. Essayez : cou, épaule, dos, genou, pied, etc.',
         dragToMap: 'Faites glisser pour situer votre douleur',
         painPointSelected: 'Point de douleur sélectionné',
         front: 'AVANT',
         back: 'DOS',
+        generatePlan: 'GÉNÉRER UN PLAN',
         generateReliefPlan: 'GÉNÉRER UN PLAN DE SOULAGEMENT',
         recentPlans: 'Plans récents',
         seeAllHistory: 'Historique',
         neckRelief: 'Soulagement du cou',
         lowerBack: 'Bas du dos',
+
+        // Activity Selection
+        selectActivityType: 'Que voulez-vous faire ?',
+        activityRelief: 'Soulagement',
+        activityReliefDesc: 'Étirements spécifiques pour réduire les douleurs aiguës.',
+        activityWarmup: 'Échauffement',
+        activityWarmupDesc: 'Préparez vos muscles à l’activité.',
+        activityYoga: 'Yoga',
+        activityYogaDesc: 'Améliorez la flexibilité et le flux.',
+        activityPosture: 'Posture',
+        activityPostureDesc: 'Corrigez l’alignement et le relâchement au bureau.',
+        activityStrength: 'Force',
+        activityStrengthDesc: 'Développez des muscles résilients.',
 
         // Find Relief
         relief: 'Soulagement',
@@ -1571,6 +1612,7 @@ export const translations = {
         alertStrengthMsg: 'Plus fort chaque jour !',
 
         // Results Screen
+        benefits: 'Bénéfices',
         whyThisWorks: 'Pourquoi ca marche',
         process: 'Processus',
         instructions: 'Instructions',
@@ -1603,6 +1645,7 @@ export const translations = {
 
         // Tabs
         tabHome: 'Inicio',
+        tabActivity: 'Actividad',
         tabFindRelief: 'Alivio',
         tabHistory: 'Historial',
         tabLibrary: 'Biblioteca',
@@ -1611,15 +1654,32 @@ export const translations = {
         // Home
         letsRecover: 'Vamos a recuperarnos',
         welcomeBack: 'Bienvenido de nuevo',
+        greetingHello: 'Hola',
+        searchBodyPartPlaceholder: 'Buscar parte del cuerpo',
+        searchErrorNoPart: 'No se encontró ninguna parte del cuerpo. Intente: cuello, hombro, espalda, rodilla, pie, etc.',
         dragToMap: 'Arrastra para ubicar tu dolor',
         painPointSelected: 'Punto de dolor seleccionado',
         front: 'FRENTE',
         back: 'DORSO',
+        generatePlan: 'GENERAR PLAN',
         generateReliefPlan: 'GENERAR PLAN DE ALIVIO',
         recentPlans: 'Planes recientes',
         seeAllHistory: 'Historial',
         neckRelief: 'Alivio de cuello',
         lowerBack: 'Parte baja de espalda',
+
+        // Activity Selection
+        selectActivityType: '¿Qué quieres hacer?',
+        activityRelief: 'Alivio',
+        activityReliefDesc: 'Estiramientos específicos para reducir el dolor agudo.',
+        activityWarmup: 'Calentamiento',
+        activityWarmupDesc: 'Prepara tus músculos para la actividad.',
+        activityYoga: 'Yoga',
+        activityYogaDesc: 'Mejora la flexibilidad y el flujo.',
+        activityPosture: 'Postura',
+        activityPostureDesc: 'Corrige la alineación y el encorvamiento de oficina.',
+        activityStrength: 'Fuerza',
+        activityStrengthDesc: 'Construye músculos resilientes.',
 
         // Find Relief
         relief: 'Alivio',
@@ -2091,6 +2151,7 @@ export const translations = {
         alertStrengthMsg: 'Mas fuerte cada dia!',
 
         // Results Screen
+        benefits: 'Beneficios',
         whyThisWorks: 'Por que funciona',
         process: 'Proceso',
         instructions: 'Instrucciones',

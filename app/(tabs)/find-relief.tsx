@@ -35,6 +35,18 @@ function ExerciseCard({ ex, index, colors, language }: { ex: any; index: number;
     const subtitle = ex.common_name && !isLocal ? ex.common_name : ex.duration;
     const steps = ex.instructions ? parseSteps(ex.instructions) : [];
 
+    const t = (key: Parameters<typeof getTranslation>[1]) => getTranslation(language, key);
+
+    // Attempt to translate title and subtitle
+    const transTitleKey = `ex_${ex.id}_title` as any;
+    const transDescKey = `ex_${ex.id}_desc` as any;
+    const translatedTitle = t(transTitleKey);
+    const translatedDesc = t(transDescKey);
+
+    const displayTitle = translatedTitle !== transTitleKey ? translatedTitle : (ex.solution_stretch || ex.title || ex.common_name || 'Exercise');
+    const displaySubtitle = ex.common_name && !isLocal ? ex.common_name : ex.duration;
+    const displayDescription = translatedDesc !== transDescKey ? translatedDesc : (ex.description || ex.instructions);
+
     return (
         <View style={[cardStyles.card, { backgroundColor: 'rgba(30,30,35,0.95)', borderColor: expanded ? colors.accent : 'rgba(255,255,255,0.08)' }]}>
             {/* Card header — always visible */}
@@ -43,8 +55,8 @@ function ExerciseCard({ ex, index, colors, language }: { ex: any; index: number;
                     <Text style={cardStyles.indexText}>{index + 1}</Text>
                 </View>
                 <View style={{ flex: 1 }}>
-                    <Text style={[cardStyles.title, { color: '#fff' }]}>{title}</Text>
-                    {subtitle ? <Text style={[cardStyles.subtitle, { color: 'rgba(255,255,255,0.5)' }]}>{subtitle}</Text> : null}
+                    <Text style={[cardStyles.title, { color: '#fff' }]}>{displayTitle}</Text>
+                    {displaySubtitle ? <Text style={[cardStyles.subtitle, { color: 'rgba(255,255,255,0.5)' }]}>{displaySubtitle}</Text> : null}
                 </View>
                 {ex.difficulty_level && (
                     <View style={[cardStyles.difBadge, {
@@ -79,7 +91,7 @@ function ExerciseCard({ ex, index, colors, language }: { ex: any; index: number;
                                 <Ionicons name="information-circle-outline" size={16} color={colors.accent} />
                                 <Text style={[cardStyles.sectionTitle, { color: colors.accent }]}>{getTranslation(language, 'instructions')}</Text>
                             </View>
-                            <Text style={cardStyles.bodyText}>{ex.description}</Text>
+                            <Text style={cardStyles.bodyText}>{displayDescription}</Text>
                         </View>
                     ) : null}
 
@@ -235,11 +247,15 @@ export default function FindReliefScreen() {
         return trans !== mgKey ? trans : targetMuscle;
     }, [targetMuscle, t]);
 
-    const locationLabel = painLocation ? painLocation.replace(/_/g, ' ') : null;
+    const targetLocationTrans = React.useMemo(() => {
+        if (!painLocation) return null;
+        const locKey = `loc${painLocation.charAt(0).toUpperCase()}${painLocation.slice(1).replace(/_/g, '')}` as any;
+        const trans = t(locKey);
+        return trans !== locKey ? trans : painLocation.replace(/_/g, ' ');
+    }, [painLocation, t]);
+
     const titleLine = React.useMemo(() => {
-        const target = locationLabel
-            ? locationLabel.charAt(0).toUpperCase() + locationLabel.slice(1)
-            : targetMuscleTrans;
+        const target = targetLocationTrans || targetMuscleTrans;
 
         const patternKey = `title${activityType.charAt(0).toUpperCase()}${activityType.slice(1)}` as any;
         const pattern = t(patternKey);
@@ -248,7 +264,7 @@ export default function FindReliefScreen() {
             return pattern.replace('{{muscle}}', target);
         }
         return `${target} ${activityType}`;
-    }, [locationLabel, targetMuscleTrans, activityType, t]);
+    }, [targetLocationTrans, targetMuscleTrans, activityType, t]);
 
     const handleComplete = async () => {
         const item = { date: Date.now(), muscleGroup: targetMuscle, exercises, assessment };
@@ -337,15 +353,11 @@ export default function FindReliefScreen() {
                             </Text>
                         </View>
                     )}
-                    {locationLabel && (
+                    {targetLocationTrans && (
                         <View style={[styles.badge, { backgroundColor: 'rgba(99,102,241,0.12)', borderColor: '#6366f1' }]}>
                             <Ionicons name="location-outline" size={18} color="#6366f1" />
                             <Text style={[styles.badgeText, { color: '#6366f1' }]}>
-                                {(() => {
-                                    const locKey = `loc${painLocation?.charAt(0).toUpperCase()}${painLocation?.slice(1).replace(/_/g, '')}` as any;
-                                    const trans = t(locKey);
-                                    return trans !== locKey ? trans : locationLabel;
-                                })()}
+                                {targetLocationTrans}
                             </Text>
                         </View>
                     )}
@@ -364,7 +376,7 @@ export default function FindReliefScreen() {
                                 activityType === 'yoga' ? (t('yogaTitle') || 'Yoga Poses') :
                                     activityType === 'posture' ? (t('fixPostureTitle') || 'Posture Corrections') :
                                         activityType === 'strength' ? (t('strengthenTitle') || 'Strengthening Exercises') :
-                                            `${locationLabel ? locationLabel.charAt(0).toUpperCase() + locationLabel.slice(1) + ' ' : ''}${t('relief')}`}
+                                            `${targetLocationTrans || targetMuscleTrans} ${t('relief')}`}
                     </Text>
 
                     {isLoading ? (

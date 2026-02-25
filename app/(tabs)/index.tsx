@@ -343,7 +343,7 @@ export default function HomeScreen() {
         }
       });
     } else {
-      setSearchError('No body part found. Try: neck, shoulder, back, knee, foot, etc.');
+      setSearchError(t('searchErrorNoPart'));
     }
   };
 
@@ -394,7 +394,7 @@ export default function HomeScreen() {
             />
             <View>
               <Text style={[styles.greetingSub, { color: colors.textSecondary }]}>{t('letsRecover')}</Text>
-              <Text style={[styles.greetingTitle, { color: colors.text }]}>Hello, {user.name.split(' ')[0]}</Text>
+              <Text style={[styles.greetingTitle, { color: colors.text }]}>{t('greetingHello')}, {user.name.split(' ')[0]}</Text>
             </View>
           </View>
           <TouchableOpacity style={[styles.notificationButton, { backgroundColor: isDark ? 'rgba(255, 255, 255, 0.05)' : colors.cardBackground, borderColor: colors.cardBorder }]}>
@@ -409,7 +409,7 @@ export default function HomeScreen() {
           </TouchableOpacity>
           <TextInput
             style={[styles.searchInput, { color: colors.text }]}
-            placeholder="Search body part"
+            placeholder={t('searchBodyPartPlaceholder')}
             placeholderTextColor={colors.textSecondary}
             value={searchQuery}
             onChangeText={(text) => { setSearchQuery(text); setSearchError(''); }}
