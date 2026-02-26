@@ -149,6 +149,20 @@ export const translations = {
         completed: 'COMPLETED',
         noHistory: 'No history yet. Start a session!',
 
+        // Analytics
+        analyticsDashboard: 'Recovery Analytics',
+        painTrends: 'Pain Trends',
+        activityBreakdown: 'Activity Breakdown',
+        muscleFrequency: 'Muscle Frequency',
+        sessionsCompleted: 'Sessions Completed',
+        averagePainLevel: 'Avg Pain Level',
+        mostTargetedArea: 'Most Targeted Area',
+        recoveryScore: 'Recovery Score',
+        noAnalyticsData: 'Not enough data for analytics yet.',
+        last30Days: 'Last 30 Days',
+        painScale: 'Pain Scale (1-10)',
+        frequency: 'Frequency',
+
         // Activity Titles
         titleRelief: '{{muscle}} Relief',
         titleWarmup: '{{muscle}} Warm Up',
@@ -160,6 +174,7 @@ export const translations = {
         exercisesSingle: 'Exercise',
         locNeck: 'Neck',
         locShoulders: 'Shoulders',
+        shortRelief: 'Relief',
         shortWarmup: 'Warm Up',
         shortYoga: 'Yoga',
         shortStrength: 'Strength',

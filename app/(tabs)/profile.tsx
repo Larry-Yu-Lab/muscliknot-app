@@ -143,7 +143,10 @@ export default function ProfileScreen() {
                         <View style={styles.healthVaultSection}>
                             <View style={styles.sectionHeader}>
                                 <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>{t('healthVault')}</Text>
-                                <TouchableOpacity style={[styles.analyticsButton, { borderColor: colors.accent }]}>
+                                <TouchableOpacity
+                                    style={[styles.analyticsButton, { borderColor: colors.accent }]}
+                                    onPress={() => router.push('/analytics' as any)}
+                                >
                                     <Text style={[styles.analyticsButtonText, { color: colors.accent }]}>{t('viewAnalytics')}</Text>
                                 </TouchableOpacity>
                             </View>
