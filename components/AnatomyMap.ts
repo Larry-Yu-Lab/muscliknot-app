@@ -151,7 +151,8 @@ export const fetchExercisesByMuscleAndSize = async (
     size: string,
     activityType: string = 'relief',
     difficultyFilter?: string[],
-    painLocation?: string
+    painLocation?: string,
+    duration?: string
 ): Promise<any[]> => {
     if (!supabase) {
         console.warn('Supabase client not initialized');
@@ -213,7 +214,26 @@ export const fetchExercisesByMuscleAndSize = async (
                 console.log(`[Pass 0] Found ${deduped.length} location-specific exercises for: ${painLocation}`);
                 return deduped;
             }
-            console.log(`[Pass 0] No location-specific exercises found, falling through to broader search.`);
+            console.log(`[Pass 0] No exact location tag found, trying keyword search (Pass 0.5).`);
+
+            // PASS 0.5: Keyword search for sub-location
+            let pass05Query = supabase
+                .from('recovery_knowledge_base')
+                .select('*')
+                .eq('exercise_type', activityType)
+                .contains('muscle_id', [muscleId])
+                .ilike('common_name', `%${painLocation.replace(/_/g, '%')}%`);
+
+            if (difficultyFilter && difficultyFilter.length > 0) {
+                pass05Query = pass05Query.in('difficulty_level', difficultyFilter);
+            }
+            const { data: pass05Data, error: pass05Error } = await pass05Query;
+
+            if (!pass05Error && pass05Data && pass05Data.length > 0) {
+                const deduped = dedupeById(pass05Data);
+                console.log(`[Pass 0.5] Found ${deduped.length} exercises by keyword match: ${painLocation}`);
+                return deduped;
+            }
         }
 
         // PASS 1: Try exact muscle_id array match + activity type
@@ -223,13 +243,29 @@ export const fetchExercisesByMuscleAndSize = async (
             .select('*')
             .eq('exercise_type', activityType)
             .contains('muscle_id', [muscleId]);
+
+        // If chronic pain (longer), also allow 'posture' exercises even if activityType is 'relief'
+        if (duration === 'longer' && activityType === 'relief') {
+            pass1Query = supabase
+                .from('recovery_knowledge_base')
+                .select('*')
+                .in('exercise_type', ['relief', 'posture'])
+                .contains('muscle_id', [muscleId]);
+        }
+
         if (difficultyFilter && difficultyFilter.length > 0) {
             pass1Query = pass1Query.in('difficulty_level', difficultyFilter);
         }
         const { data: pass1Data, error: pass1Error } = await pass1Query;
 
         if (!pass1Error && pass1Data && pass1Data.length > 0) {
-            const deduped = dedupeById(pass1Data);
+            let deduped = dedupeById(pass1Data);
+
+            // If duration is 'just_now', prioritize 'relief' type
+            if (duration === 'just_now') {
+                deduped.sort((a, b) => (a.exercise_type === 'relief' ? -1 : 1));
+            }
+
             console.log(`[Pass 1] Found ${deduped.length} exercises by muscle_id`);
             return deduped;
         }

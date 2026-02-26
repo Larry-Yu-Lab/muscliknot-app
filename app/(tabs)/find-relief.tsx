@@ -219,7 +219,8 @@ export default function FindReliefScreen() {
                 size,
                 activityType,
                 recommendation.difficultyFilter,
-                painLocation          // ← Pass 0 sub-location filter
+                painLocation,
+                assessment.duration
             );
             if (data && data.length > 0) {
                 setExercises(data);

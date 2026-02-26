@@ -58,23 +58,109 @@ export default function AssessmentScreen() {
     ];
 
     const PAIN_LOCATION_MAP: Record<string, { id: string; label: string }[]> = {
-        hands: [{ id: 'fingers', label: t('locFingers') }, { id: 'thumb', label: t('locThumb') }, { id: 'wrist', label: t('locWrist') }, { id: 'palm', label: t('locPalm') }, { id: 'pinky', label: t('locPinky') }, { id: 'ring_finger', label: t('locRingFinger') }],
-        forearms: [{ id: 'inner_forearm', label: t('locInnerForearm') }, { id: 'outer_forearm', label: t('locOuterForearm') }, { id: 'elbow', label: t('locElbow') }, { id: 'wrist', label: t('locWrist') }],
-        arms: [{ id: 'bicep', label: t('locBicep') }, { id: 'tricep', label: t('locTricep') }, { id: 'shoulder', label: t('locShoulder') }, { id: 'elbow', label: t('locElbow') }],
-        traps: [{ id: 'left_shoulder', label: t('locLeftShoulder') }, { id: 'right_shoulder', label: t('locRightShoulder') }, { id: 'upper_traps', label: t('locUpperTraps') }, { id: 'base_neck', label: t('locBaseNeck') }],
-        neck: [{ id: 'left_side', label: t('locLeftSide') }, { id: 'right_side', label: t('locRightSide') }, { id: 'back_neck', label: t('locBackNeck') }, { id: 'front_neck', label: t('locFrontNeck') }],
-        head: [{ id: 'temples', label: t('locTemples') }, { id: 'forehead', label: t('locForehead') }, { id: 'back_head', label: t('locBackHead') }, { id: 'jaw', label: t('locJaw') }],
-        chest: [{ id: 'left_chest', label: t('locLeftChest') }, { id: 'right_chest', label: t('locRightChest') }, { id: 'sternum', label: t('locSternum') }, { id: 'collarbone', label: t('locCollarbone') }],
-        upper_back: [{ id: 'left_blade', label: t('locLeftBlade') }, { id: 'right_blade', label: t('locRightBlade') }, { id: 'between_blades', label: t('locBetweenBlades') }, { id: 'mid_spine', label: t('locMidSpine') }],
-        lower_back: [{ id: 'left_lower', label: t('locLeftSide') }, { id: 'right_lower', label: t('locRightSide') }, { id: 'tailbone', label: t('locTailbone') }, { id: 'sacrum', label: t('locSacrum') }],
-        abdomen: [{ id: 'upper_abs', label: t('locUpperAbs') }, { id: 'lower_abs', label: t('locLowerAbs') }, { id: 'left_side', label: t('locLeftSide') }, { id: 'right_side', label: t('locRightSide') }],
-        hips: [{ id: 'left_hip', label: t('locLeftHip') }, { id: 'right_hip', label: t('locRightHip') }, { id: 'hip_flexor', label: t('locHipFlexor') }, { id: 'groin', label: t('locGroin') }],
-        glutes: [{ id: 'left_glute', label: t('locLeftGlute') }, { id: 'right_glute', label: t('locRightGlute') }, { id: 'tailbone', label: t('locTailbone') }, { id: 'piriformis', label: t('locPiriformis') }],
-        thighs: [{ id: 'front_thigh', label: t('locFrontThigh') }, { id: 'back_thigh', label: t('locBackThigh') }, { id: 'inner_thigh', label: t('locInnerThigh') }, { id: 'outer_thigh', label: t('locOuterThigh') }],
-        knees: [{ id: 'kneecap', label: t('locKneecap') }, { id: 'inner_knee', label: t('locInnerKnee') }, { id: 'outer_knee', label: t('locOuterKnee') }, { id: 'behind_knee', label: t('locBehindKnee') }],
-        calves: [{ id: 'upper_calf', label: t('locUpperCalf') }, { id: 'lower_calf', label: t('locLowerCalf') }, { id: 'achilles', label: t('locAchilles') }, { id: 'shin', label: t('locShin') }],
-        ankles: [{ id: 'inner_ankle', label: t('locInnerAnkle') }, { id: 'outer_ankle', label: t('locOuterAnkle') }, { id: 'front_ankle', label: t('locFrontAnkle') }, { id: 'achilles', label: t('locAchilles') }],
-        feet: [{ id: 'heel', label: t('locHeel') }, { id: 'arch', label: t('locArch') }, { id: 'ball_foot', label: t('locBallFoot') }, { id: 'toes', label: t('locToes') }],
+        hands: [
+            { id: 'fingertips', label: t('locFingertips') },
+            { id: 'knuckles', label: t('locKnuckles') },
+            { id: 'front_hand', label: t('locFrontHand') },
+            { id: 'back_hand', label: t('locBackHand') },
+            { id: 'thumb_side', label: t('locThumbSide') },
+            { id: 'pinky_side', label: t('locPinkySide') },
+            { id: 'wrist_front', label: t('locWristFront') },
+            { id: 'wrist_back', label: t('locWristBack') }
+        ],
+        forearms: [
+            { id: 'inner_forearm', label: t('locInnerForearm') },
+            { id: 'outer_forearm', label: t('locOuterForearm') },
+            { id: 'medial_elbow', label: t('locMedialElbow') },
+            { id: 'lateral_elbow', label: t('locLateralElbow') },
+            { id: 'wrist_front', label: t('locWristFront') },
+            { id: 'wrist_back', label: t('locWristBack') }
+        ],
+        arms: [
+            { id: 'bicep', label: t('locBicep') },
+            { id: 'tricep', label: t('locTricep') },
+            { id: 'deltoid_front', label: t('locDeltoidFront') },
+            { id: 'deltoid_back', label: t('locDeltoidBack') },
+            { id: 'elbow_crease', label: t('locElbowCrease') }
+        ],
+        traps: [
+            { id: 'neck_junction', label: t('locNeckJunction') },
+            { id: 'shoulder_top', label: t('locShoulderTop') },
+            { id: 'upper_trap_blade', label: t('locUpperTrapBlade') }
+        ],
+        neck: [
+            { id: 'upper_neck', label: t('locUpperNeck') },
+            { id: 'lower_neck', label: t('locLowerNeck') },
+            { id: 'side_neck', label: t('locSideNeck') },
+            { id: 'front_neck', label: t('locFrontNeck') }
+        ],
+        head: [
+            { id: 'temples', label: t('locTemples') },
+            { id: 'forehead', label: t('locForehead') },
+            { id: 'back_head_base', label: t('locBackHeadBase') },
+            { id: 'jaw', label: t('locJaw') }
+        ],
+        chest: [
+            { id: 'upper_chest', label: t('locUpperChest') },
+            { id: 'sternum', label: t('locSternum') },
+            { id: 'collarbone', label: t('locCollarbone') },
+            { id: 'outer_chest', label: t('locOuterChest') }
+        ],
+        upper_back: [
+            { id: 'between_blades', label: t('locBetweenBlades') },
+            { id: 'top_blade', label: t('locTopBlade') },
+            { id: 'mid_spine', label: t('locMidSpine') }
+        ],
+        lower_back: [
+            { id: 'l4_l5', label: t('locL4L5') },
+            { id: 'si_joint', label: t('locSIJoint') },
+            { id: 'tailbone', label: t('locTailbone') },
+            { id: 'sacrum', label: t('locSacrum') }
+        ],
+        abdomen: [
+            { id: 'upper_abs', label: t('locUpperAbs') },
+            { id: 'lower_abs', label: t('locLowerAbs') },
+            { id: 'obliques', label: t('locObliques') }
+        ],
+        hips: [
+            { id: 'hip_flexor', label: t('locHipFlexor') },
+            { id: 'groin', label: t('locGroin') },
+            { id: 'outer_hip', label: t('locOuterHip') }
+        ],
+        glutes: [
+            { id: 'piriformis', label: t('locPiriformis') },
+            { id: 'upper_glute', label: t('locUpperGlute') },
+            { id: 'lower_glute', label: t('locLowerGlute') }
+        ],
+        thighs: [
+            { id: 'front_thigh', label: t('locFrontThigh') },
+            { id: 'back_thigh', label: t('locBackThigh') },
+            { id: 'inner_thigh', label: t('locInnerThigh') },
+            { id: 'it_band', label: t('locITBand') }
+        ],
+        knees: [
+            { id: 'kneecap', label: t('locKneecap') },
+            { id: 'inner_knee', label: t('locInnerKnee') },
+            { id: 'outer_knee', label: t('locOuterKnee') },
+            { id: 'behind_knee', label: t('locBehindKnee') }
+        ],
+        calves: [
+            { id: 'upper_calf', label: t('locUpperCalf') },
+            { id: 'lower_calf', label: t('locLowerCalf') },
+            { id: 'achilles', label: t('locAchilles') },
+            { id: 'shin', label: t('locShin') }
+        ],
+        ankles: [
+            { id: 'inner_ankle', label: t('locInnerAnkle') },
+            { id: 'outer_ankle', label: t('locOuterAnkle') },
+            { id: 'front_ankle', label: t('locFrontAnkle') }
+        ],
+        feet: [
+            { id: 'heel', label: t('locHeel') },
+            { id: 'arch', label: t('locArch') },
+            { id: 'ball_foot', label: t('locBallFoot') },
+            { id: 'toes', label: t('locToes') }
+        ],
     };
 
     // Form state (Generic)
