@@ -45,10 +45,14 @@ export const translations = {
         proPlan: 'PRO PLAN',
         choosePro: 'CHOOSE PRO',
         transparencyComparison: 'TRANSPARENCY COMPARISON',
+        freemiumPlan: 'FREEMIUM PLAN',
+        chooseFreemium: 'CHOOSE FREEMIUM',
+        currentPlan: 'CURRENT PLAN',
         features: 'FEATURES',
         free: 'FREE',
         pro: 'PRO',
         elite: 'ELITE',
+        freemium: 'FREEMIUM',
 
         // Features
         muscleMapping: 'Muscle Mapping',
@@ -64,6 +68,8 @@ export const translations = {
         featureBasicAI: 'Basic AI Coaching',
         featureStandardMapping: 'Standard Muscle Mapping',
         featureWeeklyReports: 'Weekly Progress Reports',
+        featureBasicMappingOnly: 'Basic Muscle Mapping',
+        featureLimitedHistory: 'Limited Recovery History',
         lvlLabel: 'LVL',
         monthAbbr: '/mo',
 
@@ -640,6 +646,7 @@ export const translations = {
         free: '免费',
         pro: '专业',
         elite: '精英',
+        freemium: '免费',
 
         // Features
         muscleMapping: '肌肉映射',
@@ -655,6 +662,8 @@ export const translations = {
         featureBasicAI: '基础 AI 教练',
         featureStandardMapping: '标准肌肉映射',
         featureWeeklyReports: '每周进度报告',
+        featureBasicMappingOnly: '基础肌肉映射',
+        featureLimitedHistory: '有限恢复历史',
         lvlLabel: '等级',
         monthAbbr: '/月',
 
@@ -1210,10 +1219,14 @@ export const translations = {
         proPlan: 'FORFAIT PRO',
         choosePro: 'CHOISIR PRO',
         transparencyComparison: 'COMPARAISON TRANSPARENTE',
+        freemiumPlan: 'FORFAIT GRATUIT',
+        chooseFreemium: 'CHOISIR GRATUIT',
+        currentPlan: 'FORFAIT ACTUEL',
         features: 'FONCTIONNALITÉS',
         free: 'GRATUIT',
         pro: 'PRO',
         elite: 'ELITE',
+        freemium: 'GRATUIT',
 
         // Features
         muscleMapping: 'Cartographie musculaire',
@@ -1229,6 +1242,8 @@ export const translations = {
         featureBasicAI: 'Coaching IA de Base',
         featureStandardMapping: 'Cartographie Musculaire Standard',
         featureWeeklyReports: 'Rapports de Progrès Hebdomadaires',
+        featureBasicMappingOnly: 'Cartographie musculaire de base',
+        featureLimitedHistory: 'Historique de récupération limité',
         lvlLabel: 'NIV',
         monthAbbr: '/mois',
 
@@ -1921,10 +1936,14 @@ export const translations = {
         proPlan: 'PLAN PRO',
         choosePro: 'ELEGIR PRO',
         transparencyComparison: 'COMPARACIÓN DE TRANSPARENCIA',
+        freemiumPlan: 'PLAN GRATUITO',
+        chooseFreemium: 'ELEGIR GRATIS',
+        currentPlan: 'PLAN ACTUAL',
         features: 'CARACTERÍSTICAS',
         free: 'GRATIS',
         pro: 'PRO',
         elite: 'ELITE',
+        freemium: 'GRATIS',
 
         // Features
         muscleMapping: 'Mapeo muscular',
@@ -1940,6 +1959,8 @@ export const translations = {
         featureBasicAI: 'Entrenamiento IA Básico',
         featureStandardMapping: 'Mapeo Muscular Estándar',
         featureWeeklyReports: 'Informes de Progreso Semanales',
+        featureBasicMappingOnly: 'Mapeo muscular básico',
+        featureLimitedHistory: 'Historial de recuperación limitado',
         lvlLabel: 'NIV',
         monthAbbr: '/mes',
 

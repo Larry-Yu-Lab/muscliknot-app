@@ -84,7 +84,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
                             name: meta.full_name || 'User',
                             avatarUrl: meta.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(meta.full_name || 'User')}&background=f97316&color=fff`,
                             status: 'DATA-DRIVEN ATHLETE', // could also be DB field
-                            isPremium: true,
+                            isPremium: false,
                             stats,
                             attributes,
                         });

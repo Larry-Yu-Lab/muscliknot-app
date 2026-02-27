@@ -11,61 +11,55 @@ The core feature of the app is an interactive human anatomy model that allows us
 *   **Dual View:** Toggle between **Front** and **Back** muscle views.
 *   **Zoom Control:** Magnifying buttons (+/-) allow users to zoom in/out (up to 2x) on specific body areas for precise selection.
 *   **Smart Pain Mapping:** Users can drag, place, resize, and rotate a "Pain Marker" oval on the body map.
-*   **Activity Selection:** Upon generating a plan, users can choose their specific goal: **Find Relief**, **Warm Up**, **Yoga**, **Fix Posture**, or **Strengthen**.
-*   **Quick Access:** "Recent Plans" for quick re-access to previous relief sessions.
+*   **Muscle Search:** Real-time search functionality to quickly find and map specific body parts (e.g., "Neck", "Lower Back").
+*   **Quick Fix & Recent Plans:** Rapid access to common routines and your last completed sessions directly from the home screen.
 
-### 2. 🚑 Relief Plan Generator (Find Relief)
-Once a pain point is selected, users are guided through a structured relief session.
-*   **Targeted Exercises:** Displays a curated list of exercises specific to the selected muscle group.
-*   **Video Guidance:** Includes video thumbnails and playback UI for visual instruction.
-*   **Step-by-Step Instructions:** Detailed text instructions for Setup, Movement, and Holds.
-*   **Pain Assessment:** Users can rate their pain intensity (1-10) before/after sessions.
-*   **Completion Tracking:** "Mark as Complete" saves the session to history.
+### 2. ⚡ Activity Selection & Relief
+Once a pain point is selected, users can choose from 5 specialized activity types:
+*   **Find Relief:** Targeted exercises to reduce acute pain.
+*   **Warm Up:** Prepare specific muscles for activity.
+*   **Yoga:** Improve flexibility and balance in the target area.
+*   **Fix Posture:** Correct alignment issues related to the selected muscle.
+*   **Strengthen:** Build long-term muscle resilience.
 
-### 3. 📅 Recovery History
-Tracks the user's recovery journey over time.
-*   **Stats Overview:** Displays total sessions, recovery streaks, and the "Most Targeted" muscle group.
-*   **Weekly Reports:** Insights into weekly progress.
-*   **Interactive Timeline:** A visual scrollable timeline of all past completed sessions with dates and specific relief targets.
+### 3. 🚑 Intelligent Recommendations
+*   **Assessment Engine:** Dynamic logic that adjusts routines based on pain intensity, duration, and user mobility.
+*   **Advisory Guidance:** Real-time hints and safety warnings (e.g., "High pain detected — gentle exercises only").
+*   **Step-by-Step Instructions:** Detailed text for **Setup**, **Movement**, and **Holds**.
+*   **Incremental Display:** Progress through relief plans exercise-by-exercise for better focus.
 
-### 4. 📚 Exercise Library
-A searchable database of all available exercises.
-*   **Categorization:** Filter by categories like **Relief**, **Warm-ups**, **Yoga**, **Posture**, and **Strength**.
-*   **Muscle Group Filtering:** Specific filters (e.g., Neck, Shoulders, Lower Back) available when viewing "Relief" exercises.
-*   **Search:** Real-time search functionality by exercise title.
-*   **Detailed Cards:** Shows duration, target muscle, and difficulty for each exercise.
+### 4. 📚 Exercise Library & Saved Routines
+A searchable database of all available recovery movements.
+*   **Categorization:** Filter by activity type or specific muscle group.
+*   **Saved Exercises:** Save favorite routines to your personal "Saved" category for instant access.
+*   **Global Search:** Quick search across the entire exercise knowledge base.
 
-### 5. 👤 Profile & Dashboard
-A gamified user hub for settings and progress.
-*   **User Stats:** Tracks "Workouts", "Recovery Score", and "Streak Days".
-*   **Gamification:** Features an "Athlete Level" with a visual progress ring and badges.
-*   **Health Vault:** Visualizes specific health metrics like "Injury History" and "Fitness Level".
-*   **Settings:**
-    *   **Theme:** **Dark Mode** (Default) / Light Mode.
-    *   **Notifications:** Enable/Disable app alerts.
-    *   **Language:** Global multi-language support (English, French, Spanish, Chinese).
-*   **Plans:** UI for viewing/upgrading subscription plans (Elite vs Pro).
+### 5. 📊 Recovery History & Analytics
+Tracks and visualizes your recovery journey.
+*   **Stats Overview:** Total sessions, recovery streaks, and most targeted areas.
+*   **Advanced Analytics:** Interactive charts for **Pain Trends**, **Activity Breakdown**, and **Muscle Frequency**.
+*   **Progress Journey:** A visual timeline of every saved session.
 
-### 6. 🔐 Authentication & Onboarding
-Secure and personalized user entry.
-*   **Onboarding Flow:** Interactive setup for new users to define their **Lifestyle** (Sedentary, Active, Athlete) and **Goals** (Relief, Mobility, Maintenance).
-*   **Authentication:** Robust Email/Password login and registration powered by **Supabase Auth**.
-*   **Personalization:** User preferences are saved to the profile and used to tailor relief recommendations.
+### 6. 👤 Profile & Gamification
+*   **Athlete Level:** Earn badges and levels as you consistently track your recovery.
+*   **Health Vault:** Store injury history and fitness levels for personalized planning.
+*   **Multi-Language Support:** Full localization for **English**, **Spanish**, **French**, and **Chinese (中文)**.
+*   **Dark Mode:** Premium visual experience optimized for muscle mapping.
 
 ---
 
 ## 🛠 Tech Stack
 
 *   **Framework:** [React Native](https://reactnative.dev/) (v0.81) via [Expo](https://expo.dev/) (SDK 54).
-*   **Routing:** [Expo Router](https://docs.expo.dev/router/introduction/) (File-based routing).
-*   **Language:** TypeScript.
-*   **Styling:** `StyleSheet`, `react-native-svg` (for charts/rings).
-*   **Animations & Gestures:** 
-    *   `react-native-reanimated` (Smooth UI transitions).
-    *   `react-native-gesture-handler` (Complex interactions for the body map).
-*   **State Management:** React Context (`UserContext`, `PreferencesContext`).
-*   **Data Persistence:** `AsyncStorage` (Local history/settings).
-*   **Backend Integration:** Supabase (Client configured for future cloud sync/auth).
+*   **Routing:** [Expo Router](https://docs.expo.dev/router/introduction/) (File-based navigation).
+*   **Backend & DB:** **Supabase** (PostgreSQL, Auth, Real-time sync).
+*   **State Management:** React Context API (`UserContext`, `PreferencesContext`).
+*   **Localization:** Custom i18n engine with multi-language support.
+*   **Styling & UI:** 
+    *   `react-native-reanimated` (Advanced animations).
+    *   `react-native-gesture-handler` (Complex map interactions).
+    *   `react-native-svg` (Data visualization & charts).
+    *   `react-native-worklets` (Low-latency UI logic).
 
 ---
 
@@ -89,12 +83,23 @@ Secure and personalized user entry.
 
 ## 📂 Project Structure
 
-*   `app/(tabs)`: Main tab-based screens (`index`, `find-relief`, `history`, `library`, `profile`) and activity-specific pages (`warm-up`, `yoga`, `fix-posture`, `strengthen`).
-*   `components/`: Reusable UI components (e.g., `AnatomyMap.ts`, custom toggles).
-*   `context/`: Global state providers (`PreferencesContext`, `UserContext`).
-*   `constants/`: Theme colors and configuration.
-*   `assets/`: Images (muscle maps) and icons.
-*   `utils/`: Helper functions for localization (`i18n`) and storage.
+*   `app/(tabs)`: Core navigation screens and activity pages.
+*   `components/`: Reusable UI elements and the `AnatomyMap` logic.
+*   `context/`: Global state providers for Auth, User Data, and Preferences.
+*   `utils/`: Business logic for the **Assessment Engine**, **i18n**, and **Supabase** clients.
+*   `scripts/`: Database seeding, diagnostic tools, and exercise import utilities (CSV to SQL).
+*   `supabase/`: Database migrations and configuration.
+*   `constants/`: Design system tokens (Colors, Typography).
+
+---
+
+## 🗄️ Database Schema
+
+The application uses a robust PostgreSQL schema via Supabase:
+*   `recovery_knowledge_base`: Central repository for all exercise data across 5 activity types.
+*   `user_history`: Securely stores user recovery sessions and pain assessments.
+*   `user_saved_exercises`: Personalized lists of saved movements for quick recall.
+*   `pain_sessions`: Granular tracking of pain points and their evolution over time.
 
 ---
 

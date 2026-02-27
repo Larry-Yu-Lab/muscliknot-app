@@ -189,7 +189,9 @@ export default function ProfileScreen() {
                                         {t('statusAthlete')}
                                     </Text>
                                     <Text style={[styles.statusDot, { color: colors.textSecondary }]}>•</Text>
-                                    <Text style={[styles.premiumStatus, { color: colors.textSecondary }]}>{t('premiumStatus')}</Text>
+                                    <Text style={[styles.premiumStatus, { color: colors.textSecondary }]}>
+                                        {user.isPremium ? t('premiumStatus') : t('freemium')}
+                                    </Text>
                                 </View>
                             </View>
                         </View>
@@ -440,6 +442,7 @@ export default function ProfileScreen() {
                             </View>
                         </View>
 
+
                         {/* Elite Plan Card */}
                         <View style={styles.planCardWrapper}>
                             {/* Glow Effect only in dark mode or subtle shadow in light */}
@@ -519,6 +522,42 @@ export default function ProfileScreen() {
                             </View>
                             <TouchableOpacity style={[styles.proButton, { borderColor: colors.cardBorder }]}>
                                 <Text style={[styles.proButtonText, { color: colors.text }]}>{t('choosePro')}</Text>
+                            </TouchableOpacity>
+                        </View>
+
+                        {/* Freemium Plan Card */}
+                        <View style={[styles.proCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder, marginTop: 16 }]}>
+                            <View style={styles.planHeader}>
+                                <View>
+                                    <View style={[styles.proBadge, { backgroundColor: 'rgba(148, 163, 184, 0.1)' }]}>
+                                        <Text style={[styles.proBadgeText, { color: colors.textSecondary }]}>{t('freemium')}</Text>
+                                    </View>
+                                    <Text style={[styles.planTitlePro, { color: colors.text }]}>{t('freemiumPlan')}</Text>
+                                    <View style={styles.priceContainer}>
+                                        <Text style={[styles.priceBig, { color: colors.text }]}>$0.00</Text>
+                                        <Text style={[styles.pricePeriod, { color: colors.textSecondary }]}>{t('monthAbbr')}</Text>
+                                    </View>
+                                </View>
+                                {!user.isPremium && (
+                                    <View style={[styles.saveBadge, { backgroundColor: colors.success }]}>
+                                        <Text style={styles.saveBadgeText}>{t('currentPlan')}</Text>
+                                    </View>
+                                )}
+                            </View>
+                            <View style={[styles.divider, { backgroundColor: colors.cardBorder }]} />
+                            <View style={styles.featuresList}>
+                                {[
+                                    'featureBasicMappingOnly',
+                                    'featureLimitedHistory'
+                                ].map((key, i) => (
+                                    <View key={i} style={styles.featureItem}>
+                                        <Ionicons name="checkmark-circle" size={20} color={colors.textSecondary} />
+                                        <Text style={[styles.featureText, { color: colors.textSecondary }]}>{t(key as any)}</Text>
+                                    </View>
+                                ))}
+                            </View>
+                            <TouchableOpacity style={[styles.proButton, { borderColor: colors.cardBorder, opacity: !user.isPremium ? 0.5 : 1 }]} disabled={!user.isPremium}>
+                                <Text style={[styles.proButtonText, { color: colors.text }]}>{!user.isPremium ? t('currentPlan') : t('chooseFreemium')}</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
