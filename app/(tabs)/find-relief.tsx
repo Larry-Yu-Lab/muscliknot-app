@@ -6,11 +6,13 @@ import { categoryLabelKey, getExerciseRecommendation, RecommendationResult } fro
 import { getTranslation } from '@/utils/i18n';
 import { AssessmentData, savePainSession, saveToHistory } from '@/utils/storage';
 import { Ionicons } from '@expo/vector-icons';
+import * as Haptics from 'expo-haptics';
 import { Image } from 'expo-image';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as React from 'react';
 import { useState } from 'react';
-import { Alert, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Platform, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import Animated, { interpolateColor, useAnimatedStyle, useSharedValue, withSequence, withSpring, withTiming } from 'react-native-reanimated';
 
 // ─── Helpers ───────────────────────────────────────────────────────────────
 
@@ -267,7 +269,36 @@ export default function FindReliefScreen() {
         return `${target} ${activityType}`;
     }, [targetLocationTrans, targetMuscleTrans, activityType, t]);
 
+    const buttonScale = useSharedValue(1);
+    const successAnim = useSharedValue(0);
+
+    const animatedButtonStyle = useAnimatedStyle(() => {
+        return {
+            transform: [{ scale: buttonScale.value }],
+            backgroundColor: interpolateColor(
+                successAnim.value,
+                [0, 1],
+                [colors.accent, '#22c55e']
+            )
+        };
+    });
+
+    const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity);
+
     const handleComplete = async () => {
+        // Haptic Feedback
+        if (Platform.OS !== 'web') {
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        }
+
+        // Animation Sequence
+        buttonScale.value = withSequence(
+            withSpring(0.95),
+            withSpring(1.05),
+            withSpring(1)
+        );
+        successAnim.value = withTiming(1, { duration: 400 });
+
         const item = { date: Date.now(), muscleGroup: targetMuscle, exercises, assessment };
         await saveToHistory(item);
         await savePainSession({
@@ -283,9 +314,13 @@ export default function FindReliefScreen() {
             recommendationAdvisory: recommendation.advisory,
             exercisesShown: exercises,
         });
-        Alert.alert(t('planCompletedTitle'), t('planCompletedMessage'), [
-            { text: 'OK', onPress: () => router.navigate('/(tabs)') }
-        ]);
+
+        // Delay alert slightly to let animation finish
+        setTimeout(() => {
+            Alert.alert(t('planCompletedTitle'), t('planCompletedMessage'), [
+                { text: 'OK', onPress: () => router.navigate('/(tabs)') }
+            ]);
+        }, 600);
     };
 
     const totalMinutes = exercises.length * 4;
@@ -412,9 +447,12 @@ export default function FindReliefScreen() {
 
             {/* Sticky complete button */}
             <View style={[styles.bottomBar, { backgroundColor: colors.headerBackground, borderTopColor: colors.cardBorder }]}>
-                <TouchableOpacity style={[styles.completeBtn, { backgroundColor: colors.accent }]} onPress={handleComplete}>
+                <AnimatedTouchableOpacity
+                    style={[styles.completeBtn, animatedButtonStyle]}
+                    onPress={handleComplete}
+                >
                     <Text style={styles.completeBtnText}>{t('markAsComplete')}</Text>
-                </TouchableOpacity>
+                </AnimatedTouchableOpacity>
             </View>
         </SafeAreaView>
     );

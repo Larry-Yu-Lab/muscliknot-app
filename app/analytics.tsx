@@ -4,7 +4,7 @@ import { AnalyticsData, processAnalytics } from '@/utils/analytics';
 import { getTranslation } from '@/utils/i18n';
 import { getHistory } from '@/utils/storage';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { Dimensions, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Svg, { Circle, Line, Path, Rect, Text as SvgText } from 'react-native-svg';
@@ -32,6 +32,7 @@ export default function AnalyticsScreen() {
     if (loading) {
         return (
             <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+                <Stack.Screen options={{ headerShown: false }} />
                 <View style={styles.loadingContainer}>
                     <Text style={{ color: colors.textSecondary }}>{t('loadingRelief')}</Text>
                 </View>
@@ -42,6 +43,7 @@ export default function AnalyticsScreen() {
     if (!data || data.totalSessions === 0) {
         return (
             <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+                <Stack.Screen options={{ headerShown: false }} />
                 <View style={styles.header}>
                     <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
                         <Ionicons name="chevron-back" size={24} color={colors.text} />
@@ -58,6 +60,7 @@ export default function AnalyticsScreen() {
 
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+            <Stack.Screen options={{ headerShown: false }} />
             {/* Header */}
             <View style={styles.header}>
                 <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
@@ -69,31 +72,39 @@ export default function AnalyticsScreen() {
 
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
 
-                {/* Top Stats Row */}
-                <View style={styles.statsRow}>
-                    <View style={[styles.smallStatCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
-                        <Text style={[styles.smallStatLabel, { color: colors.textSecondary }]}>{t('sessions')}</Text>
-                        <Text style={[styles.smallStatValue, { color: colors.text }]}>{data.totalSessions}</Text>
+                {/* Highlights Grid */}
+                <View style={styles.statsGrid}>
+                    <View style={[styles.gridCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
+                        <Text style={[styles.gridLabel, { color: colors.textSecondary }]}>{t('sessions')}</Text>
+                        <Text style={[styles.gridValue, { color: colors.text }]}>{data.totalSessions}</Text>
                     </View>
-                    <View style={[styles.smallStatCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
-                        <Text style={[styles.smallStatLabel, { color: colors.textSecondary }]}>{t('averagePainLevel')}</Text>
-                        <Text style={[styles.smallStatValue, { color: colors.accent }]}>{data.avgPainLevel}/10</Text>
+                    <View style={[styles.gridCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
+                        <Text style={[styles.gridLabel, { color: colors.textSecondary }]}>{t('streak')}</Text>
+                        <Text style={[styles.gridValue, { color: colors.accent }]}>{data.streakDays}d</Text>
+                    </View>
+                    <View style={[styles.gridCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
+                        <Text style={[styles.gridLabel, { color: colors.textSecondary }]}>{t('averagePainLevel')}</Text>
+                        <Text style={[styles.gridValue, { color: colors.text }]}>{data.avgPainLevel}</Text>
+                    </View>
+                    <View style={[styles.gridCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
+                        <Text style={[styles.gridLabel, { color: colors.textSecondary }]}>{t('recoveryScore')}</Text>
+                        <Text style={[styles.gridValue, { color: colors.accent }]}>{data.recoveryScore}%</Text>
                     </View>
                 </View>
 
-                {/* Recovery Score Card */}
+                {/* Insights Section */}
                 <View style={[styles.glassCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
                     <View style={styles.cardHeader}>
-                        <Text style={[styles.cardTitle, { color: colors.text }]}>{t('recoveryScore')}</Text>
-                        <MaterialCommunityIcons name="heart-pulse" size={20} color={colors.accent} />
+                        <Text style={[styles.cardTitle, { color: colors.text }]}>Insights</Text>
+                        <MaterialCommunityIcons name="lightbulb-on-outline" size={20} color={colors.accent} />
                     </View>
-                    <View style={styles.recoveryContainer}>
-                        <Text style={[styles.recoveryValue, { color: colors.accent }]}>{data.recoveryScore}%</Text>
-                        <View style={styles.progressBarContainer}>
-                            <View style={[styles.progressBarBg, { backgroundColor: isDark ? '#333' : '#eee' }]}>
-                                <View style={[styles.progressBarFill, { backgroundColor: colors.accent, width: `${data.recoveryScore}%` }]} />
+                    <View style={styles.insightsList}>
+                        {data.insights.map((insight, idx) => (
+                            <View key={idx} style={styles.insightItem}>
+                                <View style={[styles.insightDot, { backgroundColor: colors.accent }]} />
+                                <Text style={[styles.insightText, { color: colors.text }]}>{insight}</Text>
                             </View>
-                        </View>
+                        ))}
                     </View>
                 </View>
 
@@ -101,7 +112,6 @@ export default function AnalyticsScreen() {
                 <View style={[styles.glassCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
                     <View style={styles.cardHeader}>
                         <Text style={[styles.cardTitle, { color: colors.text }]}>{t('painTrends')}</Text>
-                        <Text style={[styles.cardSubtitle, { color: colors.textSecondary }]}>{t('last30Days')}</Text>
                     </View>
                     <View style={styles.chartContainer}>
                         {data.painTrends.length > 1 ? (
@@ -112,7 +122,7 @@ export default function AnalyticsScreen() {
                     </View>
                 </View>
 
-                {/* Activity Breakdown */}
+                {/* Activity Distribution */}
                 <View style={[styles.glassCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
                     <View style={styles.cardHeader}>
                         <Text style={[styles.cardTitle, { color: colors.text }]}>{t('activityBreakdown')}</Text>
@@ -126,13 +136,26 @@ export default function AnalyticsScreen() {
                                         {t(`short${item.type.charAt(0).toUpperCase()}${item.type.slice(1)}` as any)}
                                     </Text>
                                 </View>
-                                <Text style={[styles.activityCount, { color: colors.textSecondary }]}>{item.count}</Text>
+                                <View style={styles.activityRowRight}>
+                                    <View style={[styles.miniBarBg, { backgroundColor: isDark ? '#333' : '#eee' }]}>
+                                        <View
+                                            style={[
+                                                styles.miniBarFill,
+                                                {
+                                                    backgroundColor: getActivityColor(item.type, colors.accent),
+                                                    width: `${(item.count / data.totalSessions) * 100}%`
+                                                }
+                                            ]}
+                                        />
+                                    </View>
+                                    <Text style={[styles.activityCount, { color: colors.textSecondary }]}>{item.count}</Text>
+                                </View>
                             </View>
                         ))}
                     </View>
                 </View>
 
-                {/* Muscle Group Frequency */}
+                {/* Muscle Frequency */}
                 <View style={[styles.glassCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
                     <View style={styles.cardHeader}>
                         <Text style={[styles.cardTitle, { color: colors.text }]}>{t('muscleFrequency')}</Text>
@@ -164,9 +187,9 @@ const getActivityColor = (type: string, accent: string) => {
 
 const PainTrendsSvg = ({ trends, color, textColor }: { trends: any[], color: string, textColor: string }) => {
     const chartWidth = width - 64;
-    const chartHeight = 150;
+    const chartHeight = 180;
     const maxPain = 10;
-    const padding = 20;
+    const padding = 30;
 
     const points = trends.map((entry, idx) => {
         const x = (idx / (trends.length - 1)) * (chartWidth - padding * 2) + padding;
@@ -180,15 +203,24 @@ const PainTrendsSvg = ({ trends, color, textColor }: { trends: any[], color: str
         <Svg width={chartWidth} height={chartHeight}>
             {/* Grid Lines */}
             {[0, 2.5, 5, 7.5, 10].map((val) => (
-                <Line
-                    key={val}
-                    x1={padding}
-                    y1={chartHeight - (val / maxPain) * (chartHeight - padding * 2) - padding}
-                    x2={chartWidth - padding}
-                    y2={chartHeight - (val / maxPain) * (chartHeight - padding * 2) - padding}
-                    stroke="rgba(148, 163, 184, 0.1)"
-                    strokeWidth="1"
-                />
+                <React.Fragment key={val}>
+                    <Line
+                        x1={padding}
+                        y1={chartHeight - (val / maxPain) * (chartHeight - padding * 2) - padding}
+                        x2={chartWidth - padding}
+                        y2={chartHeight - (val / maxPain) * (chartHeight - padding * 2) - padding}
+                        stroke="rgba(148, 163, 184, 0.1)"
+                        strokeWidth="1"
+                    />
+                    <SvgText
+                        x="5"
+                        y={chartHeight - (val / maxPain) * (chartHeight - padding * 2) - padding + 4}
+                        fill={textColor}
+                        fontSize="8"
+                    >
+                        {val}
+                    </SvgText>
+                </React.Fragment>
             ))}
 
             {/* The Line */}
@@ -201,12 +233,31 @@ const PainTrendsSvg = ({ trends, color, textColor }: { trends: any[], color: str
                 strokeLinejoin="round"
             />
 
-            {/* Data Points */}
+            {/* Data Points and Date Labels */}
             {trends.map((entry, idx) => {
                 const x = (idx / (trends.length - 1)) * (chartWidth - padding * 2) + padding;
                 const y = chartHeight - (entry.painLevel / maxPain) * (chartHeight - padding * 2) - padding;
+                const dateObj = new Date(entry.date);
+                const dateStr = `${dateObj.getMonth() + 1}/${dateObj.getDate()}`;
+
+                // Only show labels for every few points or key points if many
+                const showLabel = trends.length < 7 || idx === 0 || idx === trends.length - 1 || idx % Math.floor(trends.length / 3) === 0;
+
                 return (
-                    <Circle key={idx} cx={x} cy={y} r="4" fill={color} />
+                    <React.Fragment key={idx}>
+                        <Circle cx={x} cy={y} r="4" fill={color} />
+                        {showLabel && (
+                            <SvgText
+                                x={x}
+                                y={chartHeight - 5}
+                                fill={textColor}
+                                fontSize="8"
+                                textAnchor="middle"
+                            >
+                                {dateStr}
+                            </SvgText>
+                        )}
+                    </React.Fragment>
                 );
             })}
         </Svg>
@@ -215,15 +266,16 @@ const PainTrendsSvg = ({ trends, color, textColor }: { trends: any[], color: str
 
 const MuscleFreqChart = ({ data, color, textColor, t }: { data: any[], color: string, textColor: string, t: any }) => {
     const chartWidth = width - 64;
-    const barHeight = 30;
-    const spacing = 10;
-    const chartHeight = data.slice(0, 5).length * (barHeight + spacing);
+    const barHeight = 20;
+    const spacing = 12;
+    const chartHeight = data.slice(0, 6).length * (barHeight + spacing);
     const maxCount = Math.max(...data.map(d => d.count));
 
     return (
         <Svg width={chartWidth} height={chartHeight}>
-            {data.slice(0, 5).map((item, idx) => {
-                const barWidth = (item.count / maxCount) * (chartWidth - 100);
+            {data.slice(0, 6).map((item, idx) => {
+                const barMaxWidth = chartWidth - 110;
+                const barWidth = (item.count / maxCount) * barMaxWidth;
                 const y = idx * (barHeight + spacing);
 
                 const muscleKey = `mg${item.muscle.replace(/\s/g, '')}` as any;
@@ -233,27 +285,27 @@ const MuscleFreqChart = ({ data, color, textColor, t }: { data: any[], color: st
                     <React.Fragment key={idx}>
                         <SvgText
                             x="0"
-                            y={y + barHeight / 2 + 5}
+                            y={y + barHeight / 2 + 4}
                             fill={textColor}
-                            fontSize="10"
-                            fontWeight="bold"
+                            fontSize="9"
+                            fontWeight="800"
                         >
                             {translatedMuscle.toUpperCase()}
                         </SvgText>
                         <Rect
-                            x="80"
+                            x="90"
                             y={y}
                             width={barWidth}
                             height={barHeight}
-                            rx="4"
+                            rx="10"
                             fill={color}
                             opacity={0.8}
                         />
                         <SvgText
-                            x={80 + barWidth + 10}
-                            y={y + barHeight / 2 + 5}
+                            x={90 + barWidth + 8}
+                            y={y + barHeight / 2 + 4}
                             fill={textColor}
-                            fontSize="12"
+                            fontSize="11"
                             fontWeight="bold"
                         >
                             {item.count}
@@ -309,28 +361,31 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         paddingBottom: 40,
     },
-    statsRow: {
+    statsGrid: {
         flexDirection: 'row',
-        gap: 12,
+        flexWrap: 'wrap',
+        gap: 10,
         marginTop: 12,
         marginBottom: 20,
     },
-    smallStatCard: {
-        flex: 1,
+    gridCard: {
+        width: (width - 32 - 10) / 2,
         borderRadius: 16,
         padding: 16,
         borderWidth: 1,
         alignItems: 'center',
+        justifyContent: 'center',
     },
-    smallStatLabel: {
-        fontSize: 10,
-        fontWeight: '700',
+    gridLabel: {
+        fontSize: 9,
+        fontWeight: '800',
         letterSpacing: 1,
+        textTransform: 'uppercase',
         marginBottom: 4,
     },
-    smallStatValue: {
-        fontSize: 24,
-        fontWeight: '800',
+    gridValue: {
+        fontSize: 22,
+        fontWeight: '900',
     },
     glassCard: {
         borderRadius: 24,
@@ -346,48 +401,42 @@ const styles = StyleSheet.create({
         marginBottom: 16,
     },
     cardTitle: {
-        fontSize: 14,
-        fontWeight: '800',
-        letterSpacing: 1,
+        fontSize: 12,
+        fontWeight: '900',
+        letterSpacing: 1.5,
         textTransform: 'uppercase',
     },
-    cardSubtitle: {
-        fontSize: 10,
-        fontWeight: '600',
+    insightsList: {
+        gap: 12,
     },
-    recoveryContainer: {
+    insightItem: {
+        flexDirection: 'row',
+        gap: 10,
         alignItems: 'center',
     },
-    recoveryValue: {
-        fontSize: 48,
-        fontWeight: '900',
-        marginBottom: 10,
+    insightDot: {
+        width: 6,
+        height: 6,
+        borderRadius: 3,
     },
-    progressBarContainer: {
-        width: '100%',
-        marginTop: 10,
-    },
-    progressBarBg: {
-        height: 8,
-        borderRadius: 4,
-        width: '100%',
-        overflow: 'hidden',
-    },
-    progressBarFill: {
-        height: '100%',
-        borderRadius: 4,
+    insightText: {
+        fontSize: 13,
+        fontWeight: '600',
+        lineHeight: 18,
+        flex: 1,
     },
     chartContainer: {
         alignItems: 'center',
         justifyContent: 'center',
-        minHeight: 100,
+        minHeight: 120,
+        width: '100%',
     },
     notEnoughData: {
         fontSize: 12,
         fontStyle: 'italic',
     },
     activityList: {
-        gap: 12,
+        gap: 14,
     },
     activityItem: {
         flexDirection: 'row',
@@ -398,6 +447,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         gap: 8,
+        width: 80,
     },
     activityDot: {
         width: 8,
@@ -405,11 +455,30 @@ const styles = StyleSheet.create({
         borderRadius: 4,
     },
     activityName: {
-        fontSize: 14,
-        fontWeight: '600',
+        fontSize: 12,
+        fontWeight: '800',
+        textTransform: 'uppercase',
+    },
+    activityRowRight: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
+    },
+    miniBarBg: {
+        flex: 1,
+        height: 6,
+        borderRadius: 3,
+        overflow: 'hidden',
+    },
+    miniBarFill: {
+        height: '100%',
+        borderRadius: 3,
     },
     activityCount: {
         fontSize: 14,
-        fontWeight: '700',
+        fontWeight: '900',
+        width: 20,
+        textAlign: 'right',
     },
 });

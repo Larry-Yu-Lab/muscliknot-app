@@ -21,9 +21,49 @@ export interface AnalyticsData {
     muscleFrequency: MuscleFrequency[];
     totalSessions: number;
     recoveryScore: number;
+    streakDays: number;
     mostActiveMuscle: string;
     avgPainLevel: number;
+    level: number;
+    levelProgress: number;
+    injuryRecovery: number;
+    insights: string[];
 }
+
+/**
+ * Calculates the current consecutive day streak.
+ */
+const calculateStreak = (history: HistoryItem[]): number => {
+    if (history.length === 0) return 0;
+
+    // Get unique days (YYYY-MM-DD) sorted descending
+    const days = Array.from(new Set(
+        history.map(h => new Date(h.date).toISOString().split('T')[0])
+    )).sort((a, b) => b.localeCompare(a));
+
+    const today = new Date().toISOString().split('T')[0];
+    const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+
+    // If the latest activity is not today or yesterday, streak is 0
+    if (days[0] !== today && days[0] !== yesterday) return 0;
+
+    let streak = 1;
+    let currentDate = new Date(days[0]);
+
+    for (let i = 1; i < days.length; i++) {
+        const expectedDate = new Date(currentDate);
+        expectedDate.setDate(currentDate.getDate() - i);
+        const expectedStr = expectedDate.toISOString().split('T')[0];
+
+        if (days[i] === expectedStr) {
+            streak++;
+        } else {
+            break;
+        }
+    }
+
+    return streak;
+};
 
 /**
  * Processes a history of items into analytics data.
@@ -73,14 +113,41 @@ export const processAnalytics = (history: HistoryItem[]): AnalyticsData => {
 
     const avgPainLevel = painEntriesCount > 0 ? Number((totalPain / painEntriesCount).toFixed(1)) : 0;
     const mostActiveMuscle = muscleFrequency[0]?.muscle || 'None';
+    const streakDays = calculateStreak(history);
 
-    // Recovery score logic: Simple heuristic for now
-    // Base 50, +5 per session (up to 30), -5 per avg pain level above 3
-    let recoveryScore = 50 + (history.length * 5);
-    if (avgPainLevel > 3) {
-        recoveryScore -= (avgPainLevel - 3) * 5;
+    // Level calculation: 1 level per 5 sessions
+    const level = Math.floor(history.length / 5) + 1;
+    const levelProgress = Math.round(((history.length % 5) / 5) * 100);
+
+    // Injury Recovery: Percentage reduction in pain from start to now
+    let injuryRecovery = 0;
+    if (painTrends.length > 1) {
+        const startPain = painTrends[0].painLevel;
+        const currentPain = painTrends[painTrends.length - 1].painLevel;
+        if (startPain > 0) {
+            injuryRecovery = Math.round(Math.max(0, ((startPain - currentPain) / startPain) * 100));
+        }
     }
+
+    // Recovery score logic: 
+    // Base 40
+    // + Session Volume (up to 40 points): 4 points per session in last 7 days
+    // + Consistency (up to 20 points): streakDays * 2
+    // - Pain Penalty: (avgPainLevel / 10) * 30
+    const now = Date.now();
+    const last7DaysSessions = history.filter(h => (now - h.date) < 7 * 86400000).length;
+
+    let recoveryScore = 40 + (last7DaysSessions * 4) + (streakDays * 2);
+    recoveryScore -= (avgPainLevel / 10) * 30;
     recoveryScore = Math.min(100, Math.max(0, Math.round(recoveryScore)));
+
+    // Insights generation
+    const insights: string[] = [];
+    if (streakDays > 2) insights.push(`You're on a ${streakDays}-day streak! Keep it up.`);
+    if (last7DaysSessions > 3) insights.push("Great consistency this week. Your muscles appreciate it.");
+    if (avgPainLevel < 4 && history.length > 5) insights.push("Your reported pain levels are trending lower.");
+    if (mostActiveMuscle !== 'None') insights.push(`You've been focusing heavily on your ${mostActiveMuscle} lately.`);
+    if (insights.length === 0) insights.push("Start regular sessions to see more detailed insights.");
 
     return {
         painTrends,
@@ -88,7 +155,12 @@ export const processAnalytics = (history: HistoryItem[]): AnalyticsData => {
         muscleFrequency,
         totalSessions: history.length,
         recoveryScore,
+        streakDays,
         mostActiveMuscle,
-        avgPainLevel
+        avgPainLevel,
+        level,
+        levelProgress,
+        injuryRecovery,
+        insights
     };
 };

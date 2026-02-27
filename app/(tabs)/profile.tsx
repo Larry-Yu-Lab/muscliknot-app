@@ -3,6 +3,7 @@ import { Colors } from '@/constants/theme';
 import { useAuth } from '@/context/AuthContext';
 import { usePreferences } from '@/context/PreferencesContext';
 import { useUser } from '@/context/UserContext';
+import { processAnalytics } from '@/utils/analytics';
 import { getTranslation, LANGUAGES } from '@/utils/i18n';
 import { getHistory } from '@/utils/storage';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -10,9 +11,51 @@ import { Image } from 'expo-image';
 import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useState } from 'react';
 import { Dimensions, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import Svg, { Circle, Path } from 'react-native-svg';
+import Svg, { Circle, Line, Path } from 'react-native-svg';
 
 const { width } = Dimensions.get('window');
+
+const PainTrendsMiniSvg = ({ trends, color }: { trends: any[], color: string }) => {
+    if (trends.length < 2) {
+        return (
+            <Svg width="100%" height={40} viewBox="0 0 100 40" preserveAspectRatio="none">
+                <Line x1="0" y1="35" x2="100" y2="35" stroke="rgba(148, 163, 184, 0.2)" strokeWidth="2" strokeDasharray="4 4" />
+            </Svg>
+        );
+    }
+
+    const chartWidth = 100;
+    const chartHeight = 40;
+    const maxPain = 10;
+    const padding = 5;
+
+    // Use last 7 entries for the mini graph
+    const recentTrends = trends.slice(-7);
+
+    const points = recentTrends.map((entry, idx) => {
+        const x = (idx / (recentTrends.length - 1)) * (chartWidth - padding * 2) + padding;
+        const y = chartHeight - (entry.painLevel / maxPain) * (chartHeight - padding * 2) - padding;
+        return `${x},${y}`;
+    }).join(' ');
+
+    const pathData = `M ${points}`;
+    const lastX = (recentTrends.length - 1) / (recentTrends.length - 1) * (chartWidth - padding * 2) + padding;
+    const lastY = chartHeight - (recentTrends[recentTrends.length - 1].painLevel / maxPain) * (chartHeight - padding * 2) - padding;
+
+    return (
+        <Svg width="100%" height={40} viewBox="0 0 100 40" preserveAspectRatio="none">
+            <Path
+                d={pathData}
+                fill="none"
+                stroke={color}
+                strokeWidth="3"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+            />
+            <Circle cx={lastX} cy={lastY} r="3" fill={color} />
+        </Svg>
+    );
+};
 
 export default function ProfileScreen() {
     const router = useRouter();
@@ -21,21 +64,49 @@ export default function ProfileScreen() {
     const { signOut } = useAuth();
     const colors = Colors[theme];
     const isDark = theme === 'dark';
-    const t = (key: Parameters<typeof getTranslation>[1]) => getTranslation(language, key);
+    const t = (key: Parameters<typeof getTranslation>[1], params?: Record<string, string>) => getTranslation(language, key, params);
 
     const [activeTab, setActiveTab] = useState<'profile' | 'plans'>('profile');
     const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('annual');
-    const [sessionsCount, setSessionsCount] = useState(user.stats.workouts);
+    const [stats, setStats] = useState({
+        workouts: user.stats.workouts,
+        recovery: user.stats.recoveryScore,
+        streak: user.stats.streakDays
+    });
+    const [painTrends, setPainTrends] = useState<any[]>([]);
     const [isLanguageDropdownOpen, setIsLanguageDropdownOpen] = useState(false);
 
     useFocusEffect(
         useCallback(() => {
             getHistory().then(items => {
-                const count = items.length;
-                setSessionsCount(count);
-                // Also update user context if needed, or just display local count
-                if (count !== user.stats.workouts) {
-                    updateUser({ stats: { ...user.stats, workouts: count } });
+                const analytics = processAnalytics(items);
+                setStats({
+                    workouts: analytics.totalSessions,
+                    recovery: analytics.recoveryScore,
+                    streak: analytics.streakDays
+                });
+                setPainTrends(analytics.painTrends);
+
+                // Update persistent user context with these factual stats
+                if (analytics.totalSessions !== user.stats.workouts ||
+                    analytics.recoveryScore !== user.stats.recoveryScore ||
+                    analytics.streakDays !== user.stats.streakDays ||
+                    analytics.level !== user.attributes.level ||
+                    analytics.levelProgress !== user.attributes.levelProgress ||
+                    analytics.injuryRecovery !== user.attributes.injuryRecovery) {
+                    updateUser({
+                        stats: {
+                            workouts: analytics.totalSessions,
+                            recoveryScore: analytics.recoveryScore,
+                            streakDays: analytics.streakDays
+                        },
+                        attributes: {
+                            ...user.attributes,
+                            level: analytics.level,
+                            levelProgress: analytics.levelProgress,
+                            injuryRecovery: analytics.injuryRecovery
+                        }
+                    });
                 }
             });
         }, [])
@@ -126,16 +197,16 @@ export default function ProfileScreen() {
                         {/* Stats Cards */}
                         <View style={styles.statsContainer}>
                             <View style={[styles.statCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
-                                <Text style={[styles.statLabel, { color: colors.text }]}>{t('workoutsLabel')}</Text>
-                                <Text style={[styles.statValue, { color: colors.text }]}>{sessionsCount}</Text>
+                                <Text style={[styles.statLabel, { color: colors.text }]}>{t('workouts')}</Text>
+                                <Text style={[styles.statValue, { color: colors.text }]}>{stats.workouts}</Text>
                             </View>
                             <View style={[styles.statCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
-                                <Text style={[styles.statLabel, { color: colors.text }]}>{t('recoveryLabel')}</Text>
-                                <Text style={[styles.statValueOrange, { color: colors.accent }]}>{user.stats.recoveryScore}%</Text>
+                                <Text style={[styles.statLabel, { color: colors.text }]}>{t('recovery')}</Text>
+                                <Text style={[styles.statValueOrange, { color: colors.accent }]}>{stats.recovery}%</Text>
                             </View>
                             <View style={[styles.statCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
-                                <Text style={[styles.statLabel, { color: colors.text }]}>{t('streakLabel')}</Text>
-                                <Text style={[styles.statValueOrange, { color: colors.accent }]}>{sessionsCount > 0 ? `${user.stats.streakDays}d` : '0d'}</Text>
+                                <Text style={[styles.statLabel, { color: colors.text }]}>{t('streak')}</Text>
+                                <Text style={[styles.statValueOrange, { color: colors.accent }]}>{stats.streak}d</Text>
                             </View>
                         </View>
 
@@ -167,16 +238,7 @@ export default function ProfileScreen() {
                                         <Text style={[styles.cardTitle, { color: colors.text }]}>{t('recoveryTrack')}</Text>
                                     </View>
                                     <View style={styles.miniGraphContainer}>
-                                        <Svg width="100%" height={60} viewBox="0 0 100 40" preserveAspectRatio="none">
-                                            <Path
-                                                d="M0 35 Q 30 35, 60 25 T 100 10"
-                                                fill="none"
-                                                stroke={colors.accent}
-                                                strokeWidth="3"
-                                                strokeLinecap="round"
-                                            />
-                                            <Circle cx="100" cy="10" r="4" fill={colors.accent} />
-                                        </Svg>
+                                        <PainTrendsMiniSvg trends={painTrends} color={colors.accent} />
                                     </View>
                                 </View>
 
