@@ -99,12 +99,22 @@ export default function AnalyticsScreen() {
                         <MaterialCommunityIcons name="lightbulb-on-outline" size={20} color={colors.accent} />
                     </View>
                     <View style={styles.insightsList}>
-                        {data.insights.map((insight, idx) => (
-                            <View key={idx} style={styles.insightItem}>
-                                <View style={[styles.insightDot, { backgroundColor: colors.accent }]} />
-                                <Text style={[styles.insightText, { color: colors.text }]}>{insight}</Text>
-                            </View>
-                        ))}
+                        {data.insights.map((insight, idx) => {
+                            const params = { ...insight.params };
+                            if (params.muscle) {
+                                const mgKey = `mg${(params.muscle as string).replace(/\s/g, '')}` as any;
+                                const trans = t(mgKey);
+                                params.muscle = trans !== mgKey ? trans : params.muscle;
+                            }
+                            return (
+                                <View key={idx} style={styles.insightItem}>
+                                    <View style={[styles.insightDot, { backgroundColor: colors.accent }]} />
+                                    <Text style={[styles.insightText, { color: colors.text }]}>
+                                        {t(insight.key as any, params as any)}
+                                    </Text>
+                                </View>
+                            );
+                        })}
                     </View>
                 </View>
 

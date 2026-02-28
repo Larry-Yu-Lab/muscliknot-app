@@ -42,12 +42,19 @@ function ExerciseCard({ ex, index, colors, language }: { ex: any; index: number;
     // Attempt to translate title and subtitle
     const transTitleKey = `ex_${ex.id}_title` as any;
     const transDescKey = `ex_${ex.id}_desc` as any;
+    const transWhyKey = `ex_${ex.id}_why` as any;
+    const transProcessKey = `ex_${ex.id}_process` as any;
+
     const translatedTitle = t(transTitleKey);
     const translatedDesc = t(transDescKey);
+    const translatedWhy = t(transWhyKey);
+    const translatedProcess = t(transProcessKey);
 
     const displayTitle = translatedTitle !== transTitleKey ? translatedTitle : (ex.solution_stretch || ex.title || ex.common_name || 'Exercise');
     const displaySubtitle = ex.common_name && !isLocal ? ex.common_name : ex.duration;
     const displayDescription = translatedDesc !== transDescKey ? translatedDesc : (ex.description || ex.instructions);
+    const displayWhy = translatedWhy !== transWhyKey ? translatedWhy : ex.why;
+    const displayProcess = translatedProcess !== transProcessKey ? translatedProcess : ex.process;
 
     return (
         <View style={[cardStyles.card, { backgroundColor: 'rgba(30,30,35,0.95)', borderColor: expanded ? colors.accent : 'rgba(255,255,255,0.08)' }]}>
@@ -83,7 +90,7 @@ function ExerciseCard({ ex, index, colors, language }: { ex: any; index: number;
                                 <Ionicons name="bulb-outline" size={16} color={colors.accent} />
                                 <Text style={[cardStyles.sectionTitle, { color: colors.accent }]}>{getTranslation(language, 'whyThisWorks')}</Text>
                             </View>
-                            <Text style={cardStyles.bodyText}>{ex.why}</Text>
+                            <Text style={cardStyles.bodyText}>{displayWhy}</Text>
                         </View>
                     ) : null}
 
@@ -122,7 +129,7 @@ function ExerciseCard({ ex, index, colors, language }: { ex: any; index: number;
                     {ex.process ? (
                         <View style={[cardStyles.section, cardStyles.processBox]}>
                             <Ionicons name="timer-outline" size={15} color={colors.accent} />
-                            <Text style={[cardStyles.bodyText, { flex: 1 }]}>{ex.process}</Text>
+                            <Text style={[cardStyles.bodyText, { flex: 1 }]}>{displayProcess}</Text>
                         </View>
                     ) : null}
                 </View>

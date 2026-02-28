@@ -27,7 +27,7 @@ export interface AnalyticsData {
     level: number;
     levelProgress: number;
     injuryRecovery: number;
-    insights: string[];
+    insights: { key: string; params?: Record<string, string | number> }[];
 }
 
 /**
@@ -142,12 +142,12 @@ export const processAnalytics = (history: HistoryItem[]): AnalyticsData => {
     recoveryScore = Math.min(100, Math.max(0, Math.round(recoveryScore)));
 
     // Insights generation
-    const insights: string[] = [];
-    if (streakDays > 2) insights.push(`You're on a ${streakDays}-day streak! Keep it up.`);
-    if (last7DaysSessions > 3) insights.push("Great consistency this week. Your muscles appreciate it.");
-    if (avgPainLevel < 4 && history.length > 5) insights.push("Your reported pain levels are trending lower.");
-    if (mostActiveMuscle !== 'None') insights.push(`You've been focusing heavily on your ${mostActiveMuscle} lately.`);
-    if (insights.length === 0) insights.push("Start regular sessions to see more detailed insights.");
+    const insights: { key: string; params?: Record<string, string | number> }[] = [];
+    if (streakDays > 2) insights.push({ key: 'insight_streak', params: { days: streakDays } });
+    if (last7DaysSessions > 3) insights.push({ key: 'insight_consistency' });
+    if (avgPainLevel < 4 && history.length > 5) insights.push({ key: 'insight_pain_lower' });
+    if (mostActiveMuscle !== 'None') insights.push({ key: 'insight_focus', params: { muscle: mostActiveMuscle } });
+    if (insights.length === 0) insights.push({ key: 'insight_start' });
 
     return {
         painTrends,
