@@ -28,6 +28,21 @@ function parseSteps(instructions: string): { number: string; label: string; cont
     return steps;
 }
 
+function translateProcessDetails(text: string, t: any) {
+    if (!text) return text;
+    const labels = ['duration', 'repetition', 'intensity', 'frequency', 'cue'];
+    let result = text;
+    labels.forEach(l => {
+        const key = `${l}Label` as any;
+        const trans = t(key);
+        if (trans !== key) {
+            const regex = new RegExp(`${l.toUpperCase()}:`, 'g');
+            result = result.replace(regex, trans + ':');
+        }
+    });
+    return result;
+}
+
 // ─── Exercise Card ─────────────────────────────────────────────────────────
 
 function ExerciseCard({ ex, index, colors, language }: { ex: any; index: number; colors: any; language: any }) {
@@ -54,7 +69,12 @@ function ExerciseCard({ ex, index, colors, language }: { ex: any; index: number;
     const displaySubtitle = ex.common_name && !isLocal ? ex.common_name : ex.duration;
     const displayDescription = translatedDesc !== transDescKey ? translatedDesc : (ex.description || ex.instructions);
     const displayWhy = translatedWhy !== transWhyKey ? translatedWhy : ex.why;
-    const displayProcess = translatedProcess !== transProcessKey ? translatedProcess : ex.process;
+
+    // Use translated process if available, otherwise try dynamic label translation
+    const rawProcess = ex.process || '';
+    const displayProcess = translatedProcess !== transProcessKey
+        ? translatedProcess
+        : translateProcessDetails(rawProcess, t);
 
     return (
         <View style={[cardStyles.card, { backgroundColor: 'rgba(30,30,35,0.95)', borderColor: expanded ? colors.accent : 'rgba(255,255,255,0.08)' }]}>
@@ -107,17 +127,27 @@ function ExerciseCard({ ex, index, colors, language }: { ex: any; index: number;
                     {steps.length > 0 ? (
                         <View style={cardStyles.section}>
                             <Text style={[cardStyles.sectionTitle, { color: colors.accent, marginBottom: 10 }]}>{getTranslation(language, 'instructions')}</Text>
-                            {steps.map((s, i) => (
-                                <View key={i} style={cardStyles.step}>
-                                    <View style={[cardStyles.stepNum, { backgroundColor: colors.accent }]}>
-                                        <Text style={cardStyles.stepNumText}>{s.number}</Text>
+                            {steps.map((s, i) => {
+                                const labelKey = s.label.toUpperCase() as any;
+                                const translatedLabel = t(labelKey);
+                                const displayLabel = translatedLabel !== labelKey ? translatedLabel : s.label;
+
+                                const stepContentKey = `ex_${ex.id}_step_${s.number}_content` as any;
+                                const translatedStepContent = t(stepContentKey);
+                                const displayStepContent = translatedStepContent !== stepContentKey ? translatedStepContent : s.content;
+
+                                return (
+                                    <View key={i} style={cardStyles.step}>
+                                        <View style={[cardStyles.stepNum, { backgroundColor: colors.accent }]}>
+                                            <Text style={cardStyles.stepNumText}>{s.number}</Text>
+                                        </View>
+                                        <View style={{ flex: 1 }}>
+                                            <Text style={cardStyles.stepLabel}>{displayLabel}</Text>
+                                            <Text style={cardStyles.bodyText}>{displayStepContent}</Text>
+                                        </View>
                                     </View>
-                                    <View style={{ flex: 1 }}>
-                                        <Text style={cardStyles.stepLabel}>{s.label}</Text>
-                                        <Text style={cardStyles.bodyText}>{s.content}</Text>
-                                    </View>
-                                </View>
-                            ))}
+                                );
+                            })}
                         </View>
                     ) : ex.instructions && steps.length === 0 ? (
                         <View style={cardStyles.section}>

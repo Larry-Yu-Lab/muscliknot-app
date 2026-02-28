@@ -1292,6 +1292,34 @@ export const translations = {
         ex_g1_process: '6 分钟',
         ex_l1_why: '改善腿部后侧柔韧性。',
         ex_l1_process: '3 分钟',
+
+        // Instruction Labels
+        PREPARATION: '准备工作',
+        EXECUTION: '执行动作',
+        'PROCESS CUES': '动作提示',
+
+        // Specific Exercises
+        ex_43_title: '打哈欠动作',
+        ex_43_desc: '缓解腭部/耳部压力的特定练习。',
+        ex_43_why: '腭部/耳部压力的不适通常是由重复性劳损或静态负荷引起的，这会在软腭张肌 (Tensor Veli Palatini) 内产生“触发点”。',
+        ex_43_process: '时长：60秒。重复：3组。强度：7/10（深层拉伸）。频率：如果久坐，每4小时一次。提示：呼气以加深伸展。',
+        ex_43_step_1_content: '以高挑、“中立”的脊柱姿势坐下或站立。进行两次深长的腹式呼吸以调节神经系统。',
+        ex_43_step_2_content: '针对软腭张肌进行打哈欠动作。保持受控的节奏，确保肌肉在动作过程中保持放松。',
+        ex_43_step_3_content: '在动作时缓慢呼气，想象肌肉拉长并释放张力。',
+
+        durationLabel: '时长',
+        repetitionLabel: '重复',
+        intensityLabel: '强度',
+        frequencyLabel: '频率',
+        cueLabel: '提示',
+
+        ex_122_title: '打哈欠练习',
+        ex_122_desc: '针对喉咙和舌部肌肉的缓解练习。',
+        ex_122_why: '喉咙/舌部的这种不适通常由重复性劳损或静态负荷引起，这会在腭舌肌 (Palatoglossus) 内产生“触发点”。',
+        ex_122_process: '时长：60秒。重复：3组。强度：7/10（深层拉伸）。频率：如果久坐，每4小时一次。提示：呼气以加深伸展。',
+        ex_122_step_1_content: '以高挑、“中立”的脊柱姿势坐下或站立。进行两次深长的腹式呼吸以调节神经系统。',
+        ex_122_step_2_content: '针对腭舌肌进行打哈欠动作。保持受控的节奏，确保肌肉在动作过程中保持放松。',
+        ex_122_step_3_content: '在动作时缓慢呼气，想象肌肉拉长并释放张力。',
     },
     fr: {
         // General
