@@ -44,7 +44,7 @@ const SettingsRow = ({ icon, label, rightLabel, showChevron = true, showExpand =
 
 export default function SettingsScreen() {
     const router = useRouter();
-    const { theme, toggleTheme, language, setLanguage, notificationsEnabled, toggleNotifications } = usePreferences();
+    const { theme, toggleTheme, language, setLanguage, notificationsEnabled, toggleNotifications, equipment } = usePreferences();
     const colors = Colors[theme];
     const isDark = theme === 'dark';
     const t = (key: Parameters<typeof getTranslation>[1]) => getTranslation(language, key);
@@ -152,8 +152,29 @@ export default function SettingsScreen() {
                         </View>
                         <View style={styles.dividerRow} />
 
+                        <TouchableOpacity
+                            style={styles.row}
+                            onPress={() => router.push('/settings/equipment' as any)}
+                        >
+                            <View style={styles.rowLeft}>
+                                <View style={styles.iconCircle}>
+                                    <MaterialIcons name="straighten" size={20} color={colors.accent} />
+                                </View>
+                                <Text style={[styles.rowLabel, { color: colors.text }]}>{t('manageEquipment')}</Text>
+                            </View>
+                            <View style={styles.rowRight}>
+                                {equipment.length > 0 && (
+                                    <Text style={[styles.rightLabel, { color: 'rgba(255,255,255,0.4)' }]}>
+                                        {equipment.length}
+                                    </Text>
+                                )}
+                                <Ionicons name="chevron-forward" size={18} color="rgba(255,255,255,0.3)" />
+                            </View>
+                        </TouchableOpacity>
+                        <View style={styles.dividerRow} />
+
                         <SettingsRow
-                            icon="straighten"
+                            icon="settings-input-component"
                             label={t('metricUnits')}
                             rightLabel={t('metricSymbol')}
                             showChevron={false}

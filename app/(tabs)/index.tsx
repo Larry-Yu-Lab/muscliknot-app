@@ -239,80 +239,25 @@ export default function HomeScreen() {
   };
 
   // Muscle search mapping - maps common terms to muscle IDs
-  const SEARCHABLE_MUSCLES: Record<string, { id: string; name: string }> = {
-    // Head and Neck
-    'head': { id: 'head', name: 'Head' },
-    'temple': { id: 'head', name: 'Head' },
-    'jaw': { id: 'head', name: 'Head' },
-    'neck': { id: 'neck', name: 'Neck' },
-    'cervical': { id: 'neck', name: 'Neck' },
+  // Load localized search keywords
+  const searchKeywordsJson = t('searchKeywordsJson');
+  let searchKeywords: Record<string, string> = {};
+  try {
+    searchKeywords = JSON.parse(searchKeywordsJson);
+  } catch (e) {
+    console.error('Failed to parse search keywords JSON', e);
+  }
 
-    // Upper Body
-    'shoulder': { id: 'traps', name: 'Shoulders' },
-    'shoulders': { id: 'traps', name: 'Shoulders' },
-    'traps': { id: 'traps', name: 'Trapezius' },
-    'trapezius': { id: 'traps', name: 'Trapezius' },
-    'chest': { id: 'chest', name: 'Chest' },
-    'pec': { id: 'chest', name: 'Chest' },
-    'arm': { id: 'arms', name: 'Arms' },
-    'arms': { id: 'arms', name: 'Arms' },
-    'bicep': { id: 'arms', name: 'Arms' },
-    'tricep': { id: 'arms', name: 'Arms' },
-    'deltoid': { id: 'arms', name: 'Arms' },
-    'elbow': { id: 'forearms', name: 'Forearms' },
-    'forearm': { id: 'forearms', name: 'Forearms' },
-    'forearms': { id: 'forearms', name: 'Forearms' },
-    'wrist': { id: 'hands', name: 'Hands/Wrists' },
-    'wrists': { id: 'hands', name: 'Hands/Wrists' },
-    'hand': { id: 'hands', name: 'Hands/Wrists' },
-    'hands': { id: 'hands', name: 'Hands/Wrists' },
-    'finger': { id: 'hands', name: 'Hands/Wrists' },
-    'fingers': { id: 'hands', name: 'Hands/Wrists' },
-    'thumb': { id: 'hands', name: 'Hands/Wrists' },
-    'grip': { id: 'hands', name: 'Hands/Wrists' },
-    'upper back': { id: 'upper_back', name: 'Upper Back' },
-    'upperback': { id: 'upper_back', name: 'Upper Back' },
-    'mid back': { id: 'upper_back', name: 'Upper Back' },
-
-    // Core
-    'lower back': { id: 'lower_back', name: 'Lower Back' },
-    'lowerback': { id: 'lower_back', name: 'Lower Back' },
-    'lumbar': { id: 'lower_back', name: 'Lower Back' },
-    'abdomen': { id: 'abdomen', name: 'Abdomen' },
-    'abs': { id: 'abdomen', name: 'Abdomen' },
-    'core': { id: 'abdomen', name: 'Core' },
-    'stomach': { id: 'abdomen', name: 'Abdomen' },
-    'hip': { id: 'hips', name: 'Hips' },
-    'hips': { id: 'hips', name: 'Hips' },
-    'glute': { id: 'glutes', name: 'Glutes' },
-    'glutes': { id: 'glutes', name: 'Glutes' },
-    'butt': { id: 'glutes', name: 'Glutes' },
-    'buttocks': { id: 'glutes', name: 'Glutes' },
-
-    // Legs
-    'thigh': { id: 'thighs', name: 'Thighs' },
-    'thighs': { id: 'thighs', name: 'Thighs' },
-    'quad': { id: 'thighs', name: 'Quadriceps' },
-    'quads': { id: 'thighs', name: 'Quadriceps' },
-    'quadriceps': { id: 'thighs', name: 'Quadriceps' },
-    'hamstring': { id: 'thighs', name: 'Hamstrings' },
-    'hamstrings': { id: 'thighs', name: 'Hamstrings' },
-    'knee': { id: 'knees', name: 'Knees' },
-    'knees': { id: 'knees', name: 'Knees' },
-    'calf': { id: 'calves', name: 'Calves' },
-    'calves': { id: 'calves', name: 'Calves' },
-    'shin': { id: 'calves', name: 'Shins' },
-    'ankle': { id: 'ankles', name: 'Ankles' },
-    'ankles': { id: 'ankles', name: 'Ankles' },
-    'foot': { id: 'feet', name: 'Feet' },
-    'feet': { id: 'feet', name: 'Feet' },
-    'toe': { id: 'feet', name: 'Feet' },
-    'toes': { id: 'feet', name: 'Feet' },
-    'heel': { id: 'feet', name: 'Heel' },
-    'plantar': { id: 'feet', name: 'Plantar' },
-    'leg': { id: 'thighs', name: 'Legs' },
-    'legs': { id: 'thighs', name: 'Legs' },
-  };
+  // Map keywords to their muscle IDs
+  const SEARCHABLE_MUSCLES: Record<string, { id: string; name: string }> = {};
+  Object.entries(searchKeywords).forEach(([keyword, muscleId]) => {
+    // We use the keyword itself as the display name if we don't have a better one
+    // or we could look up the translated muscle name here if needed.
+    SEARCHABLE_MUSCLES[keyword.toLowerCase()] = {
+      id: muscleId,
+      name: keyword.charAt(0).toUpperCase() + keyword.slice(1)
+    };
+  });
 
   const handleSearch = () => {
     const query = searchQuery.trim().toLowerCase();

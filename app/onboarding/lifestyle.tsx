@@ -37,7 +37,7 @@ export default function LifestyleScreen() {
         if (!selected) return;
         // Save lifestyle selection to AsyncStorage
         await AsyncStorage.setItem('user_lifestyle', selected);
-        router.push('/onboarding/goals');
+        router.push('/onboarding/equipment');
     };
 
     return (
@@ -112,7 +112,7 @@ export default function LifestyleScreen() {
                 >
                     <Text style={styles.buttonText}>{t('continue')}</Text>
                 </TouchableOpacity>
-                <Text style={styles.stepIndicator}>{t('stepIndicatorCaps').replace('${step}', '2').replace('${total}', '3')}</Text>
+                <Text style={styles.stepIndicator}>{t('stepIndicatorCaps').replace('${step}', '2').replace('${total}', '4')}</Text>
             </View>
         </SafeAreaView>
     );

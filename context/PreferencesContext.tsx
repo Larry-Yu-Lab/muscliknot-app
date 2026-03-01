@@ -10,9 +10,11 @@ interface PreferencesContextType {
     theme: Theme;
     language: Language;
     notificationsEnabled: boolean;
+    equipment: string[];
     toggleTheme: () => void;
     setLanguage: (lang: Language) => void;
     toggleNotifications: () => void;
+    toggleEquipment: (id: string) => void;
     isDarkMode: boolean;
     refreshPreferences: () => Promise<void>;
 }
@@ -25,6 +27,7 @@ export const PreferencesProvider: React.FC<{ children: React.ReactNode }> = ({ c
     const [theme, setTheme] = useState<Theme>('dark');
     const [language, setLanguageState] = useState<Language>('en');
     const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+    const [equipment, setEquipment] = useState<string[]>([]);
 
     useEffect(() => {
         loadPreferences();
@@ -35,16 +38,19 @@ export const PreferencesProvider: React.FC<{ children: React.ReactNode }> = ({ c
             const storedTheme = await AsyncStorage.getItem('app_theme');
             const storedLang = await AsyncStorage.getItem('app_language');
             const storedNotifs = await AsyncStorage.getItem('app_notifications');
+            const storedEquipment = await AsyncStorage.getItem('app_equipment');
 
             if (storedTheme) setTheme(storedTheme as Theme);
             if (storedLang && isSupportedLanguage(storedLang)) {
                 setLanguageState(storedLang as Language);
             } else {
-                // Determine default language or fallback to 'en'
                 setLanguageState('en');
             }
             if (storedNotifs !== null) {
                 setNotificationsEnabled(storedNotifs === 'true');
+            }
+            if (storedEquipment) {
+                setEquipment(JSON.parse(storedEquipment));
             }
         } catch (error) {
             console.error('Failed to load preferences:', error);
@@ -80,14 +86,29 @@ export const PreferencesProvider: React.FC<{ children: React.ReactNode }> = ({ c
         }
     };
 
+    const toggleEquipment = async (id: string) => {
+        const newEquipment = equipment.includes(id)
+            ? equipment.filter(e => e !== id)
+            : [...equipment, id];
+
+        setEquipment(newEquipment);
+        try {
+            await AsyncStorage.setItem('app_equipment', JSON.stringify(newEquipment));
+        } catch (error) {
+            console.error('Failed to save equipment preference:', error);
+        }
+    };
+
     return (
         <PreferencesContext.Provider value={{
             theme,
             language,
             notificationsEnabled,
+            equipment,
             toggleTheme,
             setLanguage,
             toggleNotifications,
+            toggleEquipment,
             isDarkMode: theme === 'dark',
             refreshPreferences: loadPreferences
         }}>

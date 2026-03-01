@@ -17,6 +17,48 @@ export const translations = {
         logout: 'Logout',
         dashboard: 'DASHBOARD',
 
+        // Insights
+        insight_streak: "You've been consistent for ${days} days! Keep it up.",
+        insight_consistency: "Great consistency this week. Your muscles will thank you.",
+        insight_pain_lower: "Your reported pain levels are trending downwards.",
+        insight_focus: "You've been focusing a lot on your ${muscle} lately.",
+        insight_start: "Start logging regularly to see more detailed insights.",
+
+        // Muscle IDs (for analytics)
+        head: 'Head', neck: 'Neck', traps: 'Shoulders', chest: 'Chest', arms: 'Arms', forearms: 'Forearms', hands: 'Hands', upper_back: 'Upper Back', lower_back: 'Lower Back', abdomen: 'Abdomen', hips: 'Hanches', glutes: 'Glutes', thighs: 'Thighs', knees: 'Knees', calves: 'Calves', ankles: 'Ankles', feet: 'Feet',
+
+        // Instruction Labels
+        PREPARATION: 'Preparation',
+        EXECUTION: 'Execution',
+        'PROCESS CUES': 'Process Cues',
+
+        durationLabel: 'Duration',
+        repetitionLabel: 'Repetition',
+        intensityLabel: 'Intensity',
+        frequencyLabel: 'Frequency',
+        cueLabel: 'Cue',
+
+        searchKeywordsJson: `{
+            "head": "head", "temple": "head", "jaw": "head",
+            "neck": "neck", "cervical": "neck",
+            "shoulder": "traps", "shoulders": "traps", "traps": "traps", "trapezius": "traps",
+            "chest": "chest", "pec": "chest",
+            "arm": "arms", "arms": "arms", "bicep": "arms", "tricep": "arms", "deltoid": "arms",
+            "elbow": "forearms", "forearm": "forearms", "forearms": "forearms",
+            "wrist": "hands", "wrists": "hands", "hand": "hands", "hands": "hands", "finger": "hands", "fingers": "hands", "thumb": "hands", "grip": "hands",
+            "upper back": "upper_back", "upperback": "upper_back", "mid back": "upper_back",
+            "lower back": "lower_back", "lowerback": "lower_back", "lumbar": "lower_back",
+            "abdomen": "abdomen", "abs": "abdomen", "core": "abdomen", "stomach": "abdomen",
+            "hip": "hips", "hips": "hips",
+            "glute": "glutes", "glutes": "glutes", "butt": "glutes", "buttocks": "glutes",
+            "thigh": "thighs", "thighs": "thighs", "quad": "thighs", "quads": "thighs", "quadriceps": "thighs", "hamstring": "thighs", "hamstrings": "thighs",
+            "knee": "knees", "knees": "knees",
+            "calf": "calves", "calves": "calves", "shin": "calves",
+            "ankle": "ankles", "ankles": "ankles",
+            "foot": "feet", "feet": "feet", "toe": "feet", "toes": "feet", "heel": "feet", "plantar": "feet",
+            "leg": "thighs", "legs": "thighs"
+        }`,
+
         // Profile
         profile: 'Profile',
         plansPricing: 'Plans & Pricing',
@@ -57,6 +99,21 @@ export const translations = {
         // Features
         muscleMapping: 'Muscle Mapping',
         aiCoaching: 'AI Coaching',
+
+        // Equipment
+        manageEquipment: 'Manage Equipment',
+        equipmentSettings: 'Equipment Settings',
+        onboardingEquipmentTitle: 'Gear Up',
+        onboardingEquipmentDesc: 'What equipment do you have access to? We\'ll prioritize exercises using your gear.',
+        eq_foam_roller: 'Foam Roller',
+        eq_lacrosse_ball: 'Lacrosse Ball',
+        eq_resistance_band: 'Resistance Band',
+        eq_yoga_block: 'Yoga Block',
+        eq_dumbbells: 'Dumbbells',
+        eq_kettlebell: 'Kettlebell',
+        eq_massage_gun: 'Massage Gun',
+        eq_stability_ball: 'Stability Ball',
+        eq_none: 'No Equipment',
         monthlySavings: 'Monthly Savings',
         annualTotal: 'Annual Total',
         basic: 'Basic',
@@ -1313,6 +1370,28 @@ export const translations = {
         frequencyLabel: '频率',
         cueLabel: '提示',
 
+
+        searchKeywordsJson: `{
+            "头部": "head", "太阳穴": "head", "下巴": "head", "下颌": "head",
+            "颈部": "neck", "脖子": "neck", "颈椎": "neck",
+            "肩膀": "traps", "斜方肌": "traps",
+            "胸部": "chest", "胸大肌": "chest",
+            "手臂": "arms", "二头肌": "arms", "三头肌": "arms", "三角肌": "arms",
+            "手肘": "forearms", "前臂": "forearms",
+            "手腕": "hands", "手部": "hands", "手指": "hands", "大拇指": "hands", "抓握": "hands",
+            "上背部": "upper_back", "中背部": "upper_back",
+            "下背部": "lower_back", "腰部": "lower_back", "腰": "lower_back",
+            "腹部": "abdomen", "腹肌": "abdomen", "核心": "abdomen", "胃部": "abdomen",
+            "髋部": "hips", "臀尖": "hips",
+            "臀部": "glutes", "屁股": "glutes",
+            "大腿": "thighs", "股四头肌": "thighs", "腘绳肌": "thighs",
+            "膝盖": "knees",
+            "小腿": "calves", "胫骨": "calves",
+            "脚踝": "ankles",
+            "脚部": "feet", "脚趾": "feet", "脚后跟": "feet", "足底": "feet",
+            "腿部": "thighs", "腿": "thighs"
+        }`,
+
         ex_122_title: '打哈欠练习',
         ex_122_desc: '针对喉咙和舌部肌肉的缓解练习。',
         ex_122_why: '喉咙/舌部的这种不适通常由重复性劳损或静态负荷引起，这会在腭舌肌 (Palatoglossus) 内产生“触发点”。',
@@ -1320,6 +1399,21 @@ export const translations = {
         ex_122_step_1_content: '以高挑、“中立”的脊柱姿势坐下或站立。进行两次深长的腹式呼吸以调节神经系统。',
         ex_122_step_2_content: '针对腭舌肌进行打哈欠动作。保持受控的节奏，确保肌肉在动作过程中保持放松。',
         ex_122_step_3_content: '在动作时缓慢呼气，想象肌肉拉长并释放张力。',
+
+        // Equipment
+        manageEquipment: '管理设备',
+        equipmentSettings: '设备设置',
+        onboardingEquipmentTitle: '准备器材',
+        onboardingEquipmentDesc: '您可以使用哪些器材？我们将优先推荐使用您器材的练习。',
+        eq_foam_roller: '泡沫轴',
+        eq_lacrosse_ball: '按摩球',
+        eq_resistance_band: '弹力带',
+        eq_yoga_block: '瑜伽砖',
+        eq_dumbbells: '哑铃',
+        eq_kettlebell: '壶铃',
+        eq_massage_gun: '按摩枪',
+        eq_stability_ball: '健身球',
+        eq_none: '无器材',
     },
     fr: {
         // General
@@ -1329,6 +1423,48 @@ export const translations = {
         language: 'Langue',
         logout: 'Se déconnecter',
         dashboard: 'TABLEAU DE BORD',
+
+        // Insights
+        insight_streak: "Vous avez été régulier pendant ${days} jours ! Continuez ainsi.",
+        insight_consistency: "Excellente régularité cette semaine. Vos muscles vous remercieront.",
+        insight_pain_lower: "Vos niveaux de douleur signalés sont en baisse.",
+        insight_focus: "Vous vous êtes beaucoup concentré sur votre ${muscle} ces derniers temps.",
+        insight_start: "Commencez à enregistrer régulièrement pour voir des analyses plus détaillées.",
+
+        // Muscle IDs (for analytics)
+        head: 'Tête', neck: 'Cou', traps: 'Épaules', chest: 'Poitrine', arms: 'Bras', forearms: 'Avant-bras', hands: 'Mains', upper_back: 'Haut du dos', lower_back: 'Bas du dos', abdomen: 'Abdomen', hips: 'Hanches', glutes: 'Fessiers', thighs: 'Cuisses', knees: 'Genoux', calves: 'Mollets', ankles: 'Chevilles', feet: 'Pieds',
+
+        // Instruction Labels
+        PREPARATION: 'Préparation',
+        EXECUTION: 'Exécution',
+        'PROCESS CUES': 'Conseils de mouvement',
+
+        durationLabel: 'Durée',
+        repetitionLabel: 'Répétition',
+        intensityLabel: 'Intensité',
+        frequencyLabel: 'Fréquence',
+        cueLabel: 'Conseil',
+
+        searchKeywordsJson: `{
+            "tête": "head", "tempe": "head", "mâchoire": "head",
+            "cou": "neck", "nuque": "neck", "cervicale": "neck",
+            "épaule": "traps", "épaules": "traps", "trapèze": "traps",
+            "poitrine": "chest", "pectoral": "chest",
+            "bras": "arms", "biceps": "arms", "triceps": "arms", "deltoïde": "arms",
+            "coude": "forearms", "avant-bras": "forearms",
+            "poignet": "hands", "main": "hands", "mains": "hands", "doigt": "hands", "doigts": "hands", "pouce": "hands",
+            "haut du dos": "upper_back", "milieu du dos": "upper_back",
+            "bas du dos": "lower_back", "lombaire": "lower_back", "reins": "lower_back",
+            "abdomen": "abdomen", "abdos": "abdomen", "ventre": "abdomen",
+            "hanche": "hips", "hanches": "hips",
+            "fessier": "glutes", "fesses": "glutes", "derrière": "glutes",
+            "cuisse": "thighs", "cuisses": "thighs", "quadriceps": "thighs", "ischio": "thighs",
+            "genou": "knees", "genoux": "knees",
+            "mollet": "calves", "mollets": "calves", "tibia": "calves",
+            "cheville": "ankles", "chevilles": "ankles",
+            "pied": "feet", "pieds": "feet", "orteil": "feet", "talon": "feet",
+            "jambe": "thighs", "jambes": "thighs"
+        }`,
 
         // Profile
         profile: 'Profil',
@@ -1344,6 +1480,21 @@ export const translations = {
         fitnessLevel: 'NIVEAU DE FORME',
         generalSettings: 'PARAMÈTRES GÉNÉRAUX',
         account: 'COMPTE',
+
+        // Equipment
+        manageEquipment: 'Gérer l\'équipement',
+        equipmentSettings: 'Paramètres d\'équipement',
+        onboardingEquipmentTitle: 'Équipez-vous',
+        onboardingEquipmentDesc: 'À quel équipement avez-vous accès ? Nous prioriserons les exercices utilisant votre matériel.',
+        eq_foam_roller: 'Rouleau mousse',
+        eq_lacrosse_ball: 'Balle de crosse',
+        eq_resistance_band: 'Bande de résistance',
+        eq_yoga_block: 'Bloc de yoga',
+        eq_dumbbells: 'Haltères',
+        eq_kettlebell: 'Kettlebell',
+        eq_massage_gun: 'Pistolet de massage',
+        eq_stability_ball: 'Ballon de stabilité',
+        eq_none: 'Aucun équipement',
 
         // Plans
         monthly: 'MENSUEL',
@@ -2084,9 +2235,34 @@ export const translations = {
         elite: 'ELITE',
         freemium: 'GRATIS',
 
+        // Insights
+        insight_streak: "¡Has sido constante durante ${days} días! Sigue así.",
+        insight_consistency: "Gran consistencia esta semana. Tus músculos te lo agradecerán.",
+        insight_pain_lower: "Tus niveles de dolor reportados están bajando.",
+        insight_focus: "Te has estado centrando mucho en tu ${muscle} últimamente.",
+        insight_start: "Comienza a registrarte regularmente para ver más detalles.",
+
+        // Muscle IDs (for analytics)
+        head: 'Cabeza', neck: 'Cuello', traps: 'Hombros', chest: 'Pecho', arms: 'Brazos', forearms: 'Antebrazos', hands: 'Manos', upper_back: 'Espalda alta', lower_back: 'Espalda baja', abdomen: 'Abdomen', hips: 'Caderas', glutes: 'Glúteos', thighs: 'Muslos', knees: 'Rodillas', calves: 'Pantorrillas', ankles: 'Tobillos', feet: 'Pies',
+
         // Features
         muscleMapping: 'Mapeo muscular',
         aiCoaching: 'Entrenamiento con IA',
+
+        // Equipment
+        manageEquipment: 'Gestionar equipo',
+        equipmentSettings: 'Ajustes de equipo',
+        onboardingEquipmentTitle: 'Prepárate',
+        onboardingEquipmentDesc: '¿De qué equipo dispones? Priorizaremos los ejercicios que usen tu material.',
+        eq_foam_roller: 'Rodillo de espuma',
+        eq_lacrosse_ball: 'Pelota de lacrosse',
+        eq_resistance_band: 'Banda de resistencia',
+        eq_yoga_block: 'Bloque de yoga',
+        eq_dumbbells: 'Mancuernas',
+        eq_kettlebell: 'Pesa rusa',
+        eq_massage_gun: 'Pistola de masaje',
+        eq_stability_ball: 'Balón de estabilidad',
+        eq_none: 'Sin equipo',
         monthlySavings: 'Ahorros mensuales',
         annualTotal: 'Total anual',
         basic: 'Básico',
@@ -2401,10 +2577,40 @@ export const translations = {
         mgCalves: 'Pantorrillas',
         mgAnkles: 'Tobillos',
         mgFeet: 'Pies',
-        mgArms: 'Brazos',
-        mgForearms: 'Antebrazos',
         mgHands: 'Manos',
         fullBody: 'Cuerpo completo',
+
+        // Instruction Labels
+        PREPARATION: 'Preparación',
+        EXECUTION: 'Ejecución',
+        'PROCESS CUES': 'Consejos de proceso',
+
+        durationLabel: 'Duración',
+        repetitionLabel: 'Repetición',
+        intensityLabel: 'Intensidad',
+        frequencyLabel: 'Frecuencia',
+        cueLabel: 'Consejo',
+
+        searchKeywordsJson: `{
+            "cabeza": "head", "sien": "head", "mandíbula": "head",
+            "cuello": "neck", "cervical": "neck",
+            "hombro": "traps", "hombros": "traps", "trapecio": "traps",
+            "pecho": "chest", "pectoral": "chest",
+            "brazo": "arms", "brazos": "arms", "bíceps": "arms", "tríceps": "arms", "deltoides": "arms",
+            "codo": "forearms", "antebrazo": "forearms",
+            "muñeca": "hands", "mano": "hands", "manos": "hands", "dedo": "hands", "dedos": "hands", "pulgar": "hands",
+            "espalda alta": "upper_back", "espalda media": "upper_back",
+            "espalda baja": "lower_back", "lumbar": "lower_back", "cintura": "lower_back",
+            "abdomen": "abdomen", "abdominales": "abdomen", "barriga": "abdomen",
+            "cadera": "hips", "caderas": "hips",
+            "glúteo": "glutes", "glúteos": "glutes", "trasero": "glutes", "nalgas": "glutes",
+            "muslo": "thighs", "muslos": "thighs", "cuádriceps": "thighs", "isquio": "thighs",
+            "rodilla": "knees", "rodillas": "knees",
+            "pantorrilla": "calves", "pantorrillas": "calves", "espinilla": "calves",
+            "tobillo": "ankles", "tobillos": "ankles",
+            "pie": "feet", "pies": "feet", "dedo del pie": "feet", "talón": "feet",
+            "pierna": "thighs", "piernas": "thighs"
+        }`,
 
         // Validation
         validationWarmup1: 'Por favor selecciona para que te vas a calentar.',
