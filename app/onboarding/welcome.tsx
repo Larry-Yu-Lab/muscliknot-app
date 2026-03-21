@@ -96,7 +96,6 @@ export default function WelcomeScreen() {
                     <Ionicons name="globe-outline" size={20} color="#fff" />
                     <Text style={styles.langButtonText}>{language.toUpperCase()}</Text>
                 </TouchableOpacity>
-                <Text style={styles.stepText}>{t('stepIndicator').replace('${step}', '1').replace('${total}', '3')}</Text>
                 <TouchableOpacity onPress={handleSkip}>
                     <Text style={styles.skipText}>{t('skip')}</Text>
                 </TouchableOpacity>
@@ -109,15 +108,17 @@ export default function WelcomeScreen() {
                 </View>
 
                 {/* Title */}
-                <Text style={styles.title}>{t('welcomeTitle')}</Text>
-                <Text style={styles.subtitle}>{t('welcomeSubtitle')}</Text>
+                <Text style={styles.title}>Muscle maintenance made easy</Text>
 
                 {/* Get Started Button */}
                 <TouchableOpacity
-                    style={styles.button}
+                    style={[styles.button, { marginBottom: 16 }]}
                     onPress={() => router.push('/onboarding/lifestyle')}
                 >
                     <Text style={styles.buttonText}>{t('getStarted')}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => router.replace('/auth/login' as any)} style={{ marginBottom: 32 }}>
+                    <Text style={styles.signInText}>Already have an account? Sign in</Text>
                 </TouchableOpacity>
 
                 {/* Pagination Dots */}
@@ -226,6 +227,12 @@ const styles = StyleSheet.create({
         color: '#000',
         fontSize: 18,
         fontWeight: '600',
+    },
+    signInText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: '500',
+        textDecorationLine: 'underline',
     },
     pagination: {
         flexDirection: 'row',
