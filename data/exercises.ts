@@ -6,6 +6,7 @@ export interface Exercise {
     category: 'Relief' | 'Yoga' | 'Warm-ups' | 'Posture' | 'Strength';
     image: string; // Placeholder URL or local require if available
     description: string;
+    instructions?: string;
 }
 
 export const EXERCISES: Exercise[] = [
@@ -18,6 +19,7 @@ export const EXERCISES: Exercise[] = [
         category: 'Relief',
         image: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=400',
         description: 'Gently tilt your head side to side, holding for 15 seconds each.',
+        instructions: `1. Get into a comfortable starting position.\n2. Gently tilt your head side to side, holding for 15 seconds each.\n3. Breathe deeply and maintain the position for the duration.\n4. Relax and repeat as necessary.`,
     },
     {
         id: 'n2',
@@ -27,6 +29,7 @@ export const EXERCISES: Exercise[] = [
         category: 'Relief',
         image: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=400',
         description: 'Slowly rotate your neck in a circular motion.',
+        instructions: `1. Get into a comfortable starting position.\n2. Slowly rotate your neck in a circular motion.\n3. Breathe deeply and maintain the position for the duration.\n4. Relax and repeat as necessary.`,
     },
     {
         id: 'n3',
@@ -36,6 +39,7 @@ export const EXERCISES: Exercise[] = [
         category: 'Yoga',
         image: 'https://images.unsplash.com/photo-1544367563-8f2127fa2b6d?w=400',
         description: 'Slow circular neck rolls in easy pose to release cervical tension.',
+        instructions: `1. Get into a comfortable starting position.\n2. Slow circular neck rolls in easy pose to release cervical tension.\n3. Breathe deeply and maintain the position for the duration.\n4. Relax and repeat as necessary.`,
     },
     {
         id: 'n4',
@@ -45,6 +49,7 @@ export const EXERCISES: Exercise[] = [
         category: 'Posture',
         image: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=400',
         description: 'Pull chin straight back against a wall to correct forward head posture.',
+        instructions: `1. Get into a comfortable starting position.\n2. Pull chin straight back against a wall to correct forward head posture.\n3. Breathe deeply and maintain the position for the duration.\n4. Relax and repeat as necessary.`,
     },
     {
         id: 'n5',
@@ -54,6 +59,7 @@ export const EXERCISES: Exercise[] = [
         category: 'Strength',
         image: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=400',
         description: 'Isometric holds in all four neck directions to strengthen the cervical stabilizers.',
+        instructions: `1. Get into a comfortable starting position.\n2. Isometric holds in all four neck directions to strengthen the cervical stabilizers.\n3. Breathe deeply and maintain the position for the duration.\n4. Relax and repeat as necessary.`,
     },
 
     // ── Shoulders ─────────────────────────────────────────────────────────
@@ -65,6 +71,7 @@ export const EXERCISES: Exercise[] = [
         category: 'Relief',
         image: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=400',
         description: 'Roll your shoulders forward and backward to release tension.',
+        instructions: `1. Get into a comfortable starting position.\n2. Roll your shoulders forward and backward to release tension.\n3. Breathe deeply and maintain the position for the duration.\n4. Relax and repeat as necessary.`,
     },
     {
         id: 's2',
@@ -74,6 +81,7 @@ export const EXERCISES: Exercise[] = [
         category: 'Relief',
         image: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=400',
         description: 'Pull one arm across your chest with the other arm.',
+        instructions: `1. Get into a comfortable starting position.\n2. Pull one arm across your chest with the other arm.\n3. Breathe deeply and maintain the position for the duration.\n4. Relax and repeat as necessary.`,
     },
     {
         id: 's3',
@@ -83,6 +91,7 @@ export const EXERCISES: Exercise[] = [
         category: 'Warm-ups',
         image: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=400',
         description: 'Forward and backward arm circles to warm up the rotator cuff.',
+        instructions: `1. Get into a comfortable starting position.\n2. Forward and backward arm circles to warm up the rotator cuff.\n3. Breathe deeply and maintain the position for the duration.\n4. Relax and repeat as necessary.`,
     },
     {
         id: 's4',
@@ -92,6 +101,7 @@ export const EXERCISES: Exercise[] = [
         category: 'Yoga',
         image: 'https://images.unsplash.com/photo-1544367563-8f2127fa2b6d?w=400',
         description: 'Cross arms at elbow and wrap forearms together to stretch the upper traps.',
+        instructions: `1. Get into a comfortable starting position.\n2. Cross arms at elbow and wrap forearms together to stretch the upper traps.\n3. Breathe deeply and maintain the position for the duration.\n4. Relax and repeat as necessary.`,
     },
     {
         id: 's5',
@@ -101,6 +111,7 @@ export const EXERCISES: Exercise[] = [
         category: 'Posture',
         image: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=400',
         description: 'Slide arms overhead on the wall to retrain scapular upward rotation.',
+        instructions: `1. Get into a comfortable starting position.\n2. Slide arms overhead on the wall to retrain scapular upward rotation.\n3. Breathe deeply and maintain the position for the duration.\n4. Relax and repeat as necessary.`,
     },
     {
         id: 's6',
@@ -110,6 +121,7 @@ export const EXERCISES: Exercise[] = [
         category: 'Strength',
         image: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=400',
         description: 'Raise arms laterally to shoulder height to build medial deltoid.',
+        instructions: `1. Get into a comfortable starting position.\n2. Raise arms laterally to shoulder height to build medial deltoid.\n3. Breathe deeply and maintain the position for the duration.\n4. Relax and repeat as necessary.`,
     },
     {
         id: 's7',
@@ -119,6 +131,7 @@ export const EXERCISES: Exercise[] = [
         category: 'Strength',
         image: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=400',
         description: 'Hang from a bar to decompress the spine and improve shoulder health.',
+        instructions: `1. Get into a comfortable starting position.\n2. Hang from a bar to decompress the spine and improve shoulder health.\n3. Breathe deeply and maintain the position for the duration.\n4. Relax and repeat as necessary.`,
     },
 
     // ── Upper Back ────────────────────────────────────────────────────────
@@ -130,6 +143,7 @@ export const EXERCISES: Exercise[] = [
         category: 'Relief',
         image: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=400',
         description: 'Alternate between arching and rounding your back on all fours.',
+        instructions: `1. Get into a comfortable starting position.\n2. Alternate between arching and rounding your back on all fours.\n3. Breathe deeply and maintain the position for the duration.\n4. Relax and repeat as necessary.`,
     },
     {
         id: 'ub2',
@@ -139,6 +153,7 @@ export const EXERCISES: Exercise[] = [
         category: 'Relief',
         image: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=400',
         description: 'Lean back over a chair or foam roller to open the chest.',
+        instructions: `1. Get into a comfortable starting position.\n2. Lean back over a chair or foam roller to open the chest.\n3. Breathe deeply and maintain the position for the duration.\n4. Relax and repeat as necessary.`,
     },
     {
         id: 'ub3',
@@ -148,6 +163,7 @@ export const EXERCISES: Exercise[] = [
         category: 'Warm-ups',
         image: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=400',
         description: 'Pull a resistance band toward your face to warm up rear deltoids and mid-trap.',
+        instructions: `1. Get into a comfortable starting position.\n2. Pull a resistance band toward your face to warm up rear deltoids and mid-trap.\n3. Breathe deeply and maintain the position for the duration.\n4. Relax and repeat as necessary.`,
     },
     {
         id: 'ub4',
@@ -157,6 +173,7 @@ export const EXERCISES: Exercise[] = [
         category: 'Yoga',
         image: 'https://images.unsplash.com/photo-1544367563-8f2127fa2b6d?w=400',
         description: 'Slide one arm under your body in tabletop to release the rhomboids.',
+        instructions: `1. Get into a comfortable starting position.\n2. Slide one arm under your body in tabletop to release the rhomboids.\n3. Breathe deeply and maintain the position for the duration.\n4. Relax and repeat as necessary.`,
     },
     {
         id: 'ub5',
@@ -166,6 +183,7 @@ export const EXERCISES: Exercise[] = [
         category: 'Posture',
         image: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=400',
         description: 'Squeeze shoulder blades firmly together to correct rounded posture.',
+        instructions: `1. Get into a comfortable starting position.\n2. Squeeze shoulder blades firmly together to correct rounded posture.\n3. Breathe deeply and maintain the position for the duration.\n4. Relax and repeat as necessary.`,
     },
     {
         id: 'ub6',
@@ -175,6 +193,7 @@ export const EXERCISES: Exercise[] = [
         category: 'Strength',
         image: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=400',
         description: 'Strengthen the rhomboids and lower traps with a hinge-and-row movement.',
+        instructions: `1. Get into a comfortable starting position.\n2. Strengthen the rhomboids and lower traps with a hinge-and-row movement.\n3. Breathe deeply and maintain the position for the duration.\n4. Relax and repeat as necessary.`,
     },
 
     // ── Lower Back ────────────────────────────────────────────────────────
@@ -186,6 +205,7 @@ export const EXERCISES: Exercise[] = [
         category: 'Relief',
         image: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=400',
         description: 'Sit back on your heels with arms stretched forward.',
+        instructions: `1. Get into a comfortable starting position.\n2. Sit back on your heels with arms stretched forward.\n3. Breathe deeply and maintain the position for the duration.\n4. Relax and repeat as necessary.`,
     },
     {
         id: 'lb2',
@@ -195,6 +215,7 @@ export const EXERCISES: Exercise[] = [
         category: 'Relief',
         image: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=400',
         description: 'Lie on your back and pull one knee to your chest.',
+        instructions: `1. Get into a comfortable starting position.\n2. Lie on your back and pull one knee to your chest.\n3. Breathe deeply and maintain the position for the duration.\n4. Relax and repeat as necessary.`,
     },
     {
         id: 'lb3',
@@ -204,6 +225,7 @@ export const EXERCISES: Exercise[] = [
         category: 'Warm-ups',
         image: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=400',
         description: 'Teach the hip hinge pattern before loading to protect the lumbar spine.',
+        instructions: `1. Get into a comfortable starting position.\n2. Teach the hip hinge pattern before loading to protect the lumbar spine.\n3. Breathe deeply and maintain the position for the duration.\n4. Relax and repeat as necessary.`,
     },
     {
         id: 'lb4',
@@ -213,6 +235,7 @@ export const EXERCISES: Exercise[] = [
         category: 'Yoga',
         image: 'https://images.unsplash.com/photo-1544367563-8f2127fa2b6d?w=400',
         description: 'Gently rotate the lumbar spine by dropping knees to one side.',
+        instructions: `1. Get into a comfortable starting position.\n2. Gently rotate the lumbar spine by dropping knees to one side.\n3. Breathe deeply and maintain the position for the duration.\n4. Relax and repeat as necessary.`,
     },
     {
         id: 'lb5',
@@ -222,6 +245,7 @@ export const EXERCISES: Exercise[] = [
         category: 'Posture',
         image: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=400',
         description: 'Learn to find and hold a neutral lumbar curve against a wall.',
+        instructions: `1. Get into a comfortable starting position.\n2. Learn to find and hold a neutral lumbar curve against a wall.\n3. Breathe deeply and maintain the position for the duration.\n4. Relax and repeat as necessary.`,
     },
     {
         id: 'lb6',
@@ -231,6 +255,7 @@ export const EXERCISES: Exercise[] = [
         category: 'Strength',
         image: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=400',
         description: 'Extend opposite arm and leg from tabletop to build spinal stability.',
+        instructions: `1. Get into a comfortable starting position.\n2. Extend opposite arm and leg from tabletop to build spinal stability.\n3. Breathe deeply and maintain the position for the duration.\n4. Relax and repeat as necessary.`,
     },
 
     // ── Hips ──────────────────────────────────────────────────────────────
@@ -242,6 +267,7 @@ export const EXERCISES: Exercise[] = [
         category: 'Relief',
         image: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=400',
         description: 'Shift hips into a lunge to release tight hip flexors from prolonged sitting.',
+        instructions: `1. Get into a comfortable starting position.\n2. Shift hips into a lunge to release tight hip flexors from prolonged sitting.\n3. Breathe deeply and maintain the position for the duration.\n4. Relax and repeat as necessary.`,
     },
     {
         id: 'h2',
@@ -251,6 +277,7 @@ export const EXERCISES: Exercise[] = [
         category: 'Warm-ups',
         image: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=400',
         description: 'Dynamic leg swings forward, back, and laterally to warm up the hip capsule.',
+        instructions: `1. Get into a comfortable starting position.\n2. Dynamic leg swings forward, back, and laterally to warm up the hip capsule.\n3. Breathe deeply and maintain the position for the duration.\n4. Relax and repeat as necessary.`,
     },
     {
         id: 'h3',
@@ -260,6 +287,7 @@ export const EXERCISES: Exercise[] = [
         category: 'Yoga',
         image: 'https://images.unsplash.com/photo-1544367563-8f2127fa2b6d?w=400',
         description: 'Deep hip opener targeting the piriformis and external rotators.',
+        instructions: `1. Get into a comfortable starting position.\n2. Deep hip opener targeting the piriformis and external rotators.\n3. Breathe deeply and maintain the position for the duration.\n4. Relax and repeat as necessary.`,
     },
     {
         id: 'h4',
@@ -269,6 +297,7 @@ export const EXERCISES: Exercise[] = [
         category: 'Posture',
         image: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=400',
         description: 'Sidelying hip abduction to correct pelvic drop and Trendelenburg gait.',
+        instructions: `1. Get into a comfortable starting position.\n2. Sidelying hip abduction to correct pelvic drop and Trendelenburg gait.\n3. Breathe deeply and maintain the position for the duration.\n4. Relax and repeat as necessary.`,
     },
     {
         id: 'h5',
@@ -278,6 +307,7 @@ export const EXERCISES: Exercise[] = [
         category: 'Strength',
         image: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=400',
         description: 'Resistance band side-stepping to strengthen hip abductors and glute medius.',
+        instructions: `1. Get into a comfortable starting position.\n2. Resistance band side-stepping to strengthen hip abductors and glute medius.\n3. Breathe deeply and maintain the position for the duration.\n4. Relax and repeat as necessary.`,
     },
 
     // ── Glutes ────────────────────────────────────────────────────────────
@@ -289,6 +319,7 @@ export const EXERCISES: Exercise[] = [
         category: 'Relief',
         image: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=400',
         description: 'Cross ankle over knee to deeply stretch the piriformis.',
+        instructions: `1. Get into a comfortable starting position.\n2. Cross ankle over knee to deeply stretch the piriformis.\n3. Breathe deeply and maintain the position for the duration.\n4. Relax and repeat as necessary.`,
     },
     {
         id: 'g2',
@@ -298,6 +329,7 @@ export const EXERCISES: Exercise[] = [
         category: 'Warm-ups',
         image: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=400',
         description: 'Activate glutes before lower body training to protect the knees and back.',
+        instructions: `1. Get into a comfortable starting position.\n2. Activate glutes before lower body training to protect the knees and back.\n3. Breathe deeply and maintain the position for the duration.\n4. Relax and repeat as necessary.`,
     },
     {
         id: 'g3',
@@ -307,6 +339,7 @@ export const EXERCISES: Exercise[] = [
         category: 'Yoga',
         image: 'https://images.unsplash.com/photo-1544367563-8f2127fa2b6d?w=400',
         description: 'Gently decompress the sacroiliac joint and stretch the inner glutes.',
+        instructions: `1. Get into a comfortable starting position.\n2. Gently decompress the sacroiliac joint and stretch the inner glutes.\n3. Breathe deeply and maintain the position for the duration.\n4. Relax and repeat as necessary.`,
     },
     {
         id: 'g4',
@@ -316,6 +349,7 @@ export const EXERCISES: Exercise[] = [
         category: 'Posture',
         image: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=400',
         description: 'Correct glute strength imbalances causing pelvic drop.',
+        instructions: `1. Get into a comfortable starting position.\n2. Correct glute strength imbalances causing pelvic drop.\n3. Breathe deeply and maintain the position for the duration.\n4. Relax and repeat as necessary.`,
     },
     {
         id: 'g5',
@@ -325,6 +359,7 @@ export const EXERCISES: Exercise[] = [
         category: 'Strength',
         image: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=400',
         description: 'Highest glute activation exercise — drive hips up against a bench.',
+        instructions: `1. Get into a comfortable starting position.\n2. Highest glute activation exercise — drive hips up against a bench.\n3. Breathe deeply and maintain the position for the duration.\n4. Relax and repeat as necessary.`,
     },
 
     // ── Legs ──────────────────────────────────────────────────────────────
@@ -336,6 +371,7 @@ export const EXERCISES: Exercise[] = [
         category: 'Relief',
         image: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=400',
         description: 'Reach for your toes while standing or sitting.',
+        instructions: `1. Get into a comfortable starting position.\n2. Reach for your toes while standing or sitting.\n3. Breathe deeply and maintain the position for the duration.\n4. Relax and repeat as necessary.`,
     },
     {
         id: 'l2',
@@ -345,6 +381,7 @@ export const EXERCISES: Exercise[] = [
         category: 'Relief',
         image: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=400',
         description: 'Balance on one leg and draw your heel toward your buttock.',
+        instructions: `1. Get into a comfortable starting position.\n2. Balance on one leg and draw your heel toward your buttock.\n3. Breathe deeply and maintain the position for the duration.\n4. Relax and repeat as necessary.`,
     },
     {
         id: 'l3',
@@ -354,6 +391,7 @@ export const EXERCISES: Exercise[] = [
         category: 'Warm-ups',
         image: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=400',
         description: 'Drive alternating knees to hip height to warm up quads and calves.',
+        instructions: `1. Get into a comfortable starting position.\n2. Drive alternating knees to hip height to warm up quads and calves.\n3. Breathe deeply and maintain the position for the duration.\n4. Relax and repeat as necessary.`,
     },
     {
         id: 'l4',
@@ -363,6 +401,7 @@ export const EXERCISES: Exercise[] = [
         category: 'Yoga',
         image: 'https://images.unsplash.com/photo-1544367563-8f2127fa2b6d?w=400',
         description: 'Classic yoga quad stretch with deep hip flexor opening.',
+        instructions: `1. Get into a comfortable starting position.\n2. Classic yoga quad stretch with deep hip flexor opening.\n3. Breathe deeply and maintain the position for the duration.\n4. Relax and repeat as necessary.`,
     },
     {
         id: 'l5',
@@ -372,6 +411,7 @@ export const EXERCISES: Exercise[] = [
         category: 'Posture',
         image: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=400',
         description: 'Wide-stance squat hold to train hip external rotation and correct knee cave.',
+        instructions: `1. Get into a comfortable starting position.\n2. Wide-stance squat hold to train hip external rotation and correct knee cave.\n3. Breathe deeply and maintain the position for the duration.\n4. Relax and repeat as necessary.`,
     },
     {
         id: 'l6',
@@ -381,6 +421,7 @@ export const EXERCISES: Exercise[] = [
         category: 'Strength',
         image: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=400',
         description: 'Back foot elevated for single-leg quad and glute work.',
+        instructions: `1. Get into a comfortable starting position.\n2. Back foot elevated for single-leg quad and glute work.\n3. Breathe deeply and maintain the position for the duration.\n4. Relax and repeat as necessary.`,
     },
 
     // ── Abdomen ───────────────────────────────────────────────────────────
@@ -392,6 +433,7 @@ export const EXERCISES: Exercise[] = [
         category: 'Relief',
         image: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=400',
         description: 'Press through hands to lift chest and open the abdominal wall.',
+        instructions: `1. Get into a comfortable starting position.\n2. Press through hands to lift chest and open the abdominal wall.\n3. Breathe deeply and maintain the position for the duration.\n4. Relax and repeat as necessary.`,
     },
     {
         id: 'ab2',
@@ -401,6 +443,7 @@ export const EXERCISES: Exercise[] = [
         category: 'Warm-ups',
         image: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=400',
         description: 'Alternate opposite arm and leg toward the floor to activate deep core.',
+        instructions: `1. Get into a comfortable starting position.\n2. Alternate opposite arm and leg toward the floor to activate deep core.\n3. Breathe deeply and maintain the position for the duration.\n4. Relax and repeat as necessary.`,
     },
     {
         id: 'ab3',
@@ -410,6 +453,7 @@ export const EXERCISES: Exercise[] = [
         category: 'Yoga',
         image: 'https://images.unsplash.com/photo-1544367563-8f2127fa2b6d?w=400',
         description: 'Balance on the sit bones with legs lifted to build core stability.',
+        instructions: `1. Get into a comfortable starting position.\n2. Balance on the sit bones with legs lifted to build core stability.\n3. Breathe deeply and maintain the position for the duration.\n4. Relax and repeat as necessary.`,
     },
     {
         id: 'ab4',
@@ -419,6 +463,7 @@ export const EXERCISES: Exercise[] = [
         category: 'Posture',
         image: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=400',
         description: 'Anti-rotation press with a resistance band to train lateral core stability.',
+        instructions: `1. Get into a comfortable starting position.\n2. Anti-rotation press with a resistance band to train lateral core stability.\n3. Breathe deeply and maintain the position for the duration.\n4. Relax and repeat as necessary.`,
     },
     {
         id: 'ab5',
@@ -428,6 +473,7 @@ export const EXERCISES: Exercise[] = [
         category: 'Strength',
         image: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=400',
         description: 'Forearm plank to maximally engage the transverse abdominis.',
+        instructions: `1. Get into a comfortable starting position.\n2. Forearm plank to maximally engage the transverse abdominis.\n3. Breathe deeply and maintain the position for the duration.\n4. Relax and repeat as necessary.`,
     },
 
     // ── Calves ────────────────────────────────────────────────────────────
@@ -439,6 +485,7 @@ export const EXERCISES: Exercise[] = [
         category: 'Relief',
         image: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=400',
         description: 'Press rear heel flat against the floor in a split stance.',
+        instructions: `1. Get into a comfortable starting position.\n2. Press rear heel flat against the floor in a split stance.\n3. Breathe deeply and maintain the position for the duration.\n4. Relax and repeat as necessary.`,
     },
     {
         id: 'ca2',
@@ -448,6 +495,7 @@ export const EXERCISES: Exercise[] = [
         category: 'Warm-ups',
         image: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=400',
         description: 'Rise onto toes and lower slowly to warm up the Achilles tendon.',
+        instructions: `1. Get into a comfortable starting position.\n2. Rise onto toes and lower slowly to warm up the Achilles tendon.\n3. Breathe deeply and maintain the position for the duration.\n4. Relax and repeat as necessary.`,
     },
     {
         id: 'ca3',
@@ -457,6 +505,7 @@ export const EXERCISES: Exercise[] = [
         category: 'Yoga',
         image: 'https://images.unsplash.com/photo-1544367563-8f2127fa2b6d?w=400',
         description: 'Alternate pressing each heel to the floor in Downward Facing Dog.',
+        instructions: `1. Get into a comfortable starting position.\n2. Alternate pressing each heel to the floor in Downward Facing Dog.\n3. Breathe deeply and maintain the position for the duration.\n4. Relax and repeat as necessary.`,
     },
     {
         id: 'ca4',
@@ -466,6 +515,7 @@ export const EXERCISES: Exercise[] = [
         category: 'Posture',
         image: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=400',
         description: 'Eccentric calf lowering on a step to treat Achilles tendinopathy.',
+        instructions: `1. Get into a comfortable starting position.\n2. Eccentric calf lowering on a step to treat Achilles tendinopathy.\n3. Breathe deeply and maintain the position for the duration.\n4. Relax and repeat as necessary.`,
     },
     {
         id: 'ca5',
@@ -475,6 +525,7 @@ export const EXERCISES: Exercise[] = [
         category: 'Strength',
         image: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=400',
         description: 'Full-range calf raise with dumbbells to build plantarflexion strength.',
+        instructions: `1. Get into a comfortable starting position.\n2. Full-range calf raise with dumbbells to build plantarflexion strength.\n3. Breathe deeply and maintain the position for the duration.\n4. Relax and repeat as necessary.`,
     },
 
     // ── Feet ──────────────────────────────────────────────────────────────
@@ -486,6 +537,7 @@ export const EXERCISES: Exercise[] = [
         category: 'Relief',
         image: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=400',
         description: 'Pull toes back toward shin before first steps in the morning.',
+        instructions: `1. Get into a comfortable starting position.\n2. Pull toes back toward shin before first steps in the morning.\n3. Breathe deeply and maintain the position for the duration.\n4. Relax and repeat as necessary.`,
     },
     {
         id: 'ft2',
@@ -495,6 +547,7 @@ export const EXERCISES: Exercise[] = [
         category: 'Warm-ups',
         image: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=400',
         description: 'Activate intrinsic foot muscles before sport or walking.',
+        instructions: `1. Get into a comfortable starting position.\n2. Activate intrinsic foot muscles before sport or walking.\n3. Breathe deeply and maintain the position for the duration.\n4. Relax and repeat as necessary.`,
     },
     {
         id: 'ft3',
@@ -504,6 +557,7 @@ export const EXERCISES: Exercise[] = [
         category: 'Yoga',
         image: 'https://images.unsplash.com/photo-1544367563-8f2127fa2b6d?w=400',
         description: 'Kneel and sit back on tucked toes for a deep plantar fascia yoga stretch.',
+        instructions: `1. Get into a comfortable starting position.\n2. Kneel and sit back on tucked toes for a deep plantar fascia yoga stretch.\n3. Breathe deeply and maintain the position for the duration.\n4. Relax and repeat as necessary.`,
     },
     {
         id: 'ft4',
@@ -513,6 +567,7 @@ export const EXERCISES: Exercise[] = [
         category: 'Posture',
         image: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=400',
         description: 'Pull the ball of foot toward the heel to strengthen the arch.',
+        instructions: `1. Get into a comfortable starting position.\n2. Pull the ball of foot toward the heel to strengthen the arch.\n3. Breathe deeply and maintain the position for the duration.\n4. Relax and repeat as necessary.`,
     },
     {
         id: 'ft5',
@@ -522,6 +577,7 @@ export const EXERCISES: Exercise[] = [
         category: 'Strength',
         image: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=400',
         description: 'Drag a towel toward you with your toes to build intrinsic foot strength.',
+        instructions: `1. Get into a comfortable starting position.\n2. Drag a towel toward you with your toes to build intrinsic foot strength.\n3. Breathe deeply and maintain the position for the duration.\n4. Relax and repeat as necessary.`,
     },
 
     // ── General / Multi-region ────────────────────────────────────────────
@@ -533,6 +589,7 @@ export const EXERCISES: Exercise[] = [
         category: 'Yoga',
         image: 'https://images.unsplash.com/photo-1544367563-8f2127fa2b6d?w=400',
         description: 'Classic yoga flow to energize the body.',
+        instructions: `1. Get into a comfortable starting position.\n2. Classic yoga flow to energize the body.\n3. Breathe deeply and maintain the position for the duration.\n4. Relax and repeat as necessary.`,
     },
     {
         id: 'y2',
@@ -542,6 +599,7 @@ export const EXERCISES: Exercise[] = [
         category: 'Yoga',
         image: 'https://images.unsplash.com/photo-1544367563-8f2127fa2b6d?w=400',
         description: 'Strong standing yoga pose building hip and shoulder endurance.',
+        instructions: `1. Get into a comfortable starting position.\n2. Strong standing yoga pose building hip and shoulder endurance.\n3. Breathe deeply and maintain the position for the duration.\n4. Relax and repeat as necessary.`,
     },
     {
         id: 'w1',
@@ -551,6 +609,7 @@ export const EXERCISES: Exercise[] = [
         category: 'Warm-ups',
         image: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=400',
         description: 'Get your blood flowing with a full-body warmup routine.',
+        instructions: `1. Get into a comfortable starting position.\n2. Get your blood flowing with a full-body warmup routine.\n3. Breathe deeply and maintain the position for the duration.\n4. Relax and repeat as necessary.`,
     },
     {
         id: 'w2',
@@ -560,6 +619,7 @@ export const EXERCISES: Exercise[] = [
         category: 'Warm-ups',
         image: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=400',
         description: 'Walk hands out to plank and back — full-body warm-up and mobility.',
+        instructions: `1. Get into a comfortable starting position.\n2. Walk hands out to plank and back — full-body warm-up and mobility.\n3. Breathe deeply and maintain the position for the duration.\n4. Relax and repeat as necessary.`,
     },
     {
         id: 'p1',
@@ -569,6 +629,7 @@ export const EXERCISES: Exercise[] = [
         category: 'Posture',
         image: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=400',
         description: 'Correct slouching and open up the chest for desk workers.',
+        instructions: `1. Get into a comfortable starting position.\n2. Correct slouching and open up the chest for desk workers.\n3. Breathe deeply and maintain the position for the duration.\n4. Relax and repeat as necessary.`,
     },
     {
         id: 'st1',
@@ -578,6 +639,7 @@ export const EXERCISES: Exercise[] = [
         category: 'Strength',
         image: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=400',
         description: 'Intensive core workout for total-body stability.',
+        instructions: `1. Get into a comfortable starting position.\n2. Intensive core workout for total-body stability.\n3. Breathe deeply and maintain the position for the duration.\n4. Relax and repeat as necessary.`,
     },
 ];
 
