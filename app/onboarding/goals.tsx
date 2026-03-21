@@ -76,17 +76,13 @@ export default function GoalsScreen() {
                 <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
                     <Ionicons name="chevron-back" size={24} color="#fff" />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={handleSkip}>
-                    <Text style={styles.skipText}>{t('skip')}</Text>
-                </TouchableOpacity>
             </View>
 
             {/* Progress Bar */}
             <View style={styles.progressContainer}>
-                <View style={styles.progressSegment} />
-                <View style={styles.progressSegment} />
-                <View style={styles.progressSegment} />
-                <View style={[styles.progressSegment, styles.progressActive]} />
+                <View style={styles.progressBarBackground}>
+                    <View style={[styles.progressBarFill, { width: '100%' }]} />
+                </View>
             </View>
 
             <View style={styles.content}>
@@ -180,17 +176,19 @@ const styles = StyleSheet.create({
     progressContainer: {
         flexDirection: 'row',
         paddingHorizontal: 24,
-        gap: 6,
         marginBottom: 32,
     },
-    progressSegment: {
+    progressBarBackground: {
         flex: 1,
         height: 4,
         backgroundColor: 'rgba(255,255,255,0.1)',
         borderRadius: 2,
+        overflow: 'hidden',
     },
-    progressActive: {
+    progressBarFill: {
+        height: '100%',
         backgroundColor: '#f97316',
+        borderRadius: 2,
     },
     content: {
         flex: 1,

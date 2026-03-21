@@ -88,16 +88,13 @@ export default function WelcomeScreen() {
         <SafeAreaView style={[styles.container, { backgroundColor: '#1a1a1a' }]}>
             {/* Skip Button */}
             {/* Header with Language Selector & Skip */}
-            <View style={styles.header}>
+            <View style={[styles.header, { justifyContent: 'flex-end' }]}>
                 <TouchableOpacity
                     style={styles.langButton}
                     onPress={() => setShowLangModal(true)}
                 >
                     <Ionicons name="globe-outline" size={20} color="#fff" />
                     <Text style={styles.langButtonText}>{language.toUpperCase()}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={handleSkip}>
-                    <Text style={styles.skipText}>{t('skip')}</Text>
                 </TouchableOpacity>
             </View>
 
@@ -108,17 +105,17 @@ export default function WelcomeScreen() {
                 </View>
 
                 {/* Title */}
-                <Text style={styles.title}>Muscle maintenance made easy</Text>
+                <Text style={styles.title}>Muscle care made easy</Text>
 
                 {/* Get Started Button */}
                 <TouchableOpacity
                     style={[styles.button, { marginBottom: 16 }]}
-                    onPress={() => router.push('/onboarding/lifestyle')}
+                    onPress={() => router.push('/onboarding/gender')}
                 >
                     <Text style={styles.buttonText}>{t('getStarted')}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => router.replace('/auth/login' as any)} style={{ marginBottom: 32 }}>
-                    <Text style={styles.signInText}>Already have an account? Sign in</Text>
+                    <Text style={styles.signInText}>Already have an account? <Text style={{ textDecorationLine: 'underline' }}>Sign in</Text></Text>
                 </TouchableOpacity>
 
                 {/* Pagination Dots */}
@@ -232,7 +229,6 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontSize: 16,
         fontWeight: '500',
-        textDecorationLine: 'underline',
     },
     pagination: {
         flexDirection: 'row',

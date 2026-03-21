@@ -30,6 +30,18 @@ export default function OnboardingEquipmentScreen() {
 
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+            <View style={styles.topNav}>
+                <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+                    <Ionicons name="chevron-back" size={24} color="#fff" />
+                </TouchableOpacity>
+            </View>
+
+            <View style={styles.progressContainer}>
+                <View style={styles.progressBarBackground}>
+                    <View style={[styles.progressBarFill, { width: '83%' }]} />
+                </View>
+            </View>
+
             <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
                 <Animated.View entering={FadeInUp.duration(600).delay(200)} style={styles.header}>
                     <Text style={[styles.title, { color: colors.text }]}>
@@ -114,9 +126,40 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
     },
+    topNav: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+    },
+    backButton: {
+        width: 44,
+        height: 44,
+        borderRadius: 22,
+        backgroundColor: 'rgba(255,255,255,0.1)',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    progressContainer: {
+        flexDirection: 'row',
+        paddingHorizontal: 24,
+        marginBottom: 8,
+    },
+    progressBarBackground: {
+        flex: 1,
+        height: 4,
+        backgroundColor: 'rgba(255,255,255,0.1)',
+        borderRadius: 2,
+        overflow: 'hidden',
+    },
+    progressBarFill: {
+        height: '100%',
+        backgroundColor: '#f97316',
+        borderRadius: 2,
+    },
     scrollContent: {
         paddingHorizontal: 24,
-        paddingTop: 60,
+        paddingTop: 32,
         paddingBottom: 40,
     },
     header: {
