@@ -20,21 +20,21 @@ const OPTIONS: GoalOption[] = [
         id: 'relieve_pain',
         titleKey: 'relievePain',
         subtitleKey: 'relievePainDesc',
-        icon: 'puzzle-outline',
+        icon: 'bandage-outline',
         iconColor: '#f97316'
     },
     {
         id: 'improve_mobility',
         titleKey: 'improveMobility',
         subtitleKey: 'improveMobilityDesc',
-        icon: 'accessibility',
+        icon: 'body-outline',
         iconColor: '#f97316'
     },
     {
         id: 'daily_maintenance',
         titleKey: 'dailyMaintenance',
         subtitleKey: 'dailyMaintenanceDesc',
-        icon: 'heart-outline',
+        icon: 'leaf-outline',
         iconColor: '#f97316'
     },
 ];

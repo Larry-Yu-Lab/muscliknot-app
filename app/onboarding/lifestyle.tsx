@@ -49,7 +49,7 @@ export default function LifestyleScreen() {
                 </TouchableOpacity>
                 <View style={styles.progressContainer}>
                     <View style={styles.progressBarBackground}>
-                        <View style={[styles.progressBarFill, { width: '33%' }]} />
+                        <View style={[styles.progressBarFill, { width: '20%' }]} />
                     </View>
                 </View>
             </View>

@@ -35,7 +35,7 @@ export default function SourceScreen() {
                 </TouchableOpacity>
                 <View style={styles.progressContainer}>
                     <View style={styles.progressBarBackground}>
-                        <View style={[styles.progressBarFill, { width: '50%' }]} />
+                        <View style={[styles.progressBarFill, { width: '30%' }]} />
                     </View>
                 </View>
             </View>

@@ -36,7 +36,7 @@ export default function OnboardingEquipmentScreen() {
                 </TouchableOpacity>
                 <View style={styles.progressContainer}>
                     <View style={styles.progressBarBackground}>
-                        <View style={[styles.progressBarFill, { width: '83%' }]} />
+                        <View style={[styles.progressBarFill, { width: '90%' }]} />
                     </View>
                 </View>
             </View>

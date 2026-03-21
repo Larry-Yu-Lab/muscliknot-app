@@ -22,7 +22,7 @@ export default function ExperienceScreen() {
     const handleContinue = async () => {
         if (!selected) return;
         await AsyncStorage.setItem('user_experience', selected);
-        router.push('/onboarding/equipment');
+        router.push('/onboarding/results');
     };
 
     return (
@@ -33,7 +33,7 @@ export default function ExperienceScreen() {
                 </TouchableOpacity>
                 <View style={styles.progressContainer}>
                     <View style={styles.progressBarBackground}>
-                        <View style={[styles.progressBarFill, { width: '66%' }]} />
+                        <View style={[styles.progressBarFill, { width: '40%' }]} />
                     </View>
                 </View>
             </View>

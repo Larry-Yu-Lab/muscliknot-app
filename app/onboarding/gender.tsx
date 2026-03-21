@@ -34,7 +34,7 @@ export default function GenderScreen() {
                 </TouchableOpacity>
                 <View style={styles.progressContainer}>
                     <View style={styles.progressBarBackground}>
-                        <View style={[styles.progressBarFill, { width: '16%' }]} />
+                        <View style={[styles.progressBarFill, { width: '10%' }]} />
                     </View>
                 </View>
             </View>
