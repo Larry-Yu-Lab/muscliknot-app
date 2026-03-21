@@ -71,17 +71,15 @@ export default function GoalsScreen() {
 
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: '#1a1a1a' }]}>
-            {/* Header */}
-            <View style={styles.header}>
+            {/* Progress Header */}
+            <View style={styles.progressHeader}>
                 <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
                     <Ionicons name="chevron-back" size={24} color="#fff" />
                 </TouchableOpacity>
-            </View>
-
-            {/* Progress Bar */}
-            <View style={styles.progressContainer}>
-                <View style={styles.progressBarBackground}>
-                    <View style={[styles.progressBarFill, { width: '100%' }]} />
+                <View style={styles.progressContainer}>
+                    <View style={styles.progressBarBackground}>
+                        <View style={[styles.progressBarFill, { width: '100%' }]} />
+                    </View>
                 </View>
             </View>
 
@@ -148,12 +146,12 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
     },
-    header: {
+    progressHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between',
         paddingHorizontal: 16,
-        paddingVertical: 12,
+        paddingTop: 12,
+        marginBottom: 32,
     },
     backButton: {
         width: 44,
@@ -162,6 +160,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(255,255,255,0.1)',
         alignItems: 'center',
         justifyContent: 'center',
+        marginRight: 16,
     },
     stepText: {
         color: '#fff',
@@ -174,9 +173,8 @@ const styles = StyleSheet.create({
         fontWeight: '500',
     },
     progressContainer: {
-        flexDirection: 'row',
-        paddingHorizontal: 24,
-        marginBottom: 32,
+        flex: 1,
+        height: 4,
     },
     progressBarBackground: {
         flex: 1,

@@ -28,21 +28,20 @@ export default function GenderScreen() {
 
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: '#1a1a1a' }]}>
-            <View style={styles.header}>
+            <View style={styles.progressHeader}>
                 <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
                     <Ionicons name="chevron-back" size={24} color="#fff" />
                 </TouchableOpacity>
-            </View>
-
-            {/* Progress Bar */}
-            <View style={styles.progressContainer}>
-                <View style={styles.progressBarBackground}>
-                    <View style={[styles.progressBarFill, { width: '16%' }]} />
+                <View style={styles.progressContainer}>
+                    <View style={styles.progressBarBackground}>
+                        <View style={[styles.progressBarFill, { width: '16%' }]} />
+                    </View>
                 </View>
             </View>
 
             <View style={styles.content}>
                 <Text style={styles.title}>Choose your Gender</Text>
+                <Text style={styles.subtitle}>This will be used to calibrate your custom plan.</Text>
                 
                 <View style={styles.optionsContainer}>
                     {OPTIONS.map((option) => (
@@ -77,11 +76,12 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
     },
-    header: {
+    progressHeader: {
         flexDirection: 'row',
         alignItems: 'center',
         paddingHorizontal: 16,
-        paddingVertical: 12,
+        paddingTop: 12,
+        marginBottom: 32,
     },
     backButton: {
         width: 44,
@@ -90,11 +90,11 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(255,255,255,0.1)',
         alignItems: 'center',
         justifyContent: 'center',
+        marginRight: 16,
     },
     progressContainer: {
-        flexDirection: 'row',
-        paddingHorizontal: 24,
-        marginBottom: 32,
+        flex: 1,
+        height: 4,
     },
     progressBarBackground: {
         flex: 1,
@@ -116,8 +116,14 @@ const styles = StyleSheet.create({
         fontSize: 32,
         fontWeight: '700',
         color: '#fff',
-        marginBottom: 32,
+        marginBottom: 12,
         lineHeight: 40,
+    },
+    subtitle: {
+        fontSize: 16,
+        color: 'rgba(255,255,255,0.5)',
+        marginBottom: 32,
+        lineHeight: 24,
     },
     optionsContainer: {
         gap: 16,
