@@ -1,6 +1,8 @@
 import { usePreferences } from '@/context/PreferencesContext';
 import { getTranslation } from '@/utils/i18n';
+import { getHistory } from '@/utils/storage';
 import { supabase } from '@/utils/supabase';
+import { getUserPreferences } from '@/utils/userPreferences';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
@@ -130,7 +132,6 @@ export default function LoginScreen() {
                 try {
                     if (data.user) {
                         // 1. Sync Preferences
-                        const { getUserPreferences } = await import('@/utils/userPreferences');
                         const { data: prefs } = await getUserPreferences(data.user.id);
 
                         if (prefs) {
@@ -147,7 +148,6 @@ export default function LoginScreen() {
                         }
 
                         // 2. Sync History
-                        const { getHistory } = await import('@/utils/storage');
                         await getHistory(); // This will fetch from Supabase and update local storage
                     }
                 } catch (syncError) {
