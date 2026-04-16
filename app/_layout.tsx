@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import 'react-native-reanimated';
@@ -10,10 +10,6 @@ import 'react-native-reanimated';
 import { AuthProvider, useAuth } from '@/context/AuthContext';
 import { PreferencesProvider, usePreferences } from '@/context/PreferencesContext';
 import { UserProvider } from '@/context/UserContext';
-
-export const unstable_settings = {
-  anchor: '(tabs)',
-};
 
 export default function RootLayout() {
   return (
@@ -35,7 +31,7 @@ function RootLayoutNav() {
   const segments = useSegments();
   const router = useRouter();
   const [onboardingComplete, setOnboardingComplete] = useState<boolean | null>(null);
-  const [initialRouteHandled, setInitialRouteHandled] = useState(false);
+  const [isNavigationReady, setIsNavigationReady] = useState(false);
 
   // Check onboarding status on mount
   useEffect(() => {
@@ -46,38 +42,35 @@ function RootLayoutNav() {
     checkOnboarding();
   }, []);
 
-  // Handle initial routing only once
+  const onLayoutReady = useCallback(() => {
+    setIsNavigationReady(true);
+  }, []);
+
+  // Handle routing once navigation is ready
   useEffect(() => {
-    if (isLoading || onboardingComplete === null || initialRouteHandled) return;
+    if (isLoading || onboardingComplete === null || !isNavigationReady) return;
 
     const inAuthGroup = segments[0] === 'auth';
     const inOnboarding = segments[0] === 'onboarding';
 
     // If onboarding not complete, redirect to onboarding
     if (!onboardingComplete && !inOnboarding) {
-      setInitialRouteHandled(true);
-      router.replace('/onboarding/welcome' as any);
+      router.replace('/onboarding' as any);
       return;
     }
 
     // If onboarding complete but not logged in
     if (onboardingComplete && !session && !inAuthGroup) {
-      setInitialRouteHandled(true);
       router.replace('/auth/login' as any);
       return;
     }
 
     // If logged in, go to tabs
-    if (session) {
-      setInitialRouteHandled(true);
+    if (session && !inAuthGroup && !inOnboarding) {
       router.replace('/(tabs)' as any);
       return;
     }
-
-    // Mark as handled if we're already in correct location
-    setInitialRouteHandled(true);
-  }, [isLoading, onboardingComplete, session]);
-
+  }, [isLoading, onboardingComplete, session, isNavigationReady]);
 
   if (isLoading || onboardingComplete === null) {
     return (
@@ -89,20 +82,24 @@ function RootLayoutNav() {
 
   return (
     <ThemeProvider value={theme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="onboarding" />
-        <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="auth/login" />
-        <Stack.Screen name="auth/register" />
-        <Stack.Screen name="auth/signup-success" />
-        <Stack.Screen name="auth/login-welcome" />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal', headerShown: true }} />
-        <Stack.Screen name="settings" options={{ presentation: 'card' }} />
-        <Stack.Screen name="analytics" />
-        <Stack.Screen name="results" />
-      </Stack>
+      <View style={{ flex: 1 }} onLayout={onLayoutReady}>
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="onboarding" />
+          <Stack.Screen name="auth/login" />
+          <Stack.Screen name="auth/register" />
+          <Stack.Screen name="auth/signup-success" />
+          <Stack.Screen name="auth/login-welcome" />
+          <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal', headerShown: true }} />
+          <Stack.Screen name="settings" options={{ presentation: 'card' }} />
+          <Stack.Screen name="settings/equipment" options={{ presentation: 'card' }} />
+          <Stack.Screen name="exercise/[id]" />
+          <Stack.Screen name="analytics" />
+          <Stack.Screen name="results" />
+          <Stack.Screen name="privacy" />
+        </Stack>
+      </View>
       <StatusBar style={theme === 'dark' ? 'light' : 'dark'} />
     </ThemeProvider>
   );
 }
-

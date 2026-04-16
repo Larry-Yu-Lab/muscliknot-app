@@ -1,7 +1,9 @@
 import { usePreferences } from '@/context/PreferencesContext';
 import { getTranslation } from '@/utils/i18n';
 import { supabase } from '@/utils/supabase';
+import { saveUserPreferences } from '@/utils/userPreferences';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
@@ -132,8 +134,6 @@ export default function RegisterScreen() {
             if (error) {
                 Alert.alert(t('registrationFailed'), error.message);
             } else if (data.session) {
-                // ... (rest of logic remains same)
-                /* 
                 try {
                     const lifestyle = await AsyncStorage.getItem('user_lifestyle');
                     const goal = await AsyncStorage.getItem('user_goal');
@@ -151,7 +151,6 @@ export default function RegisterScreen() {
                     console.log('Error syncing preferences:', syncError);
                 }
                 router.replace('/auth/signup-success' as any);
-                */
             } else {
                 Alert.alert(
                     t('successHeader') || 'Success',
@@ -189,7 +188,13 @@ export default function RegisterScreen() {
                 <View style={styles.headerRow}>
                     <TouchableOpacity
                         style={styles.backButton}
-                        onPress={() => router.back()}
+                        onPress={() => {
+                            if (router.canGoBack()) {
+                                router.back();
+                            } else {
+                                router.replace('/auth/login' as any);
+                            }
+                        }}
                         activeOpacity={0.7}
                     >
                         <Ionicons name="chevron-back" size={24} color="#fff" />
