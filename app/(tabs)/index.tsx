@@ -118,6 +118,7 @@ export default function HomeScreen() {
   const [view, setView] = useState<ViewState>('Front');
   const [activePoint, setActivePoint] = useState<{ x: number; y: number; width: number; height: number; rotation: number } | null>(null);
   const [containerHeight, setContainerHeight] = useState(1); // Default to avoid div by zero
+  const [containerWidth, setContainerWidth] = useState(1); // Default to avoid div by zero
   const [searchQuery, setSearchQuery] = useState('');
   const [searchError, setSearchError] = useState('');
   const [recentPlans, setRecentPlans] = useState<HistoryItem[]>([]);
@@ -209,17 +210,25 @@ export default function HomeScreen() {
       const avgRadius = (activePoint.width + activePoint.height) / 4;
       const size = getTargetSize(avgRadius);
 
+      // Normalize X coordinate
+      const scaleX = 300 / (containerWidth || 1);
+      const normalizedX = activePoint.x * scaleX;
+
       // Normalize Y coordinate
       const scaleY = 1000 / (containerHeight || 1);
       const normalizedY = activePoint.y * scaleY;
 
       // Get muscle from selection
       const muscleIds = getMusclesInArea({
-        x: activePoint.x,
+        x: normalizedX,
         y: normalizedY,
-        width: activePoint.width,
+        width: activePoint.width * scaleX,
         height: activePoint.height * scaleY
       });
+
+      if (muscleIds.length === 0) {
+        return; // Early exit if no valid muscle is targeted
+      }
 
       router.push({
         pathname: '/(tabs)/activity-selection',
@@ -231,7 +240,7 @@ export default function HomeScreen() {
           rotation: activePoint.rotation,
           view,
           size,
-          muscleId: muscleIds.length > 0 ? muscleIds[0] : 'unknown',
+          muscleId: muscleIds[0],
           timestamp: Date.now()
         }
       });
@@ -393,7 +402,10 @@ export default function HomeScreen() {
                 transform: [{ scale: zoomLevel }]
               }
             ]}
-            onLayout={(e) => setContainerHeight(e.nativeEvent.layout.height)}
+            onLayout={(e) => {
+              setContainerHeight(e.nativeEvent.layout.height);
+              setContainerWidth(e.nativeEvent.layout.width);
+            }}
           >
             {/* 1. Underlying Visual Layer - Full Width/Height */}
             <Image
@@ -406,8 +418,8 @@ export default function HomeScreen() {
               contentFit="contain"
             />
 
-            {/* 2. Interaction Layer - Restricted to Center 65% */}
-            <View style={{ width: '65%', height: '100%', alignSelf: 'center', position: 'relative' }}>
+            {/* 2. Interaction Layer - Full Width */}
+            <View style={{ width: '100%', height: '100%', alignSelf: 'center', position: 'relative' }}>
               <GestureDetector gesture={creationGesture}>
                 {/* Transparent touch target */}
                 <View style={{ flex: 1, backgroundColor: 'transparent' }} />
@@ -440,12 +452,28 @@ export default function HomeScreen() {
           </View>
 
           {/* Contextual Action Button */}
-          {activePoint && (
-            <TouchableOpacity style={styles.generateButton} onPress={handleFindRelief}>
-              <Text style={styles.generateButtonText}>{t('generatePlan')}</Text>
-              <Ionicons name="arrow-forward" size={20} color="#000" />
-            </TouchableOpacity>
-          )}
+          {activePoint && (() => {
+            const scaleX = 300 / (containerWidth || 1);
+            const scaleY = 1000 / (containerHeight || 1);
+            const muscleIds = getMusclesInArea({
+              x: activePoint.x * scaleX,
+              y: activePoint.y * scaleY,
+              width: activePoint.width * scaleX,
+              height: activePoint.height * scaleY
+            });
+            const valid = muscleIds.length > 0;
+            return valid ? (
+              <TouchableOpacity style={styles.generateButton} onPress={handleFindRelief}>
+                <Text style={styles.generateButtonText}>{t('generatePlan')}</Text>
+                <Ionicons name="arrow-forward" size={20} color="#000" />
+              </TouchableOpacity>
+            ) : (
+              <View style={[styles.generateButton, { backgroundColor: isDark ? '#3f3f46' : '#d4d4d8', shadowOpacity: 0, elevation: 0 }]}>
+                <Text style={[styles.generateButtonText, { color: isDark ? '#a1a1aa' : '#71717a' }]}>{t('selectValidMuscle' as any) || 'Select a valid muscle'}</Text>
+                <Ionicons name="warning-outline" size={20} color={isDark ? '#a1a1aa' : '#71717a'} />
+              </View>
+            );
+          })()}
         </View>
 
         {/* Quick Fix */}

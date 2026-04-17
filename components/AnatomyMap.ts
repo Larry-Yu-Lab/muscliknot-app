@@ -12,14 +12,16 @@ export interface muscleRegion {
     name: string;
     minY: number;
     maxY: number;
+    minX?: number; // Optional narrow mapping to remove background
+    maxX?: number;
 }
 
 // Coordinate mapping based on approximately 1000px height coordinate system.
 // X axis: body center is ~150px. Trunk = X 70–230. Arms/hands hang outside.
 const MUSCLE_REGIONS: muscleRegion[] = [
-    // Head and Neck
-    { id: 'head', name: 'Head', minY: 0, maxY: 110 },
-    { id: 'neck', name: 'Neck', minY: 100, maxY: 210 },
+    // Head and Neck (narrowed X to prevent background selection)
+    { id: 'head', name: 'Head', minY: 0, maxY: 110, minX: 110, maxX: 190 },
+    { id: 'neck', name: 'Neck', minY: 100, maxY: 210, minX: 115, maxX: 185 },
 
     // Upper Body (trunk only)
     { id: 'traps', name: 'Traps/Shoulders', minY: 200, maxY: 310 },
@@ -42,7 +44,7 @@ const MUSCLE_REGIONS: muscleRegion[] = [
     // Arms (lateral — detected by X coordinate, not Y alone)
     { id: 'arms', name: 'Arms', minY: 270, maxY: 500 },
     { id: 'forearms', name: 'Forearms', minY: 460, maxY: 650 },
-    { id: 'hands', name: 'Hands/Wrists', minY: 620, maxY: 780 },
+    { id: 'hands', name: 'Hands/Wrists', minY: 620, maxY: 820 },
 ];
 
 // Body model center X and half-width of trunk in the ~300px wide image
@@ -59,8 +61,13 @@ export const getMusclesInArea = (selectionArea: SelectionArea): string[] => {
     const selectionMinY = y - height / 2;
     const selectionMaxY = y + height / 2;
 
-    // Determine if the tap is clearly outside the trunk (i.e. arm/hand area)
-    const isLateral = x < TRUNK_MIN_X || x > TRUNK_MAX_X;
+    // Strict background exclusion for extreme edges, slightly widened to allow fingertips
+    if (x < 10 || x > 290) {
+        return [];
+    }
+
+    // Determine if the tap is outside the trunk (i.e. arm/hand area)
+    const isLateral = (x >= 10 && x < TRUNK_MIN_X) || (x > TRUNK_MAX_X && x <= 290);
 
     if (isLateral) {
         // Only return lateral regions
@@ -69,18 +76,24 @@ export const getMusclesInArea = (selectionArea: SelectionArea): string[] => {
         const matched = lateralRegions.filter(r =>
             selectionMinY <= r.maxY && selectionMaxY >= r.minY
         ).map(r => r.id);
-        // Return most specific match, or arms as default for lateral
-        return matched.length > 0 ? [matched[matched.length - 1]] : ['arms'];
+        // Return most specific match, OR empty if none
+        return matched.length > 0 ? [matched[matched.length - 1]] : [];
     }
 
-    // Trunk tap — exclude lateral-only regions, prioritise best Y match
+    // Trunk tap — exclude lateral-only regions, prioritise best Y match + X limits
     const trunkExclusions = ['arms', 'forearms', 'hands'];
     const candidates = MUSCLE_REGIONS
         .filter(r => !trunkExclusions.includes(r.id))
         .filter(r => selectionMinY <= r.maxY && selectionMaxY >= r.minY)
+        .filter(r => {
+            // Apply tight X constraints if the region defines them
+            if (r.minX !== undefined && x < r.minX) return false;
+            if (r.maxX !== undefined && x > r.maxX) return false;
+            return true;
+        })
         .map(r => r.id);
 
-    return candidates.length > 0 ? [candidates[0]] : ['abdomen'];
+    return candidates.length > 0 ? [candidates[0]] : [];
 };
 
 /**
