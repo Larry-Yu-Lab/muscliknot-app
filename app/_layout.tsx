@@ -52,7 +52,6 @@ function RootLayoutNav() {
 
     const inAuthGroup = segments[0] === 'auth';
     const inOnboarding = segments[0] === 'onboarding';
-    const inTabs = segments[0] === '(tabs)';
 
     // If not logged in and onboarding is not complete -> go to onboarding
     if (!session && !onboardingComplete && !inOnboarding) {
@@ -66,8 +65,8 @@ function RootLayoutNav() {
       return;
     }
 
-    // If logged in, go to tabs (unless they are already in tabs or in a special auth/onboarding screen like login-welcome)
-    if (session && !inAuthGroup && !inOnboarding && !inTabs) {
+    // If logged in, block access to login/register routes by sending them to tabs
+    if (session && inAuthGroup && segments[1] !== 'login-welcome' && segments[1] !== 'signup-success') {
       router.replace('/(tabs)' as any);
       return;
     }

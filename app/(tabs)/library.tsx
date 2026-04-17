@@ -121,13 +121,15 @@ export default function LibraryScreen() {
                     };
                     const transformed = data.map((ex: any) => ({
                         id: ex.id?.toString() || String(Math.random()),
-                        title: ex.solution_stretch || ex.common_name || 'Unknown Exercise',
-                        duration: '3-5 min',
+                        title: ex.title || ex.solution_stretch || ex.common_name || 'Unknown Exercise',
+                        duration: ex.duration || '3-5 min',
                         target: ex.common_name || 'General',
                         muscleGroup: ex.common_name?.split(' ')[0] || 'General',
                         category: categoryMap[ex.exercise_type?.toLowerCase()] || 'Relief',
                         image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAQvExJHNf-gPBvV9mafHYX_QH4RDM2a10DReFfan-2uta-tGIgoYLy2YcqV88wGpuO0qaD_Yr1qPxSQtigGhxM0Sq6uOtWbw-JV0RDp_0RmODacO147g0dvAY693HSe3XPVdm2eTzs6ER9VAKERpdSDpdD1MgVcJ8HJCDesjsxF-hhw0aRZc-sY0sB3sHox58BbJ7vYjkyyLq8KDnpbu4x0PolLYeNnsL3Q3fcRFHU5BkgY0KWaZ8NP',
-                        instructions: ex.instructions, why: ex.why, process: ex.process,
+                        instructions: ex.instructions || ex.description, 
+                        why: ex.why, 
+                        process: ex.process,
                     }));
                     setSupabaseExercises(transformed);
                 }
