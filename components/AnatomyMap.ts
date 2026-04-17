@@ -20,26 +20,26 @@ export interface muscleRegion {
 // X axis: body center is ~150px. Trunk = X 70–230. Arms/hands hang outside.
 const MUSCLE_REGIONS: muscleRegion[] = [
     // Head and Neck (narrowed X to prevent background selection)
-    { id: 'head', name: 'Head', minY: 0, maxY: 110, minX: 110, maxX: 190 },
-    { id: 'neck', name: 'Neck', minY: 100, maxY: 210, minX: 115, maxX: 185 },
+    { id: 'head', name: 'Head', minY: 0, maxY: 110, minX: 115, maxX: 185 },
+    { id: 'neck', name: 'Neck', minY: 100, maxY: 210, minX: 120, maxX: 180 },
 
-    // Upper Body (trunk only)
-    { id: 'traps', name: 'Traps/Shoulders', minY: 200, maxY: 310 },
-    { id: 'chest', name: 'Chest', minY: 290, maxY: 420 },
-    { id: 'upper_back', name: 'Upper Back', minY: 290, maxY: 460 },
+    // Upper Body (trunk only) - standard shoulders are wide, chest narrows slightly
+    { id: 'traps', name: 'Traps/Shoulders', minY: 200, maxY: 310, minX: 80, maxX: 220 },
+    { id: 'chest', name: 'Chest', minY: 290, maxY: 420, minX: 90, maxX: 210 },
+    { id: 'upper_back', name: 'Upper Back', minY: 290, maxY: 460, minX: 90, maxX: 210 },
 
-    // Core (trunk)
-    { id: 'lower_back', name: 'Lower Back', minY: 440, maxY: 590 },
-    { id: 'abdomen', name: 'Abdomen', minY: 400, maxY: 560 },
-    { id: 'hips', name: 'Hips', minY: 540, maxY: 660 },
-    { id: 'glutes', name: 'Glutes', minY: 610, maxY: 710 },
+    // Core (trunk) - waist is narrowest
+    { id: 'lower_back', name: 'Lower Back', minY: 440, maxY: 590, minX: 100, maxX: 200 },
+    { id: 'abdomen', name: 'Abdomen', minY: 400, maxY: 560, minX: 95, maxX: 205 },
+    { id: 'hips', name: 'Hips', minY: 540, maxY: 660, minX: 85, maxX: 215 },
+    { id: 'glutes', name: 'Glutes', minY: 610, maxY: 710, minX: 85, maxX: 215 },
 
-    // Legs
-    { id: 'thighs', name: 'Thighs', minY: 680, maxY: 790 },
-    { id: 'knees', name: 'Knees', minY: 770, maxY: 830 },
-    { id: 'calves', name: 'Calves', minY: 810, maxY: 910 },
-    { id: 'ankles', name: 'Ankles', minY: 890, maxY: 950 },
-    { id: 'feet', name: 'Feet', minY: 930, maxY: 1000 },
+    // Legs - taper down
+    { id: 'thighs', name: 'Thighs', minY: 680, maxY: 790, minX: 85, maxX: 215 },
+    { id: 'knees', name: 'Knees', minY: 770, maxY: 830, minX: 95, maxX: 205 },
+    { id: 'calves', name: 'Calves', minY: 810, maxY: 910, minX: 95, maxX: 205 },
+    { id: 'ankles', name: 'Ankles', minY: 890, maxY: 950, minX: 105, maxX: 195 },
+    { id: 'feet', name: 'Feet', minY: 930, maxY: 1000, minX: 95, maxX: 205 },
 
     // Arms (lateral — detected by X coordinate, not Y alone)
     { id: 'arms', name: 'Arms', minY: 270, maxY: 500 },
