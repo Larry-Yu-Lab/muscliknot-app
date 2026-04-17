@@ -46,7 +46,11 @@ const getMuscleKey = (name: string | undefined) => {
 const ExerciseCard = ({ id, title, duration, target, image, t, colors, exercise, isSaved, onToggleSave }: ExerciseCardProps & { exercise: any }) => {
     const router = useRouter();
     const titleKey = `ex_${id}_title` as any;
-    const translatedTitle = t(titleKey) !== titleKey ? t(titleKey) : title;
+    let translatedTitle = t(titleKey) !== titleKey ? t(titleKey) : title;
+
+    if (title === 'Neck Release & Stretch') translatedTitle = t('db_neck_title' as any) || title;
+    else if (title === 'Lower Back Decompression') translatedTitle = t('db_lower_back_title' as any) || title;
+    else if (title === 'Full Leg Flush') translatedTitle = t('db_leg_title' as any) || title;
 
     const handlePress = () => {
         router.push({
