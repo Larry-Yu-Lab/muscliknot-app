@@ -52,25 +52,26 @@ function RootLayoutNav() {
 
     const inAuthGroup = segments[0] === 'auth';
     const inOnboarding = segments[0] === 'onboarding';
+    const inTabs = segments[0] === '(tabs)';
 
-    // If onboarding not complete, redirect to onboarding
-    if (!onboardingComplete && !inOnboarding) {
+    // If not logged in and onboarding is not complete -> go to onboarding
+    if (!session && !onboardingComplete && !inOnboarding) {
       router.replace('/onboarding' as any);
       return;
     }
 
-    // If onboarding complete but not logged in
-    if (onboardingComplete && !session && !inAuthGroup) {
+    // If not logged in and onboarding IS complete -> go to login
+    if (!session && onboardingComplete && !inAuthGroup && !inOnboarding) {
       router.replace('/auth/login' as any);
       return;
     }
 
-    // If logged in, go to tabs
-    if (session && !inAuthGroup && !inOnboarding) {
+    // If logged in, go to tabs (unless they are already in tabs or in a special auth/onboarding screen like login-welcome)
+    if (session && !inAuthGroup && !inOnboarding && !inTabs) {
       router.replace('/(tabs)' as any);
       return;
     }
-  }, [isLoading, onboardingComplete, session, isNavigationReady]);
+  }, [isLoading, onboardingComplete, session, isNavigationReady, segments]);
 
   if (isLoading || onboardingComplete === null) {
     return (
