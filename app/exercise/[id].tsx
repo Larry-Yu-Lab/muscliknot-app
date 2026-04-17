@@ -6,6 +6,7 @@ import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React from 'react';
+import YoutubePlayer from 'react-native-youtube-iframe';
 import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View, Dimensions } from 'react-native';
 
 const { width } = Dimensions.get('window');
@@ -26,8 +27,18 @@ export default function ExerciseDetails() {
         why,
         process,
         instructions,
-        muscleGroup
+        muscleGroup,
+        video_url
     } = params as Record<string, string>;
+
+    const extractYoutubeId = (url?: string) => {
+        if (!url) return null;
+        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+        const match = url.match(regExp);
+        return (match && match[2].length === 11) ? match[2] : null;
+    };
+    
+    const videoId = extractYoutubeId(video_url);
 
     const renderInstructions = (text: string) => {
         if (!text) return null;
@@ -118,38 +129,57 @@ export default function ExerciseDetails() {
     return (
         <View style={[styles.container, { backgroundColor: colors.background }]}>
             <ScrollView contentContainerStyle={styles.scrollContent} bounces={false} showsVerticalScrollIndicator={false}>
-                {/* Premium Header Image */}
-                <View style={styles.imageContainer}>
-                    <Image
-                        source={{ uri: image }}
-                        style={styles.image}
-                        contentFit="cover"
-                        transition={1000}
-                    />
-                    <LinearGradient
-                        colors={['rgba(0,0,0,0.5)', 'transparent', colors.background]}
-                        locations={[0, 0.4, 1]}
-                        style={StyleSheet.absoluteFillObject}
-                    />
-                    <SafeAreaView style={styles.headerSafeArea}>
-                        <View style={styles.headerButtons}>
-                            <TouchableOpacity
-                                style={[styles.iconButton, { backgroundColor: 'rgba(0,0,0,0.4)' }]}
-                                onPress={() => router.back()}
-                            >
-                                <Ionicons name="arrow-back" size={24} color="#FFF" />
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                style={[styles.iconButton, { backgroundColor: 'rgba(0,0,0,0.4)' }]}
-                            >
-                                <Ionicons name="heart-outline" size={24} color="#FFF" />
-                            </TouchableOpacity>
-                        </View>
-                    </SafeAreaView>
-                </View>
+                {videoId ? (
+                    <View style={{ width: width, height: width * (9/16) + 40, backgroundColor: '#000', paddingTop: 40 }}>
+                        <SafeAreaView style={[styles.headerSafeArea, { zIndex: 10 }]}>
+                            <View style={styles.headerButtons}>
+                                <TouchableOpacity
+                                    style={[styles.iconButton, { backgroundColor: 'rgba(0,0,0,0.6)' }]}
+                                    onPress={() => router.back()}
+                                >
+                                    <Ionicons name="arrow-back" size={24} color="#FFF" />
+                                </TouchableOpacity>
+                            </View>
+                        </SafeAreaView>
+                        <YoutubePlayer
+                            height={width * (9/16)}
+                            play={false}
+                            videoId={videoId}
+                        />
+                    </View>
+                ) : (
+                    <View style={styles.imageContainer}>
+                        <Image
+                            source={{ uri: image }}
+                            style={styles.image}
+                            contentFit="cover"
+                            transition={1000}
+                        />
+                        <LinearGradient
+                            colors={['rgba(0,0,0,0.5)', 'transparent', colors.background]}
+                            locations={[0, 0.4, 1]}
+                            style={StyleSheet.absoluteFillObject}
+                        />
+                        <SafeAreaView style={styles.headerSafeArea}>
+                            <View style={styles.headerButtons}>
+                                <TouchableOpacity
+                                    style={[styles.iconButton, { backgroundColor: 'rgba(0,0,0,0.4)' }]}
+                                    onPress={() => router.back()}
+                                >
+                                    <Ionicons name="arrow-back" size={24} color="#FFF" />
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    style={[styles.iconButton, { backgroundColor: 'rgba(0,0,0,0.4)' }]}
+                                >
+                                    <Ionicons name="heart-outline" size={24} color="#FFF" />
+                                </TouchableOpacity>
+                            </View>
+                        </SafeAreaView>
+                    </View>
+                )}
 
                 {/* Content */}
-                <View style={styles.content}>
+                <View style={[styles.content, videoId ? { marginTop: 24 } : {}]}>
                     <View style={styles.headerRow}>
                         <View style={{ flex: 1, paddingRight: 16 }}>
                             <View style={[styles.targetBadge, { backgroundColor: colors.accent + '15' }]}>

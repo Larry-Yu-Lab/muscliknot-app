@@ -28,9 +28,9 @@ create policy "Recovery knowledge is viewable by everyone."
 insert into recovery_knowledge_base 
 (muscle_id, target_area_size, exercise_type, title, description, duration, video_url, image_url)
 values
-(ARRAY['neck', 'traps'], 'small', 'relief', 'Neck Release & Stretch', 'Gentle neck stretches to relieve tension from looking down at screens.', '5 min', 'https://www.youtube.com/watch?v=example', 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=800'),
-(ARRAY['lower_back', 'glutes'], 'medium', 'relief', 'Lower Back Decompression', 'Relieve pressure in the lower back with these gentle movements.', '10 min', 'https://www.youtube.com/watch?v=example2', 'https://images.unsplash.com/photo-1544367563-12123d8965cd?w=800'),
-(ARRAY['legs', 'quads'], 'large', 'relief', 'Full Leg Flush', 'Improve circulation and reduce soreness in the legs.', '12 min', 'https://www.youtube.com/watch?v=example3', 'https://images.unsplash.com/photo-1599058945522-28d584b6f0ff?w=800');
+(ARRAY['neck', 'traps'], 'small', 'relief', 'Neck Release & Stretch', 'Gentle neck stretches to relieve tension from looking down at screens.', '5 min', 'https://www.youtube.com/watch?v=s-7lyvlbodw', 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=800'),
+(ARRAY['lower_back', 'glutes'], 'medium', 'relief', 'Lower Back Decompression', 'Relieve pressure in the lower back with these gentle movements.', '10 min', 'https://www.youtube.com/watch?v=XeXz8fIZDCE', 'https://images.unsplash.com/photo-1544367563-12123d8965cd?w=800'),
+(ARRAY['legs', 'quads'], 'large', 'relief', 'Full Leg Flush', 'Improve circulation and reduce soreness in the legs.', '12 min', 'https://www.youtube.com/watch?v=K-PpCgP_P2Y', 'https://images.unsplash.com/photo-1599058945522-28d584b6f0ff?w=800');
 
 -- *** PART 2: User Profiles ***
 

@@ -64,7 +64,8 @@ const ExerciseCard = ({ id, title, duration, target, image, t, colors, exercise,
                 why: exercise.why,
                 process: exercise.process,
                 instructions: exercise.instructions,
-                muscleGroup: exercise.muscleGroup
+                muscleGroup: exercise.muscleGroup,
+                video_url: exercise.video_url
             }
         });
     };
@@ -134,6 +135,7 @@ export default function LibraryScreen() {
                         instructions: ex.instructions || ex.description, 
                         why: ex.why, 
                         process: ex.process,
+                        video_url: ex.video_url,
                     }));
                     setSupabaseExercises(transformed);
                 }
