@@ -11,7 +11,8 @@ import { Image } from 'expo-image';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as React from 'react';
 import { useState } from 'react';
-import { Alert, Platform, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Platform, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View, Dimensions } from 'react-native';
+import YoutubePlayer from 'react-native-youtube-iframe';
 import Animated, { interpolateColor, useAnimatedStyle, useSharedValue, withSequence, withSpring, withTiming } from 'react-native-reanimated';
 
 // ─── Helpers ───────────────────────────────────────────────────────────────
@@ -210,6 +211,14 @@ const cardStyles = StyleSheet.create({
 export default function FindReliefScreen() {
     const router = useRouter();
     const params = useLocalSearchParams();
+    const { width: windowWidth } = Dimensions.get('window');
+
+    const extractYoutubeId = (url?: string) => {
+        if (!url) return null;
+        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+        const match = url.match(regExp);
+        return (match && match[2].length === 11) ? match[2] : null;
+    };
 
     const { language, theme } = usePreferences();
     const t = (key: Parameters<typeof getTranslation>[1]) => getTranslation(language, key);
@@ -253,18 +262,28 @@ export default function FindReliefScreen() {
         setVisibleCount(1); // Reset "visibleCount" whenever parameters change
         const fetchExercises = async () => {
             setIsLoading(true);
-            const data = await fetchExercisesByMuscleAndSize(
-                muscleId,
-                size,
-                activityType,
-                recommendation.difficultyFilter,
-                painLocation,
-                assessment.duration
-            );
-            if (data && data.length > 0) {
-                setExercises(data);
-            } else {
-                setExercises(getExercisesByActivityType(activityType, y, view));
+            try {
+                const data = await fetchExercisesByMuscleAndSize(
+                    muscleId,
+                    size,
+                    activityType,
+                    recommendation.difficultyFilter,
+                    painLocation,
+                    assessment.duration
+                );
+                if (data && data.length > 0) {
+                    setExercises(data);
+                } else {
+                    // Load fallback based on activityType
+                    const fallbackData = getExercisesByActivityType(activityType, y, view);
+                    setExercises(fallbackData.slice(0, 3));
+                }
+            } catch (error) {
+                console.log(error);
+                const fallbackData = getExercisesByActivityType(activityType, y, view);
+                setExercises(fallbackData.slice(0, 3));
+            } finally {
+                setIsLoading(false);
             }
             setIsLoading(false);
         };
@@ -382,6 +401,8 @@ export default function FindReliefScreen() {
         );
     };
 
+    const videoId = exercises.length > 0 ? extractYoutubeId(exercises[0].video_url) : null;
+
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
@@ -394,17 +415,27 @@ export default function FindReliefScreen() {
                     <View style={styles.headerSpacer} />
                 </View>
 
-                {/* Video placeholder */}
-                <View style={styles.videoContainer}>
-                    <Image
-                        source={{ uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAQvExJHNf-gPBvV9mafHYX_QH4RDM2a10DReFfan-2uta-tGIgoYLy2YcqV88Fw966WlK2bhvku-3_4e5f88wGpuO0qaD_Yr1qPxSQtigGhxM0Sq6uOtWbw-JV0RDp_0RmODacO147g0dvAY693HSe3XPVdm2eTzs6ER9VAKERpdSDpdD1MgVcJ8HJCDesjsxF-hhw0aRZc-sY0sB3sHox58BbJ7vYjkyyLq8KDnpbu4x0PolLYeNnsL3Q3fcRFHU5BkgY0KWaZ8NP' }}
-                        style={styles.videoThumbnail} contentFit="cover"
-                    />
-                    <View style={styles.videoOverlay} />
-                    <TouchableOpacity style={styles.playButton}>
-                        <Ionicons name="play" size={32} color="#000" />
-                    </TouchableOpacity>
-                </View>
+                {/* Video Component */}
+                {videoId && !isLoading ? (
+                    <View style={{ width: '100%', backgroundColor: '#000', borderTopLeftRadius: 30, borderTopRightRadius: 30, overflow: 'hidden' }}>
+                        <YoutubePlayer
+                            height={windowWidth * (9/16)}
+                            play={false}
+                            videoId={videoId}
+                        />
+                    </View>
+                ) : (
+                    <View style={styles.videoContainer}>
+                        <Image
+                            source={{ uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAQvExJHNf-gPBvV9mafHYX_QH4RDM2a10DReFfan-2uta-tGIgoYLy2YcqV88Fw966WlK2bhvku-3_4e5f88wGpuO0qaD_Yr1qPxSQtigGhxM0Sq6uOtWbw-JV0RDp_0RmODacO147g0dvAY693HSe3XPVdm2eTzs6ER9VAKERpdSDpdD1MgVcJ8HJCDesjsxF-hhw0aRZc-sY0sB3sHox58BbJ7vYjkyyLq8KDnpbu4x0PolLYeNnsL3Q3fcRFHU5BkgY0KWaZ8NP' }}
+                            style={styles.videoThumbnail} contentFit="cover"
+                        />
+                        <View style={styles.videoOverlay} />
+                        <TouchableOpacity style={styles.playButton} onPress={() => {}}>
+                            <Ionicons name="play" size={32} color="#000" />
+                        </TouchableOpacity>
+                    </View>
+                )}
 
                 {/* Info badges */}
                 <View style={styles.badgeRow}>
