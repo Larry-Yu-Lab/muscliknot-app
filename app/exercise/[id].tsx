@@ -38,7 +38,7 @@ export default function ExerciseDetails() {
         return (match && match[2].length === 11) ? match[2] : null;
     };
     
-    const videoId = extractYoutubeId(video_url);
+    const videoId = extractYoutubeId(video_url ? decodeURIComponent(video_url) : undefined);
 
     const renderInstructions = (text: string) => {
         if (!text) return null;

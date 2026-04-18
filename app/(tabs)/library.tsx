@@ -65,7 +65,7 @@ const ExerciseCard = ({ id, title, duration, target, image, t, colors, exercise,
                 process: exercise.process,
                 instructions: exercise.instructions,
                 muscleGroup: exercise.muscleGroup,
-                video_url: exercise.video_url
+                video_url: exercise.video_url ? encodeURIComponent(exercise.video_url) : undefined
             }
         });
     };
