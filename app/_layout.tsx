@@ -32,6 +32,9 @@ function RootLayoutNav() {
   const router = useRouter();
   const [onboardingComplete, setOnboardingComplete] = useState<boolean | null>(null);
   const [isNavigationReady, setIsNavigationReady] = useState(false);
+  // Track whether we had a session when the component first loaded (cold start)
+  const [initialSessionChecked, setInitialSessionChecked] = useState(false);
+  const [hadSessionOnMount, setHadSessionOnMount] = useState(false);
 
   // Check onboarding status on mount
   useEffect(() => {
@@ -46,15 +49,23 @@ function RootLayoutNav() {
     setIsNavigationReady(true);
   }, []);
 
+  // Track whether session existed on first load (to distinguish cold-start vs fresh login)
+  useEffect(() => {
+    if (!isLoading && !initialSessionChecked) {
+      setHadSessionOnMount(!!session);
+      setInitialSessionChecked(true);
+    }
+  }, [isLoading, initialSessionChecked, session]);
+
   // Handle routing once navigation is ready
   useEffect(() => {
-    if (isLoading || onboardingComplete === null || !isNavigationReady) return;
+    if (isLoading || onboardingComplete === null || !isNavigationReady || !initialSessionChecked) return;
 
     const inAuthGroup = segments[0] === 'auth';
     const inOnboarding = segments[0] === 'onboarding';
 
     // If not logged in and onboarding is not complete -> go to onboarding
-    if (!session && !onboardingComplete && !inOnboarding) {
+    if (!session && !onboardingComplete && !inOnboarding && !inAuthGroup) {
       router.replace('/onboarding' as any);
       return;
     }
@@ -65,12 +76,25 @@ function RootLayoutNav() {
       return;
     }
 
-    // If logged in, block access to login/register routes by sending them to tabs
-    if (session && inAuthGroup && segments[1] !== 'login-welcome' && segments[1] !== 'signup-success') {
-      router.replace('/(tabs)' as any);
-      return;
+    // If logged in and in auth group:
+    // - Allow login-welcome and signup-success screens (post-auth transition screens)
+    // - Only redirect login/register → tabs if user had a session on cold start
+    //   (meaning they're already logged in and somehow navigated to auth)
+    // - Do NOT redirect if the session was just created (fresh login/signup),
+    //   because the login/register screens handle their own navigation
+    if (session && inAuthGroup) {
+      const onTransitionScreen = segments[1] === 'login-welcome' || segments[1] === 'signup-success';
+      if (onTransitionScreen) return; // Let them stay on welcome/success screen
+
+      // Only force-redirect if user was already logged in before this app session
+      // (i.e., they opened the app already logged in and somehow ended up on auth screens)
+      if (hadSessionOnMount) {
+        router.replace('/(tabs)' as any);
+        return;
+      }
+      // Otherwise: fresh login just happened, let login.tsx/register.tsx handle navigation
     }
-  }, [isLoading, onboardingComplete, session, isNavigationReady, segments]);
+  }, [isLoading, onboardingComplete, session, isNavigationReady, initialSessionChecked, segments]);
 
   if (isLoading || onboardingComplete === null) {
     return (
