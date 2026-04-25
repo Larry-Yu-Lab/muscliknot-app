@@ -411,7 +411,13 @@ export default function FindReliefScreen() {
                 (firstTitle && e.title.toLowerCase() === firstTitle.toLowerCase()) || 
                 (exercises[0].common_name && e.title.toLowerCase().includes(exercises[0].common_name.toLowerCase()))
             );
-            if (match) url = match.video_url;
+            if (match && match.video_url) {
+                url = match.video_url;
+            } else {
+                // If it fails to find a perfect match, always fall back to the first available video
+                const backupMatch = EXERCISES.find(e => e.video_url);
+                url = backupMatch ? backupMatch.video_url : 'https://youtube.com/watch?v=WjMwXDgdgwI';
+            }
         }
         return url;
     };
@@ -433,9 +439,10 @@ export default function FindReliefScreen() {
 
                 {/* Video Component */}
                 {videoId && !isLoading ? (
-                    <View style={{ width: '100%', backgroundColor: '#000', borderTopLeftRadius: 30, borderTopRightRadius: 30, overflow: 'hidden' }}>
+                    <View style={styles.videoContainer}>
                         <YoutubePlayer
                             height={windowWidth * (9/16)}
+                            width="100%"
                             play={false}
                             videoId={videoId}
                         />
