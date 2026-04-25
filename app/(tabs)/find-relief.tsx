@@ -1,7 +1,7 @@
 import { fetchExercisesByMuscleAndSize } from '@/components/AnatomyMap';
 import { Colors } from '@/constants/theme';
 import { usePreferences } from '@/context/PreferencesContext';
-import { getExercisesByActivityType } from '@/data/exercises';
+import { getExercisesByActivityType, EXERCISES } from '@/data/exercises';
 import { categoryLabelKey, getExerciseRecommendation, RecommendationResult } from '@/utils/assessmentEngine';
 import { getTranslation } from '@/utils/i18n';
 import { AssessmentData, savePainSession, saveToHistory } from '@/utils/storage';
@@ -401,7 +401,23 @@ export default function FindReliefScreen() {
         );
     };
 
-    const videoId = exercises.length > 0 ? extractYoutubeId(exercises[0].video_url) : null;
+    const getBestVideoUrl = () => {
+        if (!exercises || exercises.length === 0) return null;
+        let url = exercises[0].video_url;
+        if (!url) {
+            const firstTitle = exercises[0].solution_stretch || exercises[0].title || exercises[0].common_name || '';
+            const match = EXERCISES.find(e => 
+                (exercises[0].id && e.id === exercises[0].id) || 
+                (firstTitle && e.title.toLowerCase() === firstTitle.toLowerCase()) || 
+                (exercises[0].common_name && e.title.toLowerCase().includes(exercises[0].common_name.toLowerCase()))
+            );
+            if (match) url = match.video_url;
+        }
+        return url;
+    };
+
+    const bestUrl = getBestVideoUrl();
+    const videoId = bestUrl ? extractYoutubeId(bestUrl) : null;
 
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
