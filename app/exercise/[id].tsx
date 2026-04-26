@@ -1,6 +1,7 @@
 import { Colors } from '@/constants/theme';
 import { usePreferences } from '@/context/PreferencesContext';
 import { getTranslation } from '@/utils/i18n';
+import { EXERCISES } from '@/data/exercises';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -38,7 +39,9 @@ export default function ExerciseDetails() {
         return (match && match[2].length === 11) ? match[2] : null;
     };
     
-    const videoId = extractYoutubeId(video_url ? decodeURIComponent(video_url) : undefined);
+    // Fallback: If no video_url provided, search for it in local EXERCISES by title
+    const resolvedVideoUrl = video_url ? decodeURIComponent(video_url) : EXERCISES.find(e => e.title === title || e.id === id)?.video_url;
+    const videoId = extractYoutubeId(resolvedVideoUrl);
 
     const renderInstructions = (text: string) => {
         if (!text) return null;
