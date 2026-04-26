@@ -8,9 +8,13 @@ import { Image } from 'expo-image';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import 'react-native-reanimated';
 
+import * as SplashScreen from 'expo-splash-screen';
 import { AuthProvider, useAuth } from '@/context/AuthContext';
 import { PreferencesProvider, usePreferences } from '@/context/PreferencesContext';
 import { UserProvider } from '@/context/UserContext';
+
+// Prevent the splash screen from auto-hiding before asset loading is complete.
+SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   return (
@@ -36,6 +40,7 @@ function RootLayoutNav() {
   // Track whether we had a session when the component first loaded (cold start)
   const [initialSessionChecked, setInitialSessionChecked] = useState(false);
   const [hadSessionOnMount, setHadSessionOnMount] = useState(false);
+  const [isAppReady, setIsAppReady] = useState(false);
 
   // Check onboarding status on mount
   useEffect(() => {
@@ -61,6 +66,12 @@ function RootLayoutNav() {
   // Handle routing once navigation is ready
   useEffect(() => {
     if (isLoading || onboardingComplete === null || !isNavigationReady || !initialSessionChecked) return;
+
+    // Check if app is fully ready
+    if (!isAppReady) {
+      setIsAppReady(true);
+      SplashScreen.hideAsync();
+    }
 
     const inAuthGroup = segments[0] === 'auth';
     const inOnboarding = segments[0] === 'onboarding';
@@ -95,19 +106,10 @@ function RootLayoutNav() {
       }
       // Otherwise: fresh login just happened, let login.tsx/register.tsx handle navigation
     }
-  }, [isLoading, onboardingComplete, session, isNavigationReady, initialSessionChecked, segments]);
+  }, [isLoading, onboardingComplete, session, isNavigationReady, initialSessionChecked, segments, isAppReady]);
 
-  if (isLoading || onboardingComplete === null) {
-    return (
-      <View style={{ flex: 1, backgroundColor: '#000000', justifyContent: 'center', alignItems: 'center' }}>
-        <Image 
-          source={require('@/assets/images/splash-logo.png')}
-          style={{ width: 140, height: 140 }}
-          contentFit="contain"
-        />
-        <ActivityIndicator size="small" color="#f97316" style={{ marginTop: 24 }} />
-      </View>
-    );
+  if (!isAppReady) {
+    return null; // Keep native splash screen visible
   }
 
   return (
