@@ -4,6 +4,7 @@ import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState, useCallback } from 'react';
 import { ActivityIndicator, View } from 'react-native';
+import { Image } from 'expo-image';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import 'react-native-reanimated';
 
@@ -98,8 +99,13 @@ function RootLayoutNav() {
 
   if (isLoading || onboardingComplete === null) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#1a1a1a' }}>
-        <ActivityIndicator size="large" color="#f97316" />
+      <View style={{ flex: 1, backgroundColor: '#000000', justifyContent: 'center', alignItems: 'center' }}>
+        <Image 
+          source={require('@/assets/images/splash-logo.png')}
+          style={{ width: 140, height: 140 }}
+          contentFit="contain"
+        />
+        <ActivityIndicator size="small" color="#f97316" style={{ marginTop: 24 }} />
       </View>
     );
   }
