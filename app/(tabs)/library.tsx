@@ -121,22 +121,39 @@ export default function LibraryScreen() {
                 const { data, error } = await supabase.from('recovery_knowledge_base').select('*');
                 if (error) console.error('Error fetching exercises:', error);
                 else if (data) {
+                    const extractYoutubeId = (url: string | undefined | null) => {
+                        if (!url) return null;
+                        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+                        const match = url.match(regExp);
+                        return (match && match[2].length === 11) ? match[2] : null;
+                    };
+
                     const categoryMap: Record<string, string> = {
                         'relief': 'Relief', 'posture': 'Posture', 'warmup': 'Warm-ups', 'warmups': 'Warm-ups', 'yoga': 'Yoga', 'strength': 'Strength',
                     };
-                    const transformed = data.map((ex: any) => ({
-                        id: ex.id?.toString() || String(Math.random()),
-                        title: ex.title || ex.solution_stretch || ex.common_name || 'Unknown Exercise',
-                        duration: ex.duration || '3-5 min',
-                        target: ex.common_name || 'General',
-                        muscleGroup: ex.common_name?.split(' ')[0] || 'General',
-                        category: categoryMap[ex.exercise_type?.toLowerCase()] || 'Relief',
-                        image: `https://ui-avatars.com/api/?name=${encodeURIComponent(ex.title || ex.solution_stretch || ex.common_name || 'Exercise')}&background=random&color=fff&size=200&bold=true`,
-                        instructions: ex.instructions || ex.description, 
-                        why: ex.why, 
-                        process: ex.process,
-                        video_url: ex.video_url,
-                    }));
+                    const transformed = data.map((ex: any) => {
+                        const title = ex.title || ex.solution_stretch || ex.common_name || 'Unknown Exercise';
+                        // Use local EXERCISES as fallback to find video_urls for things that don't have them
+                        const rawVideoUrl = ex.video_url || EXERCISES.find(e => e.title === title || e.id === ex.id)?.video_url;
+                        const vidId = extractYoutubeId(rawVideoUrl);
+                        const image = vidId 
+                            ? `https://img.youtube.com/vi/${vidId}/hqdefault.jpg`
+                            : `https://ui-avatars.com/api/?name=${encodeURIComponent(title)}&background=random&color=fff&size=200&bold=true`;
+                            
+                        return {
+                            id: ex.id?.toString() || String(Math.random()),
+                            title,
+                            duration: ex.duration || '3-5 min',
+                            target: ex.common_name || 'General',
+                            muscleGroup: ex.common_name?.split(' ')[0] || 'General',
+                            category: categoryMap[ex.exercise_type?.toLowerCase()] || 'Relief',
+                            image,
+                            instructions: ex.instructions || ex.description, 
+                            why: ex.why, 
+                            process: ex.process,
+                            video_url: rawVideoUrl,
+                        };
+                    });
                     setSupabaseExercises(transformed);
                 }
             } catch (err) { console.error(err); } finally { setIsLoading(false); }
