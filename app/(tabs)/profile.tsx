@@ -9,6 +9,7 @@ import { getHistory } from '@/utils/storage';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { useFocusEffect, useRouter } from 'expo-router';
+import * as WebBrowser from 'expo-web-browser';
 import React, { useCallback, useState } from 'react';
 import { Dimensions, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Svg, { Circle, Line, Path } from 'react-native-svg';
@@ -61,7 +62,7 @@ export default function ProfileScreen() {
     const router = useRouter();
     const { theme, language, toggleTheme, setLanguage, notificationsEnabled, toggleNotifications } = usePreferences();
     const { user, updateUser } = useUser();
-    const { signOut } = useAuth();
+    const { user: authUser, signOut } = useAuth();
     const colors = Colors[theme];
     const isDark = theme === 'dark';
     const t = (key: Parameters<typeof getTranslation>[1], params?: Record<string, string>) => getTranslation(language, key, params);
@@ -75,6 +76,16 @@ export default function ProfileScreen() {
     });
     const [painTrends, setPainTrends] = useState<any[]>([]);
     const [isLanguageDropdownOpen, setIsLanguageDropdownOpen] = useState(false);
+
+    const handleUpgrade = async () => {
+        const url = billingCycle === 'annual' 
+            ? 'https://buy.stripe.com/test_placeholder_elite_annual' 
+            : 'https://buy.stripe.com/test_placeholder_elite_monthly';
+        
+        // Pass the user's ID as a client_reference_id in the URL to associate the webhook event with this user
+        const checkoutUrl = `${url}?client_reference_id=${authUser?.id || ''}`;
+        await WebBrowser.openBrowserAsync(checkoutUrl);
+    };
 
     useFocusEffect(
         useCallback(() => {
@@ -479,7 +490,10 @@ export default function ProfileScreen() {
                                         </View>
                                     ))}
                                 </View>
-                                <TouchableOpacity style={[styles.eliteButton, { backgroundColor: colors.accent }]}>
+                                <TouchableOpacity 
+                                    style={[styles.eliteButton, { backgroundColor: colors.accent }]}
+                                    onPress={handleUpgrade}
+                                >
                                     <Text style={styles.eliteButtonText}>
                                         {billingCycle === 'annual' ? t('upgradeSave') : t('upgradeElite')}
                                     </Text>
@@ -487,43 +501,7 @@ export default function ProfileScreen() {
                             </View>
                         </View>
 
-                        {/* Tables and Pro Card logic simplified for brevity but followed same theme pattern */}
-                        {/* Pro Plan Card */}
-                        <View style={[styles.proCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
-                            <View style={styles.planHeader}>
-                                <View>
-                                    <View style={styles.proBadge}>
-                                        <Text style={styles.proBadgeText}>{t('pro')}</Text>
-                                    </View>
-                                    <Text style={[styles.planTitlePro, { color: colors.text }]}>{t('proPlan')}</Text>
-                                    <View style={styles.priceContainer}>
-                                        <Text style={[styles.priceBig, { color: colors.text }]}>{billingCycle === 'annual' ? '$3.99' : '$4.99'}</Text>
-                                        <Text style={[styles.pricePeriod, { color: colors.textSecondary }]}>{t('monthAbbr')}</Text>
-                                    </View>
-                                    {billingCycle === 'annual' && (
-                                        <Text style={[styles.billedText, { color: colors.textSecondary }]}>
-                                            {t('billedAnnually')} {t('annualPrice').replace('${price}', '47.88')}
-                                        </Text>
-                                    )}
-                                </View>
-                            </View>
-                            <View style={[styles.divider, { backgroundColor: colors.cardBorder }]} />
-                            <View style={styles.featuresList}>
-                                {[
-                                    'featureBasicAI',
-                                    'featureStandardMapping',
-                                    'featureWeeklyReports'
-                                ].map((key, i) => (
-                                    <View key={i} style={styles.featureItem}>
-                                        <Ionicons name="checkmark-circle" size={20} color={colors.textSecondary} />
-                                        <Text style={[styles.featureText, { color: colors.textSecondary }]}>{t(key as any)}</Text>
-                                    </View>
-                                ))}
-                            </View>
-                            <TouchableOpacity style={[styles.proButton, { borderColor: colors.cardBorder }]}>
-                                <Text style={[styles.proButtonText, { color: colors.text }]}>{t('choosePro')}</Text>
-                            </TouchableOpacity>
-                        </View>
+
 
                         {/* Freemium Plan Card */}
                         <View style={[styles.proCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder, marginTop: 16 }]}>

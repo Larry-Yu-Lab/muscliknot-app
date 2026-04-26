@@ -128,6 +128,7 @@ create table if not exists public.user_stats (
   level integer default 1,
   level_progress integer default 0,
   injury_recovery integer default 0,
+  is_premium boolean default false,
   created_at timestamp with time zone default timezone('utc'::text, now()) not null,
   updated_at timestamp with time zone default timezone('utc'::text, now()) not null,
   unique(user_id)
