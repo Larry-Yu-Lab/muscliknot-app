@@ -136,16 +136,26 @@ export default function LibraryScreen() {
                         // Use local EXERCISES as fallback to find video_urls for things that don't have them
                         const rawVideoUrl = ex.video_url || EXERCISES.find(e => e.title === title || e.id === ex.id)?.video_url;
                         const vidId = extractYoutubeId(rawVideoUrl);
+                        const getFallbackImage = (mg: string) => {
+                            const muscle = mg?.toLowerCase() || 'general';
+                            if (muscle.includes('neck')) return 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=400';
+                            if (muscle.includes('shoulder')) return 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=400';
+                            if (muscle.includes('back')) return 'https://images.unsplash.com/photo-1544367563-8f2127fa2b6d?w=400';
+                            if (muscle.includes('leg') || muscle.includes('glute')) return 'https://images.unsplash.com/photo-1599058917212-d750089bc07e?w=400';
+                            return 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=400';
+                        };
+
+                        const muscleGroup = ex.common_name?.split(' ')[0] || 'General';
                         const image = vidId 
-                            ? `https://img.youtube.com/vi/${vidId}/hqdefault.jpg`
-                            : `https://ui-avatars.com/api/?name=${encodeURIComponent(title)}&background=random&color=fff&size=200&bold=true`;
+                            ? `https://img.youtube.com/vi/${vidId}/0.jpg`
+                            : getFallbackImage(muscleGroup);
                             
                         return {
                             id: ex.id?.toString() || String(Math.random()),
                             title,
                             duration: ex.duration || '3-5 min',
                             target: ex.common_name || 'General',
-                            muscleGroup: ex.common_name?.split(' ')[0] || 'General',
+                            muscleGroup,
                             category: categoryMap[ex.exercise_type?.toLowerCase()] || 'Relief',
                             image,
                             instructions: ex.instructions || ex.description, 
