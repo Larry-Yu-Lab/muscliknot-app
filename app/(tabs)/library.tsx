@@ -83,14 +83,14 @@ const ExerciseCard = ({ id, title, duration, target, image, t, colors, exercise,
                 />
             </View>
             <View style={styles.exerciseContent}>
-                <Text style={[styles.exerciseTitle, { color: colors.text }]}>{translatedTitle}</Text>
+                <Text numberOfLines={2} style={[styles.exerciseTitle, { color: colors.text }]}>{translatedTitle}</Text>
                 <View style={styles.exerciseMeta}>
                     <View style={styles.durationContainer}>
                         <Ionicons name="timer-outline" size={14} color={colors.textSecondary} />
                         <Text style={[styles.durationText, { color: colors.textSecondary }]}>{duration}</Text>
                     </View>
                     <View style={[styles.targetBadge, { backgroundColor: colors.accent + '15', borderColor: colors.accent + '30' }]}>
-                        <Text style={[styles.targetText, { color: colors.accent }]}>
+                        <Text numberOfLines={1} style={[styles.targetText, { color: colors.accent }]}>
                             {t('target', { target: t(getMuscleKey(target)) !== getMuscleKey(target) ? t(getMuscleKey(target)) : target })}
                         </Text>
                     </View>
@@ -131,7 +131,7 @@ export default function LibraryScreen() {
                         target: ex.common_name || 'General',
                         muscleGroup: ex.common_name?.split(' ')[0] || 'General',
                         category: categoryMap[ex.exercise_type?.toLowerCase()] || 'Relief',
-                        image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAQvExJHNf-gPBvV9mafHYX_QH4RDM2a10DReFfan-2uta-tGIgoYLy2YcqV88wGpuO0qaD_Yr1qPxSQtigGhxM0Sq6uOtWbw-JV0RDp_0RmODacO147g0dvAY693HSe3XPVdm2eTzs6ER9VAKERpdSDpdD1MgVcJ8HJCDesjsxF-hhw0aRZc-sY0sB3sHox58BbJ7vYjkyyLq8KDnpbu4x0PolLYeNnsL3Q3fcRFHU5BkgY0KWaZ8NP',
+                        image: `https://ui-avatars.com/api/?name=${encodeURIComponent(ex.title || ex.solution_stretch || ex.common_name || 'Exercise')}&background=random&color=fff&size=200&bold=true`,
                         instructions: ex.instructions || ex.description, 
                         why: ex.why, 
                         process: ex.process,
@@ -289,12 +289,12 @@ const styles = StyleSheet.create({
     exerciseCard: { flexDirection: 'row', alignItems: 'center', padding: 12, borderRadius: 16, borderWidth: 1 },
     exerciseImageContainer: { width: 64, height: 64, borderRadius: 32, borderWidth: 2, overflow: 'hidden' },
     exerciseImage: { width: '100%', height: '100%' },
-    exerciseContent: { flex: 1, marginLeft: 16 },
+    exerciseContent: { flex: 1, marginLeft: 16, marginRight: 8 },
     exerciseTitle: { fontSize: 16, fontWeight: '700', marginBottom: 4 },
-    exerciseMeta: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+    exerciseMeta: { flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' },
     durationContainer: { flexDirection: 'row', alignItems: 'center', gap: 4 },
     durationText: { fontSize: 12, fontWeight: '500' },
-    targetBadge: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 12, borderWidth: 1 },
+    targetBadge: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 12, borderWidth: 1, maxWidth: '100%' },
     targetText: { fontSize: 10, fontWeight: '700', textTransform: 'uppercase' },
     favoriteButton: { padding: 8 },
 });
