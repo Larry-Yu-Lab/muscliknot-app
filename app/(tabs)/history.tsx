@@ -215,7 +215,7 @@ export default function HistoryScreen() {
                                                 </View>
                                             )}
                                             {a.cause && a.cause.trim().length > 0 && a.cause !== 'unknown' && (
-                                                <Text style={styles.causeText} numberOfLines={2}>"{a.cause}"</Text>
+                                                <Text style={styles.causeText} numberOfLines={2}>&quot;{a.cause}&quot;</Text>
                                             )}
                                             {advisoryTrans && (
                                                 <Text style={styles.advisoryText} numberOfLines={2}>{advisoryTrans}</Text>
