@@ -9,6 +9,8 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import 'react-native-reanimated';
 
 import * as SplashScreen from 'expo-splash-screen';
+import { useFonts } from 'expo-font';
+import { Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { AuthProvider, useAuth } from '@/context/AuthContext';
 import { PreferencesProvider, usePreferences } from '@/context/PreferencesContext';
 import { UserProvider } from '@/context/UserContext';
@@ -46,6 +48,12 @@ function RootLayoutNav() {
   const [initialSessionChecked, setInitialSessionChecked] = useState(false);
   const [hadSessionOnMount, setHadSessionOnMount] = useState(false);
   const [isAppReady, setIsAppReady] = useState(false);
+
+  const [fontsLoaded, fontError] = useFonts({
+    ...Ionicons.font,
+    ...MaterialCommunityIcons.font,
+    ...MaterialIcons.font,
+  });
 
   // Check onboarding status on mount
   useEffect(() => {
@@ -87,7 +95,11 @@ function RootLayoutNav() {
 
   // Handle routing once states are loaded
   useEffect(() => {
-    if (isLoading || onboardingComplete === null || !initialSessionChecked) return;
+    if (isLoading || onboardingComplete === null || !initialSessionChecked || (!fontsLoaded && !fontError)) return;
+
+    if (fontError) {
+      console.error('Error loading fonts:', fontError);
+    }
 
     // Check if app is fully ready
     if (!isAppReady) {
