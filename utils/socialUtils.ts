@@ -1,31 +1,12 @@
 /**
  * Social Utilities
- * 
- * Provides share link generation, native sharing,
- * and mock leaderboard data for Recovery Squads.
+ *
+ * Provides share link generation and native sharing for routines and squad invites.
+ * Mock leaderboard data has been removed — see squadService.ts for real Supabase data.
  */
 
 import { Exercise } from '@/data/exercises';
-import { Share, Platform } from 'react-native';
-
-// ─── Types ─────────────────────────────────────────────────────────────────
-
-export interface SquadMember {
-    id: string;
-    name: string;
-    avatarUrl: string;
-    streakDays: number;
-    recoveryScore: number;
-    level: number;
-    isCurrentUser?: boolean;
-}
-
-export interface Squad {
-    id: string;
-    name: string;
-    memberCount: number;
-    inviteCode: string;
-}
+import { Share } from 'react-native';
 
 // ─── Share Utilities ───────────────────────────────────────────────────────
 
@@ -75,78 +56,6 @@ export async function shareRoutine(
         console.error('Share failed:', error);
         return false;
     }
-}
-
-// ─── Mock Leaderboard Data ─────────────────────────────────────────────────
-
-/**
- * Returns mock squad leaderboard data.
- * In a full implementation, this would query the Supabase
- * recovery_squads + squad_members + user_stats tables.
- */
-export function getMockLeaderboard(currentUserName: string, currentUserStats: {
-    streakDays: number;
-    recoveryScore: number;
-    level: number;
-}): SquadMember[] {
-    const members: SquadMember[] = [
-        {
-            id: 'current',
-            name: currentUserName,
-            avatarUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUserName)}&background=f97316&color=fff`,
-            streakDays: currentUserStats.streakDays,
-            recoveryScore: currentUserStats.recoveryScore,
-            level: currentUserStats.level,
-            isCurrentUser: true,
-        },
-        {
-            id: 'mock-1',
-            name: 'Sarah K.',
-            avatarUrl: 'https://ui-avatars.com/api/?name=Sarah+K&background=8b5cf6&color=fff',
-            streakDays: 12,
-            recoveryScore: 88,
-            level: 6,
-        },
-        {
-            id: 'mock-2',
-            name: 'James L.',
-            avatarUrl: 'https://ui-avatars.com/api/?name=James+L&background=3b82f6&color=fff',
-            streakDays: 7,
-            recoveryScore: 76,
-            level: 4,
-        },
-        {
-            id: 'mock-3',
-            name: 'Maria G.',
-            avatarUrl: 'https://ui-avatars.com/api/?name=Maria+G&background=22c55e&color=fff',
-            streakDays: 5,
-            recoveryScore: 82,
-            level: 5,
-        },
-        {
-            id: 'mock-4',
-            name: 'Alex W.',
-            avatarUrl: 'https://ui-avatars.com/api/?name=Alex+W&background=ef4444&color=fff',
-            streakDays: 3,
-            recoveryScore: 64,
-            level: 3,
-        },
-    ];
-
-    // Sort by streak descending
-    return members.sort((a, b) => b.streakDays - a.streakDays);
-}
-
-/**
- * Returns a mock squad for display.
- */
-export function getMockSquad(): Squad {
-    return {
-        id: 'mock-squad',
-        name: 'Recovery Warriors',
-        memberCount: 5,
-        inviteCode: 'RECOVER2026',
-    };
 }
 
 /**

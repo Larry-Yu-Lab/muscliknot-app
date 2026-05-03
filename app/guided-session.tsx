@@ -2,7 +2,7 @@ import { Colors } from '@/constants/theme';
 import { usePreferences } from '@/context/PreferencesContext';
 import { getTranslation } from '@/utils/i18n';
 import { saveToHistory, savePainSession } from '@/utils/storage';
-import { isHealthKitAvailable, syncSessionToHealthKit } from '@/utils/healthKit';
+import { isHealthKitEnabled, syncSessionToHealthKit } from '@/utils/healthKit';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -214,9 +214,10 @@ export default function GuidedSessionScreen() {
                 assessment: { activityType },
             });
 
-            // Sync to HealthKit if available
+            // Sync to HealthKit if user has enabled it
             const durationMinutes = Math.ceil(totalElapsed / 60);
-            if (isHealthKitAvailable()) {
+            const hkEnabled = await isHealthKitEnabled();
+            if (hkEnabled) {
                 await syncSessionToHealthKit(durationMinutes, activityType, muscleGroup);
             }
         } catch (e) {

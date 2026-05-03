@@ -4,14 +4,15 @@ import { useAuth } from '@/context/AuthContext';
 import { usePreferences } from '@/context/PreferencesContext';
 import { useUser } from '@/context/UserContext';
 import { processAnalytics } from '@/utils/analytics';
+import { isHealthKitAvailable, isHealthKitEnabled, setHealthKitEnabled as persistHealthKitEnabled, requestHealthKitPermission, getHealthKitSteps } from '@/utils/healthKit';
 import { getTranslation, LANGUAGES } from '@/utils/i18n';
 import { getHistory } from '@/utils/storage';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { useFocusEffect, useRouter } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
-import React, { useCallback, useState } from 'react';
-import { Dimensions, Platform, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Alert, Dimensions, Platform, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Svg, { Circle, Line, Path } from 'react-native-svg';
 
 const { width } = Dimensions.get('window');
@@ -88,7 +89,13 @@ export default function ProfileScreen() {
     });
     const [painTrends, setPainTrends] = useState<any[]>([]);
     const [isLanguageDropdownOpen, setIsLanguageDropdownOpen] = useState(false);
-    const [healthKitEnabled, setHealthKitEnabled] = useState(false);
+    const [healthKitEnabled, setHealthKitEnabledState] = useState(false);
+    const [todaySteps, setTodaySteps] = useState<number>(0);
+
+    // Load persisted HealthKit preference on mount
+    useEffect(() => {
+        isHealthKitEnabled().then(setHealthKitEnabledState);
+    }, []);
 
     const handleUpgrade = async () => {
         const url = billingCycle === 'annual' 
@@ -98,6 +105,39 @@ export default function ProfileScreen() {
         // Pass the user's ID as a client_reference_id in the URL to associate the webhook event with this user
         const checkoutUrl = `${url}?client_reference_id=${authUser?.id || ''}`;
         await WebBrowser.openBrowserAsync(checkoutUrl);
+    };
+
+    const handleHealthKitToggle = async () => {
+        if (!healthKitEnabled) {
+            // Turning ON — request permissions
+            if (!isHealthKitAvailable()) {
+                Alert.alert(
+                    'Not Available',
+                    'Apple Health integration requires a native build. Run `npx expo run:ios` to enable this feature.',
+                    [{ text: 'OK' }]
+                );
+                return;
+            }
+            const granted = await requestHealthKitPermission();
+            if (granted) {
+                await persistHealthKitEnabled(true);
+                setHealthKitEnabledState(true);
+                // Fetch initial steps
+                const steps = await getHealthKitSteps();
+                setTodaySteps(steps);
+            } else {
+                Alert.alert(
+                    'Permission Denied',
+                    'MuscliKnot needs Apple Health access to sync your workouts and read step data. You can enable this in Settings > Privacy > Health.',
+                    [{ text: 'OK' }]
+                );
+            }
+        } else {
+            // Turning OFF
+            await persistHealthKitEnabled(false);
+            setHealthKitEnabledState(false);
+            setTodaySteps(0);
+        }
     };
 
     useFocusEffect(
@@ -131,6 +171,13 @@ export default function ProfileScreen() {
                             injuryRecovery: analytics.injuryRecovery
                         }
                     });
+                }
+            });
+
+            // Refresh step count if HealthKit is enabled
+            isHealthKitEnabled().then(enabled => {
+                if (enabled) {
+                    getHealthKitSteps().then(setTodaySteps);
                 }
             });
         }, [])
@@ -443,11 +490,18 @@ export default function ProfileScreen() {
                                             <View style={[styles.iconCircleSmall, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : '#e5e7eb' }]}>
                                                 <Ionicons name="heart" size={18} color="#ef4444" />
                                             </View>
-                                            <Text style={[styles.pillLabel, { color: colors.text }]}>{t('appleHealth' as any) || 'Apple Health'}</Text>
+                                            <View>
+                                                <Text style={[styles.pillLabel, { color: colors.text }]}>{t('appleHealth' as any) || 'Apple Health'}</Text>
+                                                {healthKitEnabled && todaySteps > 0 && (
+                                                    <Text style={[styles.healthSubLabel, { color: colors.textSecondary }]}>
+                                                        {todaySteps.toLocaleString()} steps today
+                                                    </Text>
+                                                )}
+                                            </View>
                                         </View>
                                         <CustomToggle
                                             value={healthKitEnabled}
-                                            onValueChange={() => setHealthKitEnabled(v => !v)}
+                                            onValueChange={handleHealthKitToggle}
                                             activeColor="#ef4444"
                                         />
                                     </View>
@@ -1155,6 +1209,11 @@ const styles = StyleSheet.create({
     pillLabel: {
         fontSize: 16,
         fontWeight: '700',
+    },
+    healthSubLabel: {
+        fontSize: 12,
+        fontWeight: '600',
+        marginTop: 2,
     },
     currentLangTextPill: {
         fontSize: 14,
