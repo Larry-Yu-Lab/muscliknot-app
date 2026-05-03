@@ -25,6 +25,20 @@ export const translations = {
         language: 'Language',
         logout: 'Logout',
         dashboard: 'DASHBOARD',
+        appleHealth: 'Apple Health',
+        recoverySquad: 'Recovery Squad',
+        guidedSession: 'Guided Session',
+        weeklySummary: 'Weekly Summary',
+        bodyHeatmap: 'Body Heatmap',
+        last30Days: 'Last 30 Days',
+        thisWeek: 'This Week',
+        minutesLabel: 'Minutes',
+        avgPain: 'Average Pain',
+        vsLastWeek: 'vs Last Week',
+        recoveryRoadmap: 'Recovery Roadmap',
+        preventionAlerts: 'Prevention Alerts',
+        startPlan: 'Start Plan',
+        dismiss: 'Dismiss',
 
         // Insights
         insight_streak: "You've been consistent for ${days} days! Keep it up.",
@@ -2890,4 +2904,18 @@ export const getTranslation = (lang: Language, key: keyof typeof translations['e
     }
 
     return result;
+};
+
+/**
+ * Formats a raw key or string (snake_case or camelCase) into properly formatted Title Case.
+ * Example: "appleHealth" -> "Apple Health", "deltoid_front" -> "Deltoid Front"
+ */
+export const formatLabel = (str: string): string => {
+    if (!str) return '';
+    // Split by underscores, spaces, or before capital letters
+    return str
+        .split(/[_\s]|(?=[A-Z])/)
+        .filter(Boolean)
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+        .join(' ');
 };

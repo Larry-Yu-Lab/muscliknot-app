@@ -3,7 +3,7 @@ import { Colors } from '@/constants/theme';
 import { usePreferences } from '@/context/PreferencesContext';
 import { getExercisesByActivityType, EXERCISES } from '@/data/exercises';
 import { categoryLabelKey, getExerciseRecommendation, RecommendationResult } from '@/utils/assessmentEngine';
-import { getTranslation } from '@/utils/i18n';
+import { getTranslation, formatLabel } from '@/utils/i18n';
 import { AssessmentData, savePainSession, saveToHistory } from '@/utils/storage';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
@@ -96,7 +96,7 @@ function ExerciseCard({ ex, index, colors, language }: { ex: any; index: number;
                         <Text style={[cardStyles.difText, {
                             color: ex.difficulty_level === 'beginner' ? '#22c55e' :
                                 ex.difficulty_level === 'intermediate' ? '#f97316' : '#ef4444'
-                        }]}>{ex.difficulty_level}</Text>
+                        }]}>{formatLabel(ex.difficulty_level)}</Text>
                     </View>
                 )}
                 <Ionicons name={expanded ? 'chevron-up' : 'chevron-down'} size={18} color="rgba(255,255,255,0.4)" />
@@ -291,12 +291,12 @@ export default function FindReliefScreen() {
     }, [muscleId, size, y, view, activityType, recommendation.difficultyFilter, painLocation]);
 
     const targetMuscle = React.useMemo(() => {
-        if (exercises.length === 0) return muscleId.replace(/_/g, ' ');
+        if (exercises.length === 0) return formatLabel(muscleId);
         const ex = exercises[0];
-        if (ex.muscleGroup) return ex.muscleGroup;
-        if (Array.isArray(ex.muscle_id) && ex.muscle_id.length > 0) return ex.muscle_id[0].replace(/_/g, ' ');
-        if (typeof ex.muscle_id === 'string') return ex.muscle_id.replace(/_/g, ' ');
-        return muscleId.replace(/_/g, ' ');
+        if (ex.muscleGroup) return formatLabel(ex.muscleGroup);
+        if (Array.isArray(ex.muscle_id) && ex.muscle_id.length > 0) return formatLabel(ex.muscle_id[0]);
+        if (typeof ex.muscle_id === 'string') return formatLabel(ex.muscle_id);
+        return formatLabel(muscleId);
     }, [exercises, muscleId]);
 
     const targetMuscleTrans = React.useMemo(() => {
@@ -433,7 +433,12 @@ export default function FindReliefScreen() {
                     <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
                         <Ionicons name="arrow-back" size={24} color={colors.text} />
                     </TouchableOpacity>
-                    <Text style={[styles.headerTitle, { color: colors.text }]} numberOfLines={1}>{titleLine}</Text>
+                    <View>
+                        <Text style={[styles.headerTitle, { color: colors.text }]}>{t('recommendedRoutine')}</Text>
+                        <Text style={styles.headerSubtitle}>
+                            {formatLabel(targetMuscle)} {painLocation && painLocation !== 'unknown' ? `• ${formatLabel(painLocation)}` : ''}
+                        </Text>
+                    </View>
                     <View style={styles.headerSpacer} />
                 </View>
 

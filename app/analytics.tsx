@@ -1,7 +1,7 @@
 import { Colors } from '@/constants/theme';
 import { usePreferences } from '@/context/PreferencesContext';
 import { AnalyticsData, DailyDetail, processAnalytics } from '@/utils/analytics';
-import { getTranslation } from '@/utils/i18n';
+import { getTranslation, formatLabel } from '@/utils/i18n';
 import { getHistory } from '@/utils/storage';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
@@ -159,7 +159,9 @@ export default function AnalyticsScreen() {
                                     return (
                                         <View key={idx} style={[styles.heatmapTile, { backgroundColor: bgColor + '25', borderColor: bgColor + '60' }]}>
                                             <Text style={[styles.heatmapCount, { color: bgColor }]}>{item.count}</Text>
-                                            <Text style={[styles.heatmapMuscle, { color: colors.textSecondary }]} numberOfLines={1}>{translatedMuscle}</Text>
+                                            <Text style={[styles.heatmapMuscle, { color: colors.textSecondary }]} numberOfLines={1}>
+                                                {t(muscleKey) !== muscleKey ? t(muscleKey) : formatLabel(item.muscle)}
+                                            </Text>
                                         </View>
                                     );
                                 })}
@@ -255,7 +257,7 @@ export default function AnalyticsScreen() {
                             <View style={styles.tooltipRow}>
                                 <Ionicons name="body-outline" size={14} color={colors.accent} />
                                 <Text style={[styles.tooltipText, { color: colors.text }]}>
-                                    {selectedPoint.muscle} • {selectedPoint.activityType}
+                                    {formatLabel(selectedPoint.muscle)} • {formatLabel(selectedPoint.activityType)}
                                 </Text>
                             </View>
                         </View>
@@ -440,8 +442,8 @@ const MuscleFreqChart = ({ data, color, textColor, t }: { data: any[], color: st
                 const barWidth = (item.count / maxCount) * barMaxWidth;
                 const y = idx * (barHeight + spacing);
 
-                const muscleKey = `mg${item.muscle.replace(/\s/g, '')}` as any;
-                const translatedMuscle = t(muscleKey) !== muscleKey ? t(muscleKey) : item.muscle;
+                const muscleKey = `mg${item.muscle.replace(/\s/g, '').replace(/_/g, '')}` as any;
+                const translatedMuscle = t(muscleKey) !== muscleKey ? t(muscleKey) : formatLabel(item.muscle);
 
                 return (
                     <React.Fragment key={idx}>

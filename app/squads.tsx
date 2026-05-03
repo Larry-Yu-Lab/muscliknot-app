@@ -1,7 +1,7 @@
 import { Colors } from '@/constants/theme';
 import { usePreferences } from '@/context/PreferencesContext';
 import { useUser } from '@/context/UserContext';
-import { getTranslation } from '@/utils/i18n';
+import { getTranslation, formatLabel } from '@/utils/i18n';
 import { getMockLeaderboard, getMockSquad, shareSquadInvite, shareRoutine } from '@/utils/socialUtils';
 import { getHistory } from '@/utils/storage';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';

@@ -2,7 +2,7 @@ import { getMusclesInArea } from '@/components/AnatomyMap';
 import { Colors } from '@/constants/theme';
 import { usePreferences } from '@/context/PreferencesContext';
 import { useUser } from '@/context/UserContext';
-import { getTranslation } from '@/utils/i18n';
+import { getTranslation, formatLabel } from '@/utils/i18n';
 import { generatePreventionAlerts, PreventionAlert } from '@/utils/preventionEngine';
 import { generateRoadmap, phaseLabelKey, RecoveryRoadmap } from '@/utils/recoveryRoadmap';
 import { getHistory, HistoryItem } from '@/utils/storage';
@@ -507,13 +507,13 @@ export default function HomeScreen() {
               🧠 {t('recoveryRoadmap' as any) || 'Recovery Roadmap'}
             </Text>
             <Text style={[styles.roadmapCoach, { color: colors.textSecondary }]}>
-              {t(roadmap.coachMessage as any) || `${roadmap.targetMuscle} — ${roadmap.currentPhase} phase. Pain trend: ${roadmap.painTrend}.`}
+              {t(roadmap.coachMessage as any) || `${formatLabel(roadmap.targetMuscle)} — ${formatLabel(roadmap.currentPhase)} phase. Pain trend: ${formatLabel(roadmap.painTrend)}.`}
             </Text>
             <View style={styles.roadmapMeta}>
               <View style={styles.roadmapMetaItem}>
                 <Ionicons name="trending-up-outline" size={14} color={roadmap.painTrend === 'improving' ? '#22c55e' : roadmap.painTrend === 'worsening' ? '#ef4444' : colors.textSecondary} />
                 <Text style={[styles.roadmapMetaText, { color: colors.textSecondary }]}>
-                  {t(`trend_${roadmap.painTrend}` as any) || roadmap.painTrend}
+                  {t(`trend_${roadmap.painTrend}` as any) || formatLabel(roadmap.painTrend)}
                 </Text>
               </View>
               <View style={styles.roadmapMetaItem}>
@@ -569,10 +569,10 @@ export default function HomeScreen() {
                     </View>
                     <View style={{ flex: 1 }}>
                       <Text style={[styles.preventionTitle, { color: colors.text }]}>
-                        {t(alert.titleKey as any) || alert.titleKey}
+                        {t(alert.titleKey as any) || formatLabel(alert.titleKey)}
                       </Text>
                       <Text style={[styles.preventionSubtitle, { color: colors.textSecondary }]} numberOfLines={2}>
-                        {t(alert.subtitleKey as any) || alert.subtitleKey}
+                        {t(alert.subtitleKey as any) || formatLabel(alert.subtitleKey)}
                       </Text>
                     </View>
                   </View>
@@ -641,7 +641,7 @@ export default function HomeScreen() {
               } else if (muscleGroup) {
                 const mgKey = `mg${muscleGroup.charAt(0).toUpperCase()}${muscleGroup.slice(1).replace(/\s/g, '')}` as any;
                 const transMg = t(mgKey);
-                targetName = transMg !== mgKey ? transMg : muscleGroup;
+                targetName = transMg !== mgKey ? transMg : formatLabel(muscleGroup);
               }
 
               // 2. Wrap in Pattern (e.g., "Neck Relief")
