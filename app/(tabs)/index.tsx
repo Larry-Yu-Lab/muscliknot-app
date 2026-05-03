@@ -3,6 +3,8 @@ import { Colors } from '@/constants/theme';
 import { usePreferences } from '@/context/PreferencesContext';
 import { useUser } from '@/context/UserContext';
 import { getTranslation } from '@/utils/i18n';
+import { generatePreventionAlerts, PreventionAlert } from '@/utils/preventionEngine';
+import { generateRoadmap, phaseLabelKey, RecoveryRoadmap } from '@/utils/recoveryRoadmap';
 import { getHistory, HistoryItem } from '@/utils/storage';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
@@ -122,6 +124,9 @@ export default function HomeScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchError, setSearchError] = useState('');
   const [recentPlans, setRecentPlans] = useState<HistoryItem[]>([]);
+  const [roadmap, setRoadmap] = useState<RecoveryRoadmap | null>(null);
+  const [preventionAlerts, setPreventionAlerts] = useState<PreventionAlert[]>([]);
+  const [dismissedAlerts, setDismissedAlerts] = useState<string[]>([]);
   const startCtx = useSharedValue({ x: 0, y: 0 });
 
   const STATIC_QUICK_FIXES: HistoryItem[] = [
@@ -169,6 +174,14 @@ export default function HomeScreen() {
         });
 
         setRecentPlans(finalPlans);
+
+        // Generate AI Roadmap from full history
+        const rm = generateRoadmap(data);
+        setRoadmap(rm);
+
+        // Generate Prevention Alerts
+        const alerts = generatePreventionAlerts(data);
+        setPreventionAlerts(alerts);
       });
     }, [])
   );
@@ -475,6 +488,116 @@ export default function HomeScreen() {
             );
           })()}
         </View>
+
+        {/* ─── AI Recovery Roadmap Card ──────────────────────────────── */}
+        {roadmap && (
+          <View style={[styles.roadmapCard, { backgroundColor: colors.cardBackground, borderColor: roadmap.phaseColor + '40' }]}>
+            <View style={styles.roadmapHeader}>
+              <View style={[styles.roadmapPhaseBadge, { backgroundColor: roadmap.phaseColor + '20' }]}>
+                <Ionicons name={roadmap.phaseIcon as any} size={16} color={roadmap.phaseColor} />
+                <Text style={[styles.roadmapPhaseText, { color: roadmap.phaseColor }]}>
+                  {t(phaseLabelKey(roadmap.currentPhase) as any) || roadmap.currentPhase.toUpperCase()}
+                </Text>
+              </View>
+              <Text style={[styles.roadmapDay, { color: colors.textSecondary }]}>
+                {t('dayNumber' as any) || 'Day'} {roadmap.dayNumber}
+              </Text>
+            </View>
+            <Text style={[styles.roadmapTitle, { color: colors.text }]}>
+              🧠 {t('recoveryRoadmap' as any) || 'Recovery Roadmap'}
+            </Text>
+            <Text style={[styles.roadmapCoach, { color: colors.textSecondary }]}>
+              {t(roadmap.coachMessage as any) || `${roadmap.targetMuscle} — ${roadmap.currentPhase} phase. Pain trend: ${roadmap.painTrend}.`}
+            </Text>
+            <View style={styles.roadmapMeta}>
+              <View style={styles.roadmapMetaItem}>
+                <Ionicons name="trending-up-outline" size={14} color={roadmap.painTrend === 'improving' ? '#22c55e' : roadmap.painTrend === 'worsening' ? '#ef4444' : colors.textSecondary} />
+                <Text style={[styles.roadmapMetaText, { color: colors.textSecondary }]}>
+                  {t(`trend_${roadmap.painTrend}` as any) || roadmap.painTrend}
+                </Text>
+              </View>
+              <View style={styles.roadmapMetaItem}>
+                <Ionicons name="analytics-outline" size={14} color={colors.textSecondary} />
+                <Text style={[styles.roadmapMetaText, { color: colors.textSecondary }]}>
+                  {t('avgPain' as any) || 'Avg Pain'}: {roadmap.avgPainLevel}/10
+                </Text>
+              </View>
+            </View>
+            <TouchableOpacity
+              style={[styles.roadmapCTA, { backgroundColor: roadmap.phaseColor }]}
+              onPress={() => {
+                router.push({
+                  pathname: '/(tabs)/pain-assessment',
+                  params: {
+                    muscleId: roadmap.targetMuscle,
+                    activityType: roadmap.suggestedActivityType,
+                    timestamp: Date.now(),
+                  },
+                });
+              }}
+            >
+              <Text style={styles.roadmapCTAText}>
+                {t('startTodaysPlan' as any) || "Start Today's Plan"}
+              </Text>
+              <Ionicons name="arrow-forward" size={18} color="#000" />
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {/* ─── Prevention Alerts ─────────────────────────────────────── */}
+        {preventionAlerts.filter(a => !dismissedAlerts.includes(a.id)).length > 0 && (
+          <View style={styles.preventionSection}>
+            <Text style={[styles.preventionSectionTitle, { color: colors.textSecondary }]}>
+              {(t('preventionAlerts' as any) || 'PREVENTION ALERTS').toUpperCase()}
+            </Text>
+            {preventionAlerts
+              .filter(a => !dismissedAlerts.includes(a.id))
+              .map(alert => (
+                <View
+                  key={alert.id}
+                  style={[styles.preventionCard, { backgroundColor: colors.cardBackground, borderLeftColor: alert.color }]}
+                >
+                  <TouchableOpacity
+                    style={styles.preventionDismiss}
+                    onPress={() => setDismissedAlerts(prev => [...prev, alert.id])}
+                  >
+                    <Ionicons name="close" size={16} color={colors.textSecondary} />
+                  </TouchableOpacity>
+                  <View style={styles.preventionContent}>
+                    <View style={[styles.preventionIcon, { backgroundColor: alert.color + '20' }]}>
+                      <Ionicons name={alert.icon as any} size={20} color={alert.color} />
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text style={[styles.preventionTitle, { color: colors.text }]}>
+                        {t(alert.titleKey as any) || alert.titleKey}
+                      </Text>
+                      <Text style={[styles.preventionSubtitle, { color: colors.textSecondary }]} numberOfLines={2}>
+                        {t(alert.subtitleKey as any) || alert.subtitleKey}
+                      </Text>
+                    </View>
+                  </View>
+                  <TouchableOpacity
+                    style={[styles.preventionStartBtn, { borderColor: alert.color }]}
+                    onPress={() => {
+                      router.push({
+                        pathname: '/(tabs)/pain-assessment',
+                        params: {
+                          muscleId: alert.targetMuscle,
+                          activityType: alert.suggestedActivityType,
+                          timestamp: Date.now(),
+                        },
+                      });
+                    }}
+                  >
+                    <Text style={[styles.preventionStartText, { color: alert.color }]}>
+                      {t('startNow' as any) || 'Start'}
+                    </Text>
+                    <Ionicons name="arrow-forward" size={14} color={alert.color} />
+                  </TouchableOpacity>
+                </View>
+              ))}
+          </View>
+        )}
 
         {/* Quick Fix */}
         <View style={styles.quickFixHeader}>
@@ -834,5 +957,143 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.1)',
+  },
+
+  // ── Recovery Roadmap Card ──────────────────────────────────────────
+  roadmapCard: {
+    marginHorizontal: 16,
+    marginTop: 20,
+    padding: 20,
+    borderRadius: 20,
+    borderWidth: 1,
+    gap: 12,
+  },
+  roadmapHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  roadmapPhaseBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  roadmapPhaseText: {
+    fontSize: 11,
+    fontWeight: '800',
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+  },
+  roadmapDay: {
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  roadmapTitle: {
+    fontSize: 18,
+    fontWeight: '800',
+  },
+  roadmapCoach: {
+    fontSize: 14,
+    lineHeight: 20,
+    fontWeight: '500',
+  },
+  roadmapMeta: {
+    flexDirection: 'row',
+    gap: 16,
+  },
+  roadmapMetaItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  roadmapMetaText: {
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  roadmapCTA: {
+    height: 44,
+    borderRadius: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    marginTop: 4,
+  },
+  roadmapCTAText: {
+    color: '#000',
+    fontSize: 14,
+    fontWeight: '800',
+    letterSpacing: 0.5,
+  },
+
+  // ── Prevention Alerts ──────────────────────────────────────────────
+  preventionSection: {
+    paddingHorizontal: 16,
+    marginTop: 20,
+    gap: 10,
+  },
+  preventionSectionTitle: {
+    fontSize: 11,
+    fontWeight: '800',
+    letterSpacing: 2,
+    marginBottom: 4,
+  },
+  preventionCard: {
+    padding: 16,
+    borderRadius: 16,
+    borderLeftWidth: 4,
+    gap: 12,
+    position: 'relative',
+  },
+  preventionDismiss: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    width: 24,
+    height: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 10,
+  },
+  preventionContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    paddingRight: 20,
+  },
+  preventionIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  preventionTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  preventionSubtitle: {
+    fontSize: 12,
+    lineHeight: 18,
+    fontWeight: '500',
+    marginTop: 2,
+  },
+  preventionStartBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    height: 36,
+    borderRadius: 10,
+    borderWidth: 1.5,
+    alignSelf: 'flex-start',
+    paddingHorizontal: 16,
+  },
+  preventionStartText: {
+    fontSize: 12,
+    fontWeight: '800',
   },
 });

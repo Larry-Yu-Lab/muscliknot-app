@@ -538,12 +538,30 @@ export default function FindReliefScreen() {
 
             {/* Sticky complete button */}
             <View style={[styles.bottomBar, { backgroundColor: colors.headerBackground, borderTopColor: colors.cardBorder }]}>
-                <AnimatedTouchableOpacity
-                    style={[styles.completeBtn, animatedButtonStyle]}
-                    onPress={handleComplete}
-                >
-                    <Text style={styles.completeBtnText}>{t('markAsComplete')}</Text>
-                </AnimatedTouchableOpacity>
+                <View style={styles.bottomBarButtons}>
+                    <TouchableOpacity
+                        style={[styles.guidedBtn, { borderColor: colors.accent }]}
+                        onPress={() => {
+                            router.push({
+                                pathname: '/guided-session' as any,
+                                params: {
+                                    exercises: JSON.stringify(exercises),
+                                    muscleGroup: targetMuscle,
+                                    activityType,
+                                },
+                            });
+                        }}
+                    >
+                        <Ionicons name="play-circle-outline" size={20} color={colors.accent} />
+                        <Text style={[styles.guidedBtnText, { color: colors.accent }]}>{t('guidedMode' as any) || 'Guided'}</Text>
+                    </TouchableOpacity>
+                    <AnimatedTouchableOpacity
+                        style={[styles.completeBtn, { flex: 1 }, animatedButtonStyle]}
+                        onPress={handleComplete}
+                    >
+                        <Text style={styles.completeBtnText}>{t('markAsComplete')}</Text>
+                    </AnimatedTouchableOpacity>
+                </View>
             </View>
         </SafeAreaView>
     );
@@ -591,6 +609,17 @@ const styles = StyleSheet.create({
         position: 'absolute', bottom: 0, left: 0, right: 0,
         paddingHorizontal: 16, paddingTop: 10, paddingBottom: 16, borderTopWidth: 1,
     },
+    bottomBarButtons: {
+        flexDirection: 'row',
+        gap: 10,
+        alignItems: 'center',
+    },
+    guidedBtn: {
+        height: 48, borderRadius: 12, borderWidth: 1.5,
+        flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+        gap: 6, paddingHorizontal: 16,
+    },
+    guidedBtnText: { fontSize: 14, fontWeight: '800' },
     completeBtn: {
         height: 48, borderRadius: 12, alignItems: 'center', justifyContent: 'center',
     },

@@ -11,7 +11,7 @@ import { Image } from 'expo-image';
 import { useFocusEffect, useRouter } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import React, { useCallback, useState } from 'react';
-import { Dimensions, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Dimensions, Platform, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Svg, { Circle, Line, Path } from 'react-native-svg';
 
 const { width } = Dimensions.get('window');
@@ -76,6 +76,7 @@ export default function ProfileScreen() {
     });
     const [painTrends, setPainTrends] = useState<any[]>([]);
     const [isLanguageDropdownOpen, setIsLanguageDropdownOpen] = useState(false);
+    const [healthKitEnabled, setHealthKitEnabled] = useState(false);
 
     const handleUpgrade = async () => {
         const url = billingCycle === 'annual' 
@@ -406,6 +407,41 @@ export default function ProfileScreen() {
                                             <Ionicons name="settings-outline" size={18} color={colors.text} />
                                         </View>
                                         <Text style={[styles.pillLabel, { color: colors.text }]}>{t('settings')}</Text>
+                                    </View>
+                                    <Ionicons name="chevron-forward" size={18} color={colors.textSecondary} />
+                                </View>
+                            </TouchableOpacity>
+
+                            {/* Apple Health Toggle (iOS only) */}
+                            {Platform.OS === 'ios' && (
+                                <View style={[styles.pillCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
+                                    <View style={styles.rowInner}>
+                                        <View style={styles.rowLeft}>
+                                            <View style={[styles.iconCircleSmall, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : '#e5e7eb' }]}>
+                                                <Ionicons name="heart" size={18} color="#ef4444" />
+                                            </View>
+                                            <Text style={[styles.pillLabel, { color: colors.text }]}>{t('appleHealth' as any) || 'Apple Health'}</Text>
+                                        </View>
+                                        <CustomToggle
+                                            value={healthKitEnabled}
+                                            onValueChange={() => setHealthKitEnabled(v => !v)}
+                                            activeColor="#ef4444"
+                                        />
+                                    </View>
+                                </View>
+                            )}
+
+                            {/* Recovery Squad Card */}
+                            <TouchableOpacity
+                                style={[styles.pillCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}
+                                onPress={() => router.push('/squads' as any)}
+                            >
+                                <View style={styles.rowInner}>
+                                    <View style={styles.rowLeft}>
+                                        <View style={[styles.iconCircleSmall, { backgroundColor: isDark ? 'rgba(139,92,246,0.15)' : '#ede9fe' }]}>
+                                            <MaterialCommunityIcons name="account-group" size={18} color="#8b5cf6" />
+                                        </View>
+                                        <Text style={[styles.pillLabel, { color: colors.text }]}>{t('recoverySquad' as any) || 'Recovery Squad'}</Text>
                                     </View>
                                     <Ionicons name="chevron-forward" size={18} color={colors.textSecondary} />
                                 </View>
