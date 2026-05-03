@@ -244,7 +244,7 @@ export async function getLeaderboard(squadId: string): Promise<SquadMember[]> {
 
     if (error || !members || members.length === 0) return [];
 
-    const userIds = members.map(m => m.user_id);
+    const userIds: string[] = members.map((m: any) => m.user_id);
 
     // Fetch profiles for all members
     const { data: profiles } = await supabase
@@ -259,14 +259,14 @@ export async function getLeaderboard(squadId: string): Promise<SquadMember[]> {
         .in('user_id', userIds);
 
     // Build the leaderboard
-    const profileMap = new Map((profiles ?? []).map(p => [p.id, p]));
-    const statsMap = new Map((stats ?? []).map(s => [s.user_id, s]));
-    const memberMap = new Map(members.map(m => [m.user_id, m]));
+    const profileMap = new Map((profiles ?? []).map((p: any) => [p.id, p]));
+    const statsMap = new Map((stats ?? []).map((s: any) => [s.user_id, s]));
+    const memberMap = new Map(members.map((m: any) => [m.user_id, m]));
 
-    const leaderboard: SquadMember[] = userIds.map(uid => {
-        const profile = profileMap.get(uid);
-        const stat = statsMap.get(uid);
-        const member = memberMap.get(uid);
+    const leaderboard: SquadMember[] = userIds.map((uid: string) => {
+        const profile: any = profileMap.get(uid);
+        const stat: any = statsMap.get(uid);
+        const member: any = memberMap.get(uid);
         const name = profile?.full_name || 'Unknown';
 
         return {
