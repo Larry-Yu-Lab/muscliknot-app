@@ -19,7 +19,13 @@ const { width } = Dimensions.get('window');
 const PainTrendsMiniSvg = ({ trends, color }: { trends: any[], color: string }) => {
     if (trends.length < 2) {
         return (
-            <Svg width="100%" height={40} viewBox="0 0 100 40" preserveAspectRatio="none">
+            <Svg 
+                width="100%" 
+                height={40} 
+                viewBox="0 0 100 40" 
+                preserveAspectRatio="none"
+                onLayout={() => {}}
+            >
                 <Line x1="0" y1="35" x2="100" y2="35" stroke="rgba(148, 163, 184, 0.2)" strokeWidth="2" strokeDasharray="4 4" />
             </Svg>
         );
@@ -44,7 +50,13 @@ const PainTrendsMiniSvg = ({ trends, color }: { trends: any[], color: string }) 
     const lastY = chartHeight - (recentTrends[recentTrends.length - 1].painLevel / maxPain) * (chartHeight - padding * 2) - padding;
 
     return (
-        <Svg width="100%" height={40} viewBox="0 0 100 40" preserveAspectRatio="none">
+        <Svg 
+            width="100%" 
+            height={40} 
+            viewBox="0 0 100 40" 
+            preserveAspectRatio="none"
+            onLayout={() => {}}
+        >
             <Path
                 d={pathData}
                 fill="none"
@@ -164,7 +176,13 @@ export default function ProfileScreen() {
                         <View style={styles.avatarSection}>
                             <View style={styles.avatarContainer}>
                                 {/* Progress Ring SVG */}
-                                <Svg style={styles.progressRing} width={144} height={144} viewBox="0 0 144 144">
+                                <Svg 
+                                    style={styles.progressRing} 
+                                    width={144} 
+                                    height={144} 
+                                    viewBox="0 0 144 144"
+                                    onLayout={() => {}}
+                                >
                                     <Circle
                                         cx="72"
                                         cy="72"
@@ -268,7 +286,12 @@ export default function ProfileScreen() {
                                     </View>
                                     {/* Circular Progress */}
                                     <View style={styles.circularProgressContainer}>
-                                        <Svg width={80} height={80} viewBox="0 0 80 80">
+                                        <Svg 
+                                            width={80} 
+                                            height={80} 
+                                            viewBox="0 0 80 80"
+                                            onLayout={() => {}}
+                                        >
                                             <Circle
                                                 cx="40"
                                                 cy="40"

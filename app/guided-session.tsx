@@ -53,7 +53,12 @@ function CountdownCircle({
 
     return (
         <View style={{ alignItems: 'center', justifyContent: 'center', width: size, height: size }}>
-            <Svg width={size} height={size} style={{ position: 'absolute' }}>
+            <Svg 
+                width={size} 
+                height={size} 
+                style={{ position: 'absolute' }}
+                onLayout={() => {}} // Fix for Fabric topSvgLayout error
+            >
                 {/* Background circle */}
                 <Circle
                     cx={size / 2}
@@ -71,11 +76,10 @@ function CountdownCircle({
                     stroke={color}
                     strokeWidth={strokeWidth}
                     fill="none"
-                    strokeDasharray={circumference}
+                    strokeDasharray={`${circumference} ${circumference}`}
                     strokeDashoffset={offset}
                     strokeLinecap="round"
-                    rotation="-90"
-                    origin={`${size / 2}, ${size / 2}`}
+                    transform={`rotate(-90, ${size / 2}, ${size / 2})`}
                 />
             </Svg>
             <Text style={styles.timerText}>

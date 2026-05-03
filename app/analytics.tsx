@@ -345,7 +345,11 @@ const PainTrendsSvg = ({ trends, color, textColor, dailyBreakdown, onPointPress 
 
     return (
         <View>
-            <Svg width={chartWidth} height={chartHeight}>
+            <Svg 
+                width={chartWidth} 
+                height={chartHeight}
+                onLayout={() => {}}
+            >
                 {/* Grid Lines */}
                 {[0, 2.5, 5, 7.5, 10].map((val) => (
                     <React.Fragment key={val}>
@@ -426,7 +430,11 @@ const MuscleFreqChart = ({ data, color, textColor, t }: { data: any[], color: st
     const maxCount = Math.max(...data.map(d => d.count));
 
     return (
-        <Svg width={chartWidth} height={chartHeight}>
+        <Svg 
+            width={chartWidth} 
+            height={chartHeight}
+            onLayout={() => {}}
+        >
             {data.slice(0, 6).map((item, idx) => {
                 const barMaxWidth = chartWidth - 110;
                 const barWidth = (item.count / maxCount) * barMaxWidth;

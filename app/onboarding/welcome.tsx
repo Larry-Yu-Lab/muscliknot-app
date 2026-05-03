@@ -20,7 +20,12 @@ const { width, height } = Dimensions.get('window');
 
 // Simple body figure SVG matching the design
 const BodyFigure = () => (
-    <Svg width={200} height={320} viewBox="0 0 200 320">
+    <Svg 
+        width={200} 
+        height={320} 
+        viewBox="0 0 200 320"
+        onLayout={() => {}}
+    >
         {/* Outer rounded rectangle */}
         <Rect
             x="30"
