@@ -30,7 +30,6 @@ export const translations = {
         guidedSession: 'Guided Session',
         weeklySummary: 'Weekly Summary',
         bodyHeatmap: 'Body Heatmap',
-        last30Days: 'Last 30 Days',
         thisWeek: 'This Week',
         minutesLabel: 'Minutes',
         avgPain: 'Average Pain',

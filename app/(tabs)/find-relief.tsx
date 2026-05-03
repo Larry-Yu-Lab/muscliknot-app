@@ -580,7 +580,8 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16, paddingVertical: 12,
     },
     backButton: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
-    headerTitle: { color: '#fff', fontSize: 17, fontWeight: '800', flex: 1, textAlign: 'center' },
+    headerTitle: { fontSize: 17, fontWeight: '800', textAlign: 'center' },
+    headerSubtitle: { color: 'rgba(255,255,255,0.6)', fontSize: 13, fontWeight: '600', textAlign: 'center', marginTop: 2 },
     headerSpacer: { width: 44 },
     videoContainer: {
         marginHorizontal: 16, marginTop: 8, aspectRatio: 16 / 9,
