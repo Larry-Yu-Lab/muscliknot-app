@@ -41,19 +41,26 @@ try {
         // Dynamic require so the app doesn't crash in Expo Go or Android
         const RNHealth = require('react-native-health');
         AppleHealthKit = RNHealth.default || RNHealth;
-        HealthKitPermissions = {
-            permissions: {
-                read: [
-                    RNHealth.HealthKitPermissions?.Steps ?? 'Steps',
-                    RNHealth.HealthKitPermissions?.Workout ?? 'Workout',
-                    RNHealth.HealthKitPermissions?.ActiveEnergyBurned ?? 'ActiveEnergyBurned',
-                ],
-                write: [
-                    RNHealth.HealthKitPermissions?.Workout ?? 'Workout',
-                    RNHealth.HealthKitPermissions?.ActiveEnergyBurned ?? 'ActiveEnergyBurned',
-                ],
-            },
-        };
+
+        // If the native module didn't link correctly, initHealthKit won't be present
+        if (!AppleHealthKit || typeof AppleHealthKit.initHealthKit !== 'function') {
+            console.log('[HealthKit] Native module methods missing — falling back to stub mode');
+            AppleHealthKit = null;
+        } else {
+            HealthKitPermissions = {
+                permissions: {
+                    read: [
+                        RNHealth.Constants?.Permissions?.Steps || 'Steps',
+                        RNHealth.Constants?.Permissions?.Workout || 'Workout',
+                        RNHealth.Constants?.Permissions?.ActiveEnergyBurned || 'ActiveEnergyBurned',
+                    ],
+                    write: [
+                        RNHealth.Constants?.Permissions?.Workout || 'Workout',
+                        RNHealth.Constants?.Permissions?.ActiveEnergyBurned || 'ActiveEnergyBurned',
+                    ],
+                },
+            };
+        }
     }
 } catch (e) {
     // react-native-health is not available (e.g., running in Expo Go)
