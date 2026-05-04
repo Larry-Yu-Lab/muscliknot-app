@@ -1497,7 +1497,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - react-native-webview (13.16.1):
+  - react-native-webview (13.15.0):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -1869,6 +1869,8 @@ PODS:
     - React-utils (= 0.81.5)
     - ReactNativeDependencies
   - ReactNativeDependencies (0.81.5)
+  - RNAppleHealthKit (1.7.0):
+    - React
   - RNCAsyncStorage (2.2.0):
     - hermes-engine
     - RCTRequired
@@ -2034,7 +2036,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - RNSVG (15.15.2):
+  - RNSVG (15.12.1):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2055,9 +2057,9 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
-    - RNSVG/common (= 15.15.2)
+    - RNSVG/common (= 15.12.1)
     - Yoga
-  - RNSVG/common (15.15.2):
+  - RNSVG/common (15.12.1):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2251,6 +2253,7 @@ DEPENDENCIES:
   - ReactCodegen (from `build/generated/ios`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
   - ReactNativeDependencies (from `../node_modules/react-native/third-party-podspecs/ReactNativeDependencies.podspec`)
+  - RNAppleHealthKit (from `../node_modules/react-native-health`)
   - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
@@ -2443,6 +2446,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon"
   ReactNativeDependencies:
     :podspec: "../node_modules/react-native/third-party-podspecs/ReactNativeDependencies.podspec"
+  RNAppleHealthKit:
+    :path: "../node_modules/react-native-health"
   RNCAsyncStorage:
     :path: "../node_modules/@react-native-async-storage/async-storage"
   RNGestureHandler:
@@ -2516,7 +2521,7 @@ SPEC CHECKSUMS:
   React-microtasksnativemodule: f775db9e991c6f3b8ccbc02bfcde22770f96e23b
   react-native-safe-area-context: 37e680fc4cace3c0030ee46e8987d24f5d3bdab2
   react-native-slider: 8c562583722c396a3682f451f0b6e68e351ec3b9
-  react-native-webview: 0ed52ddb2eafc64a502871218440b8b4d37961c3
+  react-native-webview: b29007f4723bca10872028067b07abacfa1cb35a
   React-NativeModulesApple: 8969913947d5b576de4ed371a939455a8daf28aa
   React-oscompat: ce47230ed20185e91de62d8c6d139ae61763d09c
   React-perflogger: 02b010e665772c7dcb859d85d44c1bfc5ac7c0e4
@@ -2548,11 +2553,12 @@ SPEC CHECKSUMS:
   ReactCodegen: 7d4593f7591f002d137fe40cef3f6c11f13c88cc
   ReactCommon: 08810150b1206cc44aecf5f6ae19af32f29151a8
   ReactNativeDependencies: 71ce9c28beb282aa720ea7b46980fff9669f428a
+  RNAppleHealthKit: 86ef7ab70f762b802f5c5289372de360cca701f9
   RNCAsyncStorage: 3a4f5e2777dae1688b781a487923a08569e27fe4
   RNGestureHandler: 2914750df066d89bf9d8f48a10ad5f0051108ac3
   RNReanimated: e5c702a3e24cc1c68b2de67671713f35461678f4
   RNScreens: d8d6f1792f6e7ac12b0190d33d8d390efc0c1845
-  RNSVG: 8b2d04487be3be413bd1e639188c88e278533425
+  RNSVG: 31d6639663c249b7d5abc9728dde2041eb2a3c34
   RNWorklets: 76fce72926e28e304afb44f0da23b2d24f2c1fa0
   SDWebImage: e9fc87c1aab89a8ab1bbd74eba378c6f53be8abf
   SDWebImageAVIFCoder: afe194a084e851f70228e4be35ef651df0fc5c57
