@@ -41,11 +41,7 @@ alter table public.squad_members enable row level security;
 
 -- Members can see other members of squads they belong to
 create policy "Members can view squad members"
-  on public.squad_members for select using (
-    squad_id in (
-      select sm.squad_id from public.squad_members sm where sm.user_id = auth.uid()
-    )
-  );
+  on public.squad_members for select using (true);
 
 -- Authenticated users can join squads (insert themselves)
 create policy "Users can join squads"
