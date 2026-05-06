@@ -7,7 +7,7 @@
     "icon": "./assets/images/icon.png",
     "scheme": "muscliknot",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
+    "newArchEnabled": false,
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.muscliknot.app",
@@ -37,6 +37,7 @@
     },
     "plugins": [
       "expo-router",
+      "react-native-health",
       [
         "expo-splash-screen",
         {

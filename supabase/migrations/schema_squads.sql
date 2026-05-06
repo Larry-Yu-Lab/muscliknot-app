@@ -121,12 +121,10 @@ DO $$ BEGIN
   ) THEN
     CREATE POLICY "Squad members can view member stats"
       ON public.user_stats FOR SELECT USING (
-        id IN (
-          SELECT us.id FROM public.user_stats us
-          INNER JOIN public.squad_members sm ON sm.user_id = us.user_id
-          WHERE sm.squad_id IN (
-            SELECT sm2.squad_id FROM public.squad_members sm2 WHERE sm2.user_id = auth.uid()
-          )
+        user_id IN (
+          SELECT sm1.user_id FROM public.squad_members sm1
+          INNER JOIN public.squad_members sm2 ON sm1.squad_id = sm2.squad_id
+          WHERE sm2.user_id = auth.uid()
         )
         OR user_id = auth.uid()
       );
