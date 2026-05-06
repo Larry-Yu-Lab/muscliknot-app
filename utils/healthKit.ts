@@ -10,7 +10,7 @@
  * - The user has not granted permissions
  */
 
-import { Platform } from 'react-native';
+import { Platform, NativeModules } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // ─── Types ─────────────────────────────────────────────────────────────────
@@ -40,13 +40,22 @@ try {
     if (Platform.OS === 'ios') {
         // Dynamic require so the app doesn't crash in Expo Go or Android
         const RNHealth = require('react-native-health');
+        
+        // Under New Architecture, we check the main export and fallbacks in NativeModules
         AppleHealthKit = RNHealth.default || RNHealth;
-
-        // If the native module didn't link correctly, initHealthKit won't be present
+        
         if (!AppleHealthKit || typeof AppleHealthKit.initHealthKit !== 'function') {
-            console.log('[HealthKit] Native module methods missing — falling back to stub mode');
-            AppleHealthKit = null;
-        } else {
+            const { NativeModules } = require('react-native');
+            const fallback = NativeModules.RCTAppleHealthKit || NativeModules.AppleHealthKit;
+            if (fallback && typeof fallback.initHealthKit === 'function') {
+                AppleHealthKit = fallback;
+            } else {
+                // If it's still missing, it might be the New Architecture interop layer naming
+                AppleHealthKit = null;
+            }
+        }
+        
+        if (AppleHealthKit) {
             HealthKitPermissions = {
                 permissions: {
                     read: [
