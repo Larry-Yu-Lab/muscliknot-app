@@ -10,15 +10,7 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.muscliknot.app",
-      "infoPlist": {
-        "NSHealthShareUsageDescription": "MuscliKnot reads your step count and workout history to personalize your recovery plan.",
-        "NSHealthUpdateUsageDescription": "MuscliKnot saves your completed recovery sessions as workouts in Apple Health."
-      },
-      "entitlements": {
-        "com.apple.developer.healthkit": true,
-        "com.apple.developer.healthkit.access": []
-      }
+      "bundleIdentifier": "com.muscliknot.app"
     },
     "android": {
       "adaptiveIcon": {

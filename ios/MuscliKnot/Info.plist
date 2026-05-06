@@ -46,9 +46,9 @@
       <true/>
     </dict>
     <key>NSHealthShareUsageDescription</key>
-    <string>MuscliKnot reads your step count and workout history to personalize your recovery plan.</string>
+    <string>Allow $(PRODUCT_NAME) to check health info</string>
     <key>NSHealthUpdateUsageDescription</key>
-    <string>MuscliKnot saves your completed recovery sessions as workouts in Apple Health.</string>
+    <string>Allow $(PRODUCT_NAME) to update health info</string>
     <key>NSUserActivityTypes</key>
     <array>
       <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
