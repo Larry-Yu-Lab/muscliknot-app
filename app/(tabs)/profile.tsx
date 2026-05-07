@@ -466,22 +466,6 @@ export default function ProfileScreen() {
                                 )}
                             </View>
 
-                            {/* Settings Link */}
-                            <TouchableOpacity
-                                style={[styles.pillCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}
-                                onPress={() => router.push('/settings')}
-                            >
-                                <View style={styles.rowInner}>
-                                    <View style={styles.rowLeft}>
-                                        <View style={[styles.iconCircleSmall, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : '#e5e7eb' }]}>
-                                            <Ionicons name="settings-outline" size={18} color={colors.text} />
-                                        </View>
-                                        <Text style={[styles.pillLabel, { color: colors.text }]}>{t('settings')}</Text>
-                                    </View>
-                                    <Ionicons name="chevron-forward" size={18} color={colors.textSecondary} />
-                                </View>
-                            </TouchableOpacity>
-
                             {/* Apple Health Toggle (iOS only) */}
                             {Platform.OS === 'ios' && (
                                 <View style={[styles.pillCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
@@ -519,6 +503,22 @@ export default function ProfileScreen() {
                                             <MaterialCommunityIcons name="account-group" size={18} color="#8b5cf6" />
                                         </View>
                                         <Text style={[styles.pillLabel, { color: colors.text }]}>{t('recoverySquad' as any) || 'Recovery Squad'}</Text>
+                                    </View>
+                                    <Ionicons name="chevron-forward" size={18} color={colors.textSecondary} />
+                                </View>
+                            </TouchableOpacity>
+
+                            {/* Settings Link */}
+                            <TouchableOpacity
+                                style={[styles.pillCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}
+                                onPress={() => router.push('/settings')}
+                            >
+                                <View style={styles.rowInner}>
+                                    <View style={styles.rowLeft}>
+                                        <View style={[styles.iconCircleSmall, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : '#e5e7eb' }]}>
+                                            <Ionicons name="settings-outline" size={18} color={colors.text} />
+                                        </View>
+                                        <Text style={[styles.pillLabel, { color: colors.text }]}>{t('settings')}</Text>
                                     </View>
                                     <Ionicons name="chevron-forward" size={18} color={colors.textSecondary} />
                                 </View>
