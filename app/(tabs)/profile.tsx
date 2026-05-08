@@ -382,8 +382,9 @@ export default function ProfileScreen() {
                                         <View style={styles.fitnessLevelRow}>
                                             <Text style={[styles.fitnessLevelText, { color: colors.text }]}>
                                                 {(() => {
-                                                    const levelKey = `fl${user.attributes.fitnessLevel.charAt(0) + user.attributes.fitnessLevel.slice(1).toLowerCase()}` as any;
-                                                    return t(levelKey) !== levelKey ? t(levelKey) : user.attributes.fitnessLevel;
+                                                    const fl = user.attributes.fitnessLevel || 'BEGINNER';
+                                                    const levelKey = `fl${fl.charAt(0) + fl.slice(1).toLowerCase()}` as any;
+                                                    return t(levelKey) !== levelKey ? t(levelKey) : fl;
                                                 })()}
                                             </Text>
                                             <Ionicons name="chevron-forward" size={16} color={colors.textSecondary} />
