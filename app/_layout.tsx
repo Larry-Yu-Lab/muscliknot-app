@@ -58,11 +58,28 @@ function RootLayoutNav() {
   // Check onboarding status on mount
   useEffect(() => {
     const checkOnboarding = async () => {
-      const complete = await AsyncStorage.getItem('onboarding_complete');
-      setOnboardingComplete(complete === 'true');
+      try {
+        const complete = await AsyncStorage.getItem('onboarding_complete');
+        setOnboardingComplete(complete === 'true');
+      } catch (e) {
+        console.error('Failed to check onboarding:', e);
+        setOnboardingComplete(false);
+      }
     };
     checkOnboarding();
   }, []);
+
+  // Safety Timeout: Force app ready after 4 seconds if stuck
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (!isAppReady) {
+        console.warn('Safety timeout: Forcing app ready after 4 seconds.');
+        setIsAppReady(true);
+        SplashScreen.hideAsync();
+      }
+    }, 4000);
+    return () => clearTimeout(timer);
+  }, [isAppReady]);
 
   const onLayoutReady = useCallback(() => {
     setIsNavigationReady(true);
@@ -95,7 +112,14 @@ function RootLayoutNav() {
 
   // Handle routing once states are loaded
   useEffect(() => {
-    if (isLoading || onboardingComplete === null || !initialSessionChecked || (!fontsLoaded && !fontError)) return;
+    // If we're already ready or safety timeout kicked in, skip the return checks
+    if (isAppReady) {
+       // Proceed to routing logic
+    } else {
+       if (isLoading || onboardingComplete === null || !initialSessionChecked || (!fontsLoaded && !fontError)) {
+          return;
+       }
+    }
 
     if (fontError) {
       console.error('Error loading fonts:', fontError);
