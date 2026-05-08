@@ -58,26 +58,19 @@ serve(async (req) => {
         { auth: { persistSession: false } }
       );
 
-      // Attempt to update user_stats first (legacy/current)
-      let { error } = await supabaseAdmin
-        .from('user_stats')
-        .update({ is_premium: true })
-        .eq('user_id', userId);
+      // Try to update both tables to be safe. We ignore individual errors 
+      // as long as one of them succeeds.
+      const updates = [
+        supabaseAdmin.from('user_stats').update({ is_premium: true }).eq('user_id', userId),
+        supabaseAdmin.from('profiles').update({ is_premium: true }).eq('id', userId)
+      ];
 
-      // If it fails, try updating profiles (new schema)
-      if (error) {
-        console.warn("user_stats update failed, trying profiles table...", error.message);
-        const { error: profileError } = await supabaseAdmin
-          .from('profiles')
-          .update({ is_premium: true })
-          .eq('id', userId);
-        
-        error = profileError;
-      }
+      const results = await Promise.all(updates);
+      const finalError = results.every(r => r.error) ? results[0].error : null;
 
-      if (error) {
-        console.error("Error updating user premium status:", error);
-        return new Response(`Database update failed: ${error.message}`, { status: 500 });
+      if (finalError) {
+        console.error("Error updating user premium status:", finalError);
+        return new Response(`Database update failed: ${finalError.message}`, { status: 500 });
       }
 
       console.log(`Successfully upgraded user ${userId} to Premium!`);
