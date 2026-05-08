@@ -1,6 +1,7 @@
 import { fetchExercisesByMuscleAndSize } from '@/components/AnatomyMap';
 import { Colors } from '@/constants/theme';
 import { usePreferences } from '@/context/PreferencesContext';
+import { useUser } from '@/context/UserContext';
 import { getExercisesByActivityType, EXERCISES } from '@/data/exercises';
 import { categoryLabelKey, getExerciseRecommendation, RecommendationResult } from '@/utils/assessmentEngine';
 import { getTranslation, formatLabel } from '@/utils/i18n';
@@ -221,6 +222,7 @@ export default function FindReliefScreen() {
     };
 
     const { language, theme } = usePreferences();
+    const { user } = useUser();
     const t = (key: Parameters<typeof getTranslation>[1]) => getTranslation(language, key);
     const colors = Colors[theme];
 
@@ -246,9 +248,9 @@ export default function FindReliefScreen() {
     };
 
     const recommendation: RecommendationResult = React.useMemo(
-        () => getExerciseRecommendation(assessment),
+        () => getExerciseRecommendation(assessment, user.attributes.fitnessLevel),
         // eslint-disable-next-line react-hooks/exhaustive-deps
-        [activityType, assessment.painLevel, assessment.q1, assessment.q2]
+        [activityType, assessment.painLevel, assessment.q1, assessment.q2, user.attributes.fitnessLevel]
     );
 
     assessment.recommendationCategory = recommendation.category;

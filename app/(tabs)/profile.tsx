@@ -12,7 +12,7 @@ import { Image } from 'expo-image';
 import { useFocusEffect, useRouter } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import React, { useCallback, useEffect, useState } from 'react';
-import { Alert, Dimensions, Platform, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Dimensions, Modal, Platform, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Svg, { Circle, Line, Path } from 'react-native-svg';
 
 const { width } = Dimensions.get('window');
@@ -74,6 +74,7 @@ const PainTrendsMiniSvg = ({ trends, color }: { trends: any[], color: string }) 
 export default function ProfileScreen() {
     const router = useRouter();
     const { theme, language, toggleTheme, setLanguage, notificationsEnabled, toggleNotifications } = usePreferences();
+    const [isFitnessLevelModalVisible, setIsFitnessLevelModalVisible] = useState(false);
     const { user, updateUser } = useUser();
     const { user: authUser, signOut } = useAuth();
     const colors = Colors[theme];
@@ -96,6 +97,16 @@ export default function ProfileScreen() {
     useEffect(() => {
         isHealthKitEnabled().then(setHealthKitEnabledState);
     }, []);
+
+    const handleUpdateFitnessLevel = (level: string) => {
+        updateUser({
+            attributes: {
+                ...user.attributes,
+                fitnessLevel: level
+            }
+        });
+        setIsFitnessLevelModalVisible(false);
+    };
 
     const handleUpgrade = async () => {
         const url = billingCycle === 'annual' 
@@ -363,15 +374,21 @@ export default function ProfileScreen() {
                                         </Svg>
                                         <Text style={[styles.circularProgressText, { color: colors.text }]}>{user.attributes.levelProgress}%</Text>
                                     </View>
-                                    <View style={styles.fitnessInfo}>
+                                    <TouchableOpacity 
+                                        style={styles.fitnessInfo}
+                                        onPress={() => setIsFitnessLevelModalVisible(true)}
+                                    >
                                         <Text style={[styles.cardLabel, { color: colors.textSecondary }]}>{t('fitnessLevel')}</Text>
-                                        <Text style={[styles.fitnessLevelText, { color: colors.text }]}>
-                                            {(() => {
-                                                const levelKey = `fl${user.attributes.fitnessLevel.charAt(0) + user.attributes.fitnessLevel.slice(1).toLowerCase()}` as any;
-                                                return t(levelKey) !== levelKey ? t(levelKey) : user.attributes.fitnessLevel;
-                                            })()}
-                                        </Text>
-                                    </View>
+                                        <View style={styles.fitnessLevelRow}>
+                                            <Text style={[styles.fitnessLevelText, { color: colors.text }]}>
+                                                {(() => {
+                                                    const levelKey = `fl${user.attributes.fitnessLevel.charAt(0) + user.attributes.fitnessLevel.slice(1).toLowerCase()}` as any;
+                                                    return t(levelKey) !== levelKey ? t(levelKey) : user.attributes.fitnessLevel;
+                                                })()}
+                                            </Text>
+                                            <Ionicons name="chevron-forward" size={16} color={colors.textSecondary} />
+                                        </View>
+                                    </TouchableOpacity>
                                 </View>
                             </View>
                         </View>
@@ -655,6 +672,52 @@ export default function ProfileScreen() {
                 )}
 
             </ScrollView>
+
+            <Modal
+                visible={isFitnessLevelModalVisible}
+                transparent={true}
+                animationType="fade"
+                onRequestClose={() => setIsFitnessLevelModalVisible(false)}
+            >
+                <Pressable 
+                    style={styles.modalOverlay} 
+                    onPress={() => setIsFitnessLevelModalVisible(false)}
+                >
+                    <View style={[styles.modalContent, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
+                        <Text style={[styles.modalTitle, { color: colors.text }]}>{t('fitnessLevel')}</Text>
+                        <Text style={[styles.modalSubtitle, { color: colors.textSecondary }]}>{t('youCanChangeLater' as any)}</Text>
+                        
+                        {['BEGINNER', 'INTERMEDIATE', 'ADVANCED'].map((level) => (
+                            <TouchableOpacity
+                                key={level}
+                                style={[
+                                    styles.modalOption,
+                                    { borderColor: colors.cardBorder },
+                                    user.attributes.fitnessLevel === level && { backgroundColor: colors.accent, borderColor: colors.accent }
+                                ]}
+                                onPress={() => handleUpdateFitnessLevel(level)}
+                            >
+                                <Text style={[
+                                    styles.modalOptionText,
+                                    { color: user.attributes.fitnessLevel === level ? '#000' : colors.text }
+                                ]}>
+                                    {t(`fl${level.charAt(0) + level.slice(1).toLowerCase()}` as any)}
+                                </Text>
+                                {user.attributes.fitnessLevel === level && (
+                                    <Ionicons name="checkmark-circle" size={20} color="#000" />
+                                )}
+                            </TouchableOpacity>
+                        ))}
+                        
+                        <TouchableOpacity 
+                            style={[styles.modalCloseButton, { marginTop: 12 }]}
+                            onPress={() => setIsFitnessLevelModalVisible(false)}
+                        >
+                            <Text style={[styles.modalCloseText, { color: colors.textSecondary }]}>{t('dismiss')}</Text>
+                        </TouchableOpacity>
+                    </View>
+                </Pressable>
+            </Modal>
         </SafeAreaView>
     );
 }
@@ -1238,5 +1301,55 @@ const styles = StyleSheet.create({
     logoutText: {
         fontSize: 16,
         fontWeight: '600',
+    },
+    fitnessLevelRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+    },
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.7)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 24,
+    },
+    modalContent: {
+        width: '100%',
+        borderRadius: 24,
+        padding: 24,
+        borderWidth: 1,
+        gap: 16,
+    },
+    modalTitle: {
+        fontSize: 22,
+        fontWeight: '800',
+        textAlign: 'center',
+    },
+    modalSubtitle: {
+        fontSize: 13,
+        fontWeight: '600',
+        textAlign: 'center',
+        marginBottom: 8,
+    },
+    modalOption: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: 18,
+        borderRadius: 16,
+        borderWidth: 1,
+    },
+    modalOptionText: {
+        fontSize: 16,
+        fontWeight: '700',
+    },
+    modalCloseButton: {
+        padding: 12,
+        alignItems: 'center',
+    },
+    modalCloseText: {
+        fontSize: 15,
+        fontWeight: '700',
     },
 });
