@@ -257,7 +257,17 @@ export default function AnalyticsScreen() {
                             <View style={styles.tooltipRow}>
                                 <Ionicons name="body-outline" size={14} color={colors.accent} />
                                 <Text style={[styles.tooltipText, { color: colors.text }]}>
-                                    {formatLabel(selectedPoint.muscle)} • {formatLabel(selectedPoint.activityType)}
+                                    {(() => {
+                                        const mgKey = `mg${selectedPoint.muscle.replace(/\s/g, '').replace(/_/g, '')}` as any;
+                                        const transMg = t(mgKey);
+                                        const muscleName = transMg !== mgKey ? transMg : formatLabel(selectedPoint.muscle);
+
+                                        const actKey = `short${selectedPoint.activityType.charAt(0).toUpperCase()}${selectedPoint.activityType.slice(1)}` as any;
+                                        const transAct = t(actKey);
+                                        const actName = transAct !== actKey ? transAct : formatLabel(selectedPoint.activityType);
+
+                                        return `${muscleName} • ${actName}`;
+                                    })()}
                                 </Text>
                             </View>
                         </View>

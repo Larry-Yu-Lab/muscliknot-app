@@ -507,7 +507,15 @@ export default function HomeScreen() {
               🧠 {t('recoveryRoadmap' as any) || 'Recovery Roadmap'}
             </Text>
             <Text style={[styles.roadmapCoach, { color: colors.textSecondary }]}>
-              {t(roadmap.coachMessage as any) || `${formatLabel(roadmap.targetMuscle)} — ${formatLabel(roadmap.currentPhase)} phase. Pain trend: ${formatLabel(roadmap.painTrend)}.`}
+              {(() => {
+                const params = { ...roadmap.coachParams };
+                if (params.muscle) {
+                  const mgKey = `mg${(params.muscle as string).replace(/\s/g, '').replace(/_/g, '')}` as any;
+                  const trans = t(mgKey);
+                  params.muscle = trans !== mgKey ? trans : formatLabel(params.muscle as string);
+                }
+                return t(roadmap.coachMessage as any, params as any) || `${formatLabel(roadmap.targetMuscle)} — ${formatLabel(roadmap.currentPhase)} phase. Pain trend: ${formatLabel(roadmap.painTrend)}.`;
+              })()}
             </Text>
             <View style={styles.roadmapMeta}>
               <View style={styles.roadmapMetaItem}>
@@ -569,10 +577,19 @@ export default function HomeScreen() {
                     </View>
                     <View style={{ flex: 1 }}>
                       <Text style={[styles.preventionTitle, { color: colors.text }]}>
-                        {t(alert.titleKey as any) || formatLabel(alert.titleKey)}
+                        {t(alert.titleKey as any) !== alert.titleKey ? t(alert.titleKey as any) : formatLabel(alert.titleKey)}
                       </Text>
                       <Text style={[styles.preventionSubtitle, { color: colors.textSecondary }]} numberOfLines={2}>
-                        {t(alert.subtitleKey as any) || formatLabel(alert.subtitleKey)}
+                        {(() => {
+                          const params = { ...alert.subtitleParams };
+                          if (params.muscle) {
+                            const mgKey = `mg${(params.muscle as string).replace(/\s/g, '').replace(/_/g, '')}` as any;
+                            const trans = t(mgKey);
+                            params.muscle = trans !== mgKey ? trans : formatLabel(params.muscle as string);
+                          }
+                          const translated = t(alert.subtitleKey as any, params as any);
+                          return translated !== alert.subtitleKey ? translated : formatLabel(alert.subtitleKey);
+                        })()}
                       </Text>
                     </View>
                   </View>

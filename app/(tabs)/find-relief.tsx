@@ -91,13 +91,15 @@ function ExerciseCard({ ex, index, colors, language }: { ex: any; index: number;
                 </View>
                 {ex.difficulty_level && (
                     <View style={[cardStyles.difBadge, {
-                        backgroundColor: ex.difficulty_level === 'beginner' ? 'rgba(34,197,94,0.15)' :
-                            ex.difficulty_level === 'intermediate' ? 'rgba(249,115,22,0.15)' : 'rgba(239,68,68,0.15)'
+                        backgroundColor: diffColor + '20'
                     }]}>
                         <Text style={[cardStyles.difText, {
-                            color: ex.difficulty_level === 'beginner' ? '#22c55e' :
-                                ex.difficulty_level === 'intermediate' ? '#f97316' : '#ef4444'
-                        }]}>{formatLabel(ex.difficulty_level)}</Text>
+                            color: diffColor
+                        }]}>{(() => {
+                            const diffKey = `opt${ex.difficulty_level.charAt(0).toUpperCase()}${ex.difficulty_level.slice(1)}` as any;
+                            const trans = t(diffKey);
+                            return trans !== diffKey ? trans : formatLabel(ex.difficulty_level);
+                        })()}</Text>
                     </View>
                 )}
                 <Ionicons name={expanded ? 'chevron-up' : 'chevron-down'} size={18} color="rgba(255,255,255,0.4)" />
@@ -438,7 +440,19 @@ export default function FindReliefScreen() {
                     <View>
                         <Text style={[styles.headerTitle, { color: colors.text }]}>{t('recommendedRoutine')}</Text>
                         <Text style={styles.headerSubtitle}>
-                            {formatLabel(targetMuscle)} {painLocation && painLocation !== 'unknown' ? `• ${formatLabel(painLocation)}` : ''}
+                            {(() => {
+                                const mgKey = `mg${targetMuscle.replace(/\s/g, '').replace(/_/g, '')}` as any;
+                                const transMg = t(mgKey);
+                                const muscleName = transMg !== mgKey ? transMg : formatLabel(targetMuscle);
+
+                                if (painLocation && painLocation !== 'unknown') {
+                                    const locKey = `loc${painLocation.charAt(0).toUpperCase()}${painLocation.slice(1)}` as any;
+                                    const transLoc = t(locKey);
+                                    const locName = transLoc !== locKey ? transLoc : formatLabel(painLocation);
+                                    return `${muscleName} • ${locName}`;
+                                }
+                                return muscleName;
+                            })()}
                         </Text>
                     </View>
                     <View style={styles.headerSpacer} />

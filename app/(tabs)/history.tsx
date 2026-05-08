@@ -46,8 +46,8 @@ export default function HistoryScreen() {
     // Calculate most targeted muscle
     const muscleCounts: Record<string, number> = {};
     history.forEach(h => {
-        const muscleKey = `mg${h.muscleGroup.charAt(0).toUpperCase()}${h.muscleGroup.slice(1).replace(/\s/g, '')}` as any;
-        const translatedMuscle = t(muscleKey) !== muscleKey ? t(muscleKey) : h.muscleGroup;
+        const muscleKey = `mg${h.muscleGroup.charAt(0).toUpperCase()}${h.muscleGroup.slice(1).replace(/\s/g, '').replace(/_/g, '')}` as any;
+        const translatedMuscle = t(muscleKey) !== muscleKey ? t(muscleKey) : formatLabel(h.muscleGroup);
         muscleCounts[translatedMuscle] = (muscleCounts[translatedMuscle] || 0) + 1;
     });
     const topTarget = Object.entries(muscleCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || '-';
@@ -157,8 +157,8 @@ export default function HistoryScreen() {
                                             </Text>
                                             <Text style={[styles.cardTitle, { color: colors.text }]}>
                                                 {(() => {
-                                                    const muscleKey = `mg${item.muscleGroup.replace(/\s/g, '')}` as any;
-                                                    const translatedMuscle = t(muscleKey) !== muscleKey ? t(muscleKey) : item.muscleGroup;
+                                                    const muscleKey = `mg${item.muscleGroup.replace(/\s/g, '').replace(/_/g, '')}` as any;
+                                                    const translatedMuscle = t(muscleKey) !== muscleKey ? t(muscleKey) : formatLabel(item.muscleGroup);
                                                     return `${translatedMuscle} ${actTranslation || ''}`;
                                                 })()}
                                             </Text>
@@ -197,7 +197,7 @@ export default function HistoryScreen() {
                                                         {(() => {
                                                             const locKey = `loc${a.location.charAt(0).toUpperCase()}${a.location.slice(1).replace(/_/g, '')}` as any;
                                                             const trans = t(locKey);
-                                                            return trans !== locKey ? trans : a.location.replace(/_/g, ' ');
+                                                            return trans !== locKey ? trans : formatLabel(a.location);
                                                         })()}
                                                     </Text>
                                                 </View>
