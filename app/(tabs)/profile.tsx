@@ -1303,11 +1303,6 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: '600',
     },
-    fitnessLevelRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 4,
-    },
     modalOverlay: {
         flex: 1,
         backgroundColor: 'rgba(0,0,0,0.7)',
