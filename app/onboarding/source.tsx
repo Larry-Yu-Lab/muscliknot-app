@@ -12,7 +12,7 @@ const OPTIONS = [
     { id: 'youtube', label: 'YouTube', icon: 'logo-youtube' },
     { id: 'instagram', label: 'Instagram', icon: 'logo-instagram' },
     { id: 'facebook', label: 'Facebook', icon: 'logo-facebook' },
-    { id: 'x', label: 'X (Twitter)', icon: 'logo-twitter' },
+    { id: 'x', label: 'X', icon: 'logo-x' },
     { id: 'google', label: 'Google Search', icon: 'logo-google' },
     { id: 'tv', label: 'TV', icon: 'tv-outline' },
     { id: 'friends_family', label: 'Friends or Family', icon: 'people-outline' },
