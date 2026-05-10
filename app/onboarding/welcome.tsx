@@ -80,13 +80,6 @@ export default function WelcomeScreen() {
                 <TouchableOpacity onPress={() => router.replace('/auth/login' as any)} style={{ marginBottom: 32 }}>
                     <Text style={styles.signInText}>Already have an account? <Text style={{ textDecorationLine: 'underline' }}>Sign in</Text></Text>
                 </TouchableOpacity>
-
-                {/* Pagination Dots */}
-                <View style={styles.pagination}>
-                    <View style={[styles.dot, styles.dotActive]} />
-                    <View style={styles.dot} />
-                    <View style={styles.dot} />
-                </View>
             </View>
             {/* Language Selection Modal */}
             <Modal
@@ -214,19 +207,6 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontSize: 16,
         fontWeight: '500',
-    },
-    pagination: {
-        flexDirection: 'row',
-        gap: 8,
-    },
-    dot: {
-        width: 8,
-        height: 8,
-        borderRadius: 4,
-        backgroundColor: 'rgba(255,255,255,0.3)',
-    },
-    dotActive: {
-        backgroundColor: '#f9d423',
     },
     langButton: {
         flexDirection: 'row',

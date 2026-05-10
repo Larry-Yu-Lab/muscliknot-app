@@ -3,10 +3,13 @@ import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
-import { View, Text as RNText } from 'react-native';
+import { View, Text as RNText, LogBox } from 'react-native';
 import { Image } from 'expo-image';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import 'react-native-reanimated';
+
+// Suppress the yellow warning banner in dev mode
+LogBox.ignoreAllLogs(true);
 
 import * as SplashScreen from 'expo-splash-screen';
 import { useFonts } from 'expo-font';
