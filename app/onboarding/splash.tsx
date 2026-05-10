@@ -26,11 +26,6 @@ export default function OnboardingSplash() {
                 onPress={() => router.replace('/onboarding/welcome')}
             >
                 <View style={styles.content}>
-                <Image
-                    source={require('@/assets/images/icon.png')}
-                    style={styles.logo}
-                    contentFit="contain"
-                />
                 <Text style={[styles.name, { color: colors.text }]}>MuscliKnot</Text>
             </View>
             </TouchableOpacity>
@@ -51,11 +46,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         gap: 16,
-    },
-    logo: {
-        width: 64,
-        height: 64,
-        borderRadius: 16,
     },
     name: {
         fontSize: 32,

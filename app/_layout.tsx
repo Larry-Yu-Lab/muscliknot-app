@@ -151,11 +151,6 @@ function RootLayoutNav() {
     return (
       <View style={{ flex: 1, backgroundColor: '#000000', justifyContent: 'center', alignItems: 'center' }}>
         <View style={{ alignItems: 'center', marginBottom: 48 }}>
-          <Image
-            source={require('@/assets/images/icon.png')}
-            style={{ width: 80, height: 80, borderRadius: 20, marginBottom: 16 }}
-            contentFit="contain"
-          />
           <RNText style={{ color: '#FFFFFF', fontSize: 28, fontWeight: '900', letterSpacing: 1 }}>
             MuscliKnot
           </RNText>
