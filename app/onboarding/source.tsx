@@ -5,13 +5,19 @@ import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 const OPTIONS = [
-    { id: 'social_media', label: 'Social Media' },
-    { id: 'friends_family', label: 'Friends or Family' },
-    { id: 'app_store', label: 'App Store' },
-    { id: 'other', label: 'Other' },
+    { id: 'tiktok', label: 'TikTok', icon: 'logo-tiktok' },
+    { id: 'youtube', label: 'YouTube', icon: 'logo-youtube' },
+    { id: 'instagram', label: 'Instagram', icon: 'logo-instagram' },
+    { id: 'facebook', label: 'Facebook', icon: 'logo-facebook' },
+    { id: 'x', label: 'X (Twitter)', icon: 'logo-twitter' },
+    { id: 'google', label: 'Google Search', icon: 'logo-google' },
+    { id: 'tv', label: 'TV', icon: 'tv-outline' },
+    { id: 'friends_family', label: 'Friends or Family', icon: 'people-outline' },
+    { id: 'app_store', label: 'App Store', icon: 'logo-apple-appstore' },
+    { id: 'other', label: 'Other', icon: 'ellipsis-horizontal-outline' },
 ];
 
 export default function SourceScreen() {
@@ -40,10 +46,10 @@ export default function SourceScreen() {
                 </View>
             </View>
 
-            <View style={styles.content}>
+            <ScrollView style={styles.content} contentContainerStyle={{ paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
                 <Text style={styles.title}>Where did you hear about us?</Text>
                 <Text style={styles.subtitle}>Let us know how you found MuscliKnot.</Text>
-
+                
                 <View style={styles.optionsContainer}>
                     {OPTIONS.map((option) => (
                         <TouchableOpacity
@@ -54,11 +60,20 @@ export default function SourceScreen() {
                             ]}
                             onPress={() => setSelected(option.id)}
                         >
-                            <Text style={styles.optionTitle}>{option.label}</Text>
+                            <Ionicons 
+                                name={option.icon as any} 
+                                size={24} 
+                                color={selected === option.id ? '#f97316' : 'rgba(255,255,255,0.6)'} 
+                                style={{ marginRight: 16 }} 
+                            />
+                            <Text style={[
+                                styles.optionTitle,
+                                selected === option.id && { color: '#f97316' }
+                            ]}>{option.label}</Text>
                         </TouchableOpacity>
                     ))}
                 </View>
-            </View>
+            </ScrollView>
 
             <View style={styles.bottom}>
                 <TouchableOpacity
@@ -127,14 +142,15 @@ const styles = StyleSheet.create({
         lineHeight: 24,
     },
     optionsContainer: {
-        gap: 16,
+        gap: 12,
     },
     optionCard: {
         backgroundColor: 'rgba(255,255,255,0.05)',
         borderRadius: 16,
-        padding: 20,
+        padding: 16,
         borderWidth: 1,
         borderColor: 'transparent',
+        flexDirection: 'row',
         alignItems: 'center',
     },
     optionCardSelected: {
