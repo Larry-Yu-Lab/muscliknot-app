@@ -119,10 +119,8 @@ function RootLayoutNav() {
     if (!session && inOnboarding) return;
     if (!session && inAuthGroup) return;
 
-    if (!session && !onboardingComplete) {
+    if (!session) {
       router.replace('/onboarding' as any);
-    } else if (!session && onboardingComplete) {
-      router.replace('/auth/login' as any);
     } else if (session && (inAuthGroup || inOnboarding)) {
       router.replace('/(tabs)' as any);
     }
