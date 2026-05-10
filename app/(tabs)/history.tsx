@@ -1,7 +1,7 @@
 import { Colors } from '@/constants/theme';
 import { usePreferences } from '@/context/PreferencesContext';
 import { categoryLabelKey, getExerciseRecommendation, painLevelColor } from '@/utils/assessmentEngine';
-import { getTranslation } from '@/utils/i18n';
+import { getTranslation, formatLabel } from '@/utils/i18n';
 import { getHistory, HistoryItem } from '@/utils/storage';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from 'expo-router';

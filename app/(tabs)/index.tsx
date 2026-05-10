@@ -113,7 +113,7 @@ export default function HomeScreen() {
   const router = useRouter();
   const { language, theme } = usePreferences();
   const { user } = useUser();
-  const t = (key: Parameters<typeof getTranslation>[1]) => getTranslation(language, key);
+  const t = (key: Parameters<typeof getTranslation>[1], params?: Record<string, string>) => getTranslation(language, key, params);
   const colors = Colors[theme];
   const isDark = theme === 'dark';
 

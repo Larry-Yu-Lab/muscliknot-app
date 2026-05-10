@@ -89,19 +89,18 @@ function ExerciseCard({ ex, index, colors, language }: { ex: any; index: number;
                     <Text style={[cardStyles.title, { color: '#fff' }]}>{displayTitle}</Text>
                     {displaySubtitle ? <Text style={[cardStyles.subtitle, { color: 'rgba(255,255,255,0.5)' }]}>{displaySubtitle}</Text> : null}
                 </View>
-                {ex.difficulty_level && (
-                    <View style={[cardStyles.difBadge, {
-                        backgroundColor: diffColor + '20'
-                    }]}>
-                        <Text style={[cardStyles.difText, {
-                            color: diffColor
-                        }]}>{(() => {
-                            const diffKey = `opt${ex.difficulty_level.charAt(0).toUpperCase()}${ex.difficulty_level.slice(1)}` as any;
-                            const trans = t(diffKey);
-                            return trans !== diffKey ? trans : formatLabel(ex.difficulty_level);
-                        })()}</Text>
-                    </View>
-                )}
+                {ex.difficulty_level && (() => {
+                    const diffColor = ex.difficulty_level === 'beginner' ? '#22c55e' : ex.difficulty_level === 'intermediate' ? '#f59e0b' : '#ef4444';
+                    return (
+                        <View style={[cardStyles.difBadge, { backgroundColor: diffColor + '20' }]}>
+                            <Text style={[cardStyles.difText, { color: diffColor }]}>{(() => {
+                                const diffKey = `opt${ex.difficulty_level.charAt(0).toUpperCase()}${ex.difficulty_level.slice(1)}` as any;
+                                const trans = t(diffKey);
+                                return trans !== diffKey ? trans : formatLabel(ex.difficulty_level);
+                            })()}</Text>
+                        </View>
+                    );
+                })()}
                 <Ionicons name={expanded ? 'chevron-up' : 'chevron-down'} size={18} color="rgba(255,255,255,0.4)" />
             </TouchableOpacity>
 
