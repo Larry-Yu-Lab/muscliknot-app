@@ -3,6 +3,7 @@ import { usePreferences } from '@/context/PreferencesContext';
 import { getTranslation, LANGUAGES } from '@/utils/i18n';
 import { Ionicons } from '@expo/vector-icons'; // Added Ionicons
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react'; // Added useState
 import {
@@ -18,62 +19,19 @@ import Svg, { Circle, Line, Rect } from 'react-native-svg'; // Re-added Svg impo
 
 const { width, height } = Dimensions.get('window');
 
-// Simple body figure SVG matching the design
 const BodyFigure = () => (
-    <Svg 
-        width={200} 
-        height={320} 
-        viewBox="0 0 200 320"
-        onLayout={() => {}}
-    >
-        {/* Outer rounded rectangle */}
-        <Rect
-            x="30"
-            y="20"
-            width="140"
-            height="280"
-            rx="70"
-            ry="70"
-            fill="none"
-            stroke="rgba(255,255,255,0.15)"
-            strokeWidth="2"
+    <View style={styles.figureWrapper}>
+        <Image 
+            source={require('@/assets/images/onboarding_frame.png')} 
+            style={styles.frameImage} 
+            contentFit="contain" 
         />
-
-        {/* Head */}
-        <Circle cx="100" cy="70" r="20" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="2" />
-
-        {/* Body line */}
-        <Line x1="100" y1="90" x2="100" y2="200" stroke="rgba(255,255,255,0.15)" strokeWidth="2" />
-
-        {/* Arms */}
-        <Line x1="100" y1="120" x2="60" y2="160" stroke="rgba(255,255,255,0.15)" strokeWidth="2" />
-        <Line x1="100" y1="120" x2="140" y2="160" stroke="rgba(255,255,255,0.15)" strokeWidth="2" />
-
-        {/* Legs */}
-        <Line x1="100" y1="200" x2="70" y2="270" stroke="rgba(255,255,255,0.15)" strokeWidth="2" />
-        <Line x1="100" y1="200" x2="130" y2="270" stroke="rgba(255,255,255,0.15)" strokeWidth="2" />
-
-        {/* Orange pain points with glow effect */}
-        {/* Shoulders */}
-        <Circle cx="60" cy="120" r="12" fill="#f97316" opacity="0.3" />
-        <Circle cx="60" cy="120" r="8" fill="#f97316" />
-        <Circle cx="140" cy="120" r="12" fill="#f97316" opacity="0.3" />
-        <Circle cx="140" cy="120" r="8" fill="#f97316" />
-
-        {/* Spine dots */}
-        <Circle cx="100" cy="130" r="10" fill="#f97316" opacity="0.3" />
-        <Circle cx="100" cy="130" r="6" fill="#f97316" />
-        <Circle cx="100" cy="155" r="10" fill="#f97316" opacity="0.3" />
-        <Circle cx="100" cy="155" r="6" fill="#f97316" />
-        <Circle cx="100" cy="180" r="10" fill="#f97316" opacity="0.3" />
-        <Circle cx="100" cy="180" r="6" fill="#f97316" />
-
-        {/* Knees */}
-        <Circle cx="78" cy="240" r="12" fill="#f97316" opacity="0.3" />
-        <Circle cx="78" cy="240" r="8" fill="#f97316" />
-        <Circle cx="122" cy="240" r="12" fill="#f97316" opacity="0.3" />
-        <Circle cx="122" cy="240" r="8" fill="#f97316" />
-    </Svg>
+        <Image 
+            source={require('@/assets/images/onboarding_muscle.png')} 
+            style={styles.muscleImage} 
+            contentFit="contain" 
+        />
+    </View>
 );
 
 export default function WelcomeScreen() {
@@ -203,6 +161,27 @@ const styles = StyleSheet.create({
     },
     figureContainer: {
         marginBottom: 48,
+        height: 450,
+        width: 300,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    figureWrapper: {
+        width: 300,
+        height: 450,
+        position: 'relative',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    frameImage: {
+        position: 'absolute',
+        width: 260,
+        height: 440,
+        opacity: 0.8,
+    },
+    muscleImage: {
+        width: 220,
+        height: 380,
     },
     title: {
         fontSize: 36,
