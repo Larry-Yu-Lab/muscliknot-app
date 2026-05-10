@@ -147,17 +147,19 @@ function RootLayoutNav() {
   if (!isAppReady || !hasNavigated) {
     return (
       <View style={{ flex: 1, backgroundColor: '#000000', justifyContent: 'center', alignItems: 'center' }}>
-        <Image
-          source={require('@/assets/images/splash-logo.png')}
-          style={{ width: 140, height: 140, marginBottom: 40 }}
-          contentFit="contain"
-        />
+        <View style={{ alignItems: 'center', marginBottom: 48 }}>
+          <Image
+            source={require('@/assets/images/icon.png')}
+            style={{ width: 80, height: 80, borderRadius: 20, marginBottom: 16 }}
+            contentFit="contain"
+          />
+          <RNText style={{ color: '#FFFFFF', fontSize: 28, fontWeight: '900', letterSpacing: 1 }}>
+            MuscliKnot
+          </RNText>
+        </View>
         <View style={{ width: 200, height: 4, backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: 2, overflow: 'hidden' }}>
           <View style={{ width: `${progress}%`, height: '100%', backgroundColor: '#f97316' }} />
         </View>
-        <RNText style={{ color: 'rgba(255,255,255,0.5)', fontSize: 12, fontWeight: '700', marginTop: 12, letterSpacing: 1 }}>
-          INITIALIZING... {progress}%
-        </RNText>
       </View>
     );
   }
