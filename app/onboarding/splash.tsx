@@ -11,6 +11,13 @@ export default function OnboardingSplash() {
     const colors = Colors[theme];
     const isDark = theme === 'dark';
 
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            router.replace('/onboarding/welcome');
+        }, 6000);
+        return () => clearTimeout(timer);
+    }, [router]);
+
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
             <TouchableOpacity 
