@@ -137,11 +137,30 @@ export default function RegisterScreen() {
                 try {
                     const lifestyle = await AsyncStorage.getItem('user_lifestyle');
                     const goal = await AsyncStorage.getItem('user_goal');
+                    const has_coach = await AsyncStorage.getItem('user_has_coach');
+                    const source = await AsyncStorage.getItem('user_source');
+                    const gender = await AsyncStorage.getItem('user_gender');
+                    const height = await AsyncStorage.getItem('user_height');
+                    const weight = await AsyncStorage.getItem('user_weight');
+                    const measurement_system = await AsyncStorage.getItem('user_measurement_system');
+                    const dob = await AsyncStorage.getItem('user_dob');
+                    const experience_level = await AsyncStorage.getItem('user_experience');
+                    const equipmentStr = await AsyncStorage.getItem('app_equipment');
+                    const equipment = equipmentStr ? JSON.parse(equipmentStr) : null;
 
                     if (data.user?.id) {
                         await saveUserPreferences(data.user.id, {
                             lifestyle: lifestyle as 'sedentary' | 'active' | 'athlete' | null,
                             primary_goal: goal as 'relieve_pain' | 'improve_mobility' | 'daily_maintenance' | null,
+                            has_coach,
+                            source,
+                            gender,
+                            height,
+                            weight,
+                            measurement_system,
+                            dob,
+                            experience_level,
+                            equipment,
                             onboarding_completed: true,
                             theme: theme as 'light' | 'dark',
                             language: language as 'en' | 'zh' | 'fr' | 'es',
