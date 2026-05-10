@@ -41,6 +41,7 @@ function RootLayoutNav() {
   // Three pieces of state we need before we can route
   const [onboardingComplete, setOnboardingComplete] = useState<boolean | null>(null);
   const [isAppReady, setIsAppReady] = useState(false);
+  const [hasNavigated, setHasNavigated] = useState(false);
   const [progress, setProgress] = useState(0);
 
   const [fontsLoaded, fontError] = useFonts({
@@ -106,28 +107,44 @@ function RootLayoutNav() {
     return () => clearTimeout(timer);
   }, []);
 
-  // 5. Handle navigation after app is ready
+  // 5. Determine the correct initial route synchronously
+  //    This prevents the Stack from briefly rendering the wrong screen
+  const initialRoute = session ? '(tabs)' : 'onboarding';
+
+  // 6. Handle navigation after app is ready
   useEffect(() => {
     if (!isAppReady) return;
 
     const inAuthGroup = segments[0] === 'auth';
     const inOnboarding = segments[0] === 'onboarding';
-    const inTabs = segments[0] === '(tabs)';
 
-    // Already on the right screen family — do nothing
-    if (session && !inAuthGroup && !inOnboarding) return;
-    if (!session && inOnboarding) return;
-    if (!session && inAuthGroup) return;
+    // Already on the right screen family — mark navigated and do nothing
+    if (session && !inAuthGroup && !inOnboarding) {
+      setHasNavigated(true);
+      return;
+    }
+    if (!session && inOnboarding) {
+      setHasNavigated(true);
+      return;
+    }
+    if (!session && inAuthGroup) {
+      setHasNavigated(true);
+      return;
+    }
 
     if (!session) {
       router.replace('/onboarding' as any);
     } else if (session && (inAuthGroup || inOnboarding)) {
       router.replace('/(tabs)' as any);
     }
+
+    // Mark navigated after a short delay to let the navigation settle
+    const navTimer = setTimeout(() => setHasNavigated(true), 100);
+    return () => clearTimeout(navTimer);
   }, [isAppReady, session, onboardingComplete, segments, router]);
 
-  // Show the custom loading screen until ready
-  if (!isAppReady) {
+  // Show the custom loading screen until ready AND first navigation is settled
+  if (!isAppReady || !hasNavigated) {
     return (
       <View style={{ flex: 1, backgroundColor: '#000000', justifyContent: 'center', alignItems: 'center' }}>
         <Image
@@ -148,7 +165,7 @@ function RootLayoutNav() {
   return (
     <ThemeProvider value={theme === 'dark' ? DarkTheme : DefaultTheme}>
       <View style={{ flex: 1 }}>
-        <Stack screenOptions={{ headerShown: false }}>
+        <Stack screenOptions={{ headerShown: false, animation: 'none' }} initialRouteName={initialRoute}>
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="onboarding" />
           <Stack.Screen name="auth/login" />
