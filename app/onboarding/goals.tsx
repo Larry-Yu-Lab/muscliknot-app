@@ -54,19 +54,8 @@ export default function GoalsScreen() {
 
     const handleComplete = async () => {
         if (!selected) return;
-
-        // Get lifestyle from previous screen (stored in AsyncStorage)
-        const lifestyle = await AsyncStorage.getItem('user_lifestyle');
-
-        // Mark onboarding as complete and save selections to AsyncStorage
-        await AsyncStorage.setItem('onboarding_complete', 'true');
         await AsyncStorage.setItem('user_goal', selected);
-        if (lifestyle) {
-            await AsyncStorage.setItem('user_lifestyle', lifestyle);
-        }
-
-        // Navigate to login - preferences will be synced to database after signup/login
-        router.replace('/auth/login' as any);
+        router.push('/onboarding/coach');
     };
 
     return (
@@ -78,7 +67,7 @@ export default function GoalsScreen() {
                 </TouchableOpacity>
                 <View style={styles.progressContainer}>
                     <View style={styles.progressBarBackground}>
-                        <View style={[styles.progressBarFill, { width: '100%' }]} />
+                        <View style={[styles.progressBarFill, { width: '75%' }]} />
                     </View>
                 </View>
             </View>

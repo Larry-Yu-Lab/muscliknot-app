@@ -440,7 +440,7 @@ export const translations = {
         athlete: 'Athlete',
         athleteDesc: 'Exercise 4+ times/week',
         continue: 'Continue',
-        goalsTitle: 'Define Your Path',
+        goalsTitle: 'What is your goal?',
         goalsSubtitle: 'Tailor your MuscliKnot experience to your specific needs.',
         relievePain: 'Relieve Pain',
         relievePainDesc: 'Recovery and discomfort management',

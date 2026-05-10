@@ -64,7 +64,7 @@ export default function DOBScreen() {
     const handleContinue = async () => {
         const dob = `${month} ${day}, ${year}`;
         await AsyncStorage.setItem('user_dob', dob);
-        router.push('/onboarding/coach');
+        router.push('/onboarding/goals');
     };
 
     return (
