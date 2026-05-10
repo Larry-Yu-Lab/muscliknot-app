@@ -115,7 +115,7 @@ function RootLayoutNav() {
     const inTabs = segments[0] === '(tabs)';
 
     // Already on the right screen family — do nothing
-    if (session && inTabs) return;
+    if (session && !inAuthGroup && !inOnboarding) return;
     if (!session && inOnboarding) return;
     if (!session && inAuthGroup) return;
 
@@ -123,7 +123,7 @@ function RootLayoutNav() {
       router.replace('/onboarding' as any);
     } else if (!session && onboardingComplete) {
       router.replace('/auth/login' as any);
-    } else if (session && !inTabs) {
+    } else if (session && (inAuthGroup || inOnboarding)) {
       router.replace('/(tabs)' as any);
     }
   }, [isAppReady, session, onboardingComplete, segments, router]);
