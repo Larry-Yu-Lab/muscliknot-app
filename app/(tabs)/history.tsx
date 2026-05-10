@@ -4,9 +4,9 @@ import { categoryLabelKey, getExerciseRecommendation, painLevelColor } from '@/u
 import { getTranslation, formatLabel } from '@/utils/i18n';
 import { getHistory, HistoryItem } from '@/utils/storage';
 import { Ionicons } from '@expo/vector-icons';
-import { useFocusEffect } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useState } from 'react';
-import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 // Human-readable labels for duration / q1 answers
 const DURATION_KEY_MAP: Record<string, string> = {
@@ -30,6 +30,7 @@ const ACTIVITY_KEY_MAP: Record<string, string> = {
 
 export default function HistoryScreen() {
     const [history, setHistory] = useState<HistoryItem[]>([]);
+    const router = useRouter();
     const { language, theme } = usePreferences();
     const t = (key: Parameters<typeof getTranslation>[1], params?: Record<string, string>) => getTranslation(language, key, params);
     const colors = Colors[theme];
@@ -71,16 +72,16 @@ export default function HistoryScreen() {
                 {/* Header */}
                 <View style={[styles.header, { backgroundColor: colors.headerBackground }]}>
                     <View style={styles.headerLeft}>
-                        <TouchableOpacity>
+                        <TouchableOpacity onPress={() => router.back()}>
                             <Ionicons name="chevron-back" size={24} color={colors.text} />
                         </TouchableOpacity>
                         <Text style={[styles.headerTitle, { color: colors.text }]}>{t('recoveryHistory')}</Text>
                     </View>
                     <View style={styles.headerRight}>
-                        <TouchableOpacity style={styles.headerIcon}>
+                        <TouchableOpacity style={styles.headerIcon} onPress={() => router.push('/analytics' as any)}>
                             <Ionicons name="calendar-outline" size={22} color={colors.text} />
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.headerIcon}>
+                        <TouchableOpacity style={styles.headerIcon} onPress={() => Alert.alert(t('comingSoon' as any) || 'Coming Soon', t('featureComingSoon' as any) || 'This feature is coming soon!')}>
                             <Ionicons name="ellipsis-horizontal" size={22} color={colors.text} />
                         </TouchableOpacity>
                     </View>
@@ -109,7 +110,7 @@ export default function HistoryScreen() {
                         <Text style={[styles.reportDescription, { color: colors.textSecondary }]}>
                             {t('weeklyReportDesc')}
                         </Text>
-                        <TouchableOpacity style={[styles.reportButton, { backgroundColor: colors.accent }]}>
+                        <TouchableOpacity style={[styles.reportButton, { backgroundColor: colors.accent }]} onPress={() => router.push('/analytics' as any)}>
                             <Text style={styles.reportButtonText}>{t('viewInsights')}</Text>
                         </TouchableOpacity>
                     </View>

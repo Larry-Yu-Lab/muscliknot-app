@@ -364,7 +364,7 @@ export default function HomeScreen() {
               <Text style={[styles.greetingTitle, { color: colors.text }]}>{t('greetingHello')}, {user.name.split(' ')[0]}</Text>
             </View>
           </View>
-          <TouchableOpacity style={[styles.notificationButton, { backgroundColor: isDark ? 'rgba(255, 255, 255, 0.05)' : colors.cardBackground, borderColor: colors.cardBorder }]}>
+          <TouchableOpacity style={[styles.notificationButton, { backgroundColor: isDark ? 'rgba(255, 255, 255, 0.05)' : colors.cardBackground, borderColor: colors.cardBorder }]} onPress={() => router.push('/settings' as any)}>
             <Ionicons name="notifications-outline" size={24} color={colors.text} />
             <View style={styles.notificationDot} />
           </TouchableOpacity>
@@ -619,7 +619,7 @@ export default function HomeScreen() {
         {/* Quick Fix */}
         <View style={styles.quickFixHeader}>
           <Text style={[styles.sectionTitle, { color: colors.text }]}>{t('recentPlans')}</Text>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => router.push('/(tabs)/history')}>
             <Text style={styles.seeAllText}>{t('seeAllHistory')}</Text>
           </TouchableOpacity>
         </View>

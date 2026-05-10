@@ -1,5 +1,6 @@
 import { CustomToggle } from '@/components/ui/CustomToggle';
 import { Colors } from '@/constants/theme';
+import { useAuth } from '@/context/AuthContext';
 import { usePreferences } from '@/context/PreferencesContext';
 import { getTranslation, LANGUAGES } from '@/utils/i18n';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
@@ -34,9 +35,9 @@ const SettingsRow = ({ icon, label, rightLabel, showChevron = true, showExpand =
                 <Text style={[styles.rowLabel, { color: colors.text }]}>{label}</Text>
             </View>
             <View style={styles.rowRight}>
-                {rightLabel && <Text style={[styles.rightLabel, { color: 'rgba(255,255,255,0.4)' }]}>{rightLabel}</Text>}
-                {showChevron && <Ionicons name="chevron-forward" size={18} color="rgba(255,255,255,0.3)" />}
-                {showExpand && <Ionicons name="chevron-down" size={20} color="rgba(255,255,255,0.3)" />}
+                {rightLabel && <Text style={[styles.rightLabel, { color: colors.textSecondary }]}>{rightLabel}</Text>}
+                {showChevron && <Ionicons name="chevron-forward" size={18} color={colors.textSecondary} />}
+                {showExpand && <Ionicons name="chevron-down" size={20} color={colors.textSecondary} />}
             </View>
         </TouchableOpacity>
     );
@@ -44,6 +45,7 @@ const SettingsRow = ({ icon, label, rightLabel, showChevron = true, showExpand =
 
 export default function SettingsScreen() {
     const router = useRouter();
+    const { signOut } = useAuth();
     const { theme, toggleTheme, language, setLanguage, notificationsEnabled, toggleNotifications, equipment } = usePreferences();
     const colors = Colors[theme];
     const isDark = theme === 'dark';
@@ -56,17 +58,17 @@ export default function SettingsScreen() {
             {/* Header */}
             <View style={styles.header}>
                 <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-                    <Ionicons name="chevron-back" size={24} color="#fff" />
+                    <Ionicons name="chevron-back" size={24} color={colors.text} />
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>{t('settings').toUpperCase()}</Text>
+                <Text style={[styles.headerTitle, { color: colors.text }]}>{t('settings').toUpperCase()}</Text>
                 <View style={styles.backButton} />
             </View>
 
             <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
                 {/* Preferences */}
                 <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>{t('preferences').toUpperCase()}</Text>
-                    <View style={styles.glassCard}>
+                    <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>{t('preferences').toUpperCase()}</Text>
+                    <View style={[styles.glassCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
                         {/* Dark Mode */}
                         <View style={styles.row}>
                             <View style={styles.rowLeft}>
@@ -112,13 +114,13 @@ export default function SettingsScreen() {
                                     <Text style={[styles.rowLabel, { color: colors.text }]}>{t('language')}</Text>
                                 </View>
                                 <View style={styles.rowRight}>
-                                    <Text style={[styles.rightLabel, { color: 'rgba(255,255,255,0.4)' }]}>
+                                    <Text style={[styles.rightLabel, { color: colors.textSecondary }]}>
                                         {LANGUAGES.find(l => l.code === language)?.label || 'English'}
                                     </Text>
                                     <Ionicons
                                         name={isLanguageDropdownOpen ? "chevron-down" : "chevron-forward"}
                                         size={20}
-                                        color="rgba(255,255,255,0.3)"
+                                        color={colors.textSecondary}
                                     />
                                 </View>
                             </TouchableOpacity>
@@ -143,7 +145,7 @@ export default function SettingsScreen() {
                                                         <View style={[styles.radioInner, { backgroundColor: colors.accent }]} />
                                                     )}
                                                 </View>
-                                                <Text style={[styles.languageOptionText, { color: isDark ? '#fff' : '#000' }]}>{langItem.label}</Text>
+                                                <Text style={[styles.languageOptionText, { color: colors.text }]}>{langItem.label}</Text>
                                             </View>
                                         </TouchableOpacity>
                                     ))}
@@ -164,11 +166,11 @@ export default function SettingsScreen() {
                             </View>
                             <View style={styles.rowRight}>
                                 {equipment.length > 0 && (
-                                    <Text style={[styles.rightLabel, { color: 'rgba(255,255,255,0.4)' }]}>
+                                    <Text style={[styles.rightLabel, { color: colors.textSecondary }]}>
                                         {equipment.length}
                                     </Text>
                                 )}
-                                <Ionicons name="chevron-forward" size={18} color="rgba(255,255,255,0.3)" />
+                                <Ionicons name="chevron-forward" size={18} color={colors.textSecondary} />
                             </View>
                         </TouchableOpacity>
                         <View style={styles.dividerRow} />
@@ -186,8 +188,8 @@ export default function SettingsScreen() {
 
                 {/* Health & Privacy */}
                 <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>{t('healthPrivacy').toUpperCase()}</Text>
-                    <View style={styles.glassCard}>
+                    <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>{t('healthPrivacy').toUpperCase()}</Text>
+                    <View style={[styles.glassCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
                         <SettingsRow icon="file-download" label={t('dataExport')} />
                         <SettingsRow icon="shield" label={t('privacyPolicy')} />
                         <SettingsRow icon="health-and-safety" label={t('manageHealthRecords')} isLast={true} />
@@ -196,8 +198,8 @@ export default function SettingsScreen() {
 
                 {/* Support */}
                 <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>{t('support').toUpperCase()}</Text>
-                    <View style={styles.glassCard}>
+                    <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>{t('support').toUpperCase()}</Text>
+                    <View style={[styles.glassCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
                         <SettingsRow icon="help-outline" label={t('helpCenter')} />
                         <SettingsRow icon="mail-outline" label={t('contactUs')} />
                         <SettingsRow icon="info-outline" label={t('aboutMuscliKnot')} isLast={true} />
@@ -208,7 +210,10 @@ export default function SettingsScreen() {
                 <TouchableOpacity
                     style={styles.logoutButton}
                     activeOpacity={0.7}
-                    onPress={() => router.replace('/auth/login' as any)}
+                    onPress={async () => {
+                        await signOut();
+                        router.replace('/auth/login' as any);
+                    }}
                 >
                     <MaterialIcons name="logout" size={20} color="#ef4444" />
                     <Text style={styles.logoutText}>{t('logout').toUpperCase()}</Text>
@@ -238,7 +243,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     headerTitle: {
-        color: '#fff',
         fontSize: 18,
         fontWeight: '800',
         letterSpacing: -0.5,
@@ -252,7 +256,6 @@ const styles = StyleSheet.create({
         marginBottom: 24,
     },
     sectionTitle: {
-        color: 'rgba(255,255,255,0.6)',
         fontSize: 12,
         fontWeight: '800',
         letterSpacing: 1.5,
@@ -260,11 +263,9 @@ const styles = StyleSheet.create({
         marginBottom: 12,
     },
     glassCard: {
-        backgroundColor: 'rgba(255, 255, 255, 0.05)',
         borderRadius: 20,
         overflow: 'hidden',
         borderWidth: 1,
-        borderColor: 'rgba(255, 255, 255, 0.1)',
     },
     dividerRow: {
         height: 1,
