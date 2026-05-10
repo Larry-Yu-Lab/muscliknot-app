@@ -621,7 +621,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         gap: 8,
-        width: 80,
+        width: 130,
     },
     activityDot: {
         width: 8,
