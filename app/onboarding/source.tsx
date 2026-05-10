@@ -43,7 +43,7 @@ export default function SourceScreen() {
             <View style={styles.content}>
                 <Text style={styles.title}>Where did you hear about us?</Text>
                 <Text style={styles.subtitle}>Let us know how you found MuscliKnot.</Text>
-                
+
                 <View style={styles.optionsContainer}>
                     {OPTIONS.map((option) => (
                         <TouchableOpacity
