@@ -18,9 +18,8 @@ import { AuthProvider, useAuth } from '@/context/AuthContext';
 import { PreferencesProvider, usePreferences } from '@/context/PreferencesContext';
 import { UserProvider } from '@/context/UserContext';
 
-// Prevent the splash screen from auto-hiding before asset loading is complete.
-SplashScreen.preventAutoHideAsync().catch(() => {});
-
+// We DO NOT call SplashScreen.preventAutoHideAsync() here because we want the native 
+// pure black splash screen to hide immediately to reveal our custom JS loading screen.
 export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -95,7 +94,6 @@ function RootLayoutNav() {
       // Short cosmetic delay so the progress bar doesn't snap
       const timer = setTimeout(() => {
         setIsAppReady(true);
-        SplashScreen.hideAsync().catch(() => {});
       }, 500);
       return () => clearTimeout(timer);
     }
@@ -105,7 +103,6 @@ function RootLayoutNav() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsAppReady(true);
-      SplashScreen.hideAsync().catch(() => {});
     }, 5000);
     return () => clearTimeout(timer);
   }, []);
