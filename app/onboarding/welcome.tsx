@@ -80,13 +80,6 @@ export default function WelcomeScreen() {
                 <TouchableOpacity onPress={() => router.replace('/auth/login' as any)} style={{ marginBottom: 32 }}>
                     <Text style={styles.signInText}>Already have an account? <Text style={{ textDecorationLine: 'underline' }}>Sign in</Text></Text>
                 </TouchableOpacity>
-
-                {/* Pagination Dots */}
-                <View style={styles.pagination}>
-                    <View style={[styles.dot, styles.dotActive]} />
-                    <View style={styles.dot} />
-                    <View style={styles.dot} />
-                </View>
             </View>
             {/* Language Selection Modal */}
             <Modal
