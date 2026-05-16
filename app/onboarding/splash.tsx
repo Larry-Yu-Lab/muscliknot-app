@@ -27,7 +27,7 @@ export default function OnboardingSplash() {
             >
                 <View style={styles.content}>
                 <Image
-                    source={require('@/assets/images/icon.png')}
+                    source={require('@/assets/images/muscliknot-logo.png')}
                     style={styles.logo}
                     contentFit="contain"
                 />
@@ -53,9 +53,8 @@ const styles = StyleSheet.create({
         gap: 16,
     },
     logo: {
-        width: 64,
-        height: 64,
-        borderRadius: 16,
+        width: 80,
+        height: 60,
     },
     name: {
         fontSize: 32,
