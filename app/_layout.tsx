@@ -116,10 +116,11 @@ function RootLayoutNav() {
     if (!isAppReady) return;
 
     const inAuthGroup = segments[0] === 'auth';
+    const isAuthSuccessScreen = segments[0] === 'auth' && (segments[1] === 'signup-success' || segments[1] === 'login-welcome');
     const inOnboarding = segments[0] === 'onboarding';
 
     // Already on the right screen family — mark navigated and do nothing
-    if (session && !inAuthGroup && !inOnboarding) {
+    if (session && (!inAuthGroup && !inOnboarding || isAuthSuccessScreen)) {
       setHasNavigated(true);
       return;
     }
@@ -134,7 +135,7 @@ function RootLayoutNav() {
 
     if (!session) {
       router.replace('/onboarding' as any);
-    } else if (session && (inAuthGroup || inOnboarding)) {
+    } else if (session && (inAuthGroup && !isAuthSuccessScreen || inOnboarding)) {
       router.replace('/(tabs)' as any);
     }
 
@@ -167,22 +168,22 @@ function RootLayoutNav() {
   return (
     <ThemeProvider value={theme === 'dark' ? DarkTheme : DefaultTheme}>
       <View style={{ flex: 1 }}>
-        <Stack screenOptions={{ headerShown: false, animation: 'fade' }} initialRouteName={initialRoute}>
-          <Stack.Screen name="(tabs)" options={{ animation: 'fade' }} />
+        <Stack screenOptions={{ headerShown: false, animation: 'none' }} initialRouteName={initialRoute}>
+          <Stack.Screen name="(tabs)" />
           <Stack.Screen name="onboarding" options={{ animation: 'fade' }} />
-          <Stack.Screen name="auth/login" options={{ animation: 'fade' }} />
-          <Stack.Screen name="auth/register" options={{ animation: 'fade_from_bottom' }} />
-          <Stack.Screen name="auth/signup-success" options={{ animation: 'fade' }} />
-          <Stack.Screen name="auth/login-welcome" options={{ animation: 'fade' }} />
-          <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal', headerShown: true, animation: 'fade_from_bottom' }} />
-          <Stack.Screen name="settings" options={{ animation: 'ios_from_right' }} />
-          <Stack.Screen name="settings/equipment" options={{ animation: 'ios_from_right' }} />
-          <Stack.Screen name="exercise/[id]" options={{ animation: 'fade_from_bottom' }} />
-          <Stack.Screen name="analytics" options={{ animation: 'fade_from_bottom' }} />
-          <Stack.Screen name="results" options={{ animation: 'fade' }} />
-          <Stack.Screen name="privacy" options={{ animation: 'ios_from_right' }} />
-          <Stack.Screen name="guided-session" options={{ presentation: 'fullScreenModal', gestureEnabled: false, animation: 'fade_from_bottom' }} />
-          <Stack.Screen name="squads" options={{ animation: 'fade_from_bottom' }} />
+          <Stack.Screen name="auth/login" />
+          <Stack.Screen name="auth/register" />
+          <Stack.Screen name="auth/signup-success" />
+          <Stack.Screen name="auth/login-welcome" />
+          <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal', headerShown: true }} />
+          <Stack.Screen name="settings" options={{ presentation: 'card' }} />
+          <Stack.Screen name="settings/equipment" options={{ presentation: 'card' }} />
+          <Stack.Screen name="exercise/[id]" />
+          <Stack.Screen name="analytics" />
+          <Stack.Screen name="results" />
+          <Stack.Screen name="privacy" />
+          <Stack.Screen name="guided-session" options={{ presentation: 'fullScreenModal', gestureEnabled: false }} />
+          <Stack.Screen name="squads" />
         </Stack>
       </View>
       <StatusBar style={theme === 'dark' ? 'light' : 'dark'} />

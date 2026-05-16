@@ -3,10 +3,10 @@ import React from 'react';
 
 export default function OnboardingLayout() {
     return (
-        <Stack screenOptions={{ headerShown: false, animation: 'fade_from_bottom' }}>
-            <Stack.Screen name="index" options={{ animation: 'none' }} />
+        <Stack screenOptions={{ headerShown: false, animation: 'slide_from_right' }}>
+            <Stack.Screen name="index" />
             <Stack.Screen name="splash" options={{ animation: 'fade' }} />
-            <Stack.Screen name="welcome" options={{ animation: 'fade' }} />
+            <Stack.Screen name="welcome" />
             <Stack.Screen name="gender" />
             <Stack.Screen name="dob" />
             <Stack.Screen name="vitals" />
@@ -16,7 +16,7 @@ export default function OnboardingLayout() {
             <Stack.Screen name="goals" />
             <Stack.Screen name="coach" />
             <Stack.Screen name="source" />
-            <Stack.Screen name="results" options={{ animation: 'fade' }} />
+            <Stack.Screen name="results" />
         </Stack>
     );
 }
