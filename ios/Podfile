@@ -21,7 +21,6 @@ platform :ios, podfile_properties['ios.deploymentTarget'] || '15.1'
 prepare_react_native_project!
 
 target 'MuscliKnot' do
-  inhibit_all_warnings!
   use_expo_modules!
 
   if ENV['EXPO_USE_COMMUNITY_AUTOLINKING'] == '1'
@@ -54,23 +53,6 @@ target 'MuscliKnot' do
   )
 
   post_install do |installer|
-    installer.pods_project.targets.each do |target|
-      target.build_configurations.each do |config|
-        # Silence all warnings for pod dependencies
-        config.build_settings['GCC_WARN_INHIBIT_ALL_WARNINGS'] = 'YES'
-        
-        # Resolve 'ignoring duplicate libraries: -lc++' by deduplicating flags
-        if config.build_settings['OTHER_LDFLAGS']
-          flags = config.build_settings['OTHER_LDFLAGS']
-          if flags.is_a?(Array)
-            config.build_settings['OTHER_LDFLAGS'] = flags.uniq
-          elsif flags.is_a?(String)
-            config.build_settings['OTHER_LDFLAGS'] = flags.split.uniq.join(' ')
-          end
-        end
-      end
-    end
-
     react_native_post_install(
       installer,
       config[:reactNativePath],
