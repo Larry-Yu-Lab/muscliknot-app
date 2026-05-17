@@ -455,7 +455,7 @@ export default function HomeScreen() {
           </View>
 
           {/* Zoom Controls */}
-          <View style={styles.zoomControls}>
+          <View style={[styles.zoomControls, { bottom: activePoint ? 90 : 24 }]}>
             <TouchableOpacity style={styles.zoomButton} onPress={handleZoomIn}>
               <Ionicons name="add" size={20} color="#fff" />
             </TouchableOpacity>
