@@ -66,6 +66,13 @@ export default function ExperienceScreen() {
                 >
                     <Text style={styles.buttonText}>{t('continue')}</Text>
                 </TouchableOpacity>
+
+                <TouchableOpacity 
+                    style={styles.skipButton}
+                    onPress={() => router.push('/onboarding/results')}
+                >
+                    <Text style={styles.skipText}>Skip for now</Text>
+                </TouchableOpacity>
             </View>
         </SafeAreaView>
     );
@@ -161,5 +168,15 @@ const styles = StyleSheet.create({
         color: '#000',
         fontSize: 18,
         fontWeight: '600',
+    },
+    skipButton: {
+        marginTop: 16,
+        alignItems: 'center',
+    },
+    skipText: {
+        color: 'rgba(255,255,255,0.4)',
+        fontSize: 14,
+        fontWeight: '600',
+        textDecorationLine: 'underline',
     },
 });

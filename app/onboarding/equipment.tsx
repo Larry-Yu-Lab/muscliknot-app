@@ -25,8 +25,7 @@ export default function OnboardingEquipmentScreen() {
     const t = (key: Parameters<typeof getTranslation>[1]) => getTranslation(language, key);
 
     const handleNext = async () => {
-        await AsyncStorage.setItem('onboarding_complete', 'true');
-        router.replace('/auth/login' as any);
+        router.push('/onboarding/generate-plan');
     };
 
     return (
@@ -99,9 +98,8 @@ export default function OnboardingEquipmentScreen() {
 
                 <TouchableOpacity
                     style={[styles.skipButton]}
-                    onPress={async () => {
-                        await AsyncStorage.setItem('onboarding_complete', 'true');
-                        router.replace('/auth/login' as any);
+                    onPress={() => {
+                        router.push('/onboarding/generate-plan');
                     }}
                     activeOpacity={0.7}
                 >

@@ -55,7 +55,7 @@ export default function GoalsScreen() {
     const handleComplete = async () => {
         if (!selected) return;
         await AsyncStorage.setItem('user_goal', selected);
-        router.push('/onboarding/coach');
+        router.push('/onboarding/goal-ease');
     };
 
     return (

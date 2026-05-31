@@ -137,6 +137,13 @@ export default function DOBScreen() {
                 >
                     <Text style={styles.buttonText}>{t('continue')}</Text>
                 </TouchableOpacity>
+
+                <TouchableOpacity 
+                    style={styles.skipButton}
+                    onPress={() => router.push('/onboarding/goals')}
+                >
+                    <Text style={styles.skipText}>Skip for now</Text>
+                </TouchableOpacity>
             </View>
         </SafeAreaView>
     );
@@ -158,4 +165,6 @@ const styles = StyleSheet.create({
     bottom: { paddingHorizontal: 24, paddingBottom: 32 },
     button: { backgroundColor: '#f97316', paddingVertical: 16, borderRadius: 32, alignItems: 'center' },
     buttonText: { color: '#000', fontSize: 18, fontWeight: '600' },
+    skipButton: { marginTop: 16, alignItems: 'center' },
+    skipText: { color: 'rgba(255,255,255,0.4)', fontSize: 14, fontWeight: '600', textDecorationLine: 'underline' },
 });

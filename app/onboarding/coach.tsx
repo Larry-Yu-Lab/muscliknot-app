@@ -33,7 +33,7 @@ export default function CoachScreen() {
                 </TouchableOpacity>
                 <View style={styles.progressContainer}>
                     <View style={styles.progressBarBackground}>
-                        <View style={[styles.progressBarFill, { width: '80%' }]} />
+                        <View style={[styles.progressBarFill, { width: '86%' }]} />
                     </View>
                 </View>
             </View>

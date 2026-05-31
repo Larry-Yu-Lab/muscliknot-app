@@ -2,77 +2,65 @@ import { Colors } from '@/constants/theme';
 import { usePreferences } from '@/context/PreferencesContext';
 import { getTranslation } from '@/utils/i18n';
 import { Ionicons } from '@expo/vector-icons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React from 'react';
 import { SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-const OPTIONS = [
-    { id: 'male', label: 'Male' },
-    { id: 'female', label: 'Female' },
-    { id: 'other', label: 'Other' },
-];
-
-export default function GenderScreen() {
+export default function GoalPotentialScreen() {
     const router = useRouter();
     const { theme, language } = usePreferences();
-    const [selected, setSelected] = useState<string | null>(null);
+    const colors = Colors[theme];
 
     const t = (key: Parameters<typeof getTranslation>[1]) => getTranslation(language, key);
 
-    const handleContinue = async () => {
-        if (!selected) return;
-        await AsyncStorage.setItem('user_gender', selected);
-        router.push('/onboarding/lifestyle');
+    const handleContinue = () => {
+        router.push('/onboarding/thank-you');
     };
 
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: '#1a1a1a' }]}>
+            {/* Progress Header */}
             <View style={styles.progressHeader}>
                 <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
                     <Ionicons name="chevron-back" size={24} color="#fff" />
                 </TouchableOpacity>
                 <View style={styles.progressContainer}>
                     <View style={styles.progressBarBackground}>
-                        <View style={[styles.progressBarFill, { width: '10%' }]} />
+                        <View style={[styles.progressBarFill, { width: '78.3%' }]} />
                     </View>
                 </View>
             </View>
 
             <View style={styles.content}>
-                <Text style={styles.title}>Choose your Gender</Text>
-                <Text style={styles.subtitle}>This will be used to calibrate your custom plan.</Text>
-                
-                <View style={styles.optionsContainer}>
-                    {OPTIONS.map((option) => (
-                        <TouchableOpacity
-                            key={option.id}
-                            style={[
-                                styles.optionCard,
-                                selected === option.id && styles.optionCardSelected,
-                            ]}
-                            onPress={() => setSelected(option.id)}
-                        >
-                            <Text style={styles.optionTitle}>{option.label}</Text>
-                        </TouchableOpacity>
-                    ))}
+                {/* Visual Icon Group */}
+                <View style={styles.illustrationContainer}>
+                    <View style={styles.glowCircle}>
+                        <Ionicons
+                            name="flame-outline"
+                            size={56}
+                            color="#f97316"
+                        />
+                    </View>
+                </View>
+
+                {/* Encouraging Phrase */}
+                <View style={styles.textContainer}>
+                    <Text style={styles.title}>
+                        You have great potential to crush your goal!
+                    </Text>
+                    <Text style={styles.subtitle}>
+                        Every session, stretch, and movement gets you closer. We're here to keep you consistent and injury-free.
+                    </Text>
                 </View>
             </View>
 
+            {/* Bottom Button */}
             <View style={styles.bottom}>
                 <TouchableOpacity
-                    style={[styles.button, !selected && styles.buttonDisabled]}
+                    style={styles.button}
                     onPress={handleContinue}
-                    disabled={!selected}
                 >
                     <Text style={styles.buttonText}>{t('continue')}</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity 
-                    style={styles.skipButton}
-                    onPress={() => router.push('/onboarding/lifestyle')}
-                >
-                    <Text style={styles.skipText}>Skip for now</Text>
                 </TouchableOpacity>
             </View>
         </SafeAreaView>
@@ -118,39 +106,47 @@ const styles = StyleSheet.create({
     content: {
         flex: 1,
         paddingHorizontal: 24,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    illustrationContainer: {
+        marginBottom: 40,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    glowCircle: {
+        width: 120,
+        height: 120,
+        borderRadius: 60,
+        backgroundColor: 'rgba(249, 115, 22, 0.15)',
+        borderWidth: 1.5,
+        borderColor: '#f97316',
+        alignItems: 'center',
+        justifyContent: 'center',
+        shadowColor: '#f97316',
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.3,
+        shadowRadius: 20,
+        elevation: 6,
+    },
+    textContainer: {
+        alignItems: 'center',
+        paddingHorizontal: 12,
     },
     title: {
         fontSize: 32,
-        fontWeight: '700',
+        fontWeight: '800',
         color: '#fff',
-        marginBottom: 12,
+        textAlign: 'center',
         lineHeight: 40,
+        marginBottom: 20,
     },
     subtitle: {
         fontSize: 16,
-        color: 'rgba(255,255,255,0.5)',
-        marginBottom: 32,
+        color: 'rgba(255,255,255,0.6)',
+        textAlign: 'center',
         lineHeight: 24,
-    },
-    optionsContainer: {
-        gap: 16,
-    },
-    optionCard: {
-        backgroundColor: 'rgba(255,255,255,0.05)',
-        borderRadius: 16,
-        padding: 20,
-        borderWidth: 1,
-        borderColor: 'transparent',
-        alignItems: 'center',
-    },
-    optionCardSelected: {
-        borderColor: '#f97316',
-        backgroundColor: 'rgba(249, 115, 22, 0.1)',
-    },
-    optionTitle: {
-        fontSize: 18,
-        fontWeight: '600',
-        color: '#fff',
+        maxWidth: 300,
     },
     bottom: {
         paddingHorizontal: 24,
@@ -162,22 +158,9 @@ const styles = StyleSheet.create({
         borderRadius: 32,
         alignItems: 'center',
     },
-    buttonDisabled: {
-        opacity: 0.5,
-    },
     buttonText: {
         color: '#000',
         fontSize: 18,
         fontWeight: '600',
-    },
-    skipButton: {
-        marginTop: 16,
-        alignItems: 'center',
-    },
-    skipText: {
-        color: 'rgba(255,255,255,0.4)',
-        fontSize: 14,
-        fontWeight: '600',
-        textDecorationLine: 'underline',
     },
 });
