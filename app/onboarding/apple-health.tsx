@@ -4,8 +4,22 @@ import { getTranslation } from '@/utils/i18n';
 import { requestHealthKitPermission, setHealthKitEnabled } from '@/utils/healthKit';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
-import { ActivityIndicator, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import {
+    ActivityIndicator,
+    Animated,
+    Dimensions,
+    Easing,
+    Image,
+    SafeAreaView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+} from 'react-native';
+import Svg, { Path } from 'react-native-svg';
+
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 export default function AppleHealthScreen() {
     const router = useRouter();
@@ -13,7 +27,74 @@ export default function AppleHealthScreen() {
     const colors = Colors[theme];
     const [loading, setLoading] = useState(false);
 
+    // Animation values
+    const fadeAnim = useRef(new Animated.Value(0)).current;
+    const slideAnim = useRef(new Animated.Value(40)).current;
+    const logoScale = useRef(new Animated.Value(0.6)).current;
+    const labelAnims = useRef([0, 1, 2, 3].map(() => new Animated.Value(0))).current;
+    const pulseAnim = useRef(new Animated.Value(1)).current;
+    const connectorAnim = useRef(new Animated.Value(0)).current;
+
     const t = (key: Parameters<typeof getTranslation>[1]) => getTranslation(language, key);
+
+    useEffect(() => {
+        // Logo entrance
+        Animated.parallel([
+            Animated.spring(logoScale, {
+                toValue: 1,
+                friction: 5,
+                tension: 60,
+                useNativeDriver: true,
+            }),
+            Animated.timing(fadeAnim, {
+                toValue: 1,
+                duration: 500,
+                useNativeDriver: true,
+            }),
+            Animated.timing(slideAnim, {
+                toValue: 0,
+                duration: 600,
+                easing: Easing.out(Easing.cubic),
+                useNativeDriver: true,
+            }),
+            Animated.timing(connectorAnim, {
+                toValue: 1,
+                duration: 800,
+                delay: 200,
+                easing: Easing.out(Easing.cubic),
+                useNativeDriver: true,
+            }),
+        ]).start();
+
+        // Staggered labels — fade in one by one
+        labelAnims.forEach((anim, i) => {
+            Animated.timing(anim, {
+                toValue: 1,
+                duration: 450,
+                delay: 400 + i * 150,
+                easing: Easing.out(Easing.back(1.4)),
+                useNativeDriver: true,
+            }).start();
+        });
+
+        // Gentle breathing pulse on logos
+        Animated.loop(
+            Animated.sequence([
+                Animated.timing(pulseAnim, {
+                    toValue: 1.04,
+                    duration: 2000,
+                    easing: Easing.inOut(Easing.ease),
+                    useNativeDriver: true,
+                }),
+                Animated.timing(pulseAnim, {
+                    toValue: 1,
+                    duration: 2000,
+                    easing: Easing.inOut(Easing.ease),
+                    useNativeDriver: true,
+                }),
+            ])
+        ).start();
+    }, []);
 
     const handleConnect = async () => {
         try {
@@ -37,6 +118,35 @@ export default function AppleHealthScreen() {
         router.push('/onboarding/rating');
     };
 
+    const renderLabel = (text: string, index: number, style: object) => (
+        <Animated.View
+            key={text}
+            style={[
+                styles.labelPill,
+                style,
+                {
+                    opacity: labelAnims[index],
+                    transform: [
+                        {
+                            translateY: labelAnims[index].interpolate({
+                                inputRange: [0, 1],
+                                outputRange: [15, 0],
+                            }),
+                        },
+                        {
+                            scale: labelAnims[index].interpolate({
+                                inputRange: [0, 1],
+                                outputRange: [0.7, 1],
+                            }),
+                        },
+                    ],
+                },
+            ]}
+        >
+            <Text style={styles.labelText}>{text}</Text>
+        </Animated.View>
+    );
+
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: '#1a1a1a' }]}>
             {/* Progress Header */}
@@ -52,48 +162,103 @@ export default function AppleHealthScreen() {
             </View>
 
             <View style={styles.content}>
-                {/* Visual Icon Group */}
-                <View style={styles.illustrationContainer}>
-                    <View style={styles.glowCircle}>
-                        <Ionicons
-                            name="pulse-outline"
-                            size={56}
-                            color="#ef4444"
-                        />
-                    </View>
-                </View>
+                {/* ─── Illustration: Labels + Icons + Connector ─── */}
+                <Animated.View
+                    style={[
+                        styles.illustrationWrapper,
+                        {
+                            opacity: fadeAnim,
+                            transform: [{ scale: logoScale }],
+                        },
+                    ]}
+                >
+                    {/* Floating labels arranged in a semi-circle arc */}
+                    {renderLabel('Walking', 0, { position: 'absolute', top: 0, left: 20 })}
+                    {renderLabel('Running', 1, { position: 'absolute', top: -20, left: SCREEN_WIDTH * 0.28 })}
+                    {renderLabel('Yoga', 2, { position: 'absolute', top: -10, right: 20 })}
+                    {renderLabel('Sleep', 3, { position: 'absolute', top: 60, right: 0 })}
 
-                {/* Health Sync Message */}
-                <View style={styles.textContainer}>
+                    {/* Logos Row */}
+                    <View style={styles.logosRow}>
+                        {/* Apple Health Icon */}
+                        <Animated.View style={{ transform: [{ scale: pulseAnim }] }}>
+                            <View style={styles.iconBox}>
+                                <Image
+                                    source={require('@/assets/images/apple-health-icon.png')}
+                                    style={styles.iconImage}
+                                    resizeMode="cover"
+                                />
+                            </View>
+                        </Animated.View>
+
+                        {/* Curved dotted arc connector */}
+                        <Animated.View style={[styles.arcContainer, { opacity: connectorAnim }]}>
+                            <Svg width={90} height={56} viewBox="0 0 90 56">
+                                <Path
+                                    d="M 4 50 Q 45 -10 86 50"
+                                    stroke="rgba(255,255,255,0.2)"
+                                    strokeWidth={1.8}
+                                    strokeDasharray="4,4"
+                                    fill="none"
+                                    strokeLinecap="round"
+                                />
+                            </Svg>
+                        </Animated.View>
+
+                        {/* MuscliKnot Icon */}
+                        <Animated.View style={{ transform: [{ scale: pulseAnim }] }}>
+                            <View style={styles.iconBox}>
+                                <Image
+                                    source={require('@/assets/images/muscliknot-logo.png')}
+                                    style={styles.iconImageContain}
+                                    resizeMode="contain"
+                                />
+                            </View>
+                        </Animated.View>
+                    </View>
+                </Animated.View>
+
+                {/* ─── Text ─── */}
+                <Animated.View
+                    style={[
+                        styles.textBlock,
+                        {
+                            opacity: fadeAnim,
+                            transform: [{ translateY: slideAnim }],
+                        },
+                    ]}
+                >
                     <Text style={styles.title}>
-                        Connect Apple Health
+                        Connect to{'\n'}Apple Health
                     </Text>
                     <Text style={styles.subtitle}>
-                        Sync your activity, active calories, and steps to get accurate muscle care recommendations that match your real-time fatigue levels.
+                        Sync your daily activity between MuscliKnot and the Health app to have the most thorough data.
                     </Text>
-                </View>
+                </Animated.View>
             </View>
 
-            {/* Bottom Actions */}
+            {/* ─── Bottom Actions ─── */}
             <View style={styles.bottom}>
                 <TouchableOpacity
-                    style={styles.button}
+                    style={styles.continueButton}
                     onPress={handleConnect}
                     disabled={loading}
+                    activeOpacity={0.85}
                 >
                     {loading ? (
                         <ActivityIndicator color="#000" />
                     ) : (
-                        <Text style={styles.buttonText}>Connect Health Data</Text>
+                        <Text style={styles.continueText}>Continue</Text>
                     )}
                 </TouchableOpacity>
 
-                <TouchableOpacity 
+                <TouchableOpacity
                     style={styles.skipButton}
                     onPress={handleSkip}
                     disabled={loading}
+                    activeOpacity={0.6}
                 >
-                    <Text style={styles.skipText}>Skip for now</Text>
+                    <Text style={styles.skipText}>Skip</Text>
                 </TouchableOpacity>
             </View>
         </SafeAreaView>
@@ -101,6 +266,7 @@ export default function AppleHealthScreen() {
 }
 
 const styles = StyleSheet.create({
+    /* ── Layout ── */
     container: {
         flex: 1,
     },
@@ -138,33 +304,80 @@ const styles = StyleSheet.create({
     },
     content: {
         flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
         paddingHorizontal: 24,
-        justifyContent: 'center',
-        alignItems: 'center',
     },
-    illustrationContainer: {
-        marginBottom: 40,
+
+    /* ── Illustration area ── */
+    illustrationWrapper: {
+        width: '100%',
+        height: 220,
+        position: 'relative',
         alignItems: 'center',
+        justifyContent: 'flex-end',
+        marginBottom: 44,
+    },
+
+    /* ── Labels (pill chips) ── */
+    labelPill: {
+        backgroundColor: 'rgba(255,255,255,0.07)',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.12)',
+        borderRadius: 20,
+        paddingHorizontal: 18,
+        paddingVertical: 9,
+        zIndex: 10,
+    },
+    labelText: {
+        color: 'rgba(255,255,255,0.7)',
+        fontSize: 14,
+        fontWeight: '500',
+        letterSpacing: 0.2,
+    },
+
+    /* ── Logo icons row ── */
+    logosRow: {
+        flexDirection: 'row',
+        alignItems: 'flex-end',
         justifyContent: 'center',
     },
-    glowCircle: {
-        width: 120,
-        height: 120,
-        borderRadius: 60,
-        backgroundColor: 'rgba(239, 68, 68, 0.15)',
-        borderWidth: 1.5,
-        borderColor: '#ef4444',
+    iconBox: {
+        width: 80,
+        height: 80,
+        borderRadius: 20,
+        overflow: 'hidden',
+        backgroundColor: '#000',
         alignItems: 'center',
         justifyContent: 'center',
-        shadowColor: '#ef4444',
-        shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.3,
-        shadowRadius: 20,
+        // subtle shadow
+        shadowColor: '#f97316',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.15,
+        shadowRadius: 12,
         elevation: 6,
     },
-    textContainer: {
+    iconImage: {
+        width: '100%',
+        height: '100%',
+    },
+    iconImageContain: {
+        width: '85%',
+        height: '85%',
+    },
+
+    /* ── Curved dotted connector ── */
+    arcContainer: {
+        marginHorizontal: 6,
+        marginBottom: 14,
         alignItems: 'center',
-        paddingHorizontal: 12,
+        justifyContent: 'flex-end',
+    },
+
+    /* ── Text block ── */
+    textBlock: {
+        alignItems: 'center',
+        paddingHorizontal: 8,
     },
     title: {
         fontSize: 32,
@@ -172,26 +385,28 @@ const styles = StyleSheet.create({
         color: '#fff',
         textAlign: 'center',
         lineHeight: 40,
-        marginBottom: 20,
+        marginBottom: 16,
     },
     subtitle: {
         fontSize: 16,
-        color: 'rgba(255,255,255,0.6)',
+        color: 'rgba(255,255,255,0.55)',
         textAlign: 'center',
         lineHeight: 24,
-        maxWidth: 300,
+        maxWidth: 310,
     },
+
+    /* ── Bottom actions ── */
     bottom: {
         paddingHorizontal: 24,
         paddingBottom: 32,
     },
-    button: {
+    continueButton: {
         backgroundColor: '#f97316',
         paddingVertical: 16,
         borderRadius: 32,
         alignItems: 'center',
     },
-    buttonText: {
+    continueText: {
         color: '#000',
         fontSize: 18,
         fontWeight: '600',
