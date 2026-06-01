@@ -87,6 +87,9 @@ export default function AppleHealthScreen() {
             <View style={styles.content}>
                 {/* ── Illustration ── */}
                 <Animated.View style={[styles.scene, { opacity: fadeAnim }]}>
+                    {/* Concentric rings for deep glow effect */}
+                    <View style={styles.glowRing1} />
+                    <View style={styles.glowRing2} />
                     {/* Large soft background circle */}
                     <View style={styles.bgCircle} />
 
@@ -96,7 +99,7 @@ export default function AppleHealthScreen() {
                             {/* Health icon → checkmark */}
                             <Path
                                 d="M 82 188 C 84 152, 108 132, 130 125"
-                                stroke="rgba(255,255,255,0.2)"
+                                stroke="rgba(249,115,22,0.35)"
                                 strokeWidth={1.5}
                                 strokeDasharray="5,4"
                                 fill="none"
@@ -105,7 +108,7 @@ export default function AppleHealthScreen() {
                             {/* Checkmark → app icon */}
                             <Path
                                 d="M 150 118 C 168 108, 182 92, 194 78"
-                                stroke="rgba(255,255,255,0.2)"
+                                stroke="rgba(249,115,22,0.5)"
                                 strokeWidth={1.5}
                                 strokeDasharray="5,4"
                                 fill="none"
@@ -143,11 +146,23 @@ export default function AppleHealthScreen() {
                         </View>
                     </View>
 
-                    {/* Labels positioned to match reference image */}
-                    <Text style={[styles.label, styles.posWalking]}>Walking</Text>
-                    <Text style={[styles.label, styles.posRunning]}>Running</Text>
-                    <Text style={[styles.label, styles.posYoga]}>Yoga</Text>
-                    <Text style={[styles.label, styles.posSleep]}>Sleep</Text>
+                    {/* Labels in mini widget boxes positioned around scene */}
+                    <View style={[styles.widget, styles.posWalking]}>
+                        <Ionicons name="footsteps" size={12} color="#f97316" style={styles.widgetIcon} />
+                        <Text style={styles.widgetTxt}>Walking</Text>
+                    </View>
+                    <View style={[styles.widget, styles.posRunning]}>
+                        <Ionicons name="flame" size={12} color="#f97316" style={styles.widgetIcon} />
+                        <Text style={styles.widgetTxt}>Running</Text>
+                    </View>
+                    <View style={[styles.widget, styles.posYoga]}>
+                        <Ionicons name="leaf" size={12} color="#f97316" style={styles.widgetIcon} />
+                        <Text style={styles.widgetTxt}>Yoga</Text>
+                    </View>
+                    <View style={[styles.widget, styles.posSleep]}>
+                        <Ionicons name="moon" size={12} color="#f97316" style={styles.widgetIcon} />
+                        <Text style={styles.widgetTxt}>Sleep</Text>
+                    </View>
                 </Animated.View>
 
                 {/* ── Text ── */}
@@ -244,6 +259,28 @@ const styles = StyleSheet.create({
         position: 'relative',
         marginBottom: 36,
     },
+    glowRing1: {
+        position: 'absolute',
+        top: -15,
+        left: -15,
+        width: SCENE + 30,
+        height: SCENE + 30,
+        borderRadius: (SCENE + 30) / 2,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.015)',
+        backgroundColor: 'transparent',
+    },
+    glowRing2: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: SCENE,
+        height: SCENE,
+        borderRadius: SCENE / 2,
+        borderWidth: 1.5,
+        borderColor: 'rgba(255,255,255,0.035)',
+        backgroundColor: 'transparent',
+    },
     bgCircle: {
         position: 'absolute',
         top: 15,
@@ -251,7 +288,7 @@ const styles = StyleSheet.create({
         width: SCENE - 30,
         height: SCENE - 30,
         borderRadius: (SCENE - 30) / 2,
-        backgroundColor: 'rgba(255,255,255,0.05)',
+        backgroundColor: 'rgba(255,255,255,0.04)',
     },
     svgLayer: {
         position: 'absolute',
@@ -303,24 +340,47 @@ const styles = StyleSheet.create({
         width: 26,
         height: 26,
         borderRadius: 13,
-        backgroundColor: 'rgba(255,255,255,0.1)',
-        borderWidth: 1.5,
-        borderColor: 'rgba(255,255,255,0.25)',
+        backgroundColor: '#f97316',
+        borderWidth: 2,
+        borderColor: '#fff',
         alignItems: 'center',
         justifyContent: 'center',
+        shadowColor: '#f97316',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 6,
+        elevation: 4,
     },
 
-    /* Labels */
-    label: {
+    /* Widgets (Frosted Glass Chips) */
+    widget: {
         position: 'absolute',
-        color: 'rgba(255,255,255,0.55)',
-        fontSize: 14,
-        fontWeight: '500',
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: 'rgba(255, 255, 255, 0.08)',
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.14)',
+        borderRadius: 20,
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: 0.15,
+        shadowRadius: 5,
+        elevation: 2,
     },
-    posWalking: { top: 50, left: 32 },
-    posRunning: { top: 108, left: 8 },
-    posYoga: { top: 118, right: 12 },
-    posSleep: { top: 158, right: 24 },
+    widgetIcon: {
+        marginRight: 6,
+    },
+    widgetTxt: {
+        color: '#fff',
+        fontSize: 12,
+        fontWeight: '600',
+    },
+    posWalking: { top: 54, left: 16 },
+    posRunning: { top: 108, left: -12 },
+    posYoga: { top: 114, right: -4 },
+    posSleep: { top: 164, right: 14 },
 
     /* Text */
     textBlock: { alignItems: 'center', paddingHorizontal: 8 },
