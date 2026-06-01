@@ -147,21 +147,21 @@ export default function AppleHealthScreen() {
                     </View>
 
                     {/* Labels in mini widget boxes positioned around scene */}
-                    <View style={[styles.widget, styles.posWalking]}>
-                        <Ionicons name="footsteps" size={12} color="#f97316" style={styles.widgetIcon} />
-                        <Text style={styles.widgetTxt}>Walking</Text>
+                    <View style={[styles.widget, styles.posWorkouts]}>
+                        <Ionicons name="barbell" size={12} color="#f97316" style={styles.widgetIcon} />
+                        <Text style={styles.widgetTxt}>Workouts</Text>
                     </View>
-                    <View style={[styles.widget, styles.posRunning]}>
-                        <Ionicons name="flame" size={12} color="#f97316" style={styles.widgetIcon} />
-                        <Text style={styles.widgetTxt}>Running</Text>
+                    <View style={[styles.widget, styles.posMobility]}>
+                        <Ionicons name="body" size={12} color="#f97316" style={styles.widgetIcon} />
+                        <Text style={styles.widgetTxt}>Mobility</Text>
                     </View>
-                    <View style={[styles.widget, styles.posYoga]}>
+                    <View style={[styles.widget, styles.posRecovery]}>
                         <Ionicons name="leaf" size={12} color="#f97316" style={styles.widgetIcon} />
-                        <Text style={styles.widgetTxt}>Yoga</Text>
+                        <Text style={styles.widgetTxt}>Recovery</Text>
                     </View>
-                    <View style={[styles.widget, styles.posSleep]}>
-                        <Ionicons name="moon" size={12} color="#f97316" style={styles.widgetIcon} />
-                        <Text style={styles.widgetTxt}>Sleep</Text>
+                    <View style={[styles.widget, styles.posVitals]}>
+                        <Ionicons name="pulse" size={12} color="#f97316" style={styles.widgetIcon} />
+                        <Text style={styles.widgetTxt}>Vitals</Text>
                     </View>
                 </Animated.View>
 
@@ -377,10 +377,10 @@ const styles = StyleSheet.create({
         fontSize: 12,
         fontWeight: '600',
     },
-    posWalking: { top: 54, left: 16 },
-    posRunning: { top: 108, left: -12 },
-    posYoga: { top: 114, right: -4 },
-    posSleep: { top: 164, right: 14 },
+    posWorkouts: { top: 54, left: 16 },
+    posMobility: { top: 108, left: -12 },
+    posRecovery: { top: 114, right: -4 },
+    posVitals: { top: 164, right: 14 },
 
     /* Text */
     textBlock: { alignItems: 'center', paddingHorizontal: 8 },
