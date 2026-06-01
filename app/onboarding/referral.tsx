@@ -22,6 +22,10 @@ export default function ReferralScreen() {
         router.push('/onboarding/equipment');
     };
 
+    const handleSkip = () => {
+        router.push('/onboarding/equipment');
+    };
+
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: '#1a1a1a' }]}>
             <KeyboardAvoidingView
@@ -83,9 +87,14 @@ export default function ReferralScreen() {
                         style={styles.button}
                         onPress={handleContinue}
                     >
-                        <Text style={styles.buttonText}>
-                            {code.trim() ? "Submit Code" : "Skip & Continue"}
-                        </Text>
+                        <Text style={styles.buttonText}>Continue</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={styles.skipButton}
+                        onPress={handleSkip}
+                        activeOpacity={0.6}
+                    >
+                        <Text style={styles.skipText}>Skip</Text>
                     </TouchableOpacity>
                 </View>
             </KeyboardAvoidingView>
@@ -209,5 +218,15 @@ const styles = StyleSheet.create({
         color: '#000',
         fontSize: 18,
         fontWeight: '600',
+    },
+    skipButton: {
+        marginTop: 16,
+        alignItems: 'center',
+    },
+    skipText: {
+        color: 'rgba(255,255,255,0.4)',
+        fontSize: 14,
+        fontWeight: '600',
+        textDecorationLine: 'underline',
     },
 });

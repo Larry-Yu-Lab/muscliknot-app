@@ -10,7 +10,10 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.muscliknot.app"
+      "bundleIdentifier": "com.muscliknot.app",
+      "entitlements": {
+        "com.apple.developer.healthkit": true
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -29,7 +32,14 @@
     },
     "plugins": [
       "expo-router",
-      "react-native-health",
+      [
+        "react-native-health",
+        {
+          "healthSharePermission": "Allow $(PRODUCT_NAME) to check health info",
+          "healthUpdatePermission": "Allow $(PRODUCT_NAME) to update health info",
+          "isClinicalDataEnabled": false
+        }
+      ],
       [
         "expo-splash-screen",
         {
