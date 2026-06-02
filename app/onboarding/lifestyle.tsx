@@ -30,7 +30,7 @@ export default function LifestyleScreen() {
 
     const handleSkip = async () => {
         await AsyncStorage.setItem('onboarding_complete', 'true');
-        router.replace('/auth/login' as any);
+        router.replace('/auth/register' as any);
     };
 
     const handleContinue = async () => {
