@@ -1,7 +1,7 @@
 import { Colors } from '@/constants/theme';
 import { usePreferences } from '@/context/PreferencesContext';
 import { getTranslation } from '@/utils/i18n';
-import { requestHealthKitPermission, setHealthKitEnabled } from '@/utils/healthKit';
+import { requestHealthKitPermission, setHealthKitEnabled, syncSessionToHealthKit } from '@/utils/healthKit';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useState, useEffect, useRef } from 'react';
@@ -56,9 +56,13 @@ export default function AppleHealthScreen() {
             await setHealthKitEnabled(granted);
 
             if (granted) {
+                // Write a real test workout to prove the connection works
+                const synced = await syncSessionToHealthKit(5, 'relief', 'Full Body');
                 Alert.alert(
                     '✅ Connected!',
-                    'MuscliKnot is now syncing with Apple Health. Your workouts and recovery sessions will automatically appear in the Health app.',
+                    synced
+                        ? 'MuscliKnot is now syncing with Apple Health! A 5-minute test workout was saved — open the Health app → Browse → Workouts to verify it.'
+                        : 'MuscliKnot is now syncing with Apple Health. Your workouts and recovery sessions will automatically appear in the Health app.',
                     [{ text: 'Continue', onPress: () => router.push('/onboarding/rating') }]
                 );
             } else {
