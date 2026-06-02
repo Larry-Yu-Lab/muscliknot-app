@@ -7,6 +7,7 @@ import { useRouter } from 'expo-router';
 import React, { useState, useEffect, useRef } from 'react';
 import {
     ActivityIndicator,
+    Alert,
     Animated,
     Easing,
     Image,
@@ -53,11 +54,25 @@ export default function AppleHealthScreen() {
             setLoading(true);
             const granted = await requestHealthKitPermission();
             await setHealthKitEnabled(granted);
+
+            if (granted) {
+                Alert.alert(
+                    '✅ Connected!',
+                    'MuscliKnot is now syncing with Apple Health. Your workouts and recovery sessions will automatically appear in the Health app.',
+                    [{ text: 'Continue', onPress: () => router.push('/onboarding/rating') }]
+                );
+            } else {
+                Alert.alert(
+                    'Connection Skipped',
+                    'Apple Health permissions were not granted. You can enable this later in your Profile settings.',
+                    [{ text: 'OK', onPress: () => router.push('/onboarding/rating') }]
+                );
+            }
         } catch (error) {
             console.error('Failed to request HealthKit permissions:', error);
+            router.push('/onboarding/rating');
         } finally {
             setLoading(false);
-            router.push('/onboarding/rating');
         }
     };
 
