@@ -8,28 +8,28 @@
 
 /* Begin PBXBuildFile section */
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
+		364E2BA1009578D8DB065ED9 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A069DE06EC6F0B769D32451 /* ExpoModulesProvider.swift */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
-		76375FF8F696B43B6A1148B8 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 17F6688FAFEAE5D40466FBE4 /* PrivacyInfo.xcprivacy */; };
+		6D6D4188B990A854B3396BCC /* libPods-MuscliKnot.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 53672E12D7C0B48890EEAF5F /* libPods-MuscliKnot.a */; };
+		B3239F1906C6AA28C90AB128 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = B5F6B3D11A61D9B00A7EEEEB /* PrivacyInfo.xcprivacy */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
-		E3767942370078750577554C /* libPods-MuscliKnot.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C745137E27B71A1553F6BB7E /* libPods-MuscliKnot.a */; };
 		F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11748412D0307B40044C1D9 /* AppDelegate.swift */; };
-		F2A3B69DB9BF219A881AAFCC /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1E17762DDB3D80FB36E7F8C /* ExpoModulesProvider.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		106158A070E301DD9C38D147 /* Pods-MuscliKnot.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MuscliKnot.debug.xcconfig"; path = "Target Support Files/Pods-MuscliKnot/Pods-MuscliKnot.debug.xcconfig"; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* MuscliKnot.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MuscliKnot.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = MuscliKnot/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = MuscliKnot/Info.plist; sourceTree = "<group>"; };
-		17F6688FAFEAE5D40466FBE4 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = MuscliKnot/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-		2426F40931835A275431F749 /* Pods-MuscliKnot.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MuscliKnot.debug.xcconfig"; path = "Target Support Files/Pods-MuscliKnot/Pods-MuscliKnot.debug.xcconfig"; sourceTree = "<group>"; };
-		2F64532C55C9E86D6A9308DD /* Pods-MuscliKnot.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MuscliKnot.release.xcconfig"; path = "Target Support Files/Pods-MuscliKnot/Pods-MuscliKnot.release.xcconfig"; sourceTree = "<group>"; };
+		53672E12D7C0B48890EEAF5F /* libPods-MuscliKnot.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-MuscliKnot.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		53810A82188CC0BE131BA2FE /* Pods-MuscliKnot.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MuscliKnot.release.xcconfig"; path = "Target Support Files/Pods-MuscliKnot/Pods-MuscliKnot.release.xcconfig"; sourceTree = "<group>"; };
+		7A069DE06EC6F0B769D32451 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-MuscliKnot/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = MuscliKnot/SplashScreen.storyboard; sourceTree = "<group>"; };
+		B5F6B3D11A61D9B00A7EEEEB /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = MuscliKnot/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
-		C745137E27B71A1553F6BB7E /* libPods-MuscliKnot.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-MuscliKnot.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		F11748412D0307B40044C1D9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = MuscliKnot/AppDelegate.swift; sourceTree = "<group>"; };
 		F11748442D0722820044C1D9 /* MuscliKnot-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "MuscliKnot-Bridging-Header.h"; path = "MuscliKnot/MuscliKnot-Bridging-Header.h"; sourceTree = "<group>"; };
-		F1E17762DDB3D80FB36E7F8C /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-MuscliKnot/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -37,13 +37,21 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E3767942370078750577554C /* libPods-MuscliKnot.a in Frameworks */,
+				6D6D4188B990A854B3396BCC /* libPods-MuscliKnot.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0BC6C3255789805237FB178C /* MuscliKnot */ = {
+			isa = PBXGroup;
+			children = (
+				7A069DE06EC6F0B769D32451 /* ExpoModulesProvider.swift */,
+			);
+			name = MuscliKnot;
+			sourceTree = "<group>";
+		};
 		13B07FAE1A68108700A75B9A /* MuscliKnot */ = {
 			isa = PBXGroup;
 			children = (
@@ -53,7 +61,7 @@
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */,
-				17F6688FAFEAE5D40466FBE4 /* PrivacyInfo.xcprivacy */,
+				B5F6B3D11A61D9B00A7EEEEB /* PrivacyInfo.xcprivacy */,
 			);
 			name = MuscliKnot;
 			sourceTree = "<group>";
@@ -62,17 +70,9 @@
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				C745137E27B71A1553F6BB7E /* libPods-MuscliKnot.a */,
+				53672E12D7C0B48890EEAF5F /* libPods-MuscliKnot.a */,
 			);
 			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		3B973E2339C1CDC9CAAC9098 /* MuscliKnot */ = {
-			isa = PBXGroup;
-			children = (
-				F1E17762DDB3D80FB36E7F8C /* ExpoModulesProvider.swift */,
-			);
-			name = MuscliKnot;
 			sourceTree = "<group>";
 		};
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
@@ -89,8 +89,8 @@
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
-				F9D2A0931C0D7139F1D50FC6 /* Pods */,
-				D295B5756D366E32F9EB2549 /* ExpoModulesProviders */,
+				F2A5CAC96D244C885747BC61 /* Pods */,
+				89EA673F2434FF8B03276E26 /* ExpoModulesProviders */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -105,6 +105,14 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		89EA673F2434FF8B03276E26 /* ExpoModulesProviders */ = {
+			isa = PBXGroup;
+			children = (
+				0BC6C3255789805237FB178C /* MuscliKnot */,
+			);
+			name = ExpoModulesProviders;
+			sourceTree = "<group>";
+		};
 		BB2F792B24A3F905000567C9 /* Supporting */ = {
 			isa = PBXGroup;
 			children = (
@@ -114,19 +122,11 @@
 			path = MuscliKnot/Supporting;
 			sourceTree = "<group>";
 		};
-		D295B5756D366E32F9EB2549 /* ExpoModulesProviders */ = {
+		F2A5CAC96D244C885747BC61 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				3B973E2339C1CDC9CAAC9098 /* MuscliKnot */,
-			);
-			name = ExpoModulesProviders;
-			sourceTree = "<group>";
-		};
-		F9D2A0931C0D7139F1D50FC6 /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				2426F40931835A275431F749 /* Pods-MuscliKnot.debug.xcconfig */,
-				2F64532C55C9E86D6A9308DD /* Pods-MuscliKnot.release.xcconfig */,
+				106158A070E301DD9C38D147 /* Pods-MuscliKnot.debug.xcconfig */,
+				53810A82188CC0BE131BA2FE /* Pods-MuscliKnot.release.xcconfig */,
 			);
 			name = Pods;
 			path = Pods;
@@ -140,13 +140,13 @@
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "MuscliKnot" */;
 			buildPhases = (
 				08A4A3CD28434E44B6B9DE2E /* [CP] Check Pods Manifest.lock */,
-				B37158C10A905A0114558B49 /* [Expo] Configure project */,
+				B4337C9CEB1EDD31717E6344 /* [Expo] Configure project */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */,
-				D4B2C066057383D96DB30F8B /* [CP] Embed Pods Frameworks */,
+				710EC815D5A51D68C6369E3B /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -196,7 +196,7 @@
 				BB2F792D24A3F905000567C9 /* Expo.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
-				76375FF8F696B43B6A1148B8 /* PrivacyInfo.xcprivacy in Resources */,
+				B3239F1906C6AA28C90AB128 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -242,6 +242,28 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
+		710EC815D5A51D68C6369E3B /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-MuscliKnot/Pods-MuscliKnot-frameworks.sh",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/React-Core-prebuilt/React.framework/React",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/ReactNativeDependencies/ReactNativeDependencies.framework/ReactNativeDependencies",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermes.framework/hermes",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/React.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/ReactNativeDependencies.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MuscliKnot/Pods-MuscliKnot-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 		800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -249,8 +271,10 @@
 			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MuscliKnot/Pods-MuscliKnot-resources.sh",
+				"${PODS_CONFIGURATION_BUILD_DIR}/EXApplication/ExpoApplication_privacy.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/EXConstants/EXConstants.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/EXConstants/ExpoConstants_privacy.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/EXNotifications/ExpoNotifications_privacy.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/ExpoFileSystem/ExpoFileSystem_privacy.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/ExpoSystemUI/ExpoSystemUI_privacy.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/RNCAsyncStorage/RNCAsyncStorage_resources.bundle",
@@ -261,8 +285,10 @@
 			);
 			name = "[CP] Copy Pods Resources";
 			outputPaths = (
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ExpoApplication_privacy.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/EXConstants.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ExpoConstants_privacy.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ExpoNotifications_privacy.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ExpoFileSystem_privacy.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ExpoSystemUI_privacy.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/RNCAsyncStorage_resources.bundle",
@@ -276,7 +302,7 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MuscliKnot/Pods-MuscliKnot-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		B37158C10A905A0114558B49 /* [Expo] Configure project */ = {
+		B4337C9CEB1EDD31717E6344 /* [Expo] Configure project */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
@@ -300,28 +326,6 @@
 			shellPath = /bin/sh;
 			shellScript = "# This script configures Expo modules and generates the modules provider file.\nbash -l -c \"./Pods/Target\\ Support\\ Files/Pods-MuscliKnot/expo-configure-project.sh\"\n";
 		};
-		D4B2C066057383D96DB30F8B /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-MuscliKnot/Pods-MuscliKnot-frameworks.sh",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/React-Core-prebuilt/React.framework/React",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/ReactNativeDependencies/ReactNativeDependencies.framework/ReactNativeDependencies",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermes.framework/hermes",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/React.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/ReactNativeDependencies.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MuscliKnot/Pods-MuscliKnot-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -330,7 +334,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */,
-				F2A3B69DB9BF219A881AAFCC /* ExpoModulesProvider.swift in Sources */,
+				364E2BA1009578D8DB065ED9 /* ExpoModulesProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -339,7 +343,7 @@
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 2426F40931835A275431F749 /* Pods-MuscliKnot.debug.xcconfig */;
+			baseConfigurationReference = 106158A070E301DD9C38D147 /* Pods-MuscliKnot.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -375,7 +379,7 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 2F64532C55C9E86D6A9308DD /* Pods-MuscliKnot.release.xcconfig */;
+			baseConfigurationReference = 53810A82188CC0BE131BA2FE /* Pods-MuscliKnot.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;

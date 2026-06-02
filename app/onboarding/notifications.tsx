@@ -2,6 +2,7 @@ import { Colors } from '@/constants/theme';
 import { usePreferences } from '@/context/PreferencesContext';
 import { getTranslation } from '@/utils/i18n';
 import { Ionicons } from '@expo/vector-icons';
+import * as Notifications from 'expo-notifications';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import { SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -14,8 +15,26 @@ export default function NotificationsScreen() {
     const t = (key: Parameters<typeof getTranslation>[1]) => getTranslation(language, key);
 
     const handleEnable = async () => {
-        if (!notificationsEnabled) {
-            await toggleNotifications();
+        try {
+            const { status: existingStatus } = await Notifications.getPermissionsAsync();
+            let finalStatus = existingStatus;
+            
+            if (existingStatus !== 'granted') {
+                const { status } = await Notifications.requestPermissionsAsync();
+                finalStatus = status;
+            }
+            
+            if (finalStatus === 'granted') {
+                if (!notificationsEnabled) {
+                    await toggleNotifications();
+                }
+            } else {
+                if (notificationsEnabled) {
+                    await toggleNotifications();
+                }
+            }
+        } catch (error) {
+            console.warn('Error requesting notification permissions:', error);
         }
         router.push('/onboarding/referral');
     };

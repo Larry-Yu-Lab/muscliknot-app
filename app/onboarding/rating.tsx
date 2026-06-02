@@ -2,6 +2,7 @@ import { Colors } from '@/constants/theme';
 import { usePreferences } from '@/context/PreferencesContext';
 import { getTranslation } from '@/utils/i18n';
 import { Ionicons } from '@expo/vector-icons';
+import * as StoreReview from 'expo-store-review';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { Linking, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -16,12 +17,19 @@ export default function RatingScreen() {
 
     const handleRate = async () => {
         try {
-            // Mock Apple App Store link for MuscliKnot
-            await Linking.openURL('https://apps.apple.com/app/id6449191000');
+            if (await StoreReview.isAvailableAsync()) {
+                await StoreReview.requestReview();
+                setTimeout(() => {
+                    router.push('/onboarding/notifications');
+                }, 1500);
+            } else {
+                await Linking.openURL('https://apps.apple.com/app/id6449191000');
+                router.push('/onboarding/notifications');
+            }
         } catch (error) {
-            console.warn('Could not open App Store URL:', error);
+            console.warn('Could not request store review or open URL:', error);
+            router.push('/onboarding/notifications');
         }
-        router.push('/onboarding/notifications');
     };
 
     const handleSkip = () => {
@@ -69,12 +77,18 @@ export default function RatingScreen() {
                     {[1, 2, 3, 4, 5].map((num) => (
                         <TouchableOpacity
                             key={num}
-                            onPress={() => {
+                            onPress={async () => {
                                 setRating(num);
-                                // Brief delay then navigate
+                                try {
+                                    if (await StoreReview.isAvailableAsync()) {
+                                        await StoreReview.requestReview();
+                                    }
+                                } catch (error) {
+                                    console.warn('Store review error on star select:', error);
+                                }
                                 setTimeout(() => {
                                     router.push('/onboarding/notifications');
-                                }, 800);
+                                }, 1500);
                             }}
                             activeOpacity={0.7}
                             style={styles.starTouch}
