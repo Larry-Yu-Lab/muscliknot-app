@@ -218,7 +218,6 @@ export default function RegisterScreen() {
                     >
                         <Ionicons name="chevron-back" size={24} color="#fff" />
                     </TouchableOpacity>
-                    <Text style={styles.stepText}>{t('stepIndicator').replace('${step}', '4').replace('${total}', '4')}</Text>
                     <View style={{ width: 40 }} />
                 </View>
 
@@ -353,8 +352,6 @@ export default function RegisterScreen() {
                     </View>
                 </View>
 
-                {/* Bottom Bar Indicator */}
-                <View style={styles.bottomIndicator} />
             </KeyboardAvoidingView>
         </SafeAreaView>
     );
