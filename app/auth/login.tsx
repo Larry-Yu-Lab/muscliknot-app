@@ -1,3 +1,4 @@
+import { useAuth } from '@/context/AuthContext';
 import { usePreferences } from '@/context/PreferencesContext';
 import { getTranslation } from '@/utils/i18n';
 import { getHistory } from '@/utils/storage';
@@ -23,6 +24,7 @@ import {
 export default function LoginScreen() {
     const router = useRouter();
     const { theme, language, refreshPreferences } = usePreferences();
+    const { signInOffline } = useAuth();
 
     const t = (key: Parameters<typeof getTranslation>[1]) => getTranslation(language, key);
 
@@ -110,7 +112,27 @@ export default function LoginScreen() {
 
         console.log('Attempting to sign in with:', email);
         if (!supabase) {
-            Alert.alert(t('configError'), 'Supabase client is not initialized.');
+            Alert.alert(
+                "Connection Error",
+                "Supabase client is not initialized. Would you like to log in using Offline Mode? Your data will be saved locally on this device.",
+                [
+                    { text: "Cancel", style: "cancel" },
+                    {
+                        text: "Log In Offline",
+                        onPress: async () => {
+                            try {
+                                setLoading(true);
+                                await signInOffline(email.trim());
+                                router.replace('/auth/login-welcome' as any);
+                            } catch (offlineErr) {
+                                Alert.alert("Error", "Failed to start offline session.");
+                            } finally {
+                                setLoading(false);
+                            }
+                        }
+                    }
+                ]
+            );
             return;
         }
 
@@ -124,6 +146,33 @@ export default function LoginScreen() {
             if (error) {
                 if (error.message.includes('Invalid login credentials')) {
                     setLoginError(t('loginError'));
+                } else if (
+                    error.message.toLowerCase().includes('fetch') || 
+                    error.message.toLowerCase().includes('network') ||
+                    error.message.toLowerCase().includes('typeerror') ||
+                    error.message.toLowerCase().includes('failed to fetch')
+                ) {
+                    Alert.alert(
+                        "Connection Error",
+                        "Unable to connect to the server. Would you like to log in using Offline Mode? Your data will be saved locally on this device.",
+                        [
+                            { text: "Cancel", style: "cancel" },
+                            {
+                                text: "Log In Offline",
+                                onPress: async () => {
+                                    try {
+                                        setLoading(true);
+                                        await signInOffline(email.trim());
+                                        router.replace('/auth/login-welcome' as any);
+                                    } catch (offlineErr) {
+                                        Alert.alert("Error", "Failed to start offline session.");
+                                    } finally {
+                                        setLoading(false);
+                                    }
+                                }
+                            }
+                        ]
+                    );
                 } else {
                     Alert.alert(t('loginFailed'), error.message);
                 }
@@ -157,8 +206,37 @@ export default function LoginScreen() {
 
                 router.replace('/auth/login-welcome' as any);
             }
-        } catch (e) {
-            Alert.alert(t('error') || 'Error', t('unexpectedError'));
+        } catch (e: any) {
+            const msg = e?.message || '';
+            if (
+                msg.toLowerCase().includes('fetch') || 
+                msg.toLowerCase().includes('network') || 
+                msg.toLowerCase().includes('typeerror')
+            ) {
+                Alert.alert(
+                    "Connection Error",
+                    "Unable to connect to the server. Would you like to log in using Offline Mode? Your data will be saved locally on this device.",
+                    [
+                        { text: "Cancel", style: "cancel" },
+                        {
+                            text: "Log In Offline",
+                            onPress: async () => {
+                                try {
+                                    setLoading(true);
+                                    await signInOffline(email.trim());
+                                    router.replace('/auth/login-welcome' as any);
+                                } catch (offlineErr) {
+                                    Alert.alert("Error", "Failed to start offline session.");
+                                } finally {
+                                    setLoading(false);
+                                }
+                            }
+                        }
+                    ]
+                );
+            } else {
+                Alert.alert(t('error') || 'Error', t('unexpectedError'));
+            }
         } finally {
             setLoading(false);
         }

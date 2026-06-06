@@ -1,3 +1,4 @@
+import { useAuth } from '@/context/AuthContext';
 import { usePreferences } from '@/context/PreferencesContext';
 import { getTranslation } from '@/utils/i18n';
 import { supabase } from '@/utils/supabase';
@@ -22,6 +23,7 @@ import {
 export default function RegisterScreen() {
     const router = useRouter();
     const { theme, language } = usePreferences();
+    const { signInOffline } = useAuth();
 
     const t = (key: Parameters<typeof getTranslation>[1]) => getTranslation(language, key);
 
@@ -114,7 +116,28 @@ export default function RegisterScreen() {
         if (!isValid) return;
 
         if (!supabase) {
-            Alert.alert('Configuration Error', 'Supabase client is not initialized.');
+            Alert.alert(
+                "Connection Error",
+                "Supabase client is not initialized. Would you like to create your account in Offline Mode? Your data will be saved locally on this device.",
+                [
+                    { text: "Cancel", style: "cancel" },
+                    {
+                        text: "Register Offline",
+                        onPress: async () => {
+                            try {
+                                setLoading(true);
+                                await signInOffline(email.trim(), name.trim());
+                                await AsyncStorage.setItem('onboarding_complete', 'true');
+                                router.replace('/auth/signup-success' as any);
+                            } catch (offlineErr) {
+                                Alert.alert("Error", "Failed to start offline session.");
+                            } finally {
+                                setLoading(false);
+                            }
+                        }
+                    }
+                ]
+            );
             return;
         }
 
@@ -132,7 +155,37 @@ export default function RegisterScreen() {
             });
 
             if (error) {
-                Alert.alert(t('registrationFailed'), error.message);
+                if (
+                    error.message.toLowerCase().includes('fetch') || 
+                    error.message.toLowerCase().includes('network') ||
+                    error.message.toLowerCase().includes('typeerror') ||
+                    error.message.toLowerCase().includes('failed to fetch')
+                ) {
+                    Alert.alert(
+                        "Connection Error",
+                        "Unable to connect to the server. Would you like to create your account in Offline Mode? Your data will be saved locally on this device.",
+                        [
+                            { text: "Cancel", style: "cancel" },
+                            {
+                                text: "Register Offline",
+                                onPress: async () => {
+                                    try {
+                                        setLoading(true);
+                                        await signInOffline(email.trim(), name.trim());
+                                        await AsyncStorage.setItem('onboarding_complete', 'true');
+                                        router.replace('/auth/signup-success' as any);
+                                    } catch (offlineErr) {
+                                        Alert.alert("Error", "Failed to start offline session.");
+                                    } finally {
+                                        setLoading(false);
+                                    }
+                                }
+                            }
+                        ]
+                    );
+                } else {
+                    Alert.alert(t('registrationFailed'), error.message);
+                }
             } else if (data.session) {
                 try {
                     const lifestyle = await AsyncStorage.getItem('user_lifestyle');
@@ -177,8 +230,38 @@ export default function RegisterScreen() {
                     [{ text: 'OK', onPress: () => router.replace('/auth/login') }]
                 );
             }
-        } catch (e) {
-            Alert.alert(t('error') || 'Error', t('unexpectedError'));
+        } catch (e: any) {
+            const msg = e?.message || '';
+            if (
+                msg.toLowerCase().includes('fetch') || 
+                msg.toLowerCase().includes('network') || 
+                msg.toLowerCase().includes('typeerror')
+            ) {
+                Alert.alert(
+                    "Connection Error",
+                    "Unable to connect to the server. Would you like to create your account in Offline Mode? Your data will be saved locally on this device.",
+                    [
+                        { text: "Cancel", style: "cancel" },
+                        {
+                            text: "Register Offline",
+                            onPress: async () => {
+                                try {
+                                    setLoading(true);
+                                    await signInOffline(email.trim(), name.trim());
+                                    await AsyncStorage.setItem('onboarding_complete', 'true');
+                                    router.replace('/auth/signup-success' as any);
+                                } catch (offlineErr) {
+                                    Alert.alert("Error", "Failed to start offline session.");
+                                } finally {
+                                    setLoading(false);
+                                }
+                            }
+                        }
+                    ]
+                );
+            } else {
+                Alert.alert(t('error') || 'Error', t('unexpectedError'));
+            }
         } finally {
             setLoading(false);
         }
