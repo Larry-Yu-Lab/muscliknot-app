@@ -242,6 +242,51 @@ export default function LoginScreen() {
         }
     }
 
+    async function signInWithGoogle() {
+        try {
+            setLoading(true);
+            if (!supabase) {
+                await signInOffline('google-user@example.com', 'Google User');
+                router.replace('/auth/login-welcome' as any);
+                return;
+            }
+
+            const { error } = await supabase.auth.signInWithOAuth({
+                provider: 'google',
+                options: {
+                    redirectTo: 'muscliknot://google-auth',
+                },
+            });
+
+            if (error) throw error;
+        } catch (e: any) {
+            console.warn('Google Login error, falling back to offline mode:', e);
+            Alert.alert(
+                "Connection Info",
+                "Google Sign-In is currently unavailable. Would you like to proceed using a mock Google account in Offline Mode?",
+                [
+                    { text: "Cancel", style: "cancel" },
+                    {
+                        text: "Continue Offline",
+                        onPress: async () => {
+                            try {
+                                setLoading(true);
+                                await signInOffline('google-tester@example.com', 'Google Tester');
+                                router.replace('/auth/login-welcome' as any);
+                            } catch (err) {
+                                Alert.alert("Error", "Failed to start offline session.");
+                            } finally {
+                                setLoading(false);
+                            }
+                        }
+                    }
+                ]
+            );
+        } finally {
+            setLoading(false);
+        }
+    }
+
     // Helper to get border color based on state
     const getBorderColor = (error: string, success: string, defaultColor: string) => {
         if (error) return THEME.inputErrorBorder;
@@ -375,6 +420,29 @@ export default function LoginScreen() {
                         )}
                     </TouchableOpacity>
 
+                    {/* Divider */}
+                    <View style={styles.dividerContainer}>
+                        <View style={styles.dividerLine} />
+                        <Text style={styles.dividerText}>OR</Text>
+                        <View style={styles.dividerLine} />
+                    </View>
+
+                    {/* Google Sign In Button */}
+                    <TouchableOpacity
+                        style={styles.googleButton}
+                        onPress={signInWithGoogle}
+                        activeOpacity={0.8}
+                    >
+                        <View style={styles.googleButtonContent}>
+                            <Ionicons name="logo-google" size={20} color="#fff" style={styles.googleIcon} />
+                            <Text style={styles.googleButtonText}>Sign in with Google</Text>
+                        </View>
+                        {/* Popular Badge */}
+                        <View style={styles.popularBadge}>
+                            <Text style={styles.popularBadgeText}>POPULAR</Text>
+                        </View>
+                    </TouchableOpacity>
+
                     <View style={styles.registerRow}>
                         <Text style={{ color: 'rgba(255,255,255,0.8)', fontSize: 15, fontWeight: '500' }}>
                             {t('dontHaveAccount')}{' '}
@@ -506,5 +574,63 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
+    },
+    dividerContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginVertical: 4,
+    },
+    dividerLine: {
+        flex: 1,
+        height: 1,
+        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    },
+    dividerText: {
+        color: 'rgba(255, 255, 255, 0.3)',
+        fontSize: 14,
+        fontWeight: '600',
+        marginHorizontal: 16,
+    },
+    googleButton: {
+        height: 60,
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.15)',
+        backgroundColor: 'rgba(255, 255, 255, 0.03)',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        position: 'relative',
+    },
+    googleButtonContent: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    googleIcon: {
+        marginRight: 12,
+    },
+    googleButtonText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
+    popularBadge: {
+        position: 'absolute',
+        top: -10,
+        right: 16,
+        backgroundColor: '#f97316',
+        paddingHorizontal: 8,
+        paddingVertical: 3,
+        borderRadius: 6,
+        borderWidth: 1,
+        borderColor: '#23170f',
+    },
+    popularBadgeText: {
+        color: '#fff',
+        fontSize: 9,
+        fontWeight: '900',
+        letterSpacing: 0.5,
     },
 });
