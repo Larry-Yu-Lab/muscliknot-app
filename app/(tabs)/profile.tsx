@@ -595,12 +595,12 @@ export default function ProfileScreen() {
                                     <View>
                                         <Text style={styles.planTitleElite}>{t('elitePlan')}</Text>
                                         <View style={styles.priceContainer}>
-                                            <Text style={[styles.priceBig, { color: colors.text }]}>{billingCycle === 'annual' ? '$7.99' : '$9.99'}</Text>
+                                            <Text style={[styles.priceBig, { color: colors.text }]}>{billingCycle === 'annual' ? '$2.99' : '$3.99'}</Text>
                                             <Text style={[styles.pricePeriod, { color: colors.textSecondary }]}>{t('monthAbbr')}</Text>
                                         </View>
                                         {billingCycle === 'annual' && (
                                             <Text style={[styles.billedText, { color: colors.textSecondary }]}>
-                                                {t('billedAnnually')} {t('annualPrice').replace('${price}', '95.88')}
+                                                {t('billedAnnually')} {t('annualPrice').replace('${price}', '35.88')}
                                             </Text>
                                         )}
                                     </View>
