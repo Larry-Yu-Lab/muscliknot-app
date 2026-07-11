@@ -58,8 +58,26 @@ function intensityToCategory(intensity: IntensityLevel): ExerciseCategory {
  * Convert assessment answers into a concrete set of recommendations.
  * All exercise-filtering and advisory-banner decisions live here.
  */
-export function getExerciseRecommendation(assessment: AssessmentData): RecommendationResult {
+export function getExerciseRecommendation(assessment: AssessmentData, userFitnessLevel?: string): RecommendationResult {
     const type = assessment.activityType ?? 'relief';
+
+    const GENTLE_FILTER = ['beginner'];
+    const MODERATE_FILTER = ['beginner', 'intermediate'];
+    const FULL_FILTER = ['beginner', 'intermediate', 'advanced'];
+
+    const tierMap: Record<string, number> = {
+        gentle: 0, moderate: 1, full: 2,
+        BEGINNER: 0, INTERMEDIATE: 1, ADVANCED: 2,
+        beginner: 0, intermediate: 1, advanced: 2
+    };
+
+    const filterMap = [GENTLE_FILTER, MODERATE_FILTER, FULL_FILTER];
+
+    const getFinalFilter = (cat: ExerciseCategory, userLevel?: string) => {
+        const catTier = tierMap[cat] ?? 2;
+        const userTier = tierMap[userLevel || 'ADVANCED'] ?? 2;
+        return filterMap[Math.min(catTier, userTier)];
+    };
 
     // ── RELIEF (Pain Assessment) ──────────────────────────────
     if (type === 'relief') {
@@ -89,9 +107,7 @@ export function getExerciseRecommendation(assessment: AssessmentData): Recommend
             intensity,
             category,
             advisory,
-            difficultyFilter: category === 'gentle' ? GENTLE_FILTER
-                : category === 'moderate' ? MODERATE_FILTER
-                    : FULL_FILTER,
+            difficultyFilter: getFinalFilter(category, userFitnessLevel),
             showRestWarning: rawLevel >= 8,
             accentColor,
         };
@@ -116,7 +132,7 @@ export function getExerciseRecommendation(assessment: AssessmentData): Recommend
             intensity: 'low',
             category,
             advisory,
-            difficultyFilter: category === 'moderate' ? MODERATE_FILTER : FULL_FILTER,
+            difficultyFilter: getFinalFilter(category, userFitnessLevel),
             showRestWarning: false,
             accentColor,
         };
@@ -145,9 +161,7 @@ export function getExerciseRecommendation(assessment: AssessmentData): Recommend
             intensity,
             category,
             advisory,
-            difficultyFilter: category === 'gentle' ? GENTLE_FILTER
-                : category === 'moderate' ? MODERATE_FILTER
-                    : FULL_FILTER,
+            difficultyFilter: getFinalFilter(category, assessment.q1 || userFitnessLevel),
             showRestWarning: mobility === 'no',
             accentColor,
         };
@@ -157,17 +171,14 @@ export function getExerciseRecommendation(assessment: AssessmentData): Recommend
     if (type === 'strength') {
         const expLevel = assessment.q1;
         let category: ExerciseCategory = 'full';
-        let difficultyFilter = FULL_FILTER;
         let advisory: string | null = null;
         const accentColor = COLOR_GREEN;
 
         if (expLevel === 'beginner') {
             category = 'gentle';
-            difficultyFilter = GENTLE_FILTER;
             advisory = 'advStrengthBeginner';
         } else if (expLevel === 'intermediate') {
             category = 'moderate';
-            difficultyFilter = MODERATE_FILTER;
             advisory = 'advStrengthIntermediate';
         }
 
@@ -175,7 +186,7 @@ export function getExerciseRecommendation(assessment: AssessmentData): Recommend
             intensity: 'low',
             category,
             advisory,
-            difficultyFilter,
+            difficultyFilter: getFinalFilter(category, assessment.q1 || userFitnessLevel),
             showRestWarning: false,
             accentColor,
         };
@@ -204,7 +215,7 @@ export function getExerciseRecommendation(assessment: AssessmentData): Recommend
             intensity: 'low',
             category,
             advisory,
-            difficultyFilter: category === 'gentle' ? GENTLE_FILTER : MODERATE_FILTER,
+            difficultyFilter: getFinalFilter(category, userFitnessLevel),
             showRestWarning: false,
             accentColor,
         };
@@ -215,7 +226,7 @@ export function getExerciseRecommendation(assessment: AssessmentData): Recommend
         intensity: 'low',
         category: 'full',
         advisory: null,
-        difficultyFilter: FULL_FILTER,
+        difficultyFilter: getFinalFilter('full', userFitnessLevel),
         showRestWarning: false,
         accentColor: COLOR_GREEN,
     };

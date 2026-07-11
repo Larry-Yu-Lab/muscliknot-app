@@ -1,11 +1,13 @@
 import { Colors } from '@/constants/theme';
 import { usePreferences } from '@/context/PreferencesContext';
 import { getTranslation } from '@/utils/i18n';
+import { EXERCISES } from '@/data/exercises';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React from 'react';
+import YoutubePlayer from 'react-native-youtube-iframe';
 import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View, Dimensions } from 'react-native';
 
 const { width } = Dimensions.get('window');
@@ -26,8 +28,20 @@ export default function ExerciseDetails() {
         why,
         process,
         instructions,
-        muscleGroup
+        muscleGroup,
+        video_url
     } = params as Record<string, string>;
+
+    const extractYoutubeId = (url?: string) => {
+        if (!url) return null;
+        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+        const match = url.match(regExp);
+        return (match && match[2].length === 11) ? match[2] : null;
+    };
+    
+    // Fallback: If no video_url provided, search for it in local EXERCISES by title
+    const resolvedVideoUrl = video_url ? decodeURIComponent(video_url) : EXERCISES.find(e => e.title === title || e.id === id)?.video_url;
+    const videoId = extractYoutubeId(resolvedVideoUrl);
 
     const renderInstructions = (text: string) => {
         if (!text) return null;
@@ -57,7 +71,7 @@ export default function ExerciseDetails() {
             );
         }
 
-        return <Text style={[styles.bodyText, { color: colors.textSecondary }]}>{text}</Text>;
+        return <Text style={[styles.bodyText, { color: colors.textSecondary }]}>{t(text as any) !== text ? t(text as any) : text}</Text>;
     };
 
     const targetMuscle = (() => {
@@ -65,50 +79,110 @@ export default function ExerciseDetails() {
         if (!rawMg) return '';
         const mgKey = `mg${rawMg.charAt(0).toUpperCase()}${rawMg.slice(1).replace(/\s/g, '')}` as any;
         const trans = t(mgKey);
-        return trans !== mgKey ? trans : rawMg;
+        return trans !== mgKey ? trans : t(rawMg as any) !== rawMg ? t(rawMg as any) : rawMg;
     })();
 
     const displayTitle = (() => {
         const titleKey = `ex_${id}_title` as any;
         const trans = t(titleKey);
+        
+        // Dynamic DB exercise title fallback
+        if (title === 'Neck Release & Stretch') return t('db_neck_title' as any);
+        if (title === 'Lower Back Decompression') return t('db_lower_back_title' as any);
+        if (title === 'Full Leg Flush') return t('db_leg_title' as any);
+        
         return trans !== titleKey ? trans : title;
+    })();
+
+    const displayWhy = (() => {
+        if (!why) return null;
+        const whyKey = `ex_${id}_why` as any;
+        const trans = t(whyKey);
+        return trans !== whyKey ? trans : why;
+    })();
+
+    const displayProcess = (() => {
+        if (!process) return null;
+        const processKey = `ex_${id}_process` as any;
+        const trans = t(processKey);
+        return trans !== processKey ? trans : process;
+    })();
+
+    const displayInstructions = (() => {
+        if (!instructions) return null;
+        
+        // Handle DB exercise raw instructions mappings from their descriptions
+        if (instructions === 'Gentle neck stretches to relieve tension from looking down at screens.') return t('db_neck_desc' as any);
+        if (instructions === 'Relieve pressure in the lower back with these gentle movements.') return t('db_lower_back_desc' as any);
+        if (instructions === 'Improve circulation and reduce soreness in the legs.') return t('db_leg_desc' as any);
+
+        const instKey = `ex_${id}_instructions` as any;
+        const trans = t(instKey);
+        if (trans !== instKey) return trans;
+        
+        // Local exercise repetitive instruction parser
+        if (instructions.includes('1. Get into a comfortable starting position.')) {
+            const descKey = `ex_${id}_desc` as any;
+            const translatedDesc = t(descKey) !== descKey ? t(descKey) : instructions.split('\n')[1].substring(3);
+            return `1. ${t('inst_step1' as any)}\n2. ${translatedDesc}\n3. ${t('inst_step3' as any)}\n4. ${t('inst_step4' as any)}`;
+        }
+        return instructions;
     })();
 
     return (
         <View style={[styles.container, { backgroundColor: colors.background }]}>
             <ScrollView contentContainerStyle={styles.scrollContent} bounces={false} showsVerticalScrollIndicator={false}>
-                {/* Premium Header Image */}
-                <View style={styles.imageContainer}>
-                    <Image
-                        source={{ uri: image }}
-                        style={styles.image}
-                        contentFit="cover"
-                        transition={1000}
-                    />
-                    <LinearGradient
-                        colors={['rgba(0,0,0,0.5)', 'transparent', colors.background]}
-                        locations={[0, 0.4, 1]}
-                        style={StyleSheet.absoluteFillObject}
-                    />
-                    <SafeAreaView style={styles.headerSafeArea}>
-                        <View style={styles.headerButtons}>
-                            <TouchableOpacity
-                                style={[styles.iconButton, { backgroundColor: 'rgba(0,0,0,0.4)' }]}
-                                onPress={() => router.back()}
-                            >
-                                <Ionicons name="arrow-back" size={24} color="#FFF" />
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                style={[styles.iconButton, { backgroundColor: 'rgba(0,0,0,0.4)' }]}
-                            >
-                                <Ionicons name="heart-outline" size={24} color="#FFF" />
-                            </TouchableOpacity>
-                        </View>
-                    </SafeAreaView>
-                </View>
+                {videoId ? (
+                    <View style={{ width: width, height: width * (9/16) + 40, backgroundColor: '#000', paddingTop: 40 }}>
+                        <SafeAreaView style={[styles.headerSafeArea, { zIndex: 10 }]}>
+                            <View style={styles.headerButtons}>
+                                <TouchableOpacity
+                                    style={[styles.iconButton, { backgroundColor: 'rgba(0,0,0,0.6)' }]}
+                                    onPress={() => router.back()}
+                                >
+                                    <Ionicons name="arrow-back" size={24} color="#FFF" />
+                                </TouchableOpacity>
+                            </View>
+                        </SafeAreaView>
+                        <YoutubePlayer
+                            height={width * (9/16)}
+                            play={false}
+                            videoId={videoId}
+                        />
+                    </View>
+                ) : (
+                    <View style={styles.imageContainer}>
+                        <Image
+                            source={{ uri: image }}
+                            style={styles.image}
+                            contentFit="cover"
+                            transition={1000}
+                        />
+                        <LinearGradient
+                            colors={['rgba(0,0,0,0.5)', 'transparent', colors.background]}
+                            locations={[0, 0.4, 1]}
+                            style={StyleSheet.absoluteFillObject}
+                        />
+                        <SafeAreaView style={styles.headerSafeArea}>
+                            <View style={styles.headerButtons}>
+                                <TouchableOpacity
+                                    style={[styles.iconButton, { backgroundColor: 'rgba(0,0,0,0.4)' }]}
+                                    onPress={() => router.back()}
+                                >
+                                    <Ionicons name="arrow-back" size={24} color="#FFF" />
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    style={[styles.iconButton, { backgroundColor: 'rgba(0,0,0,0.4)' }]}
+                                >
+                                    <Ionicons name="heart-outline" size={24} color="#FFF" />
+                                </TouchableOpacity>
+                            </View>
+                        </SafeAreaView>
+                    </View>
+                )}
 
                 {/* Content */}
-                <View style={styles.content}>
+                <View style={[styles.content, videoId ? { marginTop: 24 } : {}]}>
                     <View style={styles.headerRow}>
                         <View style={{ flex: 1, paddingRight: 16 }}>
                             <View style={[styles.targetBadge, { backgroundColor: colors.accent + '15' }]}>
@@ -122,28 +196,28 @@ export default function ExerciseDetails() {
                         </View>
                     </View>
 
-                    {why && (
+                    {displayWhy && (
                         <View style={[styles.whyCard, { backgroundColor: colors.accent + '10', borderColor: colors.accent + '30' }]}>
                             <View style={styles.whyHeader}>
                                 <Ionicons name="bulb" size={20} color={colors.accent} />
                                 <Text style={[styles.sectionTitle, { color: colors.accent, marginBottom: 0, marginLeft: 8 }]}>{t('benefits')}</Text>
                             </View>
-                            <Text style={[styles.whyText, { color: colors.textSecondary }]}>{why}</Text>
+                            <Text style={[styles.whyText, { color: colors.textSecondary }]}>{displayWhy}</Text>
                         </View>
                     )}
 
-                    {instructions && (
+                    {displayInstructions && (
                         <View style={styles.section}>
                             <Text style={[styles.sectionTitle, { color: colors.text, marginBottom: 16 }]}>{t('instructions')}</Text>
-                            {renderInstructions(instructions)}
+                            {renderInstructions(displayInstructions)}
                         </View>
                     )}
 
-                    {process && (
+                    {displayProcess && (
                         <View style={styles.section}>
                             <Text style={[styles.sectionTitle, { color: colors.text }]}>{t('process')}</Text>
                             <View style={[styles.processCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
-                                <Text style={[styles.bodyText, { color: colors.textSecondary }]}>{process}</Text>
+                                <Text style={[styles.bodyText, { color: colors.textSecondary }]}>{displayProcess}</Text>
                             </View>
                         </View>
                     )}

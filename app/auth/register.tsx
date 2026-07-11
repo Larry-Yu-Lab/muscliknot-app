@@ -1,7 +1,10 @@
+import { useAuth } from '@/context/AuthContext';
 import { usePreferences } from '@/context/PreferencesContext';
 import { getTranslation } from '@/utils/i18n';
 import { supabase } from '@/utils/supabase';
+import { saveUserPreferences } from '@/utils/userPreferences';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
@@ -20,6 +23,7 @@ import {
 export default function RegisterScreen() {
     const router = useRouter();
     const { theme, language } = usePreferences();
+    const { signInOffline } = useAuth();
 
     const t = (key: Parameters<typeof getTranslation>[1]) => getTranslation(language, key);
 
@@ -112,7 +116,28 @@ export default function RegisterScreen() {
         if (!isValid) return;
 
         if (!supabase) {
-            Alert.alert('Configuration Error', 'Supabase client is not initialized.');
+            Alert.alert(
+                "Connection Error",
+                "Supabase client is not initialized. Would you like to create your account in Offline Mode? Your data will be saved locally on this device.",
+                [
+                    { text: "Cancel", style: "cancel" },
+                    {
+                        text: "Register Offline",
+                        onPress: async () => {
+                            try {
+                                setLoading(true);
+                                await signInOffline(email.trim(), name.trim());
+                                await AsyncStorage.setItem('onboarding_complete', 'true');
+                                router.replace('/auth/signup-success' as any);
+                            } catch (offlineErr) {
+                                Alert.alert("Error", "Failed to start offline session.");
+                            } finally {
+                                setLoading(false);
+                            }
+                        }
+                    }
+                ]
+            );
             return;
         }
 
@@ -130,18 +155,65 @@ export default function RegisterScreen() {
             });
 
             if (error) {
-                Alert.alert(t('registrationFailed'), error.message);
+                if (
+                    error.message.toLowerCase().includes('fetch') || 
+                    error.message.toLowerCase().includes('network') ||
+                    error.message.toLowerCase().includes('typeerror') ||
+                    error.message.toLowerCase().includes('failed to fetch')
+                ) {
+                    Alert.alert(
+                        "Connection Error",
+                        "Unable to connect to the server. Would you like to create your account in Offline Mode? Your data will be saved locally on this device.",
+                        [
+                            { text: "Cancel", style: "cancel" },
+                            {
+                                text: "Register Offline",
+                                onPress: async () => {
+                                    try {
+                                        setLoading(true);
+                                        await signInOffline(email.trim(), name.trim());
+                                        await AsyncStorage.setItem('onboarding_complete', 'true');
+                                        router.replace('/auth/signup-success' as any);
+                                    } catch (offlineErr) {
+                                        Alert.alert("Error", "Failed to start offline session.");
+                                    } finally {
+                                        setLoading(false);
+                                    }
+                                }
+                            }
+                        ]
+                    );
+                } else {
+                    Alert.alert(t('registrationFailed'), error.message);
+                }
             } else if (data.session) {
-                // ... (rest of logic remains same)
-                /* 
                 try {
                     const lifestyle = await AsyncStorage.getItem('user_lifestyle');
                     const goal = await AsyncStorage.getItem('user_goal');
+                    const has_coach = await AsyncStorage.getItem('user_has_coach');
+                    const source = await AsyncStorage.getItem('user_source');
+                    const gender = await AsyncStorage.getItem('user_gender');
+                    const height = await AsyncStorage.getItem('user_height');
+                    const weight = await AsyncStorage.getItem('user_weight');
+                    const measurement_system = await AsyncStorage.getItem('user_measurement_system');
+                    const dob = await AsyncStorage.getItem('user_dob');
+                    const experience_level = await AsyncStorage.getItem('user_experience');
+                    const equipmentStr = await AsyncStorage.getItem('app_equipment');
+                    const equipment = equipmentStr ? JSON.parse(equipmentStr) : null;
 
                     if (data.user?.id) {
                         await saveUserPreferences(data.user.id, {
                             lifestyle: lifestyle as 'sedentary' | 'active' | 'athlete' | null,
                             primary_goal: goal as 'relieve_pain' | 'improve_mobility' | 'daily_maintenance' | null,
+                            has_coach,
+                            source,
+                            gender,
+                            height,
+                            weight,
+                            measurement_system,
+                            dob,
+                            experience_level,
+                            equipment,
                             onboarding_completed: true,
                             theme: theme as 'light' | 'dark',
                             language: language as 'en' | 'zh' | 'fr' | 'es',
@@ -151,7 +223,6 @@ export default function RegisterScreen() {
                     console.log('Error syncing preferences:', syncError);
                 }
                 router.replace('/auth/signup-success' as any);
-                */
             } else {
                 Alert.alert(
                     t('successHeader') || 'Success',
@@ -159,8 +230,85 @@ export default function RegisterScreen() {
                     [{ text: 'OK', onPress: () => router.replace('/auth/login') }]
                 );
             }
-        } catch (e) {
-            Alert.alert(t('error') || 'Error', t('unexpectedError'));
+        } catch (e: any) {
+            const msg = e?.message || '';
+            if (
+                msg.toLowerCase().includes('fetch') || 
+                msg.toLowerCase().includes('network') || 
+                msg.toLowerCase().includes('typeerror')
+            ) {
+                Alert.alert(
+                    "Connection Error",
+                    "Unable to connect to the server. Would you like to create your account in Offline Mode? Your data will be saved locally on this device.",
+                    [
+                        { text: "Cancel", style: "cancel" },
+                        {
+                            text: "Register Offline",
+                            onPress: async () => {
+                                try {
+                                    setLoading(true);
+                                    await signInOffline(email.trim(), name.trim());
+                                    await AsyncStorage.setItem('onboarding_complete', 'true');
+                                    router.replace('/auth/signup-success' as any);
+                                } catch (offlineErr) {
+                                    Alert.alert("Error", "Failed to start offline session.");
+                                } finally {
+                                    setLoading(false);
+                                }
+                            }
+                        }
+                    ]
+                );
+            } else {
+                Alert.alert(t('error') || 'Error', t('unexpectedError'));
+            }
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    async function signUpWithGoogle() {
+        try {
+            setLoading(true);
+            if (!supabase) {
+                await signInOffline('google-user@example.com', 'Google User');
+                await AsyncStorage.setItem('onboarding_complete', 'true');
+                router.replace('/auth/signup-success' as any);
+                return;
+            }
+
+            const { error } = await supabase.auth.signInWithOAuth({
+                provider: 'google',
+                options: {
+                    redirectTo: 'muscliknot://google-auth',
+                },
+            });
+
+            if (error) throw error;
+        } catch (e: any) {
+            console.warn('Google Sign Up error, falling back to offline mode:', e);
+            Alert.alert(
+                "Connection Info",
+                "Google Sign-In is currently unavailable. Would you like to proceed using a mock Google account in Offline Mode?",
+                [
+                    { text: "Cancel", style: "cancel" },
+                    {
+                        text: "Continue Offline",
+                        onPress: async () => {
+                            try {
+                                setLoading(true);
+                                await signInOffline('google-tester@example.com', 'Google Tester');
+                                await AsyncStorage.setItem('onboarding_complete', 'true');
+                                router.replace('/auth/signup-success' as any);
+                            } catch (err) {
+                                Alert.alert("Error", "Failed to start offline session.");
+                            } finally {
+                                setLoading(false);
+                            }
+                        }
+                    }
+                ]
+            );
         } finally {
             setLoading(false);
         }
@@ -189,12 +337,17 @@ export default function RegisterScreen() {
                 <View style={styles.headerRow}>
                     <TouchableOpacity
                         style={styles.backButton}
-                        onPress={() => router.back()}
+                        onPress={() => {
+                            if (router.canGoBack()) {
+                                router.back();
+                            } else {
+                                router.replace('/auth/login' as any);
+                            }
+                        }}
                         activeOpacity={0.7}
                     >
                         <Ionicons name="chevron-back" size={24} color="#fff" />
                     </TouchableOpacity>
-                    <Text style={styles.stepText}>{t('stepIndicator').replace('${step}', '4').replace('${total}', '4')}</Text>
                     <View style={{ width: 40 }} />
                 </View>
 
@@ -310,6 +463,29 @@ export default function RegisterScreen() {
                         )}
                     </TouchableOpacity>
 
+                    {/* Divider */}
+                    <View style={styles.dividerContainer}>
+                        <View style={styles.dividerLine} />
+                        <Text style={styles.dividerText}>OR</Text>
+                        <View style={styles.dividerLine} />
+                    </View>
+
+                    {/* Google Signup Button */}
+                    <TouchableOpacity
+                        style={styles.googleButton}
+                        onPress={signUpWithGoogle}
+                        activeOpacity={0.8}
+                    >
+                        <View style={styles.googleButtonContent}>
+                            <Ionicons name="logo-google" size={20} color="#fff" style={styles.googleIcon} />
+                            <Text style={styles.googleButtonText}>Sign up with Google</Text>
+                        </View>
+                        {/* Popular Badge */}
+                        <View style={styles.popularBadge}>
+                            <Text style={styles.popularBadgeText}>POPULAR</Text>
+                        </View>
+                    </TouchableOpacity>
+
                     <View style={styles.termsContainer}>
                         <Text style={[styles.termsText, { color: 'rgba(255,255,255,0.5)' }]}>
                             {t('termsText')}{'\n'}
@@ -329,8 +505,6 @@ export default function RegisterScreen() {
                     </View>
                 </View>
 
-                {/* Bottom Bar Indicator */}
-                <View style={styles.bottomIndicator} />
             </KeyboardAvoidingView>
         </SafeAreaView>
     );
@@ -475,5 +649,63 @@ const styles = StyleSheet.create({
         borderRadius: 3, // rounded-full
         alignSelf: 'center',
         marginBottom: 8,
+    },
+    dividerContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginVertical: 4,
+    },
+    dividerLine: {
+        flex: 1,
+        height: 1,
+        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    },
+    dividerText: {
+        color: 'rgba(255, 255, 255, 0.3)',
+        fontSize: 14,
+        fontWeight: '600',
+        marginHorizontal: 16,
+    },
+    googleButton: {
+        height: 60,
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.15)',
+        backgroundColor: 'rgba(255, 255, 255, 0.03)',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        position: 'relative',
+    },
+    googleButtonContent: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    googleIcon: {
+        marginRight: 12,
+    },
+    googleButtonText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
+    popularBadge: {
+        position: 'absolute',
+        top: -10,
+        right: 16,
+        backgroundColor: '#f97316',
+        paddingHorizontal: 8,
+        paddingVertical: 3,
+        borderRadius: 6,
+        borderWidth: 1,
+        borderColor: '#23170f',
+    },
+    popularBadgeText: {
+        color: '#fff',
+        fontSize: 9,
+        fontWeight: '900',
+        letterSpacing: 0.5,
     },
 });

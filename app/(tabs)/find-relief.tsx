@@ -1,9 +1,10 @@
 import { fetchExercisesByMuscleAndSize } from '@/components/AnatomyMap';
 import { Colors } from '@/constants/theme';
 import { usePreferences } from '@/context/PreferencesContext';
-import { getExercisesByActivityType } from '@/data/exercises';
+import { useUser } from '@/context/UserContext';
+import { getExercisesByActivityType, EXERCISES } from '@/data/exercises';
 import { categoryLabelKey, getExerciseRecommendation, RecommendationResult } from '@/utils/assessmentEngine';
-import { getTranslation } from '@/utils/i18n';
+import { getTranslation, formatLabel } from '@/utils/i18n';
 import { AssessmentData, savePainSession, saveToHistory } from '@/utils/storage';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
@@ -11,7 +12,8 @@ import { Image } from 'expo-image';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as React from 'react';
 import { useState } from 'react';
-import { Alert, Platform, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Platform, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View, Dimensions } from 'react-native';
+import YoutubePlayer from 'react-native-youtube-iframe';
 import Animated, { interpolateColor, useAnimatedStyle, useSharedValue, withSequence, withSpring, withTiming } from 'react-native-reanimated';
 
 // ─── Helpers ───────────────────────────────────────────────────────────────
@@ -87,17 +89,18 @@ function ExerciseCard({ ex, index, colors, language }: { ex: any; index: number;
                     <Text style={[cardStyles.title, { color: '#fff' }]}>{displayTitle}</Text>
                     {displaySubtitle ? <Text style={[cardStyles.subtitle, { color: 'rgba(255,255,255,0.5)' }]}>{displaySubtitle}</Text> : null}
                 </View>
-                {ex.difficulty_level && (
-                    <View style={[cardStyles.difBadge, {
-                        backgroundColor: ex.difficulty_level === 'beginner' ? 'rgba(34,197,94,0.15)' :
-                            ex.difficulty_level === 'intermediate' ? 'rgba(249,115,22,0.15)' : 'rgba(239,68,68,0.15)'
-                    }]}>
-                        <Text style={[cardStyles.difText, {
-                            color: ex.difficulty_level === 'beginner' ? '#22c55e' :
-                                ex.difficulty_level === 'intermediate' ? '#f97316' : '#ef4444'
-                        }]}>{ex.difficulty_level}</Text>
-                    </View>
-                )}
+                {ex.difficulty_level && (() => {
+                    const diffColor = ex.difficulty_level === 'beginner' ? '#22c55e' : ex.difficulty_level === 'intermediate' ? '#f59e0b' : '#ef4444';
+                    return (
+                        <View style={[cardStyles.difBadge, { backgroundColor: diffColor + '20' }]}>
+                            <Text style={[cardStyles.difText, { color: diffColor }]}>{(() => {
+                                const diffKey = `opt${ex.difficulty_level.charAt(0).toUpperCase()}${ex.difficulty_level.slice(1)}` as any;
+                                const trans = t(diffKey);
+                                return trans !== diffKey ? trans : formatLabel(ex.difficulty_level);
+                            })()}</Text>
+                        </View>
+                    );
+                })()}
                 <Ionicons name={expanded ? 'chevron-up' : 'chevron-down'} size={18} color="rgba(255,255,255,0.4)" />
             </TouchableOpacity>
 
@@ -210,8 +213,17 @@ const cardStyles = StyleSheet.create({
 export default function FindReliefScreen() {
     const router = useRouter();
     const params = useLocalSearchParams();
+    const { width: windowWidth } = Dimensions.get('window');
+
+    const extractYoutubeId = (url?: string) => {
+        if (!url) return null;
+        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+        const match = url.match(regExp);
+        return (match && match[2].length === 11) ? match[2] : null;
+    };
 
     const { language, theme } = usePreferences();
+    const { user } = useUser();
     const t = (key: Parameters<typeof getTranslation>[1]) => getTranslation(language, key);
     const colors = Colors[theme];
 
@@ -237,9 +249,9 @@ export default function FindReliefScreen() {
     };
 
     const recommendation: RecommendationResult = React.useMemo(
-        () => getExerciseRecommendation(assessment),
+        () => getExerciseRecommendation(assessment, user.attributes.fitnessLevel),
         // eslint-disable-next-line react-hooks/exhaustive-deps
-        [activityType, assessment.painLevel, assessment.q1, assessment.q2]
+        [activityType, assessment.painLevel, assessment.q1, assessment.q2, user.attributes.fitnessLevel]
     );
 
     assessment.recommendationCategory = recommendation.category;
@@ -253,18 +265,28 @@ export default function FindReliefScreen() {
         setVisibleCount(1); // Reset "visibleCount" whenever parameters change
         const fetchExercises = async () => {
             setIsLoading(true);
-            const data = await fetchExercisesByMuscleAndSize(
-                muscleId,
-                size,
-                activityType,
-                recommendation.difficultyFilter,
-                painLocation,
-                assessment.duration
-            );
-            if (data && data.length > 0) {
-                setExercises(data);
-            } else {
-                setExercises(getExercisesByActivityType(activityType, y, view));
+            try {
+                const data = await fetchExercisesByMuscleAndSize(
+                    muscleId,
+                    size,
+                    activityType,
+                    recommendation.difficultyFilter,
+                    painLocation,
+                    assessment.duration
+                );
+                if (data && data.length > 0) {
+                    setExercises(data);
+                } else {
+                    // Load fallback based on activityType
+                    const fallbackData = getExercisesByActivityType(activityType, y, view);
+                    setExercises(fallbackData.slice(0, 3));
+                }
+            } catch (error) {
+                console.log(error);
+                const fallbackData = getExercisesByActivityType(activityType, y, view);
+                setExercises(fallbackData.slice(0, 3));
+            } finally {
+                setIsLoading(false);
             }
             setIsLoading(false);
         };
@@ -272,12 +294,12 @@ export default function FindReliefScreen() {
     }, [muscleId, size, y, view, activityType, recommendation.difficultyFilter, painLocation]);
 
     const targetMuscle = React.useMemo(() => {
-        if (exercises.length === 0) return muscleId.replace(/_/g, ' ');
+        if (exercises.length === 0) return formatLabel(muscleId);
         const ex = exercises[0];
-        if (ex.muscleGroup) return ex.muscleGroup;
-        if (Array.isArray(ex.muscle_id) && ex.muscle_id.length > 0) return ex.muscle_id[0].replace(/_/g, ' ');
-        if (typeof ex.muscle_id === 'string') return ex.muscle_id.replace(/_/g, ' ');
-        return muscleId.replace(/_/g, ' ');
+        if (ex.muscleGroup) return formatLabel(ex.muscleGroup);
+        if (Array.isArray(ex.muscle_id) && ex.muscle_id.length > 0) return formatLabel(ex.muscle_id[0]);
+        if (typeof ex.muscle_id === 'string') return formatLabel(ex.muscle_id);
+        return formatLabel(muscleId);
     }, [exercises, muscleId]);
 
     const targetMuscleTrans = React.useMemo(() => {
@@ -382,6 +404,30 @@ export default function FindReliefScreen() {
         );
     };
 
+    const getBestVideoUrl = () => {
+        if (!exercises || exercises.length === 0) return null;
+        let url = exercises[0].video_url;
+        if (!url) {
+            const firstTitle = exercises[0].solution_stretch || exercises[0].title || exercises[0].common_name || '';
+            const match = EXERCISES.find(e => 
+                (exercises[0].id && e.id === exercises[0].id) || 
+                (firstTitle && e.title.toLowerCase() === firstTitle.toLowerCase()) || 
+                (exercises[0].common_name && e.title.toLowerCase().includes(exercises[0].common_name.toLowerCase()))
+            );
+            if (match && match.video_url) {
+                url = match.video_url;
+            } else {
+                // If it fails to find a perfect match, always fall back to the first available video
+                const backupMatch = EXERCISES.find(e => e.video_url);
+                url = backupMatch ? backupMatch.video_url : 'https://youtube.com/watch?v=WjMwXDgdgwI';
+            }
+        }
+        return url;
+    };
+
+    const bestUrl = getBestVideoUrl();
+    const videoId = bestUrl ? extractYoutubeId(bestUrl) : null;
+
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
@@ -390,21 +436,49 @@ export default function FindReliefScreen() {
                     <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
                         <Ionicons name="arrow-back" size={24} color={colors.text} />
                     </TouchableOpacity>
-                    <Text style={[styles.headerTitle, { color: colors.text }]} numberOfLines={1}>{titleLine}</Text>
+                    <View>
+                        <Text style={[styles.headerTitle, { color: colors.text }]}>{t('recommendedRoutine')}</Text>
+                        <Text style={styles.headerSubtitle}>
+                            {(() => {
+                                const mgKey = `mg${targetMuscle.replace(/\s/g, '').replace(/_/g, '')}` as any;
+                                const transMg = t(mgKey);
+                                const muscleName = transMg !== mgKey ? transMg : formatLabel(targetMuscle);
+
+                                if (painLocation && painLocation !== 'unknown') {
+                                    const locKey = `loc${painLocation.charAt(0).toUpperCase()}${painLocation.slice(1)}` as any;
+                                    const transLoc = t(locKey);
+                                    const locName = transLoc !== locKey ? transLoc : formatLabel(painLocation);
+                                    return `${muscleName} • ${locName}`;
+                                }
+                                return muscleName;
+                            })()}
+                        </Text>
+                    </View>
                     <View style={styles.headerSpacer} />
                 </View>
 
-                {/* Video placeholder */}
-                <View style={styles.videoContainer}>
-                    <Image
-                        source={{ uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAQvExJHNf-gPBvV9mafHYX_QH4RDM2a10DReFfan-2uta-tGIgoYLy2YcqV88Fw966WlK2bhvku-3_4e5f88wGpuO0qaD_Yr1qPxSQtigGhxM0Sq6uOtWbw-JV0RDp_0RmODacO147g0dvAY693HSe3XPVdm2eTzs6ER9VAKERpdSDpdD1MgVcJ8HJCDesjsxF-hhw0aRZc-sY0sB3sHox58BbJ7vYjkyyLq8KDnpbu4x0PolLYeNnsL3Q3fcRFHU5BkgY0KWaZ8NP' }}
-                        style={styles.videoThumbnail} contentFit="cover"
-                    />
-                    <View style={styles.videoOverlay} />
-                    <TouchableOpacity style={styles.playButton}>
-                        <Ionicons name="play" size={32} color="#000" />
-                    </TouchableOpacity>
-                </View>
+                {/* Video Component */}
+                {videoId && !isLoading ? (
+                    <View style={styles.videoContainer}>
+                        <YoutubePlayer
+                            height={windowWidth * (9/16)}
+                            width="100%"
+                            play={false}
+                            videoId={videoId}
+                        />
+                    </View>
+                ) : (
+                    <View style={styles.videoContainer}>
+                        <Image
+                            source={{ uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAQvExJHNf-gPBvV9mafHYX_QH4RDM2a10DReFfan-2uta-tGIgoYLy2YcqV88Fw966WlK2bhvku-3_4e5f88wGpuO0qaD_Yr1qPxSQtigGhxM0Sq6uOtWbw-JV0RDp_0RmODacO147g0dvAY693HSe3XPVdm2eTzs6ER9VAKERpdSDpdD1MgVcJ8HJCDesjsxF-hhw0aRZc-sY0sB3sHox58BbJ7vYjkyyLq8KDnpbu4x0PolLYeNnsL3Q3fcRFHU5BkgY0KWaZ8NP' }}
+                            style={styles.videoThumbnail} contentFit="cover"
+                        />
+                        <View style={styles.videoOverlay} />
+                        <TouchableOpacity style={styles.playButton} onPress={() => {}}>
+                            <Ionicons name="play" size={32} color="#000" />
+                        </TouchableOpacity>
+                    </View>
+                )}
 
                 {/* Info badges */}
                 <View style={styles.badgeRow}>
@@ -484,12 +558,30 @@ export default function FindReliefScreen() {
 
             {/* Sticky complete button */}
             <View style={[styles.bottomBar, { backgroundColor: colors.headerBackground, borderTopColor: colors.cardBorder }]}>
-                <AnimatedTouchableOpacity
-                    style={[styles.completeBtn, animatedButtonStyle]}
-                    onPress={handleComplete}
-                >
-                    <Text style={styles.completeBtnText}>{t('markAsComplete')}</Text>
-                </AnimatedTouchableOpacity>
+                <View style={styles.bottomBarButtons}>
+                    <TouchableOpacity
+                        style={[styles.guidedBtn, { borderColor: colors.accent }]}
+                        onPress={() => {
+                            router.push({
+                                pathname: '/guided-session' as any,
+                                params: {
+                                    exercises: JSON.stringify(exercises),
+                                    muscleGroup: targetMuscle,
+                                    activityType,
+                                },
+                            });
+                        }}
+                    >
+                        <Ionicons name="play-circle-outline" size={20} color={colors.accent} />
+                        <Text style={[styles.guidedBtnText, { color: colors.accent }]}>{t('guidedMode' as any) || 'Guided'}</Text>
+                    </TouchableOpacity>
+                    <AnimatedTouchableOpacity
+                        style={[styles.completeBtn, { flex: 1 }, animatedButtonStyle]}
+                        onPress={handleComplete}
+                    >
+                        <Text style={styles.completeBtnText}>{t('markAsComplete')}</Text>
+                    </AnimatedTouchableOpacity>
+                </View>
             </View>
         </SafeAreaView>
     );
@@ -503,7 +595,8 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16, paddingVertical: 12,
     },
     backButton: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
-    headerTitle: { color: '#fff', fontSize: 17, fontWeight: '800', flex: 1, textAlign: 'center' },
+    headerTitle: { fontSize: 17, fontWeight: '800', textAlign: 'center' },
+    headerSubtitle: { color: 'rgba(255,255,255,0.6)', fontSize: 13, fontWeight: '600', textAlign: 'center', marginTop: 2 },
     headerSpacer: { width: 44 },
     videoContainer: {
         marginHorizontal: 16, marginTop: 8, aspectRatio: 16 / 9,
@@ -537,6 +630,17 @@ const styles = StyleSheet.create({
         position: 'absolute', bottom: 0, left: 0, right: 0,
         paddingHorizontal: 16, paddingTop: 10, paddingBottom: 16, borderTopWidth: 1,
     },
+    bottomBarButtons: {
+        flexDirection: 'row',
+        gap: 10,
+        alignItems: 'center',
+    },
+    guidedBtn: {
+        height: 48, borderRadius: 12, borderWidth: 1.5,
+        flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+        gap: 6, paddingHorizontal: 16,
+    },
+    guidedBtnText: { fontSize: 14, fontWeight: '800' },
     completeBtn: {
         height: 48, borderRadius: 12, alignItems: 'center', justifyContent: 'center',
     },

@@ -15,6 +15,24 @@ export interface MuscleFrequency {
     count: number;
 }
 
+export interface WeeklyStats {
+    sessions: number;
+    minutes: number;
+    avgPain: number;
+}
+
+export interface WeeklyComparison {
+    thisWeek: WeeklyStats;
+    lastWeek: WeeklyStats;
+}
+
+export interface DailyDetail {
+    painLevel: number;
+    activityType: string;
+    muscle: string;
+    date: number;
+}
+
 export interface AnalyticsData {
     painTrends: PainTrendEntry[];
     activityDistribution: ActivityDistribution[];
@@ -28,6 +46,8 @@ export interface AnalyticsData {
     levelProgress: number;
     injuryRecovery: number;
     insights: { key: string; params?: Record<string, string | number> }[];
+    weeklyComparison: WeeklyComparison;
+    dailyBreakdown: DailyDetail[];
 }
 
 /**
@@ -149,6 +169,38 @@ export const processAnalytics = (history: HistoryItem[]): AnalyticsData => {
     if (mostActiveMuscle !== 'None') insights.push({ key: 'insight_focus', params: { muscle: mostActiveMuscle } });
     if (insights.length === 0) insights.push({ key: 'insight_start' });
 
+    // ── Weekly Comparison ─────────────────────────────────────────────
+    const oneWeekAgo = now - 7 * 86400000;
+    const twoWeeksAgo = now - 14 * 86400000;
+
+    const thisWeekSessions = history.filter(h => h.date >= oneWeekAgo);
+    const lastWeekSessions = history.filter(h => h.date >= twoWeeksAgo && h.date < oneWeekAgo);
+
+    const calcWeeklyStats = (sessions: HistoryItem[]): WeeklyStats => {
+        const painSessions = sessions.filter(s => s.assessment?.painLevel !== undefined);
+        const totalPain = painSessions.reduce((sum, s) => sum + (s.assessment?.painLevel || 0), 0);
+        return {
+            sessions: sessions.length,
+            minutes: sessions.length * 4, // ~4 min per exercise avg
+            avgPain: painSessions.length > 0 ? Number((totalPain / painSessions.length).toFixed(1)) : 0,
+        };
+    };
+
+    const weeklyComparison: WeeklyComparison = {
+        thisWeek: calcWeeklyStats(thisWeekSessions),
+        lastWeek: calcWeeklyStats(lastWeekSessions),
+    };
+
+    // ── Daily Breakdown (for interactive chart tooltips) ──────────────
+    const dailyBreakdown: DailyDetail[] = sortedHistory
+        .filter(h => h.assessment?.painLevel !== undefined)
+        .map(h => ({
+            painLevel: h.assessment!.painLevel!,
+            activityType: h.assessment?.activityType || 'relief',
+            muscle: h.muscleGroup,
+            date: h.date,
+        }));
+
     return {
         painTrends,
         activityDistribution,
@@ -161,6 +213,8 @@ export const processAnalytics = (history: HistoryItem[]): AnalyticsData => {
         level,
         levelProgress,
         injuryRecovery,
-        insights
+        insights,
+        weeklyComparison,
+        dailyBreakdown,
     };
 };

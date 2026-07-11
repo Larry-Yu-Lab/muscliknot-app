@@ -46,7 +46,11 @@ const getMuscleKey = (name: string | undefined) => {
 const ExerciseCard = ({ id, title, duration, target, image, t, colors, exercise, isSaved, onToggleSave }: ExerciseCardProps & { exercise: any }) => {
     const router = useRouter();
     const titleKey = `ex_${id}_title` as any;
-    const translatedTitle = t(titleKey) !== titleKey ? t(titleKey) : title;
+    let translatedTitle = t(titleKey) !== titleKey ? t(titleKey) : title;
+
+    if (title === 'Neck Release & Stretch') translatedTitle = t('db_neck_title' as any) || title;
+    else if (title === 'Lower Back Decompression') translatedTitle = t('db_lower_back_title' as any) || title;
+    else if (title === 'Full Leg Flush') translatedTitle = t('db_leg_title' as any) || title;
 
     const handlePress = () => {
         router.push({
@@ -60,7 +64,8 @@ const ExerciseCard = ({ id, title, duration, target, image, t, colors, exercise,
                 why: exercise.why,
                 process: exercise.process,
                 instructions: exercise.instructions,
-                muscleGroup: exercise.muscleGroup
+                muscleGroup: exercise.muscleGroup,
+                video_url: exercise.video_url ? encodeURIComponent(exercise.video_url) : undefined
             }
         });
     };
@@ -78,14 +83,14 @@ const ExerciseCard = ({ id, title, duration, target, image, t, colors, exercise,
                 />
             </View>
             <View style={styles.exerciseContent}>
-                <Text style={[styles.exerciseTitle, { color: colors.text }]}>{translatedTitle}</Text>
+                <Text numberOfLines={2} style={[styles.exerciseTitle, { color: colors.text }]}>{translatedTitle}</Text>
                 <View style={styles.exerciseMeta}>
                     <View style={styles.durationContainer}>
                         <Ionicons name="timer-outline" size={14} color={colors.textSecondary} />
                         <Text style={[styles.durationText, { color: colors.textSecondary }]}>{duration}</Text>
                     </View>
                     <View style={[styles.targetBadge, { backgroundColor: colors.accent + '15', borderColor: colors.accent + '30' }]}>
-                        <Text style={[styles.targetText, { color: colors.accent }]}>
+                        <Text numberOfLines={1} style={[styles.targetText, { color: colors.accent }]}>
                             {t('target', { target: t(getMuscleKey(target)) !== getMuscleKey(target) ? t(getMuscleKey(target)) : target })}
                         </Text>
                     </View>
@@ -116,19 +121,49 @@ export default function LibraryScreen() {
                 const { data, error } = await supabase.from('recovery_knowledge_base').select('*');
                 if (error) console.error('Error fetching exercises:', error);
                 else if (data) {
+                    const extractYoutubeId = (url: string | undefined | null) => {
+                        if (!url) return null;
+                        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+                        const match = url.match(regExp);
+                        return (match && match[2].length === 11) ? match[2] : null;
+                    };
+
                     const categoryMap: Record<string, string> = {
                         'relief': 'Relief', 'posture': 'Posture', 'warmup': 'Warm-ups', 'warmups': 'Warm-ups', 'yoga': 'Yoga', 'strength': 'Strength',
                     };
-                    const transformed = data.map((ex: any) => ({
-                        id: ex.id?.toString() || String(Math.random()),
-                        title: ex.solution_stretch || ex.common_name || 'Unknown Exercise',
-                        duration: '3-5 min',
-                        target: ex.common_name || 'General',
-                        muscleGroup: ex.common_name?.split(' ')[0] || 'General',
-                        category: categoryMap[ex.exercise_type?.toLowerCase()] || 'Relief',
-                        image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAQvExJHNf-gPBvV9mafHYX_QH4RDM2a10DReFfan-2uta-tGIgoYLy2YcqV88wGpuO0qaD_Yr1qPxSQtigGhxM0Sq6uOtWbw-JV0RDp_0RmODacO147g0dvAY693HSe3XPVdm2eTzs6ER9VAKERpdSDpdD1MgVcJ8HJCDesjsxF-hhw0aRZc-sY0sB3sHox58BbJ7vYjkyyLq8KDnpbu4x0PolLYeNnsL3Q3fcRFHU5BkgY0KWaZ8NP',
-                        instructions: ex.instructions, why: ex.why, process: ex.process,
-                    }));
+                    const transformed = data.map((ex: any) => {
+                        const title = ex.title || ex.solution_stretch || ex.common_name || 'Unknown Exercise';
+                        // Use local EXERCISES as fallback to find video_urls for things that don't have them
+                        const rawVideoUrl = ex.video_url || EXERCISES.find(e => e.title === title || e.id === ex.id)?.video_url;
+                        const vidId = extractYoutubeId(rawVideoUrl);
+                        const getFallbackImage = (mg: string) => {
+                            const muscle = mg?.toLowerCase() || 'general';
+                            if (muscle.includes('neck')) return 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=400';
+                            if (muscle.includes('shoulder')) return 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=400';
+                            if (muscle.includes('back')) return 'https://images.unsplash.com/photo-1544367563-8f2127fa2b6d?w=400';
+                            if (muscle.includes('leg') || muscle.includes('glute')) return 'https://images.unsplash.com/photo-1599058917212-d750089bc07e?w=400';
+                            return 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=400';
+                        };
+
+                        const muscleGroup = ex.common_name?.split(' ')[0] || 'General';
+                        const image = vidId 
+                            ? `https://img.youtube.com/vi/${vidId}/0.jpg`
+                            : getFallbackImage(muscleGroup);
+                            
+                        return {
+                            id: ex.id?.toString() || String(Math.random()),
+                            title,
+                            duration: ex.duration || '3-5 min',
+                            target: ex.common_name || 'General',
+                            muscleGroup,
+                            category: categoryMap[ex.exercise_type?.toLowerCase()] || 'Relief',
+                            image,
+                            instructions: ex.instructions || ex.description, 
+                            why: ex.why, 
+                            process: ex.process,
+                            video_url: rawVideoUrl,
+                        };
+                    });
                     setSupabaseExercises(transformed);
                 }
             } catch (err) { console.error(err); } finally { setIsLoading(false); }
@@ -281,12 +316,12 @@ const styles = StyleSheet.create({
     exerciseCard: { flexDirection: 'row', alignItems: 'center', padding: 12, borderRadius: 16, borderWidth: 1 },
     exerciseImageContainer: { width: 64, height: 64, borderRadius: 32, borderWidth: 2, overflow: 'hidden' },
     exerciseImage: { width: '100%', height: '100%' },
-    exerciseContent: { flex: 1, marginLeft: 16 },
+    exerciseContent: { flex: 1, marginLeft: 16, marginRight: 8 },
     exerciseTitle: { fontSize: 16, fontWeight: '700', marginBottom: 4 },
-    exerciseMeta: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+    exerciseMeta: { flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' },
     durationContainer: { flexDirection: 'row', alignItems: 'center', gap: 4 },
     durationText: { fontSize: 12, fontWeight: '500' },
-    targetBadge: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 12, borderWidth: 1 },
+    targetBadge: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 12, borderWidth: 1, maxWidth: '100%' },
     targetText: { fontSize: 10, fontWeight: '700', textTransform: 'uppercase' },
     favoriteButton: { padding: 8 },
 });

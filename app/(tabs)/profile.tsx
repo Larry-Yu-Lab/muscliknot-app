@@ -4,13 +4,15 @@ import { useAuth } from '@/context/AuthContext';
 import { usePreferences } from '@/context/PreferencesContext';
 import { useUser } from '@/context/UserContext';
 import { processAnalytics } from '@/utils/analytics';
+import { isHealthKitAvailable, isHealthKitEnabled, setHealthKitEnabled as persistHealthKitEnabled, requestHealthKitPermission, getHealthKitSteps } from '@/utils/healthKit';
 import { getTranslation, LANGUAGES } from '@/utils/i18n';
 import { getHistory } from '@/utils/storage';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { useFocusEffect, useRouter } from 'expo-router';
-import React, { useCallback, useState } from 'react';
-import { Dimensions, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import * as WebBrowser from 'expo-web-browser';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Alert, Dimensions, Modal, Platform, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Svg, { Circle, Line, Path } from 'react-native-svg';
 
 const { width } = Dimensions.get('window');
@@ -18,7 +20,13 @@ const { width } = Dimensions.get('window');
 const PainTrendsMiniSvg = ({ trends, color }: { trends: any[], color: string }) => {
     if (trends.length < 2) {
         return (
-            <Svg width="100%" height={40} viewBox="0 0 100 40" preserveAspectRatio="none">
+            <Svg 
+                width="100%" 
+                height={40} 
+                viewBox="0 0 100 40" 
+                preserveAspectRatio="none"
+                onLayout={() => {}}
+            >
                 <Line x1="0" y1="35" x2="100" y2="35" stroke="rgba(148, 163, 184, 0.2)" strokeWidth="2" strokeDasharray="4 4" />
             </Svg>
         );
@@ -43,7 +51,13 @@ const PainTrendsMiniSvg = ({ trends, color }: { trends: any[], color: string }) 
     const lastY = chartHeight - (recentTrends[recentTrends.length - 1].painLevel / maxPain) * (chartHeight - padding * 2) - padding;
 
     return (
-        <Svg width="100%" height={40} viewBox="0 0 100 40" preserveAspectRatio="none">
+        <Svg 
+            width="100%" 
+            height={40} 
+            viewBox="0 0 100 40" 
+            preserveAspectRatio="none"
+            onLayout={() => {}}
+        >
             <Path
                 d={pathData}
                 fill="none"
@@ -60,8 +74,9 @@ const PainTrendsMiniSvg = ({ trends, color }: { trends: any[], color: string }) 
 export default function ProfileScreen() {
     const router = useRouter();
     const { theme, language, toggleTheme, setLanguage, notificationsEnabled, toggleNotifications } = usePreferences();
+    const [isFitnessLevelModalVisible, setIsFitnessLevelModalVisible] = useState(false);
     const { user, updateUser } = useUser();
-    const { signOut } = useAuth();
+    const { user: authUser, signOut } = useAuth();
     const colors = Colors[theme];
     const isDark = theme === 'dark';
     const t = (key: Parameters<typeof getTranslation>[1], params?: Record<string, string>) => getTranslation(language, key, params);
@@ -75,6 +90,66 @@ export default function ProfileScreen() {
     });
     const [painTrends, setPainTrends] = useState<any[]>([]);
     const [isLanguageDropdownOpen, setIsLanguageDropdownOpen] = useState(false);
+    const [healthKitEnabled, setHealthKitEnabledState] = useState(false);
+    const [todaySteps, setTodaySteps] = useState<number>(0);
+
+    // Load persisted HealthKit preference on mount
+    useEffect(() => {
+        isHealthKitEnabled().then(setHealthKitEnabledState);
+    }, []);
+
+    const handleUpdateFitnessLevel = (level: string) => {
+        updateUser({
+            attributes: {
+                ...user.attributes,
+                fitnessLevel: level
+            }
+        });
+        setIsFitnessLevelModalVisible(false);
+    };
+
+    const handleUpgrade = async () => {
+        const url = billingCycle === 'annual' 
+            ? 'https://buy.stripe.com/test_placeholder_elite_annual' 
+            : 'https://buy.stripe.com/test_placeholder_elite_monthly';
+        
+        // Pass the user's ID as a client_reference_id in the URL to associate the webhook event with this user
+        const checkoutUrl = `${url}?client_reference_id=${authUser?.id || ''}`;
+        await WebBrowser.openBrowserAsync(checkoutUrl);
+    };
+
+    const handleHealthKitToggle = async () => {
+        if (!healthKitEnabled) {
+            // Turning ON — request permissions
+            if (!isHealthKitAvailable()) {
+                Alert.alert(
+                    'Not Available',
+                    'Apple Health integration requires a native build. Run `npx expo run:ios` to enable this feature.',
+                    [{ text: 'OK' }]
+                );
+                return;
+            }
+            const granted = await requestHealthKitPermission();
+            if (granted) {
+                await persistHealthKitEnabled(true);
+                setHealthKitEnabledState(true);
+                // Fetch initial steps
+                const steps = await getHealthKitSteps();
+                setTodaySteps(steps);
+            } else {
+                Alert.alert(
+                    'Permission Denied',
+                    'MuscliKnot needs Apple Health access to sync your workouts and read step data. You can enable this in Settings > Privacy > Health.',
+                    [{ text: 'OK' }]
+                );
+            }
+        } else {
+            // Turning OFF
+            await persistHealthKitEnabled(false);
+            setHealthKitEnabledState(false);
+            setTodaySteps(0);
+        }
+    };
 
     useFocusEffect(
         useCallback(() => {
@@ -107,6 +182,13 @@ export default function ProfileScreen() {
                             injuryRecovery: analytics.injuryRecovery
                         }
                     });
+                }
+            });
+
+            // Refresh step count if HealthKit is enabled
+            isHealthKitEnabled().then(enabled => {
+                if (enabled) {
+                    getHealthKitSteps().then(setTodaySteps);
                 }
             });
         }, [])
@@ -152,7 +234,13 @@ export default function ProfileScreen() {
                         <View style={styles.avatarSection}>
                             <View style={styles.avatarContainer}>
                                 {/* Progress Ring SVG */}
-                                <Svg style={styles.progressRing} width={144} height={144} viewBox="0 0 144 144">
+                                <Svg 
+                                    style={styles.progressRing} 
+                                    width={144} 
+                                    height={144} 
+                                    viewBox="0 0 144 144"
+                                    onLayout={() => {}}
+                                >
                                     <Circle
                                         cx="72"
                                         cy="72"
@@ -256,7 +344,12 @@ export default function ProfileScreen() {
                                     </View>
                                     {/* Circular Progress */}
                                     <View style={styles.circularProgressContainer}>
-                                        <Svg width={80} height={80} viewBox="0 0 80 80">
+                                        <Svg 
+                                            width={80} 
+                                            height={80} 
+                                            viewBox="0 0 80 80"
+                                            onLayout={() => {}}
+                                        >
                                             <Circle
                                                 cx="40"
                                                 cy="40"
@@ -281,15 +374,22 @@ export default function ProfileScreen() {
                                         </Svg>
                                         <Text style={[styles.circularProgressText, { color: colors.text }]}>{user.attributes.levelProgress}%</Text>
                                     </View>
-                                    <View style={styles.fitnessInfo}>
+                                    <TouchableOpacity 
+                                        style={styles.fitnessInfo}
+                                        onPress={() => setIsFitnessLevelModalVisible(true)}
+                                    >
                                         <Text style={[styles.cardLabel, { color: colors.textSecondary }]}>{t('fitnessLevel')}</Text>
-                                        <Text style={[styles.fitnessLevelText, { color: colors.text }]}>
-                                            {(() => {
-                                                const levelKey = `fl${user.attributes.fitnessLevel.charAt(0) + user.attributes.fitnessLevel.slice(1).toLowerCase()}` as any;
-                                                return t(levelKey) !== levelKey ? t(levelKey) : user.attributes.fitnessLevel;
-                                            })()}
-                                        </Text>
-                                    </View>
+                                        <View style={styles.fitnessLevelRow}>
+                                            <Text style={[styles.fitnessLevelText, { color: colors.text }]}>
+                                                {(() => {
+                                                    const fl = user.attributes.fitnessLevel || 'BEGINNER';
+                                                    const levelKey = `fl${fl.charAt(0) + fl.slice(1).toLowerCase()}` as any;
+                                                    return t(levelKey) !== levelKey ? t(levelKey) : fl;
+                                                })()}
+                                            </Text>
+                                            <Ionicons name="chevron-forward" size={16} color={colors.textSecondary} />
+                                        </View>
+                                    </TouchableOpacity>
                                 </View>
                             </View>
                         </View>
@@ -384,6 +484,48 @@ export default function ProfileScreen() {
                                 )}
                             </View>
 
+                            {/* Apple Health Toggle (iOS only) */}
+                            {Platform.OS === 'ios' && (
+                                <View style={[styles.pillCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
+                                    <View style={styles.rowInner}>
+                                        <View style={styles.rowLeft}>
+                                            <View style={[styles.iconCircleSmall, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : '#e5e7eb' }]}>
+                                                <Ionicons name="heart" size={18} color="#ef4444" />
+                                            </View>
+                                            <View>
+                                                <Text style={[styles.pillLabel, { color: colors.text }]}>{t('appleHealth' as any) || 'Apple Health'}</Text>
+                                                {healthKitEnabled && todaySteps > 0 && (
+                                                    <Text style={[styles.healthSubLabel, { color: colors.textSecondary }]}>
+                                                        {todaySteps.toLocaleString()} steps today
+                                                    </Text>
+                                                )}
+                                            </View>
+                                        </View>
+                                        <CustomToggle
+                                            value={healthKitEnabled}
+                                            onValueChange={handleHealthKitToggle}
+                                            activeColor="#ef4444"
+                                        />
+                                    </View>
+                                </View>
+                            )}
+
+                            {/* Recovery Squad Card */}
+                            <TouchableOpacity
+                                style={[styles.pillCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}
+                                onPress={() => router.push('/squads' as any)}
+                            >
+                                <View style={styles.rowInner}>
+                                    <View style={styles.rowLeft}>
+                                        <View style={[styles.iconCircleSmall, { backgroundColor: isDark ? 'rgba(139,92,246,0.15)' : '#ede9fe' }]}>
+                                            <MaterialCommunityIcons name="account-group" size={18} color="#8b5cf6" />
+                                        </View>
+                                        <Text style={[styles.pillLabel, { color: colors.text }]}>{t('recoverySquad' as any) || 'Recovery Squad'}</Text>
+                                    </View>
+                                    <Ionicons name="chevron-forward" size={18} color={colors.textSecondary} />
+                                </View>
+                            </TouchableOpacity>
+
                             {/* Settings Link */}
                             <TouchableOpacity
                                 style={[styles.pillCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}
@@ -453,12 +595,12 @@ export default function ProfileScreen() {
                                     <View>
                                         <Text style={styles.planTitleElite}>{t('elitePlan')}</Text>
                                         <View style={styles.priceContainer}>
-                                            <Text style={[styles.priceBig, { color: colors.text }]}>{billingCycle === 'annual' ? '$7.99' : '$9.99'}</Text>
+                                            <Text style={[styles.priceBig, { color: colors.text }]}>{billingCycle === 'annual' ? '$2.99' : '$3.99'}</Text>
                                             <Text style={[styles.pricePeriod, { color: colors.textSecondary }]}>{t('monthAbbr')}</Text>
                                         </View>
                                         {billingCycle === 'annual' && (
                                             <Text style={[styles.billedText, { color: colors.textSecondary }]}>
-                                                {t('billedAnnually')} {t('annualPrice').replace('${price}', '95.88')}
+                                                {t('billedAnnually')} {t('annualPrice').replace('${price}', '35.88')}
                                             </Text>
                                         )}
                                     </View>
@@ -479,7 +621,10 @@ export default function ProfileScreen() {
                                         </View>
                                     ))}
                                 </View>
-                                <TouchableOpacity style={[styles.eliteButton, { backgroundColor: colors.accent }]}>
+                                <TouchableOpacity 
+                                    style={[styles.eliteButton, { backgroundColor: colors.accent }]}
+                                    onPress={handleUpgrade}
+                                >
                                     <Text style={styles.eliteButtonText}>
                                         {billingCycle === 'annual' ? t('upgradeSave') : t('upgradeElite')}
                                     </Text>
@@ -487,43 +632,7 @@ export default function ProfileScreen() {
                             </View>
                         </View>
 
-                        {/* Tables and Pro Card logic simplified for brevity but followed same theme pattern */}
-                        {/* Pro Plan Card */}
-                        <View style={[styles.proCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
-                            <View style={styles.planHeader}>
-                                <View>
-                                    <View style={styles.proBadge}>
-                                        <Text style={styles.proBadgeText}>{t('pro')}</Text>
-                                    </View>
-                                    <Text style={[styles.planTitlePro, { color: colors.text }]}>{t('proPlan')}</Text>
-                                    <View style={styles.priceContainer}>
-                                        <Text style={[styles.priceBig, { color: colors.text }]}>{billingCycle === 'annual' ? '$3.99' : '$4.99'}</Text>
-                                        <Text style={[styles.pricePeriod, { color: colors.textSecondary }]}>{t('monthAbbr')}</Text>
-                                    </View>
-                                    {billingCycle === 'annual' && (
-                                        <Text style={[styles.billedText, { color: colors.textSecondary }]}>
-                                            {t('billedAnnually')} {t('annualPrice').replace('${price}', '47.88')}
-                                        </Text>
-                                    )}
-                                </View>
-                            </View>
-                            <View style={[styles.divider, { backgroundColor: colors.cardBorder }]} />
-                            <View style={styles.featuresList}>
-                                {[
-                                    'featureBasicAI',
-                                    'featureStandardMapping',
-                                    'featureWeeklyReports'
-                                ].map((key, i) => (
-                                    <View key={i} style={styles.featureItem}>
-                                        <Ionicons name="checkmark-circle" size={20} color={colors.textSecondary} />
-                                        <Text style={[styles.featureText, { color: colors.textSecondary }]}>{t(key as any)}</Text>
-                                    </View>
-                                ))}
-                            </View>
-                            <TouchableOpacity style={[styles.proButton, { borderColor: colors.cardBorder }]}>
-                                <Text style={[styles.proButtonText, { color: colors.text }]}>{t('choosePro')}</Text>
-                            </TouchableOpacity>
-                        </View>
+
 
                         {/* Freemium Plan Card */}
                         <View style={[styles.proCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder, marginTop: 16 }]}>
@@ -564,6 +673,52 @@ export default function ProfileScreen() {
                 )}
 
             </ScrollView>
+
+            <Modal
+                visible={isFitnessLevelModalVisible}
+                transparent={true}
+                animationType="fade"
+                onRequestClose={() => setIsFitnessLevelModalVisible(false)}
+            >
+                <Pressable 
+                    style={styles.modalOverlay} 
+                    onPress={() => setIsFitnessLevelModalVisible(false)}
+                >
+                    <View style={[styles.modalContent, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
+                        <Text style={[styles.modalTitle, { color: colors.text }]}>{t('fitnessLevel')}</Text>
+                        <Text style={[styles.modalSubtitle, { color: colors.textSecondary }]}>{t('youCanChangeLater' as any)}</Text>
+                        
+                        {['BEGINNER', 'INTERMEDIATE', 'ADVANCED'].map((level) => (
+                            <TouchableOpacity
+                                key={level}
+                                style={[
+                                    styles.modalOption,
+                                    { borderColor: colors.cardBorder },
+                                    user.attributes.fitnessLevel === level && { backgroundColor: colors.accent, borderColor: colors.accent }
+                                ]}
+                                onPress={() => handleUpdateFitnessLevel(level)}
+                            >
+                                <Text style={[
+                                    styles.modalOptionText,
+                                    { color: user.attributes.fitnessLevel === level ? '#000' : colors.text }
+                                ]}>
+                                    {t(`fl${level.charAt(0) + level.slice(1).toLowerCase()}` as any)}
+                                </Text>
+                                {user.attributes.fitnessLevel === level && (
+                                    <Ionicons name="checkmark-circle" size={20} color="#000" />
+                                )}
+                            </TouchableOpacity>
+                        ))}
+                        
+                        <TouchableOpacity 
+                            style={[styles.modalCloseButton, { marginTop: 12 }]}
+                            onPress={() => setIsFitnessLevelModalVisible(false)}
+                        >
+                            <Text style={[styles.modalCloseText, { color: colors.textSecondary }]}>{t('dismiss')}</Text>
+                        </TouchableOpacity>
+                    </View>
+                </Pressable>
+            </Modal>
         </SafeAreaView>
     );
 }
@@ -1119,6 +1274,11 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: '700',
     },
+    healthSubLabel: {
+        fontSize: 12,
+        fontWeight: '600',
+        marginTop: 2,
+    },
     currentLangTextPill: {
         fontSize: 14,
         fontWeight: '800',
@@ -1142,5 +1302,50 @@ const styles = StyleSheet.create({
     logoutText: {
         fontSize: 16,
         fontWeight: '600',
+    },
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.7)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 24,
+    },
+    modalContent: {
+        width: '100%',
+        borderRadius: 24,
+        padding: 24,
+        borderWidth: 1,
+        gap: 16,
+    },
+    modalTitle: {
+        fontSize: 22,
+        fontWeight: '800',
+        textAlign: 'center',
+    },
+    modalSubtitle: {
+        fontSize: 13,
+        fontWeight: '600',
+        textAlign: 'center',
+        marginBottom: 8,
+    },
+    modalOption: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: 18,
+        borderRadius: 16,
+        borderWidth: 1,
+    },
+    modalOptionText: {
+        fontSize: 16,
+        fontWeight: '700',
+    },
+    modalCloseButton: {
+        padding: 12,
+        alignItems: 'center',
+    },
+    modalCloseText: {
+        fontSize: 15,
+        fontWeight: '700',
     },
 });

@@ -35,7 +35,12 @@ export default function ResultsScreen() {
                 <Text style={styles.subtitle}>See the difference between our targeted approach and traditional methods over time.</Text>
                 
                 <View style={styles.graphContainer}>
-                    <Svg width="100%" height={250} viewBox="0 0 300 250">
+                    <Svg 
+                        width="100%" 
+                        height={250} 
+                        viewBox="0 0 300 250"
+                        onLayout={() => {}}
+                    >
                         {/* Axes */}
                         <Line x1="40" y1="20" x2="40" y2="210" stroke="#555" strokeWidth="2" />
                         <Line x1="40" y1="210" x2="280" y2="210" stroke="#555" strokeWidth="2" />

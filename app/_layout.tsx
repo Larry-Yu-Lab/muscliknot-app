@@ -3,18 +3,23 @@ import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import { View, Text as RNText, LogBox } from 'react-native';
+import { Image } from 'expo-image';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import 'react-native-reanimated';
 
+// Suppress the yellow warning banner in dev mode
+LogBox.ignoreAllLogs(true);
+
+import * as SplashScreen from 'expo-splash-screen';
+import { useFonts } from 'expo-font';
+import { Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { AuthProvider, useAuth } from '@/context/AuthContext';
 import { PreferencesProvider, usePreferences } from '@/context/PreferencesContext';
 import { UserProvider } from '@/context/UserContext';
 
-export const unstable_settings = {
-  anchor: '(tabs)',
-};
-
+// We DO NOT call SplashScreen.preventAutoHideAsync() here because we want the native 
+// pure black splash screen to hide immediately to reveal our custom JS loading screen.
 export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -31,78 +36,157 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
   const { theme } = usePreferences();
-  const { session, isLoading } = useAuth();
+  const { session, isLoading: authLoading } = useAuth();
   const segments = useSegments();
   const router = useRouter();
-  const [onboardingComplete, setOnboardingComplete] = useState<boolean | null>(null);
-  const [initialRouteHandled, setInitialRouteHandled] = useState(false);
 
-  // Check onboarding status on mount
+  // Three pieces of state we need before we can route
+  const [onboardingComplete, setOnboardingComplete] = useState<boolean | null>(null);
+  const [isAppReady, setIsAppReady] = useState(false);
+  const [hasNavigated, setHasNavigated] = useState(false);
+  const [progress, setProgress] = useState(0);
+
+  const [fontsLoaded, fontError] = useFonts({
+    ...Ionicons.font,
+    ...MaterialCommunityIcons.font,
+    ...MaterialIcons.font,
+  });
+
+  // 1. Load onboarding status once on mount (with timeout safety)
   useEffect(() => {
-    const checkOnboarding = async () => {
-      const complete = await AsyncStorage.getItem('onboarding_complete');
-      setOnboardingComplete(complete === 'true');
-    };
-    checkOnboarding();
+    let cancelled = false;
+    const timeout = setTimeout(() => {
+      if (!cancelled) {
+        console.warn('AsyncStorage timed out — defaulting onboarding to false');
+        setOnboardingComplete(false);
+      }
+    }, 3000);
+
+    AsyncStorage.getItem('onboarding_complete')
+      .then(val => {
+        if (!cancelled) setOnboardingComplete(val === 'true');
+      })
+      .catch(() => {
+        if (!cancelled) setOnboardingComplete(false);
+      })
+      .finally(() => clearTimeout(timeout));
+
+    return () => { cancelled = true; clearTimeout(timeout); };
   }, []);
 
-  // Handle initial routing only once
+  // 2. Animate the fake progress bar
   useEffect(() => {
-    if (isLoading || onboardingComplete === null || initialRouteHandled) return;
+    if (isAppReady) { setProgress(100); return; }
+    const interval = setInterval(() => {
+      setProgress(prev => prev >= 95 ? prev : prev + Math.floor(Math.random() * 5) + 2);
+    }, 150);
+    return () => clearInterval(interval);
+  }, [isAppReady]);
+
+  // 3. Mark app ready once ALL three conditions are satisfied
+  //    fonts + auth + onboarding state — with a hard 5s safety ceiling
+  useEffect(() => {
+    const fontsReady = fontsLoaded || !!fontError;
+    const authReady = !authLoading;
+    const onboardingReady = onboardingComplete !== null;
+
+    if (fontsReady && authReady && onboardingReady) {
+      // Short cosmetic delay so the progress bar doesn't snap
+      const timer = setTimeout(() => {
+        setIsAppReady(true);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [fontsLoaded, fontError, authLoading, onboardingComplete]);
+
+  // 4. Absolute fallback — 5 seconds and we force open regardless
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsAppReady(true);
+    }, 5000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // 5. Determine the correct initial route synchronously
+  //    This prevents the Stack from briefly rendering the wrong screen
+  const initialRoute = session ? '(tabs)' : 'onboarding';
+
+  // 6. Handle navigation after app is ready
+  useEffect(() => {
+    if (!isAppReady) return;
 
     const inAuthGroup = segments[0] === 'auth';
+    const isAuthSuccessScreen = segments[0] === 'auth' && (segments[1] === 'signup-success' || segments[1] === 'login-welcome');
     const inOnboarding = segments[0] === 'onboarding';
 
-    // If onboarding not complete, redirect to onboarding
-    if (!onboardingComplete && !inOnboarding) {
-      setInitialRouteHandled(true);
-      router.replace('/onboarding/welcome' as any);
+    // Already on the right screen family — mark navigated and do nothing
+    if (session && (!inAuthGroup && !inOnboarding || isAuthSuccessScreen)) {
+      setHasNavigated(true);
+      return;
+    }
+    if (!session && inOnboarding) {
+      setHasNavigated(true);
+      return;
+    }
+    if (!session && inAuthGroup) {
+      setHasNavigated(true);
       return;
     }
 
-    // If onboarding complete but not logged in
-    if (onboardingComplete && !session && !inAuthGroup) {
-      setInitialRouteHandled(true);
-      router.replace('/auth/login' as any);
-      return;
-    }
-
-    // If logged in, go to tabs
-    if (session) {
-      setInitialRouteHandled(true);
+    if (!session) {
+      router.replace('/onboarding' as any);
+    } else if (session && (inAuthGroup && !isAuthSuccessScreen || inOnboarding)) {
       router.replace('/(tabs)' as any);
-      return;
     }
 
-    // Mark as handled if we're already in correct location
-    setInitialRouteHandled(true);
-  }, [isLoading, onboardingComplete, session]);
+    // Mark navigated after a short delay to let the navigation settle
+    const navTimer = setTimeout(() => setHasNavigated(true), 100);
+    return () => clearTimeout(navTimer);
+  }, [isAppReady, session, onboardingComplete, segments, router]);
 
-
-  if (isLoading || onboardingComplete === null) {
+  // Show the custom loading screen until ready AND first navigation is settled
+  if (!isAppReady || !hasNavigated) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#1a1a1a' }}>
-        <ActivityIndicator size="large" color="#f97316" />
+      <View style={{ flex: 1, backgroundColor: '#000000', justifyContent: 'center', alignItems: 'center' }}>
+        <View style={{ alignItems: 'center', marginBottom: 48 }}>
+          <Image
+            source={require('@/assets/images/muscliknot-logo.png')}
+            style={{ width: 140, height: 100, marginBottom: 16 }}
+            contentFit="contain"
+          />
+          <RNText style={{ color: '#FFFFFF', fontSize: 28, fontWeight: '900', letterSpacing: 1 }}>
+            MuscliKnot
+          </RNText>
+        </View>
+        <View style={{ width: 200, height: 4, backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: 2, overflow: 'hidden' }}>
+          <View style={{ width: `${progress}%`, height: '100%', backgroundColor: '#f97316' }} />
+        </View>
       </View>
     );
   }
 
   return (
     <ThemeProvider value={theme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="onboarding" />
-        <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="auth/login" />
-        <Stack.Screen name="auth/register" />
-        <Stack.Screen name="auth/signup-success" />
-        <Stack.Screen name="auth/login-welcome" />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal', headerShown: true }} />
-        <Stack.Screen name="settings" options={{ presentation: 'card' }} />
-        <Stack.Screen name="analytics" />
-        <Stack.Screen name="results" />
-      </Stack>
+      <View style={{ flex: 1 }}>
+        <Stack screenOptions={{ headerShown: false, animation: 'none' }} initialRouteName={initialRoute}>
+          <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="onboarding" options={{ animation: 'fade' }} />
+          <Stack.Screen name="auth/login" />
+          <Stack.Screen name="auth/register" />
+          <Stack.Screen name="auth/signup-success" />
+          <Stack.Screen name="auth/login-welcome" />
+          <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal', headerShown: true }} />
+          <Stack.Screen name="settings" options={{ presentation: 'card' }} />
+          <Stack.Screen name="settings/equipment" options={{ presentation: 'card' }} />
+          <Stack.Screen name="exercise/[id]" />
+          <Stack.Screen name="analytics" />
+          <Stack.Screen name="results" />
+          <Stack.Screen name="privacy" />
+          <Stack.Screen name="guided-session" options={{ presentation: 'fullScreenModal', gestureEnabled: false }} />
+          <Stack.Screen name="squads" />
+        </Stack>
+      </View>
       <StatusBar style={theme === 'dark' ? 'light' : 'dark'} />
     </ThemeProvider>
   );
 }
-

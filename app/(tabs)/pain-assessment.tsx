@@ -1,5 +1,6 @@
 import { Colors } from '@/constants/theme';
 import { usePreferences } from '@/context/PreferencesContext';
+import { useUser } from '@/context/UserContext';
 import { painLevelColor } from '@/utils/assessmentEngine';
 import { getTranslation } from '@/utils/i18n';
 import { Ionicons } from '@expo/vector-icons';
@@ -13,6 +14,7 @@ export default function AssessmentScreen() {
     const router = useRouter();
     const params = useLocalSearchParams();
     const { language, theme } = usePreferences();
+    const { user } = useUser();
     const t = (key: Parameters<typeof getTranslation>[1]) => getTranslation(language, key);
     const colors = Colors[theme];
 
@@ -176,6 +178,16 @@ export default function AssessmentScreen() {
 
     // Params
     const { x, y, width, height, rotation, view, size, muscleId, activityType = 'relief' } = params;
+
+    // Pre-fill fitness level from profile for relevant activities
+    React.useEffect(() => {
+        if (!q1Answer) {
+            if (activityType === 'strength' || activityType === 'yoga') {
+                const profileLevel = user.attributes.fitnessLevel.toLowerCase();
+                setQ1Answer(profileLevel);
+            }
+        }
+    }, [activityType, user.attributes.fitnessLevel]);
 
     // Derived live pain/tension colour for the slider
     const liveSliderColor = painLevelColor(sliderValue);

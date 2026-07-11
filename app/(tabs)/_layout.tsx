@@ -23,6 +23,16 @@ export default function TabLayout() {
         tabBarStyle: {
           backgroundColor: colors.background,
           borderTopColor: colors.cardBorder,
+          height: 60,
+          paddingBottom: 10,
+          paddingTop: 0,
+        },
+        tabBarItemStyle: {
+          paddingTop: 0,
+        },
+        tabBarLabelStyle: {
+          fontSize: 9,
+          fontWeight: '500',
         },
       }}>
 
@@ -31,7 +41,7 @@ export default function TabLayout() {
         name="index"
         options={{
           title: t('tabHome'),
-          tabBarIcon: ({ color }) => <Ionicons size={24} name="home" color={color} />,
+          tabBarIcon: ({ color }) => <Ionicons size={22} name="home" color={color} />,
         }}
       />
 
@@ -40,7 +50,7 @@ export default function TabLayout() {
         name="find-relief"
         options={{
           title: t('tabActivity'),
-          tabBarIcon: ({ color }) => <MaterialIcons size={24} name="fitness-center" color={color} />,
+          tabBarIcon: ({ color }) => <MaterialIcons size={22} name="fitness-center" color={color} />,
         }}
       />
 
@@ -49,7 +59,7 @@ export default function TabLayout() {
         name="history"
         options={{
           title: t('tabHistory'),
-          tabBarIcon: ({ color }) => <MaterialIcons size={24} name="history" color={color} />,
+          tabBarIcon: ({ color }) => <MaterialIcons size={22} name="history" color={color} />,
         }}
       />
 
@@ -58,7 +68,7 @@ export default function TabLayout() {
         name="library"
         options={{
           title: t('tabLibrary'),
-          tabBarIcon: ({ color }) => <Ionicons size={24} name="book" color={color} />,
+          tabBarIcon: ({ color }) => <Ionicons size={22} name="book" color={color} />,
         }}
       />
 
@@ -67,7 +77,7 @@ export default function TabLayout() {
         name="profile"
         options={{
           title: t('tabProfile'),
-          tabBarIcon: ({ color }) => <Ionicons size={24} name="person" color={color} />,
+          tabBarIcon: ({ color }) => <Ionicons size={22} name="person" color={color} />,
         }}
       />
 

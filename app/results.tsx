@@ -3,8 +3,11 @@ import { usePreferences } from '@/context/PreferencesContext';
 import { getTranslation } from '@/utils/i18n';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React from 'react';
-import { Platform, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useState, useCallback } from 'react';
+import { Platform, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View, Dimensions } from 'react-native';
+import YoutubePlayer from 'react-native-youtube-iframe';
+
+const { width } = Dimensions.get('window');
 
 export default function ResultsScreen() {
     const router = useRouter();
@@ -15,6 +18,15 @@ export default function ResultsScreen() {
 
     // Parse the exercise object passed via params
     const exercise = params.exercise ? JSON.parse(params.exercise as string) : null;
+
+    const extractYoutubeId = (url?: string) => {
+        if (!url) return null;
+        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+        const match = url.match(regExp);
+        return (match && match[2].length === 11) ? match[2] : null;
+    };
+    
+    const videoId = exercise ? extractYoutubeId(exercise.video_url) : null;
 
     if (!exercise) {
         return (
@@ -40,6 +52,18 @@ export default function ResultsScreen() {
             </View>
 
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+                
+                {/* Video Player Section */}
+                {videoId && (
+                    <View style={styles.videoContainer}>
+                        <YoutubePlayer
+                            height={width * (9/16)}
+                            play={false}
+                            videoId={videoId}
+                        />
+                    </View>
+                )}
+
                 {/* Title Section */}
                 <View style={styles.titleSection}>
                     <Text style={[styles.exerciseTitle, { color: colors.accent }]}>
@@ -144,6 +168,13 @@ const styles = StyleSheet.create({
     backButtonText: {
         color: '#fff',
         fontWeight: '600',
+    },
+    videoContainer: {
+        width: '100%',
+        backgroundColor: '#000',
+        borderRadius: 16,
+        overflow: 'hidden',
+        marginBottom: 24,
     },
     titleSection: {
         marginBottom: 24,

@@ -1,5 +1,6 @@
 import { isSupportedLanguage } from '@/utils/i18n';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Notifications from 'expo-notifications';
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useColorScheme as _useColorScheme } from 'react-native';
 
@@ -81,6 +82,12 @@ export const PreferencesProvider: React.FC<{ children: React.ReactNode }> = ({ c
         setNotificationsEnabled(newValue);
         try {
             await AsyncStorage.setItem('app_notifications', String(newValue));
+            if (newValue) {
+                const { status: existingStatus } = await Notifications.getPermissionsAsync();
+                if (existingStatus !== 'granted') {
+                    await Notifications.requestPermissionsAsync();
+                }
+            }
         } catch (error) {
             console.error('Failed to save notifications preference:', error);
         }

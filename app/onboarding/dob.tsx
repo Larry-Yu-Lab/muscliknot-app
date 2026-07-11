@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const DAYS = Array.from({ length: 31 }, (_, i) => `${i + 1}`);
@@ -62,9 +62,27 @@ export default function DOBScreen() {
     const t = (key: Parameters<typeof getTranslation>[1]) => getTranslation(language, key);
 
     const handleContinue = async () => {
+        const selectedDate = new Date(`${month} ${day}, ${year}`);
+        const today = new Date();
+        
+        let age = today.getFullYear() - selectedDate.getFullYear();
+        const m = today.getMonth() - selectedDate.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < selectedDate.getDate())) {
+            age--;
+        }
+
+        if (age <= 10) {
+            Alert.alert(
+                "Age Restriction",
+                "You must be older than 10 to use MuscliKnot.",
+                [{ text: "OK" }]
+            );
+            return;
+        }
+
         const dob = `${month} ${day}, ${year}`;
         await AsyncStorage.setItem('user_dob', dob);
-        router.push('/onboarding/coach');
+        router.push('/onboarding/goals');
     };
 
     return (
@@ -119,6 +137,13 @@ export default function DOBScreen() {
                 >
                     <Text style={styles.buttonText}>{t('continue')}</Text>
                 </TouchableOpacity>
+
+                <TouchableOpacity 
+                    style={styles.skipButton}
+                    onPress={() => router.push('/onboarding/goals')}
+                >
+                    <Text style={styles.skipText}>Skip for now</Text>
+                </TouchableOpacity>
             </View>
         </SafeAreaView>
     );
@@ -140,4 +165,6 @@ const styles = StyleSheet.create({
     bottom: { paddingHorizontal: 24, paddingBottom: 32 },
     button: { backgroundColor: '#f97316', paddingVertical: 16, borderRadius: 32, alignItems: 'center' },
     buttonText: { color: '#000', fontSize: 18, fontWeight: '600' },
+    skipButton: { marginTop: 16, alignItems: 'center' },
+    skipText: { color: 'rgba(255,255,255,0.4)', fontSize: 14, fontWeight: '600', textDecorationLine: 'underline' },
 });

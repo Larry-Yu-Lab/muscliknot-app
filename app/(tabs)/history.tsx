@@ -1,12 +1,12 @@
 import { Colors } from '@/constants/theme';
 import { usePreferences } from '@/context/PreferencesContext';
 import { categoryLabelKey, getExerciseRecommendation, painLevelColor } from '@/utils/assessmentEngine';
-import { getTranslation } from '@/utils/i18n';
+import { getTranslation, formatLabel } from '@/utils/i18n';
 import { getHistory, HistoryItem } from '@/utils/storage';
 import { Ionicons } from '@expo/vector-icons';
-import { useFocusEffect } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useState } from 'react';
-import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 // Human-readable labels for duration / q1 answers
 const DURATION_KEY_MAP: Record<string, string> = {
@@ -30,6 +30,7 @@ const ACTIVITY_KEY_MAP: Record<string, string> = {
 
 export default function HistoryScreen() {
     const [history, setHistory] = useState<HistoryItem[]>([]);
+    const router = useRouter();
     const { language, theme } = usePreferences();
     const t = (key: Parameters<typeof getTranslation>[1], params?: Record<string, string>) => getTranslation(language, key, params);
     const colors = Colors[theme];
@@ -46,8 +47,8 @@ export default function HistoryScreen() {
     // Calculate most targeted muscle
     const muscleCounts: Record<string, number> = {};
     history.forEach(h => {
-        const muscleKey = `mg${h.muscleGroup.charAt(0).toUpperCase()}${h.muscleGroup.slice(1).replace(/\s/g, '')}` as any;
-        const translatedMuscle = t(muscleKey) !== muscleKey ? t(muscleKey) : h.muscleGroup;
+        const muscleKey = `mg${h.muscleGroup.charAt(0).toUpperCase()}${h.muscleGroup.slice(1).replace(/\s/g, '').replace(/_/g, '')}` as any;
+        const translatedMuscle = t(muscleKey) !== muscleKey ? t(muscleKey) : formatLabel(h.muscleGroup);
         muscleCounts[translatedMuscle] = (muscleCounts[translatedMuscle] || 0) + 1;
     });
     const topTarget = Object.entries(muscleCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || '-';
@@ -71,16 +72,16 @@ export default function HistoryScreen() {
                 {/* Header */}
                 <View style={[styles.header, { backgroundColor: colors.headerBackground }]}>
                     <View style={styles.headerLeft}>
-                        <TouchableOpacity>
+                        <TouchableOpacity onPress={() => router.back()}>
                             <Ionicons name="chevron-back" size={24} color={colors.text} />
                         </TouchableOpacity>
                         <Text style={[styles.headerTitle, { color: colors.text }]}>{t('recoveryHistory')}</Text>
                     </View>
                     <View style={styles.headerRight}>
-                        <TouchableOpacity style={styles.headerIcon}>
+                        <TouchableOpacity style={styles.headerIcon} onPress={() => router.push('/analytics' as any)}>
                             <Ionicons name="calendar-outline" size={22} color={colors.text} />
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.headerIcon}>
+                        <TouchableOpacity style={styles.headerIcon} onPress={() => Alert.alert(t('comingSoon' as any) || 'Coming Soon', t('featureComingSoon' as any) || 'This feature is coming soon!')}>
                             <Ionicons name="ellipsis-horizontal" size={22} color={colors.text} />
                         </TouchableOpacity>
                     </View>
@@ -109,7 +110,7 @@ export default function HistoryScreen() {
                         <Text style={[styles.reportDescription, { color: colors.textSecondary }]}>
                             {t('weeklyReportDesc')}
                         </Text>
-                        <TouchableOpacity style={[styles.reportButton, { backgroundColor: colors.accent }]}>
+                        <TouchableOpacity style={[styles.reportButton, { backgroundColor: colors.accent }]} onPress={() => router.push('/analytics' as any)}>
                             <Text style={styles.reportButtonText}>{t('viewInsights')}</Text>
                         </TouchableOpacity>
                     </View>
@@ -157,8 +158,8 @@ export default function HistoryScreen() {
                                             </Text>
                                             <Text style={[styles.cardTitle, { color: colors.text }]}>
                                                 {(() => {
-                                                    const muscleKey = `mg${item.muscleGroup.replace(/\s/g, '')}` as any;
-                                                    const translatedMuscle = t(muscleKey) !== muscleKey ? t(muscleKey) : item.muscleGroup;
+                                                    const muscleKey = `mg${item.muscleGroup.replace(/\s/g, '').replace(/_/g, '')}` as any;
+                                                    const translatedMuscle = t(muscleKey) !== muscleKey ? t(muscleKey) : formatLabel(item.muscleGroup);
                                                     return `${translatedMuscle} ${actTranslation || ''}`;
                                                 })()}
                                             </Text>
@@ -197,7 +198,7 @@ export default function HistoryScreen() {
                                                         {(() => {
                                                             const locKey = `loc${a.location.charAt(0).toUpperCase()}${a.location.slice(1).replace(/_/g, '')}` as any;
                                                             const trans = t(locKey);
-                                                            return trans !== locKey ? trans : a.location.replace(/_/g, ' ');
+                                                            return trans !== locKey ? trans : formatLabel(a.location);
                                                         })()}
                                                     </Text>
                                                 </View>

@@ -68,23 +68,23 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
                         // Use fetched stats or fallback to defaults if strictly necessary (though trigger should create them)
                         const stats = statsData ? {
-                            workouts: statsData.workouts,
-                            recoveryScore: statsData.recovery_score,
-                            streakDays: statsData.streak_days,
+                            workouts: statsData.workouts ?? 0,
+                            recoveryScore: statsData.recovery_score ?? 92,
+                            streakDays: statsData.streak_days ?? 1,
                         } : defaultUser.stats;
 
                         const attributes = statsData ? {
-                            fitnessLevel: statsData.fitness_level,
-                            level: statsData.level,
-                            levelProgress: statsData.level_progress,
-                            injuryRecovery: statsData.injury_recovery,
+                            fitnessLevel: statsData.fitness_level ?? 'BEGINNER',
+                            level: statsData.level ?? 1,
+                            levelProgress: statsData.level_progress ?? 0,
+                            injuryRecovery: statsData.injury_recovery ?? 0,
                         } : defaultUser.attributes;
 
                         setUser({
                             name: meta.full_name || 'User',
                             avatarUrl: meta.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(meta.full_name || 'User')}&background=f97316&color=fff`,
                             status: 'DATA-DRIVEN ATHLETE', // could also be DB field
-                            isPremium: false,
+                            isPremium: statsData ? statsData.is_premium : false,
                             stats,
                             attributes,
                         });

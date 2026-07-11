@@ -9,7 +9,11 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.muscliknot.app",
+      "entitlements": {
+        "com.apple.developer.healthkit": true
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -28,22 +32,32 @@
     },
     "plugins": [
       "expo-router",
+      "expo-notifications",
+      [
+        "react-native-health",
+        {
+          "healthSharePermission": "Allow $(PRODUCT_NAME) to check health info",
+          "healthUpdatePermission": "Allow $(PRODUCT_NAME) to update health info",
+          "isClinicalDataEnabled": false
+        }
+      ],
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
+          "backgroundColor": "#000000",
+          "image": "./assets/images/muscliknot-logo.png",
           "imageWidth": 200,
-          "resizeMode": "contain",
-          "backgroundColor": "#ffffff",
           "dark": {
-            "backgroundColor": "#000000"
+            "backgroundColor": "#000000",
+            "image": "./assets/images/muscliknot-logo.png"
           }
         }
-      ]
+      ],
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true,
-      "reactCompiler": true
+      "reactCompiler": false
     }
   }
 }

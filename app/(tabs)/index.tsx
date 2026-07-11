@@ -2,7 +2,9 @@ import { getMusclesInArea } from '@/components/AnatomyMap';
 import { Colors } from '@/constants/theme';
 import { usePreferences } from '@/context/PreferencesContext';
 import { useUser } from '@/context/UserContext';
-import { getTranslation } from '@/utils/i18n';
+import { getTranslation, formatLabel } from '@/utils/i18n';
+import { generatePreventionAlerts, PreventionAlert } from '@/utils/preventionEngine';
+import { generateRoadmap, phaseLabelKey, RecoveryRoadmap } from '@/utils/recoveryRoadmap';
 import { getHistory, HistoryItem } from '@/utils/storage';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
@@ -111,16 +113,20 @@ export default function HomeScreen() {
   const router = useRouter();
   const { language, theme } = usePreferences();
   const { user } = useUser();
-  const t = (key: Parameters<typeof getTranslation>[1]) => getTranslation(language, key);
+  const t = (key: Parameters<typeof getTranslation>[1], params?: Record<string, string>) => getTranslation(language, key, params);
   const colors = Colors[theme];
   const isDark = theme === 'dark';
 
   const [view, setView] = useState<ViewState>('Front');
   const [activePoint, setActivePoint] = useState<{ x: number; y: number; width: number; height: number; rotation: number } | null>(null);
   const [containerHeight, setContainerHeight] = useState(1); // Default to avoid div by zero
+  const [containerWidth, setContainerWidth] = useState(1); // Default to avoid div by zero
   const [searchQuery, setSearchQuery] = useState('');
   const [searchError, setSearchError] = useState('');
   const [recentPlans, setRecentPlans] = useState<HistoryItem[]>([]);
+  const [roadmap, setRoadmap] = useState<RecoveryRoadmap | null>(null);
+  const [preventionAlerts, setPreventionAlerts] = useState<PreventionAlert[]>([]);
+  const [dismissedAlerts, setDismissedAlerts] = useState<string[]>([]);
   const startCtx = useSharedValue({ x: 0, y: 0 });
 
   const STATIC_QUICK_FIXES: HistoryItem[] = [
@@ -168,6 +174,14 @@ export default function HomeScreen() {
         });
 
         setRecentPlans(finalPlans);
+
+        // Generate AI Roadmap from full history
+        const rm = generateRoadmap(data);
+        setRoadmap(rm);
+
+        // Generate Prevention Alerts
+        const alerts = generatePreventionAlerts(data);
+        setPreventionAlerts(alerts);
       });
     }, [])
   );
@@ -209,17 +223,25 @@ export default function HomeScreen() {
       const avgRadius = (activePoint.width + activePoint.height) / 4;
       const size = getTargetSize(avgRadius);
 
+      // Normalize X coordinate
+      const scaleX = 300 / (containerWidth || 1);
+      const normalizedX = activePoint.x * scaleX;
+
       // Normalize Y coordinate
       const scaleY = 1000 / (containerHeight || 1);
       const normalizedY = activePoint.y * scaleY;
 
       // Get muscle from selection
       const muscleIds = getMusclesInArea({
-        x: activePoint.x,
+        x: normalizedX,
         y: normalizedY,
-        width: activePoint.width,
+        width: activePoint.width * scaleX,
         height: activePoint.height * scaleY
       });
+
+      if (muscleIds.length === 0) {
+        return; // Early exit if no valid muscle is targeted
+      }
 
       router.push({
         pathname: '/(tabs)/activity-selection',
@@ -231,7 +253,7 @@ export default function HomeScreen() {
           rotation: activePoint.rotation,
           view,
           size,
-          muscleId: muscleIds.length > 0 ? muscleIds[0] : 'unknown',
+          muscleId: muscleIds[0],
           timestamp: Date.now()
         }
       });
@@ -342,7 +364,7 @@ export default function HomeScreen() {
               <Text style={[styles.greetingTitle, { color: colors.text }]}>{t('greetingHello')}, {user.name.split(' ')[0]}</Text>
             </View>
           </View>
-          <TouchableOpacity style={[styles.notificationButton, { backgroundColor: isDark ? 'rgba(255, 255, 255, 0.05)' : colors.cardBackground, borderColor: colors.cardBorder }]}>
+          <TouchableOpacity style={[styles.notificationButton, { backgroundColor: isDark ? 'rgba(255, 255, 255, 0.05)' : colors.cardBackground, borderColor: colors.cardBorder }]} onPress={() => router.push('/settings' as any)}>
             <Ionicons name="notifications-outline" size={24} color={colors.text} />
             <View style={styles.notificationDot} />
           </TouchableOpacity>
@@ -393,7 +415,10 @@ export default function HomeScreen() {
                 transform: [{ scale: zoomLevel }]
               }
             ]}
-            onLayout={(e) => setContainerHeight(e.nativeEvent.layout.height)}
+            onLayout={(e) => {
+              setContainerHeight(e.nativeEvent.layout.height);
+              setContainerWidth(e.nativeEvent.layout.width);
+            }}
           >
             {/* 1. Underlying Visual Layer - Full Width/Height */}
             <Image
@@ -406,8 +431,8 @@ export default function HomeScreen() {
               contentFit="contain"
             />
 
-            {/* 2. Interaction Layer - Restricted to Center 65% */}
-            <View style={{ width: '65%', height: '100%', alignSelf: 'center', position: 'relative' }}>
+            {/* 2. Interaction Layer - Full Width */}
+            <View style={{ width: '100%', height: '100%', alignSelf: 'center', position: 'relative' }}>
               <GestureDetector gesture={creationGesture}>
                 {/* Transparent touch target */}
                 <View style={{ flex: 1, backgroundColor: 'transparent' }} />
@@ -430,7 +455,7 @@ export default function HomeScreen() {
           </View>
 
           {/* Zoom Controls */}
-          <View style={styles.zoomControls}>
+          <View style={[styles.zoomControls, { bottom: activePoint ? 90 : 24 }]}>
             <TouchableOpacity style={styles.zoomButton} onPress={handleZoomIn}>
               <Ionicons name="add" size={20} color="#fff" />
             </TouchableOpacity>
@@ -440,18 +465,161 @@ export default function HomeScreen() {
           </View>
 
           {/* Contextual Action Button */}
-          {activePoint && (
-            <TouchableOpacity style={styles.generateButton} onPress={handleFindRelief}>
-              <Text style={styles.generateButtonText}>{t('generatePlan')}</Text>
-              <Ionicons name="arrow-forward" size={20} color="#000" />
-            </TouchableOpacity>
-          )}
+          {activePoint && (() => {
+            const scaleX = 300 / (containerWidth || 1);
+            const scaleY = 1000 / (containerHeight || 1);
+            const muscleIds = getMusclesInArea({
+              x: activePoint.x * scaleX,
+              y: activePoint.y * scaleY,
+              width: activePoint.width * scaleX,
+              height: activePoint.height * scaleY
+            });
+            const valid = muscleIds.length > 0;
+            return valid ? (
+              <TouchableOpacity style={styles.generateButton} onPress={handleFindRelief}>
+                <Text style={styles.generateButtonText}>{t('generatePlan')}</Text>
+                <Ionicons name="arrow-forward" size={20} color="#000" />
+              </TouchableOpacity>
+            ) : (
+              <View style={[styles.generateButton, { backgroundColor: isDark ? '#3f3f46' : '#d4d4d8', shadowOpacity: 0, elevation: 0 }]}>
+                <Text style={[styles.generateButtonText, { color: isDark ? '#a1a1aa' : '#71717a' }]}>{t('selectValidMuscle' as any) || 'Select a valid muscle'}</Text>
+                <Ionicons name="warning-outline" size={20} color={isDark ? '#a1a1aa' : '#71717a'} />
+              </View>
+            );
+          })()}
         </View>
+
+        {/* ─── AI Recovery Roadmap Card ──────────────────────────────── */}
+        {roadmap && (
+          <View style={[styles.roadmapCard, { backgroundColor: colors.cardBackground, borderColor: roadmap.phaseColor + '40' }]}>
+            <View style={styles.roadmapHeader}>
+              <View style={[styles.roadmapPhaseBadge, { backgroundColor: roadmap.phaseColor + '20' }]}>
+                <Ionicons name={roadmap.phaseIcon as any} size={16} color={roadmap.phaseColor} />
+                <Text style={[styles.roadmapPhaseText, { color: roadmap.phaseColor }]}>
+                  {t(phaseLabelKey(roadmap.currentPhase) as any) || roadmap.currentPhase.toUpperCase()}
+                </Text>
+              </View>
+              <Text style={[styles.roadmapDay, { color: colors.textSecondary }]}>
+                {t('dayNumber' as any) || 'Day'} {roadmap.dayNumber}
+              </Text>
+            </View>
+            <Text style={[styles.roadmapTitle, { color: colors.text }]}>
+              🧠 {t('recoveryRoadmap' as any) || 'Recovery Roadmap'}
+            </Text>
+            <Text style={[styles.roadmapCoach, { color: colors.textSecondary }]}>
+              {(() => {
+                const params = { ...roadmap.coachParams };
+                if (params.muscle) {
+                  const mgKey = `mg${(params.muscle as string).replace(/\s/g, '').replace(/_/g, '')}` as any;
+                  const trans = t(mgKey);
+                  params.muscle = trans !== mgKey ? trans : formatLabel(params.muscle as string);
+                }
+                return t(roadmap.coachMessage as any, params as any) || `${formatLabel(roadmap.targetMuscle)} — ${formatLabel(roadmap.currentPhase)} phase. Pain trend: ${formatLabel(roadmap.painTrend)}.`;
+              })()}
+            </Text>
+            <View style={styles.roadmapMeta}>
+              <View style={styles.roadmapMetaItem}>
+                <Ionicons name="trending-up-outline" size={14} color={roadmap.painTrend === 'improving' ? '#22c55e' : roadmap.painTrend === 'worsening' ? '#ef4444' : colors.textSecondary} />
+                <Text style={[styles.roadmapMetaText, { color: colors.textSecondary }]}>
+                  {t(`trend_${roadmap.painTrend}` as any) || formatLabel(roadmap.painTrend)}
+                </Text>
+              </View>
+              <View style={styles.roadmapMetaItem}>
+                <Ionicons name="analytics-outline" size={14} color={colors.textSecondary} />
+                <Text style={[styles.roadmapMetaText, { color: colors.textSecondary }]}>
+                  {t('avgPain' as any) || 'Avg Pain'}: {roadmap.avgPainLevel}/10
+                </Text>
+              </View>
+            </View>
+            <TouchableOpacity
+              style={[styles.roadmapCTA, { backgroundColor: roadmap.phaseColor }]}
+              onPress={() => {
+                router.push({
+                  pathname: '/(tabs)/pain-assessment',
+                  params: {
+                    muscleId: roadmap.targetMuscle,
+                    activityType: roadmap.suggestedActivityType,
+                    timestamp: Date.now(),
+                  },
+                });
+              }}
+            >
+              <Text style={styles.roadmapCTAText}>
+                {t('startTodaysPlan' as any) || "Start Today's Plan"}
+              </Text>
+              <Ionicons name="arrow-forward" size={18} color="#000" />
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {/* ─── Prevention Alerts ─────────────────────────────────────── */}
+        {preventionAlerts.filter(a => !dismissedAlerts.includes(a.id)).length > 0 && (
+          <View style={styles.preventionSection}>
+            <Text style={[styles.preventionSectionTitle, { color: colors.textSecondary }]}>
+              {(t('preventionAlerts' as any) || 'PREVENTION ALERTS').toUpperCase()}
+            </Text>
+            {preventionAlerts
+              .filter(a => !dismissedAlerts.includes(a.id))
+              .map(alert => (
+                <View
+                  key={alert.id}
+                  style={[styles.preventionCard, { backgroundColor: colors.cardBackground, borderLeftColor: alert.color }]}
+                >
+                  <TouchableOpacity
+                    style={styles.preventionDismiss}
+                    onPress={() => setDismissedAlerts(prev => [...prev, alert.id])}
+                  >
+                    <Ionicons name="close" size={16} color={colors.textSecondary} />
+                  </TouchableOpacity>
+                  <View style={styles.preventionContent}>
+                    <View style={[styles.preventionIcon, { backgroundColor: alert.color + '20' }]}>
+                      <Ionicons name={alert.icon as any} size={20} color={alert.color} />
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text style={[styles.preventionTitle, { color: colors.text }]}>
+                        {t(alert.titleKey as any) !== alert.titleKey ? t(alert.titleKey as any) : formatLabel(alert.titleKey)}
+                      </Text>
+                      <Text style={[styles.preventionSubtitle, { color: colors.textSecondary }]} numberOfLines={2}>
+                        {(() => {
+                          const params = { ...alert.subtitleParams };
+                          if (params.muscle) {
+                            const mgKey = `mg${(params.muscle as string).replace(/\s/g, '').replace(/_/g, '')}` as any;
+                            const trans = t(mgKey);
+                            params.muscle = trans !== mgKey ? trans : formatLabel(params.muscle as string);
+                          }
+                          const translated = t(alert.subtitleKey as any, params as any);
+                          return translated !== alert.subtitleKey ? translated : formatLabel(alert.subtitleKey);
+                        })()}
+                      </Text>
+                    </View>
+                  </View>
+                  <TouchableOpacity
+                    style={[styles.preventionStartBtn, { borderColor: alert.color }]}
+                    onPress={() => {
+                      router.push({
+                        pathname: '/(tabs)/pain-assessment',
+                        params: {
+                          muscleId: alert.targetMuscle,
+                          activityType: alert.suggestedActivityType,
+                          timestamp: Date.now(),
+                        },
+                      });
+                    }}
+                  >
+                    <Text style={[styles.preventionStartText, { color: alert.color }]}>
+                      {t('startNow' as any) || 'Start'}
+                    </Text>
+                    <Ionicons name="arrow-forward" size={14} color={alert.color} />
+                  </TouchableOpacity>
+                </View>
+              ))}
+          </View>
+        )}
 
         {/* Quick Fix */}
         <View style={styles.quickFixHeader}>
           <Text style={[styles.sectionTitle, { color: colors.text }]}>{t('recentPlans')}</Text>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => router.push('/(tabs)/history')}>
             <Text style={styles.seeAllText}>{t('seeAllHistory')}</Text>
           </TouchableOpacity>
         </View>
@@ -490,7 +658,7 @@ export default function HomeScreen() {
               } else if (muscleGroup) {
                 const mgKey = `mg${muscleGroup.charAt(0).toUpperCase()}${muscleGroup.slice(1).replace(/\s/g, '')}` as any;
                 const transMg = t(mgKey);
-                targetName = transMg !== mgKey ? transMg : muscleGroup;
+                targetName = transMg !== mgKey ? transMg : formatLabel(muscleGroup);
               }
 
               // 2. Wrap in Pattern (e.g., "Neck Relief")
@@ -806,5 +974,143 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.1)',
+  },
+
+  // ── Recovery Roadmap Card ──────────────────────────────────────────
+  roadmapCard: {
+    marginHorizontal: 16,
+    marginTop: 20,
+    padding: 20,
+    borderRadius: 20,
+    borderWidth: 1,
+    gap: 12,
+  },
+  roadmapHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  roadmapPhaseBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  roadmapPhaseText: {
+    fontSize: 11,
+    fontWeight: '800',
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+  },
+  roadmapDay: {
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  roadmapTitle: {
+    fontSize: 18,
+    fontWeight: '800',
+  },
+  roadmapCoach: {
+    fontSize: 14,
+    lineHeight: 20,
+    fontWeight: '500',
+  },
+  roadmapMeta: {
+    flexDirection: 'row',
+    gap: 16,
+  },
+  roadmapMetaItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  roadmapMetaText: {
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  roadmapCTA: {
+    height: 44,
+    borderRadius: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    marginTop: 4,
+  },
+  roadmapCTAText: {
+    color: '#000',
+    fontSize: 14,
+    fontWeight: '800',
+    letterSpacing: 0.5,
+  },
+
+  // ── Prevention Alerts ──────────────────────────────────────────────
+  preventionSection: {
+    paddingHorizontal: 16,
+    marginTop: 20,
+    gap: 10,
+  },
+  preventionSectionTitle: {
+    fontSize: 11,
+    fontWeight: '800',
+    letterSpacing: 2,
+    marginBottom: 4,
+  },
+  preventionCard: {
+    padding: 16,
+    borderRadius: 16,
+    borderLeftWidth: 4,
+    gap: 12,
+    position: 'relative',
+  },
+  preventionDismiss: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    width: 24,
+    height: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 10,
+  },
+  preventionContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    paddingRight: 20,
+  },
+  preventionIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  preventionTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  preventionSubtitle: {
+    fontSize: 12,
+    lineHeight: 18,
+    fontWeight: '500',
+    marginTop: 2,
+  },
+  preventionStartBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    height: 36,
+    borderRadius: 10,
+    borderWidth: 1.5,
+    alignSelf: 'flex-start',
+    paddingHorizontal: 16,
+  },
+  preventionStartText: {
+    fontSize: 12,
+    fontWeight: '800',
   },
 });

@@ -24,8 +24,8 @@ export default function OnboardingEquipmentScreen() {
     const colors = Colors[theme];
     const t = (key: Parameters<typeof getTranslation>[1]) => getTranslation(language, key);
 
-    const handleNext = () => {
-        router.push('/onboarding/goals');
+    const handleNext = async () => {
+        router.push('/onboarding/generate-plan');
     };
 
     return (
@@ -36,7 +36,7 @@ export default function OnboardingEquipmentScreen() {
                 </TouchableOpacity>
                 <View style={styles.progressContainer}>
                     <View style={styles.progressBarBackground}>
-                        <View style={[styles.progressBarFill, { width: '90%' }]} />
+                        <View style={[styles.progressBarFill, { width: '100%' }]} />
                     </View>
                 </View>
             </View>
@@ -98,7 +98,9 @@ export default function OnboardingEquipmentScreen() {
 
                 <TouchableOpacity
                     style={[styles.skipButton]}
-                    onPress={() => router.push('/onboarding/goals')}
+                    onPress={() => {
+                        router.push('/onboarding/generate-plan');
+                    }}
                     activeOpacity={0.7}
                 >
                     <Text style={styles.skipText}>{t('eq_none')}</Text>

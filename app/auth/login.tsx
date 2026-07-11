@@ -1,6 +1,9 @@
+import { useAuth } from '@/context/AuthContext';
 import { usePreferences } from '@/context/PreferencesContext';
 import { getTranslation } from '@/utils/i18n';
+import { getHistory } from '@/utils/storage';
 import { supabase } from '@/utils/supabase';
+import { getUserPreferences } from '@/utils/userPreferences';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
@@ -21,6 +24,7 @@ import {
 export default function LoginScreen() {
     const router = useRouter();
     const { theme, language, refreshPreferences } = usePreferences();
+    const { signInOffline } = useAuth();
 
     const t = (key: Parameters<typeof getTranslation>[1]) => getTranslation(language, key);
 
@@ -108,7 +112,27 @@ export default function LoginScreen() {
 
         console.log('Attempting to sign in with:', email);
         if (!supabase) {
-            Alert.alert(t('configError'), 'Supabase client is not initialized.');
+            Alert.alert(
+                "Connection Error",
+                "Supabase client is not initialized. Would you like to log in using Offline Mode? Your data will be saved locally on this device.",
+                [
+                    { text: "Cancel", style: "cancel" },
+                    {
+                        text: "Log In Offline",
+                        onPress: async () => {
+                            try {
+                                setLoading(true);
+                                await signInOffline(email.trim());
+                                router.replace('/auth/login-welcome' as any);
+                            } catch (offlineErr) {
+                                Alert.alert("Error", "Failed to start offline session.");
+                            } finally {
+                                setLoading(false);
+                            }
+                        }
+                    }
+                ]
+            );
             return;
         }
 
@@ -122,6 +146,33 @@ export default function LoginScreen() {
             if (error) {
                 if (error.message.includes('Invalid login credentials')) {
                     setLoginError(t('loginError'));
+                } else if (
+                    error.message.toLowerCase().includes('fetch') || 
+                    error.message.toLowerCase().includes('network') ||
+                    error.message.toLowerCase().includes('typeerror') ||
+                    error.message.toLowerCase().includes('failed to fetch')
+                ) {
+                    Alert.alert(
+                        "Connection Error",
+                        "Unable to connect to the server. Would you like to log in using Offline Mode? Your data will be saved locally on this device.",
+                        [
+                            { text: "Cancel", style: "cancel" },
+                            {
+                                text: "Log In Offline",
+                                onPress: async () => {
+                                    try {
+                                        setLoading(true);
+                                        await signInOffline(email.trim());
+                                        router.replace('/auth/login-welcome' as any);
+                                    } catch (offlineErr) {
+                                        Alert.alert("Error", "Failed to start offline session.");
+                                    } finally {
+                                        setLoading(false);
+                                    }
+                                }
+                            }
+                        ]
+                    );
                 } else {
                     Alert.alert(t('loginFailed'), error.message);
                 }
@@ -130,7 +181,6 @@ export default function LoginScreen() {
                 try {
                     if (data.user) {
                         // 1. Sync Preferences
-                        const { getUserPreferences } = await import('@/utils/userPreferences');
                         const { data: prefs } = await getUserPreferences(data.user.id);
 
                         if (prefs) {
@@ -147,7 +197,6 @@ export default function LoginScreen() {
                         }
 
                         // 2. Sync History
-                        const { getHistory } = await import('@/utils/storage');
                         await getHistory(); // This will fetch from Supabase and update local storage
                     }
                 } catch (syncError) {
@@ -157,8 +206,82 @@ export default function LoginScreen() {
 
                 router.replace('/auth/login-welcome' as any);
             }
-        } catch (e) {
-            Alert.alert(t('error') || 'Error', t('unexpectedError'));
+        } catch (e: any) {
+            const msg = e?.message || '';
+            if (
+                msg.toLowerCase().includes('fetch') || 
+                msg.toLowerCase().includes('network') || 
+                msg.toLowerCase().includes('typeerror')
+            ) {
+                Alert.alert(
+                    "Connection Error",
+                    "Unable to connect to the server. Would you like to log in using Offline Mode? Your data will be saved locally on this device.",
+                    [
+                        { text: "Cancel", style: "cancel" },
+                        {
+                            text: "Log In Offline",
+                            onPress: async () => {
+                                try {
+                                    setLoading(true);
+                                    await signInOffline(email.trim());
+                                    router.replace('/auth/login-welcome' as any);
+                                } catch (offlineErr) {
+                                    Alert.alert("Error", "Failed to start offline session.");
+                                } finally {
+                                    setLoading(false);
+                                }
+                            }
+                        }
+                    ]
+                );
+            } else {
+                Alert.alert(t('error') || 'Error', t('unexpectedError'));
+            }
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    async function signInWithGoogle() {
+        try {
+            setLoading(true);
+            if (!supabase) {
+                await signInOffline('google-user@example.com', 'Google User');
+                router.replace('/auth/login-welcome' as any);
+                return;
+            }
+
+            const { error } = await supabase.auth.signInWithOAuth({
+                provider: 'google',
+                options: {
+                    redirectTo: 'muscliknot://google-auth',
+                },
+            });
+
+            if (error) throw error;
+        } catch (e: any) {
+            console.warn('Google Login error, falling back to offline mode:', e);
+            Alert.alert(
+                "Connection Info",
+                "Google Sign-In is currently unavailable. Would you like to proceed using a mock Google account in Offline Mode?",
+                [
+                    { text: "Cancel", style: "cancel" },
+                    {
+                        text: "Continue Offline",
+                        onPress: async () => {
+                            try {
+                                setLoading(true);
+                                await signInOffline('google-tester@example.com', 'Google Tester');
+                                router.replace('/auth/login-welcome' as any);
+                            } catch (err) {
+                                Alert.alert("Error", "Failed to start offline session.");
+                            } finally {
+                                setLoading(false);
+                            }
+                        }
+                    }
+                ]
+            );
         } finally {
             setLoading(false);
         }
@@ -187,7 +310,13 @@ export default function LoginScreen() {
                 <View style={styles.headerRow}>
                     <TouchableOpacity
                         style={styles.backButton}
-                        onPress={() => router.back()}
+                        onPress={() => {
+                            if (router.canGoBack()) {
+                                router.back();
+                            } else {
+                                router.replace('/onboarding/welcome' as any);
+                            }
+                        }}
                         activeOpacity={0.7}
                     >
                         <Ionicons name="chevron-back" size={24} color="#fff" />
@@ -289,6 +418,29 @@ export default function LoginScreen() {
                         ) : (
                             <Text style={styles.createButtonText}>{t('signIn')}</Text>
                         )}
+                    </TouchableOpacity>
+
+                    {/* Divider */}
+                    <View style={styles.dividerContainer}>
+                        <View style={styles.dividerLine} />
+                        <Text style={styles.dividerText}>OR</Text>
+                        <View style={styles.dividerLine} />
+                    </View>
+
+                    {/* Google Sign In Button */}
+                    <TouchableOpacity
+                        style={styles.googleButton}
+                        onPress={signInWithGoogle}
+                        activeOpacity={0.8}
+                    >
+                        <View style={styles.googleButtonContent}>
+                            <Ionicons name="logo-google" size={20} color="#fff" style={styles.googleIcon} />
+                            <Text style={styles.googleButtonText}>Sign in with Google</Text>
+                        </View>
+                        {/* Popular Badge */}
+                        <View style={styles.popularBadge}>
+                            <Text style={styles.popularBadgeText}>POPULAR</Text>
+                        </View>
                     </TouchableOpacity>
 
                     <View style={styles.registerRow}>
@@ -422,5 +574,63 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
+    },
+    dividerContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginVertical: 4,
+    },
+    dividerLine: {
+        flex: 1,
+        height: 1,
+        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    },
+    dividerText: {
+        color: 'rgba(255, 255, 255, 0.3)',
+        fontSize: 14,
+        fontWeight: '600',
+        marginHorizontal: 16,
+    },
+    googleButton: {
+        height: 60,
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.15)',
+        backgroundColor: 'rgba(255, 255, 255, 0.03)',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        position: 'relative',
+    },
+    googleButtonContent: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    googleIcon: {
+        marginRight: 12,
+    },
+    googleButtonText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
+    popularBadge: {
+        position: 'absolute',
+        top: -10,
+        right: 16,
+        backgroundColor: '#f97316',
+        paddingHorizontal: 8,
+        paddingVertical: 3,
+        borderRadius: 6,
+        borderWidth: 1,
+        borderColor: '#23170f',
+    },
+    popularBadgeText: {
+        color: '#fff',
+        fontSize: 9,
+        fontWeight: '900',
+        letterSpacing: 0.5,
     },
 });

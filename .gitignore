@@ -38,6 +38,4 @@ yarn-error.*
 
 app-example
 
-# generated native folders
-/ios
-/android
+# generated native folders are now tracked for Xcode development
