@@ -1,5 +1,6 @@
 const fs = require('fs');
-const content = fs.readFileSync('c:\\Users\\Larry\\OneDrive\\Desktop\\EARN\\MuscliKnot-App\\utils\\i18n.ts', 'utf8');
+const path = require('path');
+const content = fs.readFileSync(path.join(__dirname, '../utils/i18n.ts'), 'utf8');
 
 const languages = ['en', 'zh', 'fr', 'es'];
 
