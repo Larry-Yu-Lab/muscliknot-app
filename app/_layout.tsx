@@ -116,11 +116,11 @@ function RootLayoutNav() {
     if (!isAppReady) return;
 
     const inAuthGroup = segments[0] === 'auth';
-    const isAuthSuccessScreen = segments[0] === 'auth' && (segments[1] === 'signup-success' || segments[1] === 'login-welcome');
+    const isAuthTransitionScreen = segments[0] === 'auth' && (segments[1] === 'signup-success' || segments[1] === 'login-welcome' || segments[1] === 'register');
     const inOnboarding = segments[0] === 'onboarding';
 
     // Already on the right screen family — mark navigated and do nothing
-    if (session && (!inAuthGroup && !inOnboarding || isAuthSuccessScreen)) {
+    if (session && (!inAuthGroup && !inOnboarding || isAuthTransitionScreen)) {
       setHasNavigated(true);
       return;
     }
@@ -135,7 +135,7 @@ function RootLayoutNav() {
 
     if (!session) {
       router.replace('/onboarding' as any);
-    } else if (session && (inAuthGroup && !isAuthSuccessScreen || inOnboarding)) {
+    } else if (session && (inAuthGroup && !isAuthTransitionScreen || inOnboarding)) {
       router.replace('/(tabs)' as any);
     }
 
