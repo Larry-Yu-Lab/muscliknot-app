@@ -14,6 +14,7 @@ import {
     KeyboardAvoidingView,
     Platform,
     SafeAreaView,
+    ScrollView,
     StyleSheet,
     Text,
     TextInput,
@@ -304,156 +305,162 @@ export default function LoginScreen() {
 
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-                style={styles.content}
+                style={styles.keyboardAvoid}
             >
-                {/* Header */}
-                <View style={styles.headerRow}>
-                    <TouchableOpacity
-                        style={styles.backButton}
-                        onPress={() => {
-                            if (router.canGoBack()) {
-                                router.back();
-                            } else {
-                                router.replace('/onboarding/welcome' as any);
-                            }
-                        }}
-                        activeOpacity={0.7}
-                    >
-                        <Ionicons name="chevron-back" size={24} color="#fff" />
-                    </TouchableOpacity>
-                    {/* Placeholder to balance the header if needed, or remove if just back button is enough */}
-                    <View style={{ width: 40 }} />
-                </View>
-
-                {/* Main Content */}
-                <View style={styles.mainSection}>
-                    <View style={styles.titleBlock}>
-                        <Text style={styles.mainTitle}>{t('loginTitle')}</Text>
-                        <Text style={[styles.subtitle, { color: THEME.textMuted }]}>
-                            {t('loginSubtitle')}
-                        </Text>
-                    </View>
-
-                    {/* Form Fields */}
-                    <View style={styles.formContainer}>
-                        {/* Email */}
-                        <View style={styles.inputGroup}>
-                            <Text style={[styles.label, { color: 'rgba(255,255,255,0.8)' }]}>{t('email')}</Text>
-                            <View style={[
-                                styles.glassInput,
-                                {
-                                    backgroundColor: THEME.inputBg,
-                                    borderColor: getBorderColor(emailError, emailSuccess, THEME.inputBorder)
+                <ScrollView
+                    contentContainerStyle={styles.scrollContent}
+                    showsVerticalScrollIndicator={false}
+                    keyboardShouldPersistTaps="handled"
+                >
+                    {/* Header */}
+                    <View style={styles.headerRow}>
+                        <TouchableOpacity
+                            style={styles.backButton}
+                            onPress={() => {
+                                if (router.canGoBack()) {
+                                    router.back();
+                                } else {
+                                    router.replace('/onboarding/welcome' as any);
                                 }
-                            ]}>
-                                <Ionicons name="mail-outline" size={20} color="rgba(255,255,255,0.4)" style={styles.inputIcon} />
-                                <TextInput
-                                    style={styles.textInput}
-                                    placeholder={t('emailPlaceholder')}
-                                    placeholderTextColor={THEME.textDim}
-                                    value={email}
-                                    onChangeText={setEmail}
-                                    autoCapitalize="none"
-                                    keyboardType="email-address"
-                                />
-                            </View>
-                            {emailError ? (
-                                <Text style={[styles.validationText, { color: THEME.errorText }]}>{emailError}</Text>
-                            ) : emailSuccess ? (
-                                <Text style={[styles.validationText, { color: THEME.successText }]}>{emailSuccess}</Text>
-                            ) : null}
-                        </View>
-
-                        {/* Password */}
-                        <View style={styles.inputGroup}>
-                            <Text style={[styles.label, { color: 'rgba(255,255,255,0.8)' }]}>{t('password')}</Text>
-                            <View style={[
-                                styles.glassInput,
-                                {
-                                    backgroundColor: THEME.inputBg,
-                                    borderColor: getBorderColor(passwordError, passwordSuccess, THEME.inputBorder)
-                                }
-                            ]}>
-                                <Ionicons name="lock-closed-outline" size={20} color="rgba(255,255,255,0.4)" style={styles.inputIcon} />
-                                <TextInput
-                                    style={styles.textInput}
-                                    placeholder={t('passwordPlaceholder')}
-                                    placeholderTextColor={THEME.textDim}
-                                    value={password}
-                                    onChangeText={setPassword}
-                                    secureTextEntry={!showPassword}
-                                />
-                                <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-                                    <Ionicons
-                                        name={showPassword ? "eye-off-outline" : "eye-outline"}
-                                        size={20}
-                                        color="rgba(255,255,255,0.4)"
-                                    />
-                                </TouchableOpacity>
-                            </View>
-                            {passwordError ? (
-                                <Text style={[styles.validationText, { color: THEME.errorText }]}>{passwordError}</Text>
-                            ) : passwordSuccess ? (
-                                <Text style={[styles.validationText, { color: THEME.successText }]}>{passwordSuccess}</Text>
-                            ) : null}
-                        </View>
-                    </View>
-                </View>
-
-                {/* Footer Section */}
-                <View style={styles.footerContainer}>
-                    {loginError ? (
-                        <Text style={[styles.validationText, { color: THEME.errorText, textAlign: 'center', marginBottom: 8 }]}>
-                            {loginError}
-                        </Text>
-                    ) : null}
-                    <TouchableOpacity
-                        style={[styles.createButton, { backgroundColor: THEME.primary }]}
-                        onPress={signInWithEmail}
-                        disabled={loading}
-                        activeOpacity={0.9}
-                    >
-                        {loading ? (
-                            <ActivityIndicator color="#fff" />
-                        ) : (
-                            <Text style={styles.createButtonText}>{t('signIn')}</Text>
-                        )}
-                    </TouchableOpacity>
-
-                    {/* Divider */}
-                    <View style={styles.dividerContainer}>
-                        <View style={styles.dividerLine} />
-                        <Text style={styles.dividerText}>OR</Text>
-                        <View style={styles.dividerLine} />
-                    </View>
-
-                    {/* Google Sign In Button */}
-                    <TouchableOpacity
-                        style={styles.googleButton}
-                        onPress={signInWithGoogle}
-                        activeOpacity={0.8}
-                    >
-                        <View style={styles.googleButtonContent}>
-                            <Ionicons name="logo-google" size={20} color="#fff" style={styles.googleIcon} />
-                            <Text style={styles.googleButtonText}>Sign in with Google</Text>
-                        </View>
-                        {/* Popular Badge */}
-                        <View style={styles.popularBadge}>
-                            <Text style={styles.popularBadgeText}>POPULAR</Text>
-                        </View>
-                    </TouchableOpacity>
-
-                    <View style={styles.registerRow}>
-                        <Text style={{ color: 'rgba(255,255,255,0.8)', fontSize: 15, fontWeight: '500' }}>
-                            {t('dontHaveAccount')}{' '}
-                        </Text>
-                        <TouchableOpacity onPress={() => router.push('/auth/register')}>
-                            <Text style={{ color: THEME.primary, textDecorationLine: 'underline', fontWeight: '600' }}>
-                                {t('signUp')}
-                            </Text>
+                            }}
+                            activeOpacity={0.7}
+                        >
+                            <Ionicons name="chevron-back" size={24} color="#fff" />
                         </TouchableOpacity>
+                        {/* Placeholder to balance the header if needed, or remove if just back button is enough */}
+                        <View style={{ width: 40 }} />
                     </View>
-                </View>
+
+                    {/* Main Content */}
+                    <View style={styles.mainSection}>
+                        <View style={styles.titleBlock}>
+                            <Text style={styles.mainTitle}>{t('loginTitle')}</Text>
+                            <Text style={[styles.subtitle, { color: THEME.textMuted }]}>
+                                {t('loginSubtitle')}
+                            </Text>
+                        </View>
+
+                        {/* Form Fields */}
+                        <View style={styles.formContainer}>
+                            {/* Email */}
+                            <View style={styles.inputGroup}>
+                                <Text style={[styles.label, { color: 'rgba(255,255,255,0.8)' }]}>{t('email')}</Text>
+                                <View style={[
+                                    styles.glassInput,
+                                    {
+                                        backgroundColor: THEME.inputBg,
+                                        borderColor: getBorderColor(emailError, emailSuccess, THEME.inputBorder)
+                                    }
+                                ]}>
+                                    <Ionicons name="mail-outline" size={20} color="rgba(255,255,255,0.4)" style={styles.inputIcon} />
+                                    <TextInput
+                                        style={styles.textInput}
+                                        placeholder={t('emailPlaceholder')}
+                                        placeholderTextColor={THEME.textDim}
+                                        value={email}
+                                        onChangeText={setEmail}
+                                        autoCapitalize="none"
+                                        keyboardType="email-address"
+                                    />
+                                </View>
+                                {emailError ? (
+                                    <Text style={[styles.validationText, { color: THEME.errorText }]}>{emailError}</Text>
+                                ) : emailSuccess ? (
+                                    <Text style={[styles.validationText, { color: THEME.successText }]}>{emailSuccess}</Text>
+                                ) : null}
+                            </View>
+
+                            {/* Password */}
+                            <View style={styles.inputGroup}>
+                                <Text style={[styles.label, { color: 'rgba(255,255,255,0.8)' }]}>{t('password')}</Text>
+                                <View style={[
+                                    styles.glassInput,
+                                    {
+                                        backgroundColor: THEME.inputBg,
+                                        borderColor: getBorderColor(passwordError, passwordSuccess, THEME.inputBorder)
+                                    }
+                                ]}>
+                                    <Ionicons name="lock-closed-outline" size={20} color="rgba(255,255,255,0.4)" style={styles.inputIcon} />
+                                    <TextInput
+                                        style={styles.textInput}
+                                        placeholder={t('passwordPlaceholder')}
+                                        placeholderTextColor={THEME.textDim}
+                                        value={password}
+                                        onChangeText={setPassword}
+                                        secureTextEntry={!showPassword}
+                                    />
+                                    <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+                                        <Ionicons
+                                            name={showPassword ? "eye-off-outline" : "eye-outline"}
+                                            size={20}
+                                            color="rgba(255,255,255,0.4)"
+                                        />
+                                    </TouchableOpacity>
+                                </View>
+                                {passwordError ? (
+                                    <Text style={[styles.validationText, { color: THEME.errorText }]}>{passwordError}</Text>
+                                ) : passwordSuccess ? (
+                                    <Text style={[styles.validationText, { color: THEME.successText }]}>{passwordSuccess}</Text>
+                                ) : null}
+                            </View>
+                        </View>
+                    </View>
+
+                    {/* Footer Section */}
+                    <View style={styles.footerContainer}>
+                        {loginError ? (
+                            <Text style={[styles.validationText, { color: THEME.errorText, textAlign: 'center', marginBottom: 8 }]}>
+                                {loginError}
+                            </Text>
+                        ) : null}
+                        <TouchableOpacity
+                            style={[styles.createButton, { backgroundColor: THEME.primary }]}
+                            onPress={signInWithEmail}
+                            disabled={loading}
+                            activeOpacity={0.9}
+                        >
+                            {loading ? (
+                                <ActivityIndicator color="#fff" />
+                            ) : (
+                                <Text style={styles.createButtonText}>{t('signIn')}</Text>
+                            )}
+                        </TouchableOpacity>
+
+                        {/* Divider */}
+                        <View style={styles.dividerContainer}>
+                            <View style={styles.dividerLine} />
+                            <Text style={styles.dividerText}>OR</Text>
+                            <View style={styles.dividerLine} />
+                        </View>
+
+                        {/* Google Sign In Button */}
+                        <TouchableOpacity
+                            style={styles.googleButton}
+                            onPress={signInWithGoogle}
+                            activeOpacity={0.8}
+                        >
+                            <View style={styles.googleButtonContent}>
+                                <Ionicons name="logo-google" size={20} color="#fff" style={styles.googleIcon} />
+                                <Text style={styles.googleButtonText}>Sign in with Google</Text>
+                            </View>
+                            {/* Popular Badge */}
+                            <View style={styles.popularBadge}>
+                                <Text style={styles.popularBadgeText}>POPULAR</Text>
+                            </View>
+                        </TouchableOpacity>
+
+                        <View style={styles.registerRow}>
+                            <Text style={{ color: 'rgba(255,255,255,0.8)', fontSize: 15, fontWeight: '500' }}>
+                                {t('dontHaveAccount')}{' '}
+                            </Text>
+                            <TouchableOpacity onPress={() => router.push('/auth/register')}>
+                                <Text style={{ color: THEME.primary, textDecorationLine: 'underline', fontWeight: '600' }}>
+                                    {t('signUp')}
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </ScrollView>
             </KeyboardAvoidingView>
         </SafeAreaView>
     );
@@ -476,17 +483,21 @@ const styles = StyleSheet.create({
         borderRadius: 150,
         opacity: 0.15,
     },
-    content: {
+    keyboardAvoid: {
         flex: 1,
+        zIndex: 10,
+    },
+    scrollContent: {
+        flexGrow: 1,
         paddingHorizontal: 24,
         paddingTop: 16,
-        zIndex: 10,
+        paddingBottom: 24,
     },
     headerRow: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingVertical: 16,
+        paddingVertical: 12,
     },
     backButton: {
         width: 40,
@@ -497,29 +508,29 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(255,255,255,0.0)',
     },
     mainSection: {
-        marginTop: 20,
+        marginTop: 10,
     },
     titleBlock: {
-        marginBottom: 30,
+        marginBottom: 16,
     },
     mainTitle: {
         color: '#fff',
-        fontSize: 36,
+        fontSize: 28,
         fontWeight: 'bold',
         letterSpacing: -0.5,
-        marginBottom: 8,
-        lineHeight: 42,
+        marginBottom: 6,
+        lineHeight: 34,
     },
     subtitle: {
-        fontSize: 18,
-        lineHeight: 28,
+        fontSize: 15,
+        lineHeight: 22,
         fontWeight: '400',
     },
     formContainer: {
-        gap: 20,
+        gap: 12,
     },
     inputGroup: {
-        gap: 8,
+        gap: 6,
     },
     label: {
         fontSize: 14,
@@ -529,7 +540,7 @@ const styles = StyleSheet.create({
     glassInput: {
         flexDirection: 'row',
         alignItems: 'center',
-        height: 64,
+        height: 54,
         borderRadius: 12,
         borderWidth: 1,
         paddingHorizontal: 16,
@@ -544,18 +555,19 @@ const styles = StyleSheet.create({
         height: '100%',
     },
     validationText: {
-        fontSize: 14,
+        fontSize: 13,
         fontWeight: '600',
         marginLeft: 4,
-        marginTop: 4,
+        marginTop: 2,
     },
     footerContainer: {
         marginTop: 'auto',
-        marginBottom: 20,
-        gap: 24,
+        paddingTop: 20,
+        paddingBottom: 10,
+        gap: 16,
     },
     createButton: {
-        height: 60,
+        height: 52,
         borderRadius: 12,
         alignItems: 'center',
         justifyContent: 'center',
@@ -567,7 +579,7 @@ const styles = StyleSheet.create({
     },
     createButtonText: {
         color: '#fff',
-        fontSize: 18,
+        fontSize: 16,
         fontWeight: 'bold',
     },
     registerRow: {
@@ -579,7 +591,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        marginVertical: 4,
+        marginVertical: 2,
     },
     dividerLine: {
         flex: 1,
@@ -593,7 +605,7 @@ const styles = StyleSheet.create({
         marginHorizontal: 16,
     },
     googleButton: {
-        height: 60,
+        height: 52,
         borderRadius: 12,
         borderWidth: 1,
         borderColor: 'rgba(255, 255, 255, 0.15)',
