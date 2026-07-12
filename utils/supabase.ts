@@ -35,6 +35,20 @@ const ExpoStorage = {
     },
 };
 
+// Custom fetch that avoids React Native blob handling issues
+// React Native's fetch can return blob URLs that the networking layer can't resolve,
+// causing "Unable to resolve data for blob" errors with Supabase Auth.
+const customFetch: typeof fetch = async (input, init) => {
+    const response = await fetch(input, init);
+    // Clone the response and read the body as text to avoid blob handling
+    const text = await response.text();
+    return new Response(text, {
+        status: response.status,
+        statusText: response.statusText,
+        headers: response.headers,
+    });
+};
+
 export const supabase = isConfigured
     ? createClient(supabaseUrl, supabaseAnonKey, {
         auth: {
@@ -42,6 +56,9 @@ export const supabase = isConfigured
             autoRefreshToken: true,
             persistSession: true,
             detectSessionInUrl: false,
+        },
+        global: {
+            fetch: customFetch,
         },
     })
     : null as any;
