@@ -2,116 +2,166 @@ import { usePreferences } from '@/context/PreferencesContext';
 import { getTranslation } from '@/utils/i18n';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import React, { useRef, useState } from 'react';
-import { Animated, Dimensions, Linking, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { Animated, Dimensions, Easing, Linking, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-const { width, height } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 
-// ─── Floating Particles ────────────────────────────────────────────────
-const FloatingParticles = () => (
-    <View style={styles.particlesContainer}>
-        <View style={[styles.particle, { top: '12%', left: '8%', width: 20, height: 20, backgroundColor: 'rgba(249,116,21,0.25)' }]} />
-        <View style={[styles.particle, { top: '22%', right: '12%', width: 14, height: 14, backgroundColor: 'rgba(250,204,21,0.2)' }]} />
-        <View style={[styles.particle, { top: '45%', left: '5%', width: 28, height: 28, backgroundColor: 'rgba(239,68,68,0.15)' }]} />
-        <View style={[styles.particle, { top: '55%', right: '8%', width: 10, height: 10, backgroundColor: 'rgba(249,116,21,0.35)' }]} />
-        <View style={[styles.particle, { bottom: '25%', left: '20%', width: 18, height: 18, backgroundColor: 'rgba(250,204,21,0.15)' }]} />
-        <View style={[styles.particle, { bottom: '35%', right: '18%', width: 36, height: 36, backgroundColor: 'rgba(220,38,38,0.12)' }]} />
-        <View style={[styles.particle, { top: '8%', left: '55%', width: 8, height: 8, backgroundColor: 'rgba(249,116,21,0.4)' }]} />
-    </View>
-);
+// ─── Animated Background Orbs ──────────────────────────────────────────
+const BackgroundOrbs = ({ step }: { step: number }) => {
+    const pulse = useRef(new Animated.Value(0.8)).current;
 
-// ─── Icon Components ───────────────────────────────────────────────────
+    useEffect(() => {
+        Animated.loop(
+            Animated.sequence([
+                Animated.timing(pulse, { toValue: 1.1, duration: 3000, easing: Easing.inOut(Easing.ease), useNativeDriver: true }),
+                Animated.timing(pulse, { toValue: 0.8, duration: 3000, easing: Easing.inOut(Easing.ease), useNativeDriver: true }),
+            ])
+        ).start();
+    }, []);
 
-const GiftIcon = () => (
-    <View style={styles.iconContainer}>
-        <View style={[styles.iconGlow, { backgroundColor: 'rgba(249,116,21,0.2)' }]} />
-        <View style={styles.glassCircle}>
-            <View style={[styles.innerCircle, { backgroundColor: '#f97316' }]}>
-                <MaterialCommunityIcons name="gift-outline" size={48} color="#fff" />
+    const orbColor = step === 0 ? 'rgba(249,116,21,0.12)' : step === 1 ? 'rgba(250,204,21,0.10)' : 'rgba(34,197,94,0.10)';
+
+    return (
+        <View style={styles.orbsContainer} pointerEvents="none">
+            <Animated.View style={[styles.orb, styles.orbTopLeft, { backgroundColor: orbColor, transform: [{ scale: pulse }] }]} />
+            <Animated.View style={[styles.orb, styles.orbBottomRight, { backgroundColor: orbColor, transform: [{ scale: pulse }] }]} />
+        </View>
+    );
+};
+
+// ─── Animated Icon ─────────────────────────────────────────────────────
+const AnimatedIcon = ({ step, fadeAnim, slideAnim }: { step: number; fadeAnim: Animated.Value; slideAnim: Animated.Value }) => {
+    const glowPulse = useRef(new Animated.Value(1)).current;
+
+    useEffect(() => {
+        Animated.loop(
+            Animated.sequence([
+                Animated.timing(glowPulse, { toValue: 1.2, duration: 2000, easing: Easing.inOut(Easing.ease), useNativeDriver: true }),
+                Animated.timing(glowPulse, { toValue: 1, duration: 2000, easing: Easing.inOut(Easing.ease), useNativeDriver: true }),
+            ])
+        ).start();
+    }, []);
+
+    const configs = [
+        { icon: 'gift-outline' as const, iconType: 'mci', color: '#f97316', glowColor: 'rgba(249,116,21,0.25)', iconColor: '#fff', size: 52 },
+        { icon: 'notifications' as const, iconType: 'ion', color: '#facc15', glowColor: 'rgba(250,204,21,0.22)', iconColor: '#23170f', size: 48 },
+        { icon: 'shield-check' as const, iconType: 'mci', color: '#22c55e', glowColor: 'rgba(34,197,94,0.22)', iconColor: '#fff', size: 52 },
+    ];
+
+    const c = configs[step];
+
+    return (
+        <Animated.View style={[styles.iconWrapper, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
+            {/* Pulsing glow */}
+            <Animated.View style={[styles.iconGlow, { backgroundColor: c.glowColor, transform: [{ scale: glowPulse }] }]} />
+            {/* Outer glass ring */}
+            <View style={styles.iconGlassRing}>
+                {/* Inner colored circle */}
+                <View style={[styles.iconInner, { backgroundColor: c.color, shadowColor: c.color }]}>
+                    {c.iconType === 'mci' ? (
+                        <MaterialCommunityIcons name={c.icon as any} size={c.size} color={c.iconColor} />
+                    ) : (
+                        <Ionicons name={c.icon as any} size={c.size} color={c.iconColor} />
+                    )}
+                </View>
             </View>
-        </View>
-    </View>
-);
+        </Animated.View>
+    );
+};
 
-const BellIcon = () => (
-    <View style={styles.iconContainer}>
-        <View style={[styles.iconGlow, { backgroundColor: 'rgba(250,204,21,0.18)' }]} />
-        <View style={styles.glassCircle}>
-            <View style={[styles.innerCircle, { backgroundColor: '#facc15' }]}>
-                <Ionicons name="notifications" size={44} color="#23170f" />
+// ─── Feature Card (Screen 1) ───────────────────────────────────────────
+const FeatureCard = ({ icon, title, desc, delay }: { icon: string; title: string; desc: string; delay: number }) => {
+    const fadeIn = useRef(new Animated.Value(0)).current;
+    const slideIn = useRef(new Animated.Value(20)).current;
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            Animated.parallel([
+                Animated.timing(fadeIn, { toValue: 1, duration: 400, useNativeDriver: true }),
+                Animated.timing(slideIn, { toValue: 0, duration: 400, easing: Easing.out(Easing.ease), useNativeDriver: true }),
+            ]).start();
+        }, delay);
+        return () => clearTimeout(timer);
+    }, []);
+
+    return (
+        <Animated.View style={[styles.featureCard, { opacity: fadeIn, transform: [{ translateY: slideIn }] }]}>
+            <View style={styles.featureCardIcon}>
+                <Ionicons name={icon as any} size={22} color="#f97316" />
             </View>
-        </View>
-    </View>
-);
-
-const ShieldIcon = () => (
-    <View style={styles.iconContainer}>
-        <View style={[styles.iconGlow, { backgroundColor: 'rgba(34,197,94,0.18)' }]} />
-        <View style={styles.glassCircle}>
-            <View style={[styles.innerCircle, { backgroundColor: '#22c55e' }]}>
-                <MaterialCommunityIcons name="shield-check" size={48} color="#fff" />
+            <View style={styles.featureCardText}>
+                <Text style={styles.featureCardTitle}>{title}</Text>
+                <Text style={styles.featureCardDesc}>{desc}</Text>
             </View>
-        </View>
-    </View>
-);
+        </Animated.View>
+    );
+};
 
-// ─── Page Dots ─────────────────────────────────────────────────────────
+// ─── Checklist Item (Screen 3) ─────────────────────────────────────────
+const CheckItem = ({ text, delay }: { text: string; delay: number }) => {
+    const fadeIn = useRef(new Animated.Value(0)).current;
+    const slideIn = useRef(new Animated.Value(15)).current;
 
-const PageDots = ({ current, total }: { current: number; total: number }) => (
-    <View style={styles.dotsContainer}>
-        {Array.from({ length: total }).map((_, i) => (
-            <View
-                key={i}
-                style={[
-                    styles.dot,
-                    i === current ? styles.dotActive : styles.dotInactive,
-                ]}
-            />
-        ))}
-    </View>
-);
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            Animated.parallel([
+                Animated.timing(fadeIn, { toValue: 1, duration: 350, useNativeDriver: true }),
+                Animated.timing(slideIn, { toValue: 0, duration: 350, easing: Easing.out(Easing.ease), useNativeDriver: true }),
+            ]).start();
+        }, delay);
+        return () => clearTimeout(timer);
+    }, []);
 
-// ─── Feature Checklist Item ────────────────────────────────────────────
+    return (
+        <Animated.View style={[styles.checkRow, { opacity: fadeIn, transform: [{ translateY: slideIn }] }]}>
+            <View style={styles.checkCircle}>
+                <Ionicons name="checkmark" size={14} color="#fff" />
+            </View>
+            <Text style={styles.checkText}>{text}</Text>
+        </Animated.View>
+    );
+};
 
-const FeatureItem = ({ text }: { text: string }) => (
-    <View style={styles.featureRow}>
-        <View style={styles.featureCheckCircle}>
-            <Ionicons name="checkmark" size={16} color="#fff" />
-        </View>
-        <Text style={styles.featureText}>{text}</Text>
-    </View>
-);
-
-// ─── Timeline ──────────────────────────────────────────────────────────
-
+// ─── Timeline (Screen 3) ──────────────────────────────────────────────
 const Timeline = ({ t }: { t: (key: any) => string }) => (
     <View style={styles.timelineContainer}>
         <View style={styles.timelineRow}>
-            {/* Today node */}
+            {/* Today */}
             <View style={styles.timelineNode}>
                 <View style={[styles.timelineCircle, { backgroundColor: '#22c55e' }]}>
                     <Ionicons name="checkmark" size={14} color="#fff" />
                 </View>
                 <Text style={styles.timelineLabel}>{t('trialToday' as any)}</Text>
-                <Text style={styles.timelineSublabel}>{t('trialFree' as any)}</Text>
+                <Text style={styles.timelineSub}>{t('trialFree' as any)}</Text>
             </View>
 
-            {/* Connecting line */}
+            {/* Line */}
             <View style={styles.timelineLine}>
                 <View style={styles.timelineLineFill} />
-                {/* Dashes */}
-                {Array.from({ length: 8 }).map((_, i) => (
-                    <View key={i} style={[styles.timelineDash, { left: `${(i + 1) * 10}%` }]} />
-                ))}
             </View>
 
-            {/* Day 14 node */}
+            {/* Reminder */}
             <View style={styles.timelineNode}>
-                <View style={[styles.timelineCircle, { backgroundColor: 'rgba(255,255,255,0.15)', borderWidth: 2, borderColor: 'rgba(255,255,255,0.3)' }]}>
-                    <Ionicons name="flag" size={12} color="rgba(255,255,255,0.6)" />
+                <View style={[styles.timelineCircle, { backgroundColor: '#facc15' }]}>
+                    <Ionicons name="notifications" size={12} color="#23170f" />
+                </View>
+                <Text style={styles.timelineLabel}>Day 12</Text>
+                <Text style={styles.timelineSub}>Reminder</Text>
+            </View>
+
+            {/* Line */}
+            <View style={styles.timelineLine}>
+                <View style={[styles.timelineLineFill, { backgroundColor: 'rgba(255,255,255,0.08)' }]} />
+            </View>
+
+            {/* Day 14 */}
+            <View style={styles.timelineNode}>
+                <View style={[styles.timelineCircle, { backgroundColor: 'rgba(255,255,255,0.12)', borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.25)' }]}>
+                    <Ionicons name="flag" size={12} color="rgba(255,255,255,0.5)" />
                 </View>
                 <Text style={styles.timelineLabel}>{t('trialDay14' as any)}</Text>
-                <Text style={styles.timelineSublabel}>{t('trialEnds' as any)}</Text>
+                <Text style={styles.timelineSub}>{t('trialEnds' as any)}</Text>
             </View>
         </View>
     </View>
@@ -123,22 +173,27 @@ export default function SignupSuccessScreen() {
     const router = useRouter();
     const { language } = usePreferences();
     const [step, setStep] = useState(0);
+
     const fadeAnim = useRef(new Animated.Value(1)).current;
+    const slideAnim = useRef(new Animated.Value(0)).current;
+    const contentFade = useRef(new Animated.Value(1)).current;
+    const contentSlide = useRef(new Animated.Value(0)).current;
 
     const t = (key: Parameters<typeof getTranslation>[1]) => getTranslation(language, key);
 
     const animateTransition = (nextStep: number) => {
-        Animated.timing(fadeAnim, {
-            toValue: 0,
-            duration: 150,
-            useNativeDriver: true,
-        }).start(() => {
+        // Fade out + slide up
+        Animated.parallel([
+            Animated.timing(contentFade, { toValue: 0, duration: 200, useNativeDriver: true }),
+            Animated.timing(contentSlide, { toValue: -20, duration: 200, useNativeDriver: true }),
+        ]).start(() => {
             setStep(nextStep);
-            Animated.timing(fadeAnim, {
-                toValue: 1,
-                duration: 250,
-                useNativeDriver: true,
-            }).start();
+            // Reset position below and fade in
+            contentSlide.setValue(30);
+            Animated.parallel([
+                Animated.timing(contentFade, { toValue: 1, duration: 350, useNativeDriver: true }),
+                Animated.timing(contentSlide, { toValue: 0, duration: 350, easing: Easing.out(Easing.ease), useNativeDriver: true }),
+            ]).start();
         });
     };
 
@@ -148,7 +203,6 @@ export default function SignupSuccessScreen() {
         if (step < 2) {
             animateTransition(step + 1);
         } else {
-            // Open Stripe payment link for free trial, then navigate to main app
             Linking.openURL(STRIPE_TRIAL_URL);
             router.replace('/(tabs)' as any);
         }
@@ -158,56 +212,115 @@ export default function SignupSuccessScreen() {
         router.replace('/(tabs)' as any);
     };
 
+    // Entrance animation
+    useEffect(() => {
+        fadeAnim.setValue(0);
+        slideAnim.setValue(40);
+        Animated.parallel([
+            Animated.timing(fadeAnim, { toValue: 1, duration: 600, easing: Easing.out(Easing.ease), useNativeDriver: true }),
+            Animated.timing(slideAnim, { toValue: 0, duration: 600, easing: Easing.out(Easing.ease), useNativeDriver: true }),
+        ]).start();
+    }, []);
+
+    // Button config per step
+    const buttonStyles = [
+        { bg: '#f97316', shadow: '#f97316' },
+        { bg: 'rgba(255,255,255,0.08)', shadow: 'transparent' },
+        { bg: '#22c55e', shadow: '#22c55e' },
+    ];
+    const currentButton = buttonStyles[step];
+
     return (
         <SafeAreaView style={styles.container}>
-            <FloatingParticles />
+            <BackgroundOrbs step={step} />
 
             {/* Header */}
             <View style={styles.header}>
-                <View style={{ width: 48 }} />
+                <View style={{ width: 32 }} />
                 <Text style={styles.headerTitle}>
                     {step === 0 ? t('successHeader') : step === 1 ? t('trialNoPay' as any) : ''}
                 </Text>
-                <TouchableOpacity style={styles.closeButton} onPress={handleSkip}>
+                <TouchableOpacity style={styles.closeButton} onPress={handleSkip} hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}>
                     <Ionicons name="close" size={12} color="rgba(255,255,255,0.1)" />
                 </TouchableOpacity>
             </View>
 
             {/* Content */}
-            <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
+            <Animated.View style={[styles.content, { opacity: contentFade, transform: [{ translateY: contentSlide }] }]}>
+
+                {/* Icon */}
+                <AnimatedIcon step={step} fadeAnim={fadeAnim} slideAnim={slideAnim} />
+
+                {/* Screen 1: Try for Free */}
                 {step === 0 && (
                     <>
-                        <GiftIcon />
-                        <View style={styles.textContainer}>
+                        <View style={styles.textBlock}>
                             <Text style={styles.title}>{t('trialTitle1' as any)}</Text>
                             <Text style={styles.subtitle}>{t('trialSubtitle1' as any)}</Text>
                         </View>
-                    </>
-                )}
 
-                {step === 1 && (
-                    <>
-                        <BellIcon />
-                        <View style={styles.textContainer}>
-                            <Text style={styles.title}>{t('trialTitle2' as any)}</Text>
-                            <Text style={styles.subtitle}>{t('trialSubtitle2' as any)}</Text>
+                        <View style={styles.featureCardsContainer}>
+                            <FeatureCard
+                                icon="fitness-outline"
+                                title={t('trialFeature1' as any)}
+                                desc="Personalized routines"
+                                delay={200}
+                            />
+                            <FeatureCard
+                                icon="body-outline"
+                                title={t('trialFeature2' as any)}
+                                desc="Target problem areas"
+                                delay={350}
+                            />
+                            <FeatureCard
+                                icon="analytics-outline"
+                                title={t('trialFeature3' as any)}
+                                desc="Track your progress"
+                                delay={500}
+                            />
                         </View>
                     </>
                 )}
 
+                {/* Screen 2: Reminder */}
+                {step === 1 && (
+                    <>
+                        <View style={styles.textBlock}>
+                            <Text style={styles.title}>{t('trialTitle2' as any)}</Text>
+                            <Text style={styles.subtitle}>{t('trialSubtitle2' as any)}</Text>
+                        </View>
+
+                        {/* Reassurance cards */}
+                        <View style={styles.reassuranceContainer}>
+                            <View style={styles.reassuranceCard}>
+                                <Ionicons name="card-outline" size={20} color="rgba(255,255,255,0.6)" />
+                                <Text style={styles.reassuranceText}>No charge today</Text>
+                            </View>
+                            <View style={styles.reassuranceCard}>
+                                <Ionicons name="close-circle-outline" size={20} color="rgba(255,255,255,0.6)" />
+                                <Text style={styles.reassuranceText}>Cancel anytime</Text>
+                            </View>
+                            <View style={styles.reassuranceCard}>
+                                <Ionicons name="notifications-outline" size={20} color="rgba(255,255,255,0.6)" />
+                                <Text style={styles.reassuranceText}>Reminder on Day 12</Text>
+                            </View>
+                        </View>
+                    </>
+                )}
+
+                {/* Screen 3: Start Trial */}
                 {step === 2 && (
                     <>
-                        <ShieldIcon />
-                        <View style={styles.textContainer}>
+                        <View style={styles.textBlock}>
                             <Text style={styles.title}>{t('trialTitle3' as any)}</Text>
                             <Text style={styles.subtitle}>{t('trialSubtitle3' as any)}</Text>
                         </View>
 
-                        {/* Feature Checklist */}
-                        <View style={styles.featureList}>
-                            <FeatureItem text={t('trialFeature1' as any)} />
-                            <FeatureItem text={t('trialFeature2' as any)} />
-                            <FeatureItem text={t('trialFeature3' as any)} />
+                        {/* Feature checklist */}
+                        <View style={styles.checklistContainer}>
+                            <CheckItem text={t('trialFeature1' as any)} delay={100} />
+                            <CheckItem text={t('trialFeature2' as any)} delay={200} />
+                            <CheckItem text={t('trialFeature3' as any)} delay={300} />
                         </View>
 
                         {/* Timeline */}
@@ -218,11 +331,46 @@ export default function SignupSuccessScreen() {
 
             {/* Bottom */}
             <View style={styles.bottom}>
-                <TouchableOpacity style={styles.button} onPress={handleNext}>
-                    <Text style={styles.buttonText}>
+                <TouchableOpacity
+                    style={[
+                        styles.button,
+                        {
+                            backgroundColor: currentButton.bg,
+                            shadowColor: currentButton.shadow,
+                            borderWidth: step === 1 ? 1 : 0,
+                            borderColor: step === 1 ? 'rgba(255,255,255,0.12)' : 'transparent',
+                        },
+                    ]}
+                    onPress={handleNext}
+                    activeOpacity={0.85}
+                >
+                    <Text style={[styles.buttonText, step === 2 && { letterSpacing: 0.5 }]}>
                         {step === 0 ? t('trialCta1' as any) : step === 1 ? t('trialCta2' as any) : t('trialCta3' as any)}
                     </Text>
+                    {step === 2 && (
+                        <Ionicons name="arrow-forward" size={18} color="#fff" style={{ marginLeft: 8 }} />
+                    )}
                 </TouchableOpacity>
+
+                {/* Subtle guarantees */}
+                {step === 2 && (
+                    <View style={styles.guaranteesRow}>
+                        <View style={styles.guaranteeItem}>
+                            <Ionicons name="lock-closed" size={11} color="rgba(255,255,255,0.3)" />
+                            <Text style={styles.guaranteeText}>Secure</Text>
+                        </View>
+                        <View style={styles.guaranteeDot} />
+                        <View style={styles.guaranteeItem}>
+                            <Ionicons name="shield-checkmark" size={11} color="rgba(255,255,255,0.3)" />
+                            <Text style={styles.guaranteeText}>Cancel anytime</Text>
+                        </View>
+                        <View style={styles.guaranteeDot} />
+                        <View style={styles.guaranteeItem}>
+                            <Ionicons name="card" size={11} color="rgba(255,255,255,0.3)" />
+                            <Text style={styles.guaranteeText}>No charge now</Text>
+                        </View>
+                    </View>
+                )}
             </View>
         </SafeAreaView>
     );
@@ -236,15 +384,25 @@ const styles = StyleSheet.create({
         backgroundColor: '#23170f',
     },
 
-    // Particles
-    particlesContainer: {
+    // Background orbs
+    orbsContainer: {
         ...StyleSheet.absoluteFillObject,
         zIndex: 0,
+        overflow: 'hidden',
     },
-    particle: {
+    orb: {
         position: 'absolute',
-        borderRadius: 50,
-        opacity: 0.6,
+        width: 280,
+        height: 280,
+        borderRadius: 140,
+    },
+    orbTopLeft: {
+        top: -100,
+        left: -80,
+    },
+    orbBottomRight: {
+        bottom: -100,
+        right: -80,
     },
 
     // Header
@@ -252,15 +410,15 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingHorizontal: 16,
+        paddingHorizontal: 20,
         paddingVertical: 12,
         zIndex: 10,
     },
     headerTitle: {
-        color: 'rgba(255,255,255,0.8)',
-        fontSize: 14,
+        color: 'rgba(255,255,255,0.6)',
+        fontSize: 12,
         fontWeight: '600',
-        letterSpacing: 2,
+        letterSpacing: 1.5,
         textTransform: 'uppercase',
     },
     closeButton: {
@@ -277,85 +435,146 @@ const styles = StyleSheet.create({
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
-        paddingHorizontal: 28,
-        gap: 32,
+        paddingHorizontal: 24,
+        gap: 28,
         zIndex: 10,
     },
 
     // Icon
-    iconContainer: {
+    iconWrapper: {
         position: 'relative',
         alignItems: 'center',
         justifyContent: 'center',
-        marginBottom: 8,
+        marginBottom: 4,
     },
     iconGlow: {
         position: 'absolute',
-        width: 200,
-        height: 200,
-        borderRadius: 100,
+        width: 180,
+        height: 180,
+        borderRadius: 90,
     },
-    glassCircle: {
-        width: 160,
-        height: 160,
-        borderRadius: 80,
-        backgroundColor: 'rgba(255,255,255,0.05)',
+    iconGlassRing: {
+        width: 140,
+        height: 140,
+        borderRadius: 70,
+        backgroundColor: 'rgba(255,255,255,0.04)',
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.1)',
+        borderColor: 'rgba(255,255,255,0.08)',
         alignItems: 'center',
         justifyContent: 'center',
     },
-    innerCircle: {
-        width: 96,
-        height: 96,
-        borderRadius: 48,
+    iconInner: {
+        width: 88,
+        height: 88,
+        borderRadius: 44,
         alignItems: 'center',
         justifyContent: 'center',
         shadowOffset: { width: 0, height: 0 },
-        shadowOpacity: 0.6,
-        shadowRadius: 25,
+        shadowOpacity: 0.5,
+        shadowRadius: 20,
     },
 
     // Text
-    textContainer: {
+    textBlock: {
         alignItems: 'center',
-        gap: 16,
+        gap: 12,
     },
     title: {
-        fontSize: 34,
+        fontSize: 30,
         fontWeight: '800',
         color: '#fff',
         textAlign: 'center',
-        lineHeight: 42,
+        lineHeight: 38,
     },
     subtitle: {
-        fontSize: 16,
-        color: 'rgba(255,255,255,0.6)',
+        fontSize: 15,
+        color: 'rgba(255,255,255,0.55)',
         textAlign: 'center',
-        lineHeight: 24,
-        maxWidth: 320,
+        lineHeight: 22,
+        maxWidth: 300,
     },
 
-    // Feature List
-    featureList: {
+    // Feature Cards (Screen 1)
+    featureCardsContainer: {
         width: '100%',
-        gap: 14,
-        paddingHorizontal: 8,
+        gap: 10,
     },
-    featureRow: {
+    featureCard: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: 'rgba(255,255,255,0.04)',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.06)',
+        borderRadius: 16,
+        paddingVertical: 14,
+        paddingHorizontal: 16,
+        gap: 14,
+    },
+    featureCardIcon: {
+        width: 42,
+        height: 42,
+        borderRadius: 12,
+        backgroundColor: 'rgba(249,116,21,0.1)',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    featureCardText: {
+        flex: 1,
+        gap: 2,
+    },
+    featureCardTitle: {
+        fontSize: 15,
+        fontWeight: '700',
+        color: '#fff',
+    },
+    featureCardDesc: {
+        fontSize: 13,
+        color: 'rgba(255,255,255,0.4)',
+        fontWeight: '500',
+    },
+
+    // Reassurance (Screen 2)
+    reassuranceContainer: {
+        width: '100%',
+        gap: 10,
+    },
+    reassuranceCard: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 14,
+        backgroundColor: 'rgba(255,255,255,0.04)',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.06)',
+        borderRadius: 14,
+        paddingVertical: 14,
+        paddingHorizontal: 18,
+    },
+    reassuranceText: {
+        fontSize: 15,
+        fontWeight: '600',
+        color: 'rgba(255,255,255,0.75)',
+    },
+
+    // Checklist (Screen 3)
+    checklistContainer: {
+        width: '100%',
+        gap: 12,
+        paddingHorizontal: 4,
+    },
+    checkRow: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 14,
     },
-    featureCheckCircle: {
-        width: 28,
-        height: 28,
-        borderRadius: 14,
+    checkCircle: {
+        width: 26,
+        height: 26,
+        borderRadius: 13,
         backgroundColor: '#22c55e',
         alignItems: 'center',
         justifyContent: 'center',
     },
-    featureText: {
+    checkText: {
         fontSize: 16,
         fontWeight: '600',
         color: '#fff',
@@ -364,105 +583,97 @@ const styles = StyleSheet.create({
     // Timeline
     timelineContainer: {
         width: '100%',
-        paddingHorizontal: 16,
-        marginTop: 8,
+        paddingHorizontal: 8,
+        marginTop: 4,
     },
     timelineRow: {
         flexDirection: 'row',
         alignItems: 'flex-start',
-        justifyContent: 'space-between',
     },
     timelineNode: {
         alignItems: 'center',
-        gap: 6,
-        width: 80,
+        gap: 5,
+        width: 70,
     },
     timelineCircle: {
-        width: 32,
-        height: 32,
-        borderRadius: 16,
+        width: 30,
+        height: 30,
+        borderRadius: 15,
         alignItems: 'center',
         justifyContent: 'center',
     },
     timelineLabel: {
-        fontSize: 13,
+        fontSize: 12,
         fontWeight: '700',
         color: '#fff',
     },
-    timelineSublabel: {
-        fontSize: 11,
-        color: 'rgba(255,255,255,0.4)',
+    timelineSub: {
+        fontSize: 10,
+        color: 'rgba(255,255,255,0.35)',
         fontWeight: '500',
     },
     timelineLine: {
         flex: 1,
         height: 2,
-        backgroundColor: 'rgba(255,255,255,0.08)',
-        marginTop: 15,
-        marginHorizontal: 4,
-        position: 'relative',
+        backgroundColor: 'rgba(255,255,255,0.06)',
+        marginTop: 14,
+        marginHorizontal: 2,
         borderRadius: 1,
+        overflow: 'hidden',
     },
     timelineLineFill: {
-        position: 'absolute',
-        left: 0,
-        top: 0,
-        width: '30%',
+        width: '100%',
         height: '100%',
         backgroundColor: '#22c55e',
-        borderRadius: 1,
-    },
-    timelineDash: {
-        position: 'absolute',
-        top: -1,
-        width: 2,
-        height: 4,
-        backgroundColor: 'rgba(255,255,255,0.1)',
         borderRadius: 1,
     },
 
     // Bottom
     bottom: {
         paddingHorizontal: 24,
-        paddingBottom: 48,
-        gap: 24,
+        paddingBottom: 44,
+        gap: 16,
         zIndex: 10,
-    },
-
-    // Page Dots
-    dotsContainer: {
-        flexDirection: 'row',
-        justifyContent: 'center',
-        gap: 8,
-    },
-    dot: {
-        height: 8,
-        borderRadius: 4,
-    },
-    dotActive: {
-        width: 28,
-        backgroundColor: '#f97316',
-    },
-    dotInactive: {
-        width: 8,
-        backgroundColor: 'rgba(255,255,255,0.15)',
     },
 
     // Button
     button: {
-        backgroundColor: '#f97316',
         height: 56,
         borderRadius: 16,
         alignItems: 'center',
         justifyContent: 'center',
-        shadowColor: '#f97316',
+        flexDirection: 'row',
         shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
+        shadowOpacity: 0.25,
         shadowRadius: 12,
     },
     buttonText: {
         color: '#fff',
-        fontSize: 18,
+        fontSize: 17,
         fontWeight: '700',
+    },
+
+    // Guarantees
+    guaranteesRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 6,
+    },
+    guaranteeItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+    },
+    guaranteeText: {
+        fontSize: 11,
+        color: 'rgba(255,255,255,0.25)',
+        fontWeight: '500',
+    },
+    guaranteeDot: {
+        width: 3,
+        height: 3,
+        borderRadius: 1.5,
+        backgroundColor: 'rgba(255,255,255,0.15)',
     },
 });
