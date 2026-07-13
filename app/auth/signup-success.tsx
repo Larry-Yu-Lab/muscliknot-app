@@ -169,7 +169,7 @@ export default function SignupSuccessScreen() {
                     {step === 0 ? t('successHeader') : step === 1 ? t('trialNoPay' as any) : ''}
                 </Text>
                 <TouchableOpacity style={styles.closeButton} onPress={handleSkip}>
-                    <Ionicons name="close" size={18} color="rgba(255,255,255,0.2)" />
+                    <Ionicons name="close" size={12} color="rgba(255,255,255,0.1)" />
                 </TouchableOpacity>
             </View>
 
@@ -218,7 +218,6 @@ export default function SignupSuccessScreen() {
 
             {/* Bottom */}
             <View style={styles.bottom}>
-                <PageDots current={step} total={3} />
                 <TouchableOpacity style={styles.button} onPress={handleNext}>
                     <Text style={styles.buttonText}>
                         {step === 0 ? t('trialCta1' as any) : step === 1 ? t('trialCta2' as any) : t('trialCta3' as any)}
@@ -265,10 +264,10 @@ const styles = StyleSheet.create({
         textTransform: 'uppercase',
     },
     closeButton: {
-        width: 32,
-        height: 32,
-        borderRadius: 16,
-        backgroundColor: 'rgba(255,255,255,0.06)',
+        width: 20,
+        height: 20,
+        borderRadius: 10,
+        backgroundColor: 'rgba(255,255,255,0.03)',
         alignItems: 'center',
         justifyContent: 'center',
     },
