@@ -125,6 +125,7 @@ export default function HomeScreen() {
   const [searchError, setSearchError] = useState('');
   const [recentPlans, setRecentPlans] = useState<HistoryItem[]>([]);
   const [roadmap, setRoadmap] = useState<RecoveryRoadmap | null>(null);
+  const [historyCount, setHistoryCount] = useState(0);
   const [preventionAlerts, setPreventionAlerts] = useState<PreventionAlert[]>([]);
   const [dismissedAlerts, setDismissedAlerts] = useState<string[]>([]);
   const startCtx = useSharedValue({ x: 0, y: 0 });
@@ -178,6 +179,10 @@ export default function HomeScreen() {
         // Generate AI Roadmap from full history
         const rm = generateRoadmap(data);
         setRoadmap(rm);
+
+        // Count how many assessments have pain scores
+        const relevantCount = data.filter(h => h.assessment?.painLevel !== undefined).length;
+        setHistoryCount(relevantCount);
 
         // Generate Prevention Alerts
         const alerts = generatePreventionAlerts(data);
@@ -490,86 +495,152 @@ export default function HomeScreen() {
         </View>
 
         {/* ─── AI Recovery Roadmap Card ──────────────────────────────── */}
-        {roadmap && (
-          <View style={[styles.roadmapCard, { backgroundColor: colors.cardBackground, borderColor: roadmap.phaseColor + '40', overflow: 'hidden' }]}>
-            {/* Lock Overlay for Free users */}
-            {!user.isPremium && (
-              <View style={[StyleSheet.absoluteFillObject, styles.lockOverlay, { backgroundColor: 'rgba(23,15,10,0.92)' }]}>
-                <View style={styles.lockContainer}>
-                  <View style={[styles.lockIconCircle, { backgroundColor: colors.accent + '15' }]}>
-                    <Ionicons name="lock-closed" size={18} color={colors.accent} />
+        {(() => {
+          if (!user.isPremium) {
+            // 1. FREE USER: Render locked preview
+            return (
+              <View style={[styles.roadmapCard, { backgroundColor: colors.cardBackground, borderColor: '#f9731640', overflow: 'hidden' }]}>
+                <View style={[StyleSheet.absoluteFillObject, styles.lockOverlay, { backgroundColor: 'rgba(23,15,10,0.92)' }]}>
+                  <View style={styles.lockContainer}>
+                    <View style={[styles.lockIconCircle, { backgroundColor: colors.accent + '15' }]}>
+                      <Ionicons name="lock-closed" size={18} color={colors.accent} />
+                    </View>
+                    <Text style={[styles.lockTitle, { color: colors.text }]}>Personal AI Coach</Text>
+                    <Text style={[styles.lockSubtitle, { color: colors.textSecondary }]}>Unlock phase targets, daily coach warnings & analytics.</Text>
+                    <TouchableOpacity
+                      style={[styles.lockButton, { backgroundColor: colors.accent }]}
+                      onPress={() => router.push('/auth/signup-success' as any)}
+                      activeOpacity={0.85}
+                    >
+                      <Text style={styles.lockButtonText}>Unlock Elite Plan</Text>
+                    </TouchableOpacity>
                   </View>
-                  <Text style={[styles.lockTitle, { color: colors.text }]}>Personal AI Coach</Text>
-                  <Text style={[styles.lockSubtitle, { color: colors.textSecondary }]}>Unlock phase targets, daily coach warnings & analytics.</Text>
-                  <TouchableOpacity
-                    style={[styles.lockButton, { backgroundColor: colors.accent }]}
-                    onPress={() => router.push('/auth/signup-success' as any)}
-                    activeOpacity={0.85}
-                  >
-                    <Text style={styles.lockButtonText}>Unlock Elite Plan</Text>
-                  </TouchableOpacity>
                 </View>
-              </View>
-            )}
-            <View style={styles.roadmapHeader}>
-              <View style={[styles.roadmapPhaseBadge, { backgroundColor: roadmap.phaseColor + '20' }]}>
-                <Ionicons name={roadmap.phaseIcon as any} size={16} color={roadmap.phaseColor} />
-                <Text style={[styles.roadmapPhaseText, { color: roadmap.phaseColor }]}>
-                  {t(phaseLabelKey(roadmap.currentPhase) as any) || roadmap.currentPhase.toUpperCase()}
+                
+                {/* Mock data underneath the lock */}
+                <View style={styles.roadmapHeader}>
+                  <View style={[styles.roadmapPhaseBadge, { backgroundColor: colors.accent + '20' }]}>
+                    <Ionicons name="body-outline" size={16} color={colors.accent} />
+                    <Text style={[styles.roadmapPhaseText, { color: colors.accent }]}>MOBILITY</Text>
+                  </View>
+                  <Text style={[styles.roadmapDay, { color: colors.textSecondary }]}>{t('dayNumber' as any) || 'Day'} 3</Text>
+                </View>
+                <Text style={[styles.roadmapTitle, { color: colors.text }]}>🧠 {t('recoveryRoadmap' as any) || 'Recovery Roadmap'}</Text>
+                <Text style={[styles.roadmapCoach, { color: colors.textSecondary }]}>
+                  Focus on gentle mobility routines to restore full range of motion.
                 </Text>
+                <View style={styles.roadmapMeta}>
+                  <View style={styles.roadmapMetaItem}>
+                    <Ionicons name="trending-up-outline" size={14} color="#22c55e" />
+                    <Text style={[styles.roadmapMetaText, { color: colors.textSecondary }]}>Improving</Text>
+                  </View>
+                  <View style={styles.roadmapMetaItem}>
+                    <Ionicons name="analytics-outline" size={14} color={colors.textSecondary} />
+                    <Text style={[styles.roadmapMetaText, { color: colors.textSecondary }]}>{t('avgPain' as any) || 'Avg Pain'}: 4.2/10</Text>
+                  </View>
+                </View>
+                <TouchableOpacity style={[styles.roadmapCTA, { backgroundColor: colors.accent }]} disabled={true}>
+                  <Text style={styles.roadmapCTAText}>{t('startTodaysPlan' as any) || "Start Today's Plan"}</Text>
+                  <Ionicons name="arrow-forward" size={18} color="#000" />
+                </TouchableOpacity>
               </View>
-              <Text style={[styles.roadmapDay, { color: colors.textSecondary }]}>
-                {t('dayNumber' as any) || 'Day'} {roadmap.dayNumber}
-              </Text>
-            </View>
-            <Text style={[styles.roadmapTitle, { color: colors.text }]}>
-              🧠 {t('recoveryRoadmap' as any) || 'Recovery Roadmap'}
-            </Text>
-            <Text style={[styles.roadmapCoach, { color: colors.textSecondary }]}>
-              {(() => {
-                const params = { ...roadmap.coachParams };
-                if (params.muscle) {
-                  const mgKey = `mg${(params.muscle as string).replace(/\s/g, '').replace(/_/g, '')}` as any;
-                  const trans = t(mgKey);
-                  params.muscle = trans !== mgKey ? trans : formatLabel(params.muscle as string);
-                }
-                return t(roadmap.coachMessage as any, params as any) || `${formatLabel(roadmap.targetMuscle)} — ${formatLabel(roadmap.currentPhase)} phase. Pain trend: ${formatLabel(roadmap.painTrend)}.`;
-              })()}
-            </Text>
-            <View style={styles.roadmapMeta}>
-              <View style={styles.roadmapMetaItem}>
-                <Ionicons name="trending-up-outline" size={14} color={roadmap.painTrend === 'improving' ? '#22c55e' : roadmap.painTrend === 'worsening' ? '#ef4444' : colors.textSecondary} />
-                <Text style={[styles.roadmapMetaText, { color: colors.textSecondary }]}>
-                  {t(`trend_${roadmap.painTrend}` as any) || formatLabel(roadmap.painTrend)}
+            );
+          } else if (roadmap) {
+            // 2. PREMIUM USER WITH ACTIVE ROADMAP: Render full interactive roadmap
+            return (
+              <View style={[styles.roadmapCard, { backgroundColor: colors.cardBackground, borderColor: roadmap.phaseColor + '40', overflow: 'hidden' }]}>
+                <View style={styles.roadmapHeader}>
+                  <View style={[styles.roadmapPhaseBadge, { backgroundColor: roadmap.phaseColor + '20' }]}>
+                    <Ionicons name={roadmap.phaseIcon as any} size={16} color={roadmap.phaseColor} />
+                    <Text style={[styles.roadmapPhaseText, { color: roadmap.phaseColor }]}>
+                      {t(phaseLabelKey(roadmap.currentPhase) as any) || roadmap.currentPhase.toUpperCase()}
+                    </Text>
+                  </View>
+                  <Text style={[styles.roadmapDay, { color: colors.textSecondary }]}>
+                    {t('dayNumber' as any) || 'Day'} {roadmap.dayNumber}
+                  </Text>
+                </View>
+                <Text style={[styles.roadmapTitle, { color: colors.text }]}>
+                  🧠 {t('recoveryRoadmap' as any) || 'Recovery Roadmap'}
                 </Text>
-              </View>
-              <View style={styles.roadmapMetaItem}>
-                <Ionicons name="analytics-outline" size={14} color={colors.textSecondary} />
-                <Text style={[styles.roadmapMetaText, { color: colors.textSecondary }]}>
-                  {t('avgPain' as any) || 'Avg Pain'}: {roadmap.avgPainLevel}/10
+                <Text style={[styles.roadmapCoach, { color: colors.textSecondary }]}>
+                  {(() => {
+                    const params = { ...roadmap.coachParams };
+                    if (params.muscle) {
+                      const mgKey = `mg${(params.muscle as string).replace(/\s/g, '').replace(/_/g, '')}` as any;
+                      const trans = t(mgKey);
+                      params.muscle = trans !== mgKey ? trans : formatLabel(params.muscle as string);
+                    }
+                    return t(roadmap.coachMessage as any, params as any) || `${formatLabel(roadmap.targetMuscle)} — ${formatLabel(roadmap.currentPhase)} phase. Pain trend: ${formatLabel(roadmap.painTrend)}.`;
+                  })()}
                 </Text>
+                <View style={styles.roadmapMeta}>
+                  <View style={styles.roadmapMetaItem}>
+                    <Ionicons name="trending-up-outline" size={14} color={roadmap.painTrend === 'improving' ? '#22c55e' : roadmap.painTrend === 'worsening' ? '#ef4444' : colors.textSecondary} />
+                    <Text style={[styles.roadmapMetaText, { color: colors.textSecondary }]}>
+                      {t(`trend_${roadmap.painTrend}` as any) || formatLabel(roadmap.painTrend)}
+                    </Text>
+                  </View>
+                  <View style={styles.roadmapMetaItem}>
+                    <Ionicons name="analytics-outline" size={14} color={colors.textSecondary} />
+                    <Text style={[styles.roadmapMetaText, { color: colors.textSecondary }]}>
+                      {t('avgPain' as any) || 'Avg Pain'}: {roadmap.avgPainLevel}/10
+                    </Text>
+                  </View>
+                </View>
+                <TouchableOpacity
+                  style={[styles.roadmapCTA, { backgroundColor: roadmap.phaseColor }]}
+                  onPress={() => {
+                    router.push({
+                      pathname: '/(tabs)/pain-assessment',
+                      params: {
+                        muscleId: roadmap.targetMuscle,
+                        activityType: roadmap.suggestedActivityType,
+                        timestamp: Date.now(),
+                      },
+                    });
+                  }}
+                >
+                  <Text style={styles.roadmapCTAText}>
+                    {t('startTodaysPlan' as any) || "Start Today's Plan"}
+                  </Text>
+                  <Ionicons name="arrow-forward" size={18} color="#000" />
+                </TouchableOpacity>
               </View>
-            </View>
-            <TouchableOpacity
-              style={[styles.roadmapCTA, { backgroundColor: roadmap.phaseColor }]}
-              onPress={() => {
-                router.push({
-                  pathname: '/(tabs)/pain-assessment',
-                  params: {
-                    muscleId: roadmap.targetMuscle,
-                    activityType: roadmap.suggestedActivityType,
-                    timestamp: Date.now(),
-                  },
-                });
-              }}
-            >
-              <Text style={styles.roadmapCTAText}>
-                {t('startTodaysPlan' as any) || "Start Today's Plan"}
-              </Text>
-              <Ionicons name="arrow-forward" size={18} color="#000" />
-            </TouchableOpacity>
-          </View>
-        )}
+            );
+          } else {
+            // 3. PREMIUM USER WITH NO ROADMAP YET: Render setup checklist/instructions
+            return (
+              <View style={[styles.roadmapCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder, overflow: 'hidden' }]}>
+                <View style={styles.roadmapHeader}>
+                  <View style={[styles.roadmapPhaseBadge, { backgroundColor: 'rgba(255,255,255,0.06)' }]}>
+                    <Ionicons name="sparkles-outline" size={16} color={colors.accent} />
+                    <Text style={[styles.roadmapPhaseText, { color: colors.accent }]}>SETUP ACTIVE</Text>
+                  </View>
+                </View>
+                <Text style={[styles.roadmapTitle, { color: colors.text }]}>🧠 Personal AI Coach</Text>
+                <Text style={[styles.roadmapCoach, { color: colors.textSecondary }]}>
+                  {historyCount === 0 ? (
+                    "Log 2 pain assessments to build your dynamic injury recovery roadmap and daily coach messages."
+                  ) : historyCount === 1 ? (
+                    "Log 1 more pain assessment to build your dynamic injury recovery roadmap and daily coach messages."
+                  ) : (
+                    "Log 1 more assessment for a previously tracked muscle group (e.g. Neck or Shoulder) to build your recovery plan."
+                  )}
+                </Text>
+                <TouchableOpacity
+                  style={[styles.roadmapCTA, { backgroundColor: colors.accent }]}
+                  onPress={() => {
+                    router.push('/(tabs)/find-relief' as any);
+                  }}
+                >
+                  <Text style={styles.roadmapCTAText}>Log Pain Assessment</Text>
+                  <Ionicons name="add" size={18} color="#000" />
+                </TouchableOpacity>
+              </View>
+            );
+          }
+        })()}
 
         {/* ─── Prevention Alerts ─────────────────────────────────────── */}
         {preventionAlerts.filter(a => !dismissedAlerts.includes(a.id)).length > 0 && (
