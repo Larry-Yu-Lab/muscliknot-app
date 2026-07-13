@@ -168,8 +168,8 @@ export default function SignupSuccessScreen() {
                 <Text style={styles.headerTitle}>
                     {step === 0 ? t('successHeader') : step === 1 ? t('trialNoPay' as any) : ''}
                 </Text>
-                <TouchableOpacity style={styles.skipButton} onPress={handleSkip}>
-                    <Text style={styles.skipText}>Skip</Text>
+                <TouchableOpacity style={styles.closeButton} onPress={handleSkip}>
+                    <Ionicons name="close" size={18} color="rgba(255,255,255,0.2)" />
                 </TouchableOpacity>
             </View>
 
@@ -264,16 +264,13 @@ const styles = StyleSheet.create({
         letterSpacing: 2,
         textTransform: 'uppercase',
     },
-    skipButton: {
-        width: 48,
-        height: 48,
+    closeButton: {
+        width: 32,
+        height: 32,
+        borderRadius: 16,
+        backgroundColor: 'rgba(255,255,255,0.06)',
         alignItems: 'center',
         justifyContent: 'center',
-    },
-    skipText: {
-        color: 'rgba(255,255,255,0.4)',
-        fontSize: 14,
-        fontWeight: '500',
     },
 
     // Content

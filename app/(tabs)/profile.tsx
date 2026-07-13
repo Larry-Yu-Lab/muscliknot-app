@@ -560,6 +560,23 @@ export default function ProfileScreen() {
                                 <Text style={[styles.logoutText, { color: colors.danger }]}>{t('logout')}</Text>
                             </TouchableOpacity>
                         </View>
+
+                        {/* Dev Tools */}
+                        <View style={[styles.settingsSection, { marginTop: 16 }]}>
+                            <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>Dev Tools</Text>
+                            <TouchableOpacity
+                                style={[
+                                    styles.logoutButton,
+                                    { backgroundColor: colors.cardBackground, borderColor: colors.accent || '#f97316' }
+                                ]}
+                                onPress={() => {
+                                    router.push('/auth/signup-success' as any);
+                                }}
+                            >
+                                <Ionicons name="eye-outline" size={20} color={colors.accent || '#f97316'} />
+                                <Text style={[styles.logoutText, { color: colors.accent || '#f97316' }]}>Dev: Preview Trial Flow</Text>
+                            </TouchableOpacity>
+                        </View>
                     </>
                 ) : (
                     <View style={styles.plansContainer}>

@@ -359,12 +359,18 @@ export default function RegisterScreen() {
 
                     {/* Main Content */}
                     <View style={styles.mainSection}>
-                        <View style={styles.titleBlock}>
-                            <Text style={styles.mainTitle}>{t('registerTitle')}</Text>
-                            <Text style={[styles.subtitle, { color: THEME.textMuted }]}>
-                                {t('registerSubtitle')}
-                            </Text>
-                        </View>
+                        <TouchableOpacity
+                            activeOpacity={1}
+                            onLongPress={() => router.push('/auth/signup-success' as any)}
+                            delayLongPress={800}
+                        >
+                            <View style={styles.titleBlock}>
+                                <Text style={styles.mainTitle}>{t('registerTitle')}</Text>
+                                <Text style={[styles.subtitle, { color: THEME.textMuted }]}>
+                                    {t('registerSubtitle')}
+                                </Text>
+                            </View>
+                        </TouchableOpacity>
 
                         {/* Form Fields */}
                         <View style={styles.formContainer}>
