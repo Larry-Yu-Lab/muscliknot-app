@@ -1,5 +1,6 @@
 import { Colors } from '@/constants/theme';
 import { usePreferences } from '@/context/PreferencesContext';
+import { useUser } from '@/context/UserContext';
 import { AnalyticsData, DailyDetail, processAnalytics } from '@/utils/analytics';
 import { getTranslation, formatLabel } from '@/utils/i18n';
 import { getHistory } from '@/utils/storage';
@@ -14,9 +15,67 @@ const { width } = Dimensions.get('window');
 export default function AnalyticsScreen() {
     const router = useRouter();
     const { theme, language } = usePreferences();
+    const { user } = useUser();
     const colors = Colors[theme];
     const isDark = theme === 'dark';
     const t = (key: Parameters<typeof getTranslation>[1], params?: Record<string, string>) => getTranslation(language, key, params);
+
+    if (!user.isPremium) {
+        return (
+            <SafeAreaView style={[styles.container, { backgroundColor: colors.background, justifyContent: 'center', alignItems: 'center', padding: 24 }]}>
+                <Stack.Screen options={{ headerShown: false }} />
+                
+                {/* Custom back button on top left */}
+                <View style={styles.lockHeader}>
+                    <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+                        <Ionicons name="chevron-back" size={24} color={colors.text} />
+                    </TouchableOpacity>
+                    <View style={{ flex: 1 }} />
+                </View>
+
+                <View style={styles.lockIconContainer}>
+                    <View style={[styles.lockGlow, { backgroundColor: colors.accent + '15' }]} />
+                    <View style={styles.glassCircle}>
+                        <Ionicons name="analytics" size={36} color={colors.accent} />
+                    </View>
+                </View>
+                
+                <Text style={[styles.lockScreenTitle, { color: colors.text }]}>Elite Analytics</Text>
+                <Text style={[styles.lockScreenSubtitle, { color: colors.textSecondary }]}>
+                    Unlock detailed pain projection timelines, muscle group intensity tracking, and full weekly metrics.
+                </Text>
+
+                <View style={styles.bulletList}>
+                    <View style={styles.bulletRow}>
+                        <View style={[styles.bulletCheck, { backgroundColor: colors.accent + '15' }]}>
+                            <Ionicons name="checkmark" size={14} color={colors.accent} />
+                        </View>
+                        <Text style={[styles.bulletText, { color: colors.text }]}>Daily stretch & session counters</Text>
+                    </View>
+                    <View style={styles.bulletRow}>
+                        <View style={[styles.bulletCheck, { backgroundColor: colors.accent + '15' }]}>
+                            <Ionicons name="checkmark" size={14} color={colors.accent} />
+                        </View>
+                        <Text style={[styles.bulletText, { color: colors.text }]}>Multi-zone pain levels graph</Text>
+                    </View>
+                    <View style={styles.bulletRow}>
+                        <View style={[styles.bulletCheck, { backgroundColor: colors.accent + '15' }]}>
+                            <Ionicons name="checkmark" size={14} color={colors.accent} />
+                        </View>
+                        <Text style={[styles.bulletText, { color: colors.text }]}>Stiffness and recovery score tracking</Text>
+                    </View>
+                </View>
+
+                <TouchableOpacity
+                    style={[styles.lockScreenButton, { backgroundColor: colors.accent }]}
+                    onPress={() => router.push('/auth/signup-success' as any)}
+                    activeOpacity={0.85}
+                >
+                    <Text style={styles.lockScreenButtonText}>Start 14-Day Free Trial</Text>
+                </TouchableOpacity>
+            </SafeAreaView>
+        );
+    }
 
     const [data, setData] = useState<AnalyticsData | null>(null);
     const [loading, setLoading] = useState(true);
@@ -781,4 +840,24 @@ const styles = StyleSheet.create({
         fontSize: 13,
         fontWeight: '600',
     },
+    
+    // Lock screen styles
+    lockHeader: {
+        width: '100%',
+        flexDirection: 'row',
+        position: 'absolute',
+        top: 48,
+        left: 24,
+    },
+    lockIconContainer: { position: 'relative', alignItems: 'center', justifyContent: 'center', marginBottom: 20 },
+    lockGlow: { position: 'absolute', width: 140, height: 140, borderRadius: 70 },
+    glassCircle: { width: 80, height: 80, borderRadius: 40, backgroundColor: 'rgba(255,255,255,0.03)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', alignItems: 'center', justifyContent: 'center' },
+    lockScreenTitle: { fontSize: 26, fontWeight: '800', textAlign: 'center', marginBottom: 12 },
+    lockScreenSubtitle: { fontSize: 15, textAlign: 'center', lineHeight: 22, paddingHorizontal: 16, marginBottom: 28 },
+    bulletList: { width: '100%', gap: 14, paddingHorizontal: 16, marginBottom: 32 },
+    bulletRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+    bulletCheck: { width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
+    bulletText: { fontSize: 15, fontWeight: '600' },
+    lockScreenButton: { width: '100%', maxWidth: 300, height: 52, borderRadius: 14, alignItems: 'center', justifyContent: 'center', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 4 },
+    lockScreenButtonText: { color: '#000', fontSize: 16, fontWeight: '950' },
 });

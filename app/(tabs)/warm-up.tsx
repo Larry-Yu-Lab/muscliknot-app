@@ -3,6 +3,7 @@ import { Colors } from '@/constants/theme';
 import { usePreferences } from '@/context/PreferencesContext';
 import { getExercisesByActivityType, EXERCISES } from '@/data/exercises';
 import { getTranslation } from '@/utils/i18n';
+import { useUser } from '@/context/UserContext';
 import { savePainSession, saveToHistory } from '@/utils/storage';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
@@ -114,8 +115,56 @@ export default function WarmUpScreen() {
     const params = useLocalSearchParams();
     const { width: windowWidth } = Dimensions.get('window');
     const { language, theme } = usePreferences();
+    const { user } = useUser();
     const t = (key: Parameters<typeof getTranslation>[1]) => getTranslation(language, key);
     const colors = Colors[theme];
+
+    if (!user.isPremium) {
+        return (
+            <SafeAreaView style={[styles.container, { backgroundColor: colors.background, justifyContent: 'center', alignItems: 'center', padding: 24 }]}>
+                <View style={styles.lockIconContainer}>
+                    <View style={[styles.lockGlow, { backgroundColor: colors.accent + '15' }]} />
+                    <View style={styles.glassCircle}>
+                        <Ionicons name="lock-closed" size={36} color={colors.accent} />
+                    </View>
+                </View>
+                
+                <Text style={[styles.lockScreenTitle, { color: colors.text }]}>Elite Warm-Ups</Text>
+                <Text style={[styles.lockScreenSubtitle, { color: colors.textSecondary }]}>
+                    Get pre-workout routines dynamically generated around your active pain zones, injuries, and recovery phases.
+                </Text>
+
+                <View style={styles.bulletList}>
+                    <View style={styles.bulletRow}>
+                        <View style={[styles.bulletCheck, { backgroundColor: colors.accent + '15' }]}>
+                            <Ionicons name="checkmark" size={14} color={colors.accent} />
+                        </View>
+                        <Text style={[styles.bulletText, { color: colors.text }]}>Tailored to your daily pain profile</Text>
+                    </View>
+                    <View style={styles.bulletRow}>
+                        <View style={[styles.bulletCheck, { backgroundColor: colors.accent + '15' }]}>
+                            <Ionicons name="checkmark" size={14} color={colors.accent} />
+                        </View>
+                        <Text style={[styles.bulletText, { color: colors.text }]}>Prevents further joint and muscle injuries</Text>
+                    </View>
+                    <View style={styles.bulletRow}>
+                        <View style={[styles.bulletCheck, { backgroundColor: colors.accent + '15' }]}>
+                            <Ionicons name="checkmark" size={14} color={colors.accent} />
+                        </View>
+                        <Text style={[styles.bulletText, { color: colors.text }]}>Adaptive coaching guidelines</Text>
+                    </View>
+                </View>
+
+                <TouchableOpacity
+                    style={[styles.lockScreenButton, { backgroundColor: colors.accent }]}
+                    onPress={() => router.push('/auth/signup-success' as any)}
+                    activeOpacity={0.85}
+                >
+                    <Text style={styles.lockScreenButtonText}>Start 14-Day Free Trial</Text>
+                </TouchableOpacity>
+            </SafeAreaView>
+        );
+    }
 
     const muscleId = (params.muscleId as string) || 'unknown';
     const size = (params.size as string) || 'medium';
@@ -286,5 +335,18 @@ const styles = StyleSheet.create({
     completeBtnText: { color: '#000', fontSize: 16, fontWeight: '900', letterSpacing: 1.5 },
     moreButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 12, borderRadius: 12, borderWidth: 1, borderStyle: 'dashed', marginTop: 4, backgroundColor: 'rgba(255,255,255,0.02)' },
     moreButtonText: { fontSize: 14, fontWeight: '700' },
+    
+    // Lock screen styles
+    lockIconContainer: { position: 'relative', alignItems: 'center', justifyContent: 'center', marginBottom: 20 },
+    lockGlow: { position: 'absolute', width: 140, height: 140, borderRadius: 70 },
+    glassCircle: { width: 80, height: 80, borderRadius: 40, backgroundColor: 'rgba(255,255,255,0.03)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', alignItems: 'center', justifyContent: 'center' },
+    lockScreenTitle: { fontSize: 26, fontWeight: '800', textAlign: 'center', marginBottom: 12 },
+    lockScreenSubtitle: { fontSize: 15, textAlign: 'center', lineHeight: 22, paddingHorizontal: 16, marginBottom: 28 },
+    bulletList: { width: '100%', gap: 14, paddingHorizontal: 16, marginBottom: 32 },
+    bulletRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+    bulletCheck: { width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
+    bulletText: { fontSize: 15, fontWeight: '600' },
+    lockScreenButton: { width: '100%', maxWidth: 300, height: 52, borderRadius: 14, alignItems: 'center', justifyContent: 'center', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 4 },
+    lockScreenButtonText: { color: '#000', fontSize: 16, fontWeight: '950' },
 });
 

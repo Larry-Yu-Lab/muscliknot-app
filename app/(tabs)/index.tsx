@@ -491,7 +491,26 @@ export default function HomeScreen() {
 
         {/* ─── AI Recovery Roadmap Card ──────────────────────────────── */}
         {roadmap && (
-          <View style={[styles.roadmapCard, { backgroundColor: colors.cardBackground, borderColor: roadmap.phaseColor + '40' }]}>
+          <View style={[styles.roadmapCard, { backgroundColor: colors.cardBackground, borderColor: roadmap.phaseColor + '40', overflow: 'hidden' }]}>
+            {/* Lock Overlay for Free users */}
+            {!user.isPremium && (
+              <View style={[StyleSheet.absoluteFillObject, styles.lockOverlay, { backgroundColor: 'rgba(23,15,10,0.92)' }]}>
+                <View style={styles.lockContainer}>
+                  <View style={[styles.lockIconCircle, { backgroundColor: colors.accent + '15' }]}>
+                    <Ionicons name="lock-closed" size={18} color={colors.accent} />
+                  </View>
+                  <Text style={[styles.lockTitle, { color: colors.text }]}>Personal AI Coach</Text>
+                  <Text style={[styles.lockSubtitle, { color: colors.textSecondary }]}>Unlock phase targets, daily coach warnings & analytics.</Text>
+                  <TouchableOpacity
+                    style={[styles.lockButton, { backgroundColor: colors.accent }]}
+                    onPress={() => router.push('/auth/signup-success' as any)}
+                    activeOpacity={0.85}
+                  >
+                    <Text style={styles.lockButtonText}>Unlock Elite Plan</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            )}
             <View style={styles.roadmapHeader}>
               <View style={[styles.roadmapPhaseBadge, { backgroundColor: roadmap.phaseColor + '20' }]}>
                 <Ionicons name={roadmap.phaseIcon as any} size={16} color={roadmap.phaseColor} />
@@ -1111,6 +1130,53 @@ const styles = StyleSheet.create({
   },
   preventionStartText: {
     fontSize: 12,
+    fontWeight: '800',
+  },
+  
+  // ── Lock Overlay styles ───────────────────────────────────────────
+  lockOverlay: {
+    zIndex: 100,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 16,
+  },
+  lockContainer: {
+    alignItems: 'center',
+    gap: 6,
+    width: '100%',
+  },
+  lockIconCircle: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 4,
+  },
+  lockTitle: {
+    fontSize: 16,
+    fontWeight: '800',
+    letterSpacing: 0.5,
+  },
+  lockSubtitle: {
+    fontSize: 12,
+    textAlign: 'center',
+    lineHeight: 16,
+    paddingHorizontal: 16,
+    marginBottom: 4,
+  },
+  lockButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 18,
+    borderRadius: 10,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  lockButtonText: {
+    color: '#000',
+    fontSize: 13,
     fontWeight: '800',
   },
 });
