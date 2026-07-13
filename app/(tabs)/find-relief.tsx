@@ -47,8 +47,8 @@ function translateProcessDetails(text: string, t: any) {
 
 // ─── Exercise Card ─────────────────────────────────────────────────────────
 
-function ExerciseCard({ ex, index, colors, language }: { ex: any; index: number; colors: any; language: any }) {
-    const [expanded, setExpanded] = useState(index === 0); // First card expanded by default
+function ExerciseCard({ ex, index, colors, language, expanded, onExpand }: { ex: any; index: number; colors: any; language: any; expanded: boolean; onExpand: () => void }) {
+    const router = useRouter();
     const isLocal = !!ex.title && !ex.solution_stretch;
     const title = ex.solution_stretch || ex.title || ex.common_name || 'Exercise';
     const subtitle = ex.common_name && !isLocal ? ex.common_name : ex.duration;
@@ -81,7 +81,7 @@ function ExerciseCard({ ex, index, colors, language }: { ex: any; index: number;
     return (
         <View style={[cardStyles.card, { backgroundColor: 'rgba(30,30,35,0.95)', borderColor: expanded ? colors.accent : 'rgba(255,255,255,0.08)' }]}>
             {/* Card header — always visible */}
-            <TouchableOpacity style={cardStyles.header} onPress={() => setExpanded(v => !v)} activeOpacity={0.7}>
+            <TouchableOpacity style={cardStyles.header} onPress={onExpand} activeOpacity={0.7}>
                 <View style={[cardStyles.indexBadge, { backgroundColor: colors.accent }]}>
                     <Text style={cardStyles.indexText}>{index + 1}</Text>
                 </View>
@@ -165,6 +165,41 @@ function ExerciseCard({ ex, index, colors, language }: { ex: any; index: number;
                             <Text style={[cardStyles.bodyText, { flex: 1 }]}>{displayProcess}</Text>
                         </View>
                     ) : null}
+
+                    {/* Play demo full screen button */}
+                    <TouchableOpacity
+                        style={[cardStyles.videoButton, { backgroundColor: colors.accent }]}
+                        onPress={() => {
+                            const extractYoutubeId = (u?: string) => {
+                                if (!u) return null;
+                                const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+                                const m = u.match(regExp);
+                                return (m && m[2].length === 11) ? m[2] : null;
+                            };
+                            const rawVideoUrl = ex.video_url || EXERCISES.find(e => e.title === title || e.id === ex.id)?.video_url;
+                            const vidId = rawVideoUrl ? extractYoutubeId(rawVideoUrl) : null;
+                            const image = vidId ? `https://img.youtube.com/vi/${vidId}/0.jpg` : 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=400';
+                            
+                            router.push({
+                                pathname: `/exercise/${ex.id || Math.random().toString()}` as any,
+                                params: {
+                                    id: ex.id,
+                                    title: displayTitle,
+                                    duration: ex.duration || '3-5 MINS',
+                                    target: ex.common_name || ex.muscleGroup || 'General',
+                                    image,
+                                    why: displayWhy,
+                                    process: displayProcess,
+                                    instructions: ex.instructions || ex.description,
+                                    muscleGroup: ex.muscleGroup || 'General',
+                                    video_url: rawVideoUrl ? encodeURIComponent(rawVideoUrl) : undefined
+                                }
+                            });
+                        }}
+                    >
+                        <Ionicons name="play-outline" size={18} color="#000" style={{ marginRight: 6 }} />
+                        <Text style={cardStyles.videoButtonText}>{t('watchVideo' as any) || 'Watch Video Demo'}</Text>
+                    </TouchableOpacity>
                 </View>
             )}
         </View>
@@ -206,6 +241,8 @@ const cardStyles = StyleSheet.create({
     stepNumText: { color: '#000', fontWeight: '800', fontSize: 13 },
     stepLabel: { color: '#fff', fontWeight: '700', fontSize: 13, marginBottom: 2 },
     processBox: { flexDirection: 'row', gap: 8, alignItems: 'flex-start', backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: 10, padding: 12 },
+    videoButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 10, paddingHorizontal: 16, borderRadius: 10, marginTop: 12 },
+    videoButtonText: { color: '#000', fontWeight: '700', fontSize: 13 },
 });
 
 // ─── Main Screen ────────────────────────────────────────────────────────────
@@ -258,6 +295,8 @@ export default function FindReliefScreen() {
     assessment.recommendationAdvisory = recommendation.advisory;
 
     const [exercises, setExercises] = useState<any[]>([]);
+    const [expandedIndex, setExpandedIndex] = useState(0);
+    const [activeVideoIndex, setActiveVideoIndex] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
     const [visibleCount, setVisibleCount] = useState(1);
 
@@ -406,13 +445,14 @@ export default function FindReliefScreen() {
 
     const getBestVideoUrl = () => {
         if (!exercises || exercises.length === 0) return null;
-        let url = exercises[0].video_url;
+        const activeEx = exercises[activeVideoIndex] || exercises[0];
+        let url = activeEx.video_url;
         if (!url) {
-            const firstTitle = exercises[0].solution_stretch || exercises[0].title || exercises[0].common_name || '';
+            const firstTitle = activeEx.solution_stretch || activeEx.title || activeEx.common_name || '';
             const match = EXERCISES.find(e => 
-                (exercises[0].id && e.id === exercises[0].id) || 
+                (activeEx.id && e.id === activeEx.id) || 
                 (firstTitle && e.title.toLowerCase() === firstTitle.toLowerCase()) || 
-                (exercises[0].common_name && e.title.toLowerCase().includes(exercises[0].common_name.toLowerCase()))
+                (activeEx.common_name && e.title.toLowerCase().includes(activeEx.common_name.toLowerCase()))
             );
             if (match && match.video_url) {
                 url = match.video_url;
@@ -535,8 +575,19 @@ export default function FindReliefScreen() {
                     ) : (
                         <View>
                             {/* Show exercises incrementally */}
-                            {exercises.slice(0, visibleCount).map((ex, i) => (
-                                <ExerciseCard key={ex.id ?? i} ex={ex} index={i} colors={colors} language={language} />
+                             {exercises.slice(0, visibleCount).map((ex, i) => (
+                                <ExerciseCard
+                                    key={ex.id ?? i}
+                                    ex={ex}
+                                    index={i}
+                                    colors={colors}
+                                    language={language}
+                                    expanded={expandedIndex === i}
+                                    onExpand={() => {
+                                        setExpandedIndex(expandedIndex === i ? -1 : i);
+                                        setActiveVideoIndex(i);
+                                    }}
+                                />
                             ))}
 
                             {/* Show more button if there are more exercises */}

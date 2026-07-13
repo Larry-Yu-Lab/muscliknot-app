@@ -532,6 +532,7 @@ export const translations = {
         postureQuestion1: 'How long were you in a fixed position?',
         reliefQuestion1: 'How long ago did this occur?',
         reliefQuestion2: 'Where exactly does it hurt?',
+        generalWhole: 'General / Entire ${muscle}',
         reliefQuestion3: 'Do you know what caused this?',
 
         // Pain Assessment - Duration Options
@@ -1190,6 +1191,7 @@ export const translations = {
         postureQuestion1: '您保持固定姿势多长时间了？',
         reliefQuestion1: '这种情况发生多久了？',
         reliefQuestion2: '具体哪里疼痛？',
+        generalWhole: '整体 / 整个${muscle}',
         reliefQuestion3: '您知道是什么原因导致的吗？',
 
         // Duration Options
@@ -2071,6 +2073,7 @@ export const translations = {
         postureQuestion1: 'Combien de temps etiez-vous dans une position fixe ?',
         reliefQuestion1: "Il y a combien de temps cela s'est produit ?",
         reliefQuestion2: 'Ou exactement avez-vous mal ?',
+        generalWhole: 'Général / Tout le ${muscle}',
         reliefQuestion3: 'Savez-vous ce qui a cause cela ?',
 
         // Duration Options
@@ -2755,6 +2758,7 @@ export const translations = {
         postureQuestion1: 'Cuanto tiempo estuviste en una posicion fija?',
         reliefQuestion1: 'Hace cuanto tiempo ocurrio esto?',
         reliefQuestion2: 'Donde exactamente duele?',
+        generalWhole: 'General / Todo el ${muscle}',
         reliefQuestion3: 'Sabes que causo esto?',
 
         // Duration Options

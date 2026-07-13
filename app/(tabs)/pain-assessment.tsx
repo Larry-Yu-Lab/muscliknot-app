@@ -2,7 +2,7 @@ import { Colors } from '@/constants/theme';
 import { usePreferences } from '@/context/PreferencesContext';
 import { useUser } from '@/context/UserContext';
 import { painLevelColor } from '@/utils/assessmentEngine';
-import { getTranslation } from '@/utils/i18n';
+import { getTranslation, formatLabel } from '@/utils/i18n';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useRef, useState } from 'react';
@@ -15,7 +15,7 @@ export default function AssessmentScreen() {
     const params = useLocalSearchParams();
     const { language, theme } = usePreferences();
     const { user } = useUser();
-    const t = (key: Parameters<typeof getTranslation>[1]) => getTranslation(language, key);
+    const t = (key: Parameters<typeof getTranslation>[1], params?: Record<string, string>) => getTranslation(language, key, params);
     const colors = Colors[theme];
 
     // --- Translated Options ---
@@ -170,7 +170,7 @@ export default function AssessmentScreen() {
     const [q2Answer, setQ2Answer] = useState<string | null>(null); // e.g., Cause / Feel
     const [sliderValue, setSliderValue] = useState(5); // e.g., Pain / Tension
     const [textInput, setTextInput] = useState('');
-    const [painLocation, setPainLocation] = useState<string | null>(null); // Specific body part
+    const [painLocation, setPainLocation] = useState<string | null>('general'); // Specific body part
     const [validationError, setValidationError] = useState<string | null>(null);
 
     const [isSliderActive, setIsSliderActive] = useState(false);
@@ -178,6 +178,24 @@ export default function AssessmentScreen() {
 
     // Params
     const { x, y, width, height, rotation, view, size, muscleId, activityType = 'relief' } = params;
+
+    const getMuscleLabel = (id: string) => {
+        const trans = t(id as any);
+        return trans !== id ? trans : (id ? id.charAt(0).toUpperCase() + id.slice(1).replace(/_/g, ' ') : '');
+    };
+
+    const locationOptions = React.useMemo(() => {
+        const rawOptions = PAIN_LOCATION_MAP[muscleId as string] ?? [];
+        if (rawOptions.length === 0) return [];
+        
+        const muscleName = getMuscleLabel(muscleId as string);
+        const generalLabel = t('generalWhole' as any, { muscle: muscleName });
+        
+        return [
+            { id: 'general', label: generalLabel },
+            ...rawOptions
+        ];
+    }, [muscleId, language]);
 
     // Pre-fill fitness level from profile for relevant activities
     React.useEffect(() => {
@@ -243,7 +261,6 @@ export default function AssessmentScreen() {
             case 'relief':
             default: {
                 if (!q1Answer) return t('validationRelief1');
-                const locationOptions = PAIN_LOCATION_MAP[muscleId as string] ?? [];
                 if (locationOptions.length > 0 && !painLocation) return t('validationRelief2');
                 return null;
             }
@@ -469,14 +486,14 @@ export default function AssessmentScreen() {
                             </View>
                         </View>
 
-                        {(PAIN_LOCATION_MAP[muscleId as string] ?? []).length > 0 && (
+                        {locationOptions.length > 0 && (
                             <View style={[styles.questionCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
                                 <View style={styles.questionHeader}>
                                     <Ionicons name="location-outline" size={24} color={colors.accent} />
                                     <Text style={[styles.questionTitle, { color: colors.text }]}>{t('reliefQuestion2')}</Text>
                                 </View>
                                 <View style={styles.optionsContainer}>
-                                    {(PAIN_LOCATION_MAP[muscleId as string] ?? []).map((opt: { id: string; label: string }) => renderOption(opt.id, opt.label, painLocation, setPainLocation))}
+                                    {locationOptions.map((opt: { id: string; label: string }) => renderOption(opt.id, opt.label, painLocation, setPainLocation))}
                                 </View>
                             </View>
                         )}

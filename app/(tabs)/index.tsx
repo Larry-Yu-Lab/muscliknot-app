@@ -236,12 +236,12 @@ export default function HomeScreen() {
       const scaleY = 1000 / (containerHeight || 1);
       const normalizedY = activePoint.y * scaleY;
 
-      // Get muscle from selection
       const muscleIds = getMusclesInArea({
         x: normalizedX,
         y: normalizedY,
         width: activePoint.width * scaleX,
-        height: activePoint.height * scaleY
+        height: activePoint.height * scaleY,
+        view: view as 'Front' | 'Back'
       });
 
       if (muscleIds.length === 0) {
@@ -477,7 +477,8 @@ export default function HomeScreen() {
               x: activePoint.x * scaleX,
               y: activePoint.y * scaleY,
               width: activePoint.width * scaleX,
-              height: activePoint.height * scaleY
+              height: activePoint.height * scaleY,
+              view: view as 'Front' | 'Back'
             });
             const valid = muscleIds.length > 0;
             return valid ? (

@@ -5,6 +5,7 @@ export interface SelectionArea {
     y: number;
     width: number;
     height: number;
+    view?: 'Front' | 'Back';
 }
 
 export interface muscleRegion {
@@ -14,37 +15,37 @@ export interface muscleRegion {
     maxY: number;
     minX?: number; // Optional narrow mapping to remove background
     maxX?: number;
+    viewSide?: 'Front' | 'Back' | 'Both';
 }
 
 // Coordinate mapping based on approximately 1000px height coordinate system.
 // X axis: body center is ~150px. Trunk = X 70–230. Arms/hands hang outside.
+// Reordered so more specific joint regions (like knees/ankles) are evaluated first to prevent overlaps.
 const MUSCLE_REGIONS: muscleRegion[] = [
-    // Head and Neck (narrowed X to prevent background selection)
-    { id: 'head', name: 'Head', minY: 0, maxY: 110, minX: 115, maxX: 185 },
-    { id: 'neck', name: 'Neck', minY: 100, maxY: 210, minX: 120, maxX: 180 },
-
-    // Upper Body (trunk only) - standard shoulders are wide, chest narrows slightly
-    { id: 'traps', name: 'Traps/Shoulders', minY: 200, maxY: 310, minX: 80, maxX: 220 },
-    { id: 'chest', name: 'Chest', minY: 290, maxY: 420, minX: 90, maxX: 210 },
-    { id: 'upper_back', name: 'Upper Back', minY: 290, maxY: 460, minX: 90, maxX: 210 },
-
-    // Core (trunk) - waist is narrowest
-    { id: 'lower_back', name: 'Lower Back', minY: 440, maxY: 590, minX: 100, maxX: 200 },
-    { id: 'abdomen', name: 'Abdomen', minY: 400, maxY: 560, minX: 95, maxX: 205 },
-    { id: 'hips', name: 'Hips', minY: 540, maxY: 660, minX: 85, maxX: 215 },
-    { id: 'glutes', name: 'Glutes', minY: 610, maxY: 710, minX: 85, maxX: 215 },
-
-    // Legs - taper down
-    { id: 'thighs', name: 'Thighs', minY: 680, maxY: 790, minX: 85, maxX: 215 },
-    { id: 'knees', name: 'Knees', minY: 770, maxY: 830, minX: 95, maxX: 205 },
-    { id: 'calves', name: 'Calves', minY: 810, maxY: 910, minX: 95, maxX: 205 },
-    { id: 'ankles', name: 'Ankles', minY: 890, maxY: 950, minX: 105, maxX: 195 },
-    { id: 'feet', name: 'Feet', minY: 930, maxY: 1000, minX: 95, maxX: 205 },
+    // Joints & Small Targets (high priority)
+    { id: 'knees', name: 'Knees', minY: 770, maxY: 830, minX: 95, maxX: 205, viewSide: 'Both' },
+    { id: 'ankles', name: 'Ankles', minY: 890, maxY: 950, minX: 105, maxX: 195, viewSide: 'Both' },
+    { id: 'head', name: 'Head', minY: 0, maxY: 110, minX: 115, maxX: 185, viewSide: 'Both' },
+    { id: 'neck', name: 'Neck', minY: 100, maxY: 210, minX: 120, maxX: 180, viewSide: 'Both' },
+    
+    // Core & Trunk (side specific)
+    { id: 'chest', name: 'Chest', minY: 290, maxY: 420, minX: 90, maxX: 210, viewSide: 'Front' },
+    { id: 'upper_back', name: 'Upper Back', minY: 290, maxY: 460, minX: 90, maxX: 210, viewSide: 'Back' },
+    { id: 'lower_back', name: 'Lower Back', minY: 440, maxY: 590, minX: 100, maxX: 200, viewSide: 'Back' },
+    { id: 'abdomen', name: 'Abdomen', minY: 400, maxY: 560, minX: 95, maxX: 205, viewSide: 'Front' },
+    
+    // Girdles & Large Targets
+    { id: 'traps', name: 'Traps/Shoulders', minY: 200, maxY: 310, minX: 80, maxX: 220, viewSide: 'Both' },
+    { id: 'hips', name: 'Hips', minY: 540, maxY: 660, minX: 85, maxX: 215, viewSide: 'Both' },
+    { id: 'glutes', name: 'Glutes', minY: 610, maxY: 710, minX: 85, maxX: 215, viewSide: 'Back' },
+    { id: 'thighs', name: 'Thighs', minY: 680, maxY: 790, minX: 85, maxX: 215, viewSide: 'Both' },
+    { id: 'calves', name: 'Calves', minY: 810, maxY: 910, minX: 95, maxX: 205, viewSide: 'Both' },
+    { id: 'feet', name: 'Feet', minY: 930, maxY: 1000, minX: 95, maxX: 205, viewSide: 'Both' },
 
     // Arms (lateral — detected by X coordinate, not Y alone)
-    { id: 'arms', name: 'Arms', minY: 270, maxY: 500 },
-    { id: 'forearms', name: 'Forearms', minY: 460, maxY: 650 },
-    { id: 'hands', name: 'Hands/Wrists', minY: 620, maxY: 820 },
+    { id: 'arms', name: 'Arms', minY: 270, maxY: 500, viewSide: 'Both' },
+    { id: 'forearms', name: 'Forearms', minY: 460, maxY: 650, viewSide: 'Both' },
+    { id: 'hands', name: 'Hands/Wrists', minY: 620, maxY: 820, viewSide: 'Both' },
 ];
 
 // Body model center X and half-width of trunk in the ~300px wide image
@@ -57,7 +58,7 @@ const TRUNK_MAX_X = 220;
  * to arms/forearms/hands rather than trunk muscles.
  */
 export const getMusclesInArea = (selectionArea: SelectionArea): string[] => {
-    const { x, y, height } = selectionArea;
+    const { x, y, height, view } = selectionArea;
     const selectionMinY = y - height / 2;
     const selectionMaxY = y + height / 2;
 
@@ -66,13 +67,18 @@ export const getMusclesInArea = (selectionArea: SelectionArea): string[] => {
         return [];
     }
 
+    // Filter muscle regions by Front/Back view first
+    const activeRegions = MUSCLE_REGIONS.filter(r => 
+        !view || r.viewSide === 'Both' || r.viewSide === view
+    );
+
     // Determine if the tap is outside the trunk (i.e. arm/hand area)
     const isLateral = (x >= 10 && x < TRUNK_MIN_X) || (x > TRUNK_MAX_X && x <= 290);
 
     if (isLateral) {
         // Only return lateral regions
         const lateralIds = ['arms', 'forearms', 'hands'];
-        const lateralRegions = MUSCLE_REGIONS.filter(r => lateralIds.includes(r.id));
+        const lateralRegions = activeRegions.filter(r => lateralIds.includes(r.id));
         const matched = lateralRegions.filter(r =>
             selectionMinY <= r.maxY && selectionMaxY >= r.minY
         ).map(r => r.id);
@@ -82,7 +88,7 @@ export const getMusclesInArea = (selectionArea: SelectionArea): string[] => {
 
     // Trunk tap — exclude lateral-only regions, prioritise best Y match + X limits
     const trunkExclusions = ['arms', 'forearms', 'hands'];
-    const candidates = MUSCLE_REGIONS
+    const candidates = activeRegions
         .filter(r => !trunkExclusions.includes(r.id))
         .filter(r => selectionMinY <= r.maxY && selectionMaxY >= r.minY)
         .filter(r => {

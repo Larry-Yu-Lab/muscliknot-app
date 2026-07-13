@@ -30,8 +30,8 @@ function parseSteps(instructions: string): { number: string; label: string; cont
 
 // ─── Exercise Card ─────────────────────────────────────────────────────────
 
-function ExerciseCard({ ex, index, colors, language }: { ex: any; index: number; colors: any; language: any }) {
-    const [expanded, setExpanded] = useState(index === 0);
+function ExerciseCard({ ex, index, colors, language, expanded, onExpand }: { ex: any; index: number; colors: any; language: any; expanded: boolean; onExpand: () => void }) {
+    const router = useRouter();
     const isLocal = !!ex.title && !ex.solution_stretch;
     const t = (key: Parameters<typeof getTranslation>[1]) => getTranslation(language, key);
 
@@ -52,7 +52,7 @@ function ExerciseCard({ ex, index, colors, language }: { ex: any; index: number;
 
     return (
         <View style={[cardStyles.card, { backgroundColor: 'rgba(30,30,35,0.95)', borderColor: expanded ? accentColor : 'rgba(255,255,255,0.08)' }]}>
-            <TouchableOpacity style={cardStyles.header} onPress={() => setExpanded(v => !v)} activeOpacity={0.7}>
+            <TouchableOpacity style={cardStyles.header} onPress={onExpand} activeOpacity={0.7}>
                 <View style={[cardStyles.indexBadge, { backgroundColor: accentColor }]}>
                     <Text style={cardStyles.indexText}>{index + 1}</Text>
                 </View>
@@ -86,6 +86,41 @@ function ExerciseCard({ ex, index, colors, language }: { ex: any; index: number;
                             <Text style={cardStyles.bodyText}>{displayDescription}</Text>
                         </View>
                     )}
+
+                    {/* Play demo full screen button */}
+                    <TouchableOpacity
+                        style={[cardStyles.videoButton, { backgroundColor: colors.accent || accentColor }]}
+                        onPress={() => {
+                            const extractYoutubeId = (u?: string) => {
+                                if (!u) return null;
+                                const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+                                const m = u.match(regExp);
+                                return (m && m[2].length === 11) ? m[2] : null;
+                            };
+                            const rawVideoUrl = ex.video_url || EXERCISES.find(e => e.title === title || e.id === ex.id)?.video_url;
+                            const vidId = rawVideoUrl ? extractYoutubeId(rawVideoUrl) : null;
+                            const image = vidId ? `https://img.youtube.com/vi/${vidId}/0.jpg` : 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=400';
+                            
+                            router.push({
+                                pathname: `/exercise/${ex.id || Math.random().toString()}` as any,
+                                params: {
+                                    id: ex.id,
+                                    title: displayTitle,
+                                    duration: ex.duration || '3-5 MINS',
+                                    target: ex.common_name || ex.muscleGroup || 'General',
+                                    image,
+                                    why: ex.why || '',
+                                    process: ex.process || '',
+                                    instructions: ex.instructions || ex.description,
+                                    muscleGroup: ex.muscleGroup || 'General',
+                                    video_url: rawVideoUrl ? encodeURIComponent(rawVideoUrl) : undefined
+                                }
+                            });
+                        }}
+                    >
+                        <Ionicons name="play-outline" size={18} color="#000" style={{ marginRight: 6 }} />
+                        <Text style={cardStyles.videoButtonText}>{t('watchVideo' as any) || 'Watch Video Demo'}</Text>
+                    </TouchableOpacity>
                 </View>
             )}
         </View>
@@ -107,6 +142,8 @@ const cardStyles = StyleSheet.create({
     stepNum: { width: 30, height: 30, borderRadius: 8, alignItems: 'center', justifyContent: 'center' },
     stepNumText: { color: '#000', fontWeight: '800', fontSize: 13 },
     stepLabel: { color: '#fff', fontWeight: '700', fontSize: 13, marginBottom: 2 },
+    videoButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 10, paddingHorizontal: 16, borderRadius: 10, marginTop: 12 },
+    videoButtonText: { color: '#000', fontWeight: '700', fontSize: 13 },
 });
 
 // ─── Main Screen ────────────────────────────────────────────────────────────
@@ -125,6 +162,8 @@ export default function StrengthenScreen() {
     const activityType = 'strength';
 
     const [exercises, setExercises] = useState<any[]>([]);
+    const [expandedIndex, setExpandedIndex] = useState(0);
+    const [activeVideoIndex, setActiveVideoIndex] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
     const [visibleCount, setVisibleCount] = useState(1);
 
@@ -158,17 +197,18 @@ export default function StrengthenScreen() {
 
     const getBestVideoUrl = () => {
         if (!exercises || exercises.length === 0) return null;
-        let url = exercises[0].video_url;
+        const activeEx = exercises[activeVideoIndex] || exercises[0];
+        let url = activeEx.video_url;
         if (!url) {
-            const firstTitle = exercises[0].solution_stretch || exercises[0].title || exercises[0].common_name || '';
+            const firstTitle = activeEx.solution_stretch || activeEx.title || activeEx.common_name || '';
             const match = EXERCISES.find(e => 
-                (exercises[0].id && e.id === exercises[0].id) || 
+                (activeEx.id && e.id === activeEx.id) || 
                 (firstTitle && e.title.toLowerCase() === firstTitle.toLowerCase())
             );
             if (match && match.video_url) url = match.video_url;
             else {
                 const backupMatch = EXERCISES.find(e => e.video_url && e.category === 'Strength');
-                url = backupMatch ? backupMatch.video_url : 'https://youtube.com/watch?v=WjMwXDgdgwI';
+                url = backupMatch ? backupMatch.video_url : 'https://youtube.com/watch?v=Y29xKcze8Ik';
             }
         }
         return url;
@@ -242,7 +282,18 @@ export default function StrengthenScreen() {
                     ) : (
                         <View>
                             {exercises.slice(0, visibleCount).map((ex, i) => (
-                                <ExerciseCard key={ex.id ?? i} ex={ex} index={i} colors={colors} language={language} />
+                                <ExerciseCard
+                                    key={ex.id ?? i}
+                                    ex={ex}
+                                    index={i}
+                                    colors={colors}
+                                    language={language}
+                                    expanded={expandedIndex === i}
+                                    onExpand={() => {
+                                        setExpandedIndex(expandedIndex === i ? -1 : i);
+                                        setActiveVideoIndex(i);
+                                    }}
+                                />
                             ))}
                             {visibleCount < exercises.length && (
                                 <TouchableOpacity
