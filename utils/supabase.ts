@@ -35,12 +35,21 @@ const ExpoStorage = {
     },
 };
 
+// Capture native fetch before any overrides to avoid self-referencing issues
+const nativeFetch = globalThis.fetch.bind(globalThis);
+
 // Custom fetch that avoids React Native blob handling issues
 // React Native's fetch can return blob URLs that the networking layer can't resolve,
 // causing "Unable to resolve data for blob" errors with Supabase Auth.
 const customFetch: typeof fetch = async (input, init) => {
-    const response = await fetch(input, init);
-    // Clone the response and read the body as text to avoid blob handling
+    // Use the captured native fetch and set headers to request text responses
+    const modifiedInit = {
+        ...init,
+        // Explicitly tell React Native's networking layer we want text, not a blob
+        reactNative: { textStreaming: true },
+    };
+    const response = await nativeFetch(input, modifiedInit as any);
+    // Read body as text to ensure we never hit the blob resolution path
     const text = await response.text();
     return new Response(text, {
         status: response.status,

@@ -3,7 +3,7 @@ import { getTranslation } from '@/utils/i18n';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useRef, useState } from 'react';
-import { Animated, Dimensions, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Animated, Dimensions, Linking, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
 
@@ -142,10 +142,14 @@ export default function SignupSuccessScreen() {
         });
     };
 
+    const STRIPE_TRIAL_URL = 'https://buy.stripe.com/14A28q1Az27p1jcdIx9oc00';
+
     const handleNext = () => {
         if (step < 2) {
             animateTransition(step + 1);
         } else {
+            // Open Stripe payment link for free trial, then navigate to main app
+            Linking.openURL(STRIPE_TRIAL_URL);
             router.replace('/(tabs)' as any);
         }
     };

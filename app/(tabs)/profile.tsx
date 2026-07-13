@@ -110,8 +110,8 @@ export default function ProfileScreen() {
 
     const handleUpgrade = async () => {
         const url = billingCycle === 'annual' 
-            ? 'https://buy.stripe.com/test_placeholder_elite_annual' 
-            : 'https://buy.stripe.com/test_placeholder_elite_monthly';
+            ? 'https://buy.stripe.com/dRm28qdjh8vN1jcbAp9oc01' 
+            : 'https://buy.stripe.com/14A28q1Az27p1jcdIx9oc00';
         
         // Pass the user's ID as a client_reference_id in the URL to associate the webhook event with this user
         const checkoutUrl = `${url}?client_reference_id=${authUser?.id || ''}`;
