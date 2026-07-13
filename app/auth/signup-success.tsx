@@ -1,7 +1,9 @@
+import { useAuth } from '@/context/AuthContext';
 import { usePreferences } from '@/context/PreferencesContext';
 import { getTranslation } from '@/utils/i18n';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import * as WebBrowser from 'expo-web-browser';
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, Dimensions, Easing, Linking, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
@@ -172,6 +174,7 @@ const Timeline = ({ t }: { t: (key: any) => string }) => (
 export default function SignupSuccessScreen() {
     const router = useRouter();
     const { language } = usePreferences();
+    const { user } = useAuth();
     const [step, setStep] = useState(0);
 
     const fadeAnim = useRef(new Animated.Value(1)).current;
@@ -199,11 +202,20 @@ export default function SignupSuccessScreen() {
 
     const STRIPE_TRIAL_URL = 'https://buy.stripe.com/14A28q1Az27p1jcdIx9oc00';
 
-    const handleNext = () => {
+    const handleNext = async () => {
         if (step < 2) {
             animateTransition(step + 1);
         } else {
-            Linking.openURL(STRIPE_TRIAL_URL);
+            // Pass the user's ID as a client_reference_id in the URL to associate the webhook event with this user
+            const checkoutUrl = `${STRIPE_TRIAL_URL}?client_reference_id=${user?.id || ''}`;
+            
+            try {
+                await WebBrowser.openBrowserAsync(checkoutUrl);
+            } catch (err) {
+                console.error('Failed to open web browser, falling back to Linking:', err);
+                Linking.openURL(checkoutUrl);
+            }
+            
             router.replace('/(tabs)' as any);
         }
     };
