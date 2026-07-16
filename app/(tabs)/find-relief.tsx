@@ -443,23 +443,48 @@ export default function FindReliefScreen() {
         );
     };
 
+    const mapToLocalMuscleGroup = (mId?: string): string => {
+        if (!mId) return 'General';
+        const mid = mId.toLowerCase();
+        if (mid === 'neck' || mid === 'head') return 'Neck';
+        if (mid === 'traps' || mid === 'shoulders') return 'Shoulders';
+        if (mid === 'upper_back') return 'Upper Back';
+        if (mid === 'lower_back') return 'Lower Back';
+        if (mid === 'glutes') return 'Glutes';
+        if (mid === 'thighs' || mid === 'knees' || mid === 'legs') return 'Legs';
+        if (mid === 'hips') return 'Hips';
+        if (mid === 'abdomen' || mid === 'chest') return 'Abdomen';
+        if (mid === 'calves') return 'Calves';
+        if (mid === 'ankles' || mid === 'feet') return 'Feet';
+        return 'General';
+    };
+
     const getBestVideoUrl = () => {
         if (!exercises || exercises.length === 0) return null;
         const activeEx = exercises[activeVideoIndex] || exercises[0];
         let url = activeEx.video_url;
         if (!url) {
             const firstTitle = activeEx.solution_stretch || activeEx.title || activeEx.common_name || '';
-            const match = EXERCISES.find(e => 
-                (activeEx.id && e.id === activeEx.id) || 
-                (firstTitle && e.title.toLowerCase() === firstTitle.toLowerCase()) || 
-                (activeEx.common_name && e.title.toLowerCase().includes(activeEx.common_name.toLowerCase()))
-            );
+            const cleanStr = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
+            const cleanTarget = cleanStr(firstTitle);
+
+            // 1. Fuzzy match by title
+            const match = EXERCISES.find(e => {
+                if (!e.video_url) return false;
+                const cleanLocal = cleanStr(e.title);
+                return cleanLocal.includes(cleanTarget) || cleanTarget.includes(cleanLocal);
+            });
+
             if (match && match.video_url) {
                 url = match.video_url;
             } else {
-                // If it fails to find a perfect match, always fall back to the first available video
-                const backupMatch = EXERCISES.find(e => e.video_url);
-                url = backupMatch ? backupMatch.video_url : 'https://youtube.com/watch?v=WjMwXDgdgwI';
+                // 2. Muscle-specific fallback
+                const localMG = mapToLocalMuscleGroup(activeEx.muscleGroup || muscleId);
+                const fallbackMatch = EXERCISES.find(e => 
+                    e.video_url && 
+                    e.muscleGroup.toLowerCase() === localMG.toLowerCase()
+                ) || EXERCISES.find(e => e.video_url);
+                url = fallbackMatch ? fallbackMatch.video_url : 'https://youtube.com/watch?v=WjMwXDgdgwI';
             }
         }
         return url;
