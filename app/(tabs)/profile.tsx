@@ -7,12 +7,14 @@ import { processAnalytics } from '@/utils/analytics';
 import { isHealthKitAvailable, isHealthKitEnabled, setHealthKitEnabled as persistHealthKitEnabled, requestHealthKitPermission, getHealthKitSteps } from '@/utils/healthKit';
 import { getTranslation, LANGUAGES } from '@/utils/i18n';
 import { getHistory } from '@/utils/storage';
+import { getGeminiApiKey, saveGeminiApiKey, deleteGeminiApiKey } from '@/utils/gemini';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { useFocusEffect, useRouter } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import React, { useCallback, useEffect, useState } from 'react';
-import { Alert, Dimensions, Modal, Platform, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Dimensions, Modal, Platform, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import Svg, { Circle, Line, Path } from 'react-native-svg';
 
 const { width } = Dimensions.get('window');
@@ -93,12 +95,80 @@ export default function ProfileScreen() {
     const [healthKitEnabled, setHealthKitEnabledState] = useState(false);
     const [todaySteps, setTodaySteps] = useState<number>(0);
     const [devTapCount, setDevTapCount] = useState(0);
+    const [geminiApiKey, setGeminiApiKeyValue] = useState('');
+    const [isSavingKey, setIsSavingKey] = useState(false);
+    const [promoCode, setPromoCode] = useState('');
+    const [isApplyingPromo, setIsApplyingPromo] = useState(false);
+
+    const handleApplyPromoCode = async () => {
+        const trimmedCode = promoCode.trim().toUpperCase();
+        if (!trimmedCode) return;
+
+        const tiers: Record<string, string> = {
+            'KNOTFREE': 'Lifetime',
+            'FREEKNOT': '1-Month',
+            'GIFT2026': '3-Month',
+            'COACH100': '1-Year',
+            'VIPRECOVERY': '1-Year'
+        };
+
+        if (tiers[trimmedCode]) {
+            setIsApplyingPromo(true);
+            try {
+                const tierName = tiers[trimmedCode];
+                await AsyncStorage.setItem('user_referral_code', trimmedCode);
+                await updateUser({ isPremium: true });
+                
+                Alert.alert(
+                    "Code Accepted!",
+                    `Valid referral code. ${tierName} Premium Access has been unlocked for your account!`,
+                    [{ text: "Awesome" }]
+                );
+                setPromoCode('');
+            } catch (err) {
+                console.error(err);
+                Alert.alert("Error", "Failed to apply code. Please try again.");
+            } finally {
+                setIsApplyingPromo(false);
+            }
+        } else {
+            Alert.alert(
+                "Invalid Code",
+                "The code you entered is invalid. Please check the spelling and try again.",
+                [{ text: "OK" }]
+            );
+        }
+    };
+
+    const handleSaveGeminiKey = async () => {
+        setIsSavingKey(true);
+        const success = await saveGeminiApiKey(geminiApiKey);
+        setIsSavingKey(false);
+        if (success) {
+            Alert.alert(t('aiHeaderCard' as any) || 'AI Settings', t('apiKeySaved' as any) || 'API Key saved successfully!');
+        } else {
+            Alert.alert('Error', 'Failed to save API key.');
+        }
+    };
+
+    const handleDeleteGeminiKey = async () => {
+        const success = await deleteGeminiApiKey();
+        if (success) {
+            setGeminiApiKeyValue('');
+            Alert.alert(t('aiHeaderCard' as any) || 'AI Settings', 'API Key cleared.');
+        } else {
+            Alert.alert('Error', 'Failed to clear API key.');
+        }
+    };
 
     const handleDevTap = () => {
         setDevTapCount(prev => {
             const next = prev + 1;
             if (next >= 5) {
                 const newPremium = !user.isPremium;
+                if (!newPremium) {
+                    AsyncStorage.removeItem('user_referral_code');
+                }
                 updateUser({ isPremium: newPremium });
                 Alert.alert(
                     'Developer Mode',
@@ -114,6 +184,9 @@ export default function ProfileScreen() {
     // Load persisted HealthKit preference on mount
     useEffect(() => {
         isHealthKitEnabled().then(setHealthKitEnabledState);
+        getGeminiApiKey().then(key => {
+            if (key) setGeminiApiKeyValue(key);
+        });
     }, []);
 
     const handleUpdateFitnessLevel = (level: string) => {
@@ -561,6 +634,151 @@ export default function ProfileScreen() {
                                     <Ionicons name="chevron-forward" size={18} color={colors.textSecondary} />
                                 </View>
                             </TouchableOpacity>
+
+                            {/* AI Settings Card */}
+                            <View style={[
+                                { 
+                                    backgroundColor: colors.cardBackground, 
+                                    borderColor: colors.cardBorder, 
+                                    marginTop: 16, 
+                                    padding: 16, 
+                                    borderRadius: 16, 
+                                    borderWidth: 1 
+                                }
+                            ]}>
+                                <View style={{ marginBottom: 10, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                                    <Ionicons name="sparkles" size={18} color={colors.accent} />
+                                    <Text style={{ color: colors.text, fontWeight: '700', fontSize: 14 }}>
+                                        {t('aiHeaderCard' as any) || 'AI Settings'}
+                                    </Text>
+                                </View>
+                                <Text style={{ color: colors.textSecondary, fontSize: 12, lineHeight: 17, marginBottom: 12 }}>
+                                    {t('aiExplanation' as any) || 'Personalized recovery plans are generated dynamically using Gemini AI based on your specific pain notes and physical attributes.'}
+                                </Text>
+                                <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
+                                    <TextInput
+                                        style={{ 
+                                            flex: 1, 
+                                            backgroundColor: isDark ? 'rgba(0,0,0,0.15)' : '#f3f4f6', 
+                                            color: colors.text, 
+                                            borderColor: colors.cardBorder,
+                                            borderWidth: 1,
+                                            borderRadius: 10,
+                                            paddingHorizontal: 12,
+                                            paddingVertical: 8,
+                                            fontSize: 13
+                                        }}
+                                        placeholder={t('geminiApiKey' as any) || 'Gemini API Key'}
+                                        placeholderTextColor={colors.textSecondary}
+                                        value={geminiApiKey}
+                                        onChangeText={setGeminiApiKeyValue}
+                                        secureTextEntry={true}
+                                        autoCapitalize="none"
+                                        autoCorrect={false}
+                                    />
+                                    {geminiApiKey.length > 0 && (
+                                        <TouchableOpacity
+                                            style={{ backgroundColor: colors.accent, paddingVertical: 9, paddingHorizontal: 14, borderRadius: 10 }}
+                                            onPress={handleSaveGeminiKey}
+                                            activeOpacity={0.8}
+                                        >
+                                            <Text style={{ color: '#000', fontWeight: '700', fontSize: 12 }}>
+                                                {t('saveKey' as any) || 'Save'}
+                                            </Text>
+                                        </TouchableOpacity>
+                                    )}
+                                    {geminiApiKey.length > 0 && (
+                                        <TouchableOpacity
+                                            style={{ backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : '#e5e7eb', paddingVertical: 9, paddingHorizontal: 10, borderRadius: 10, borderWidth: 1, borderColor: colors.cardBorder }}
+                                            onPress={handleDeleteGeminiKey}
+                                            activeOpacity={0.8}
+                                        >
+                                            <Ionicons name="trash-outline" size={14} color="#ef4444" />
+                                        </TouchableOpacity>
+                                    )}
+                                </View>
+                            </View>
+
+                            {/* Promo Code Card in Profile Settings */}
+                            {!user.isPremium ? (
+                                <View style={[
+                                    { 
+                                        backgroundColor: colors.cardBackground, 
+                                        borderColor: colors.cardBorder, 
+                                        marginTop: 16, 
+                                        padding: 16, 
+                                        borderRadius: 16, 
+                                        borderWidth: 1 
+                                    }
+                                ]}>
+                                    <View style={{ marginBottom: 10, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                                        <Ionicons name="gift" size={18} color={colors.accent} />
+                                        <Text style={{ color: colors.text, fontWeight: '700', fontSize: 14 }}>
+                                            {t('promoHeaderCard' as any) || 'Redeem Promo Code'}
+                                        </Text>
+                                    </View>
+                                    <Text style={{ color: colors.textSecondary, fontSize: 12, lineHeight: 17, marginBottom: 12 }}>
+                                        {t('promoExplanation' as any) || 'Enter a promo/referral code to unlock Premium features.'}
+                                    </Text>
+                                    <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
+                                        <TextInput
+                                            style={{ 
+                                                flex: 1, 
+                                                backgroundColor: isDark ? 'rgba(0,0,0,0.15)' : '#f3f4f6', 
+                                                color: colors.text, 
+                                                borderColor: colors.cardBorder,
+                                                borderWidth: 1,
+                                                borderRadius: 10,
+                                                paddingHorizontal: 12,
+                                                paddingVertical: 8,
+                                                fontSize: 13
+                                            }}
+                                            placeholder={t('promoPlaceholder' as any) || "Enter Code"}
+                                            placeholderTextColor={colors.textSecondary}
+                                            value={promoCode}
+                                            onChangeText={setPromoCode}
+                                            autoCapitalize="characters"
+                                            autoCorrect={false}
+                                        />
+                                        <TouchableOpacity
+                                            style={{ backgroundColor: colors.accent, paddingVertical: 9, paddingHorizontal: 14, borderRadius: 10, opacity: promoCode.length === 0 ? 0.6 : 1 }}
+                                            onPress={handleApplyPromoCode}
+                                            disabled={promoCode.length === 0}
+                                            activeOpacity={0.8}
+                                        >
+                                            <Text style={{ color: '#000', fontWeight: '700', fontSize: 12 }}>
+                                                {t('applyPromo' as any) || 'Apply'}
+                                            </Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                </View>
+                            ) : (
+                                <View style={[
+                                    { 
+                                        backgroundColor: colors.cardBackground, 
+                                        borderColor: colors.cardBorder, 
+                                        marginTop: 16, 
+                                        padding: 16, 
+                                        borderRadius: 16, 
+                                        borderWidth: 1,
+                                        flexDirection: 'row',
+                                        alignItems: 'center',
+                                        gap: 12
+                                    }
+                                ]}>
+                                    <View style={{ backgroundColor: colors.success + '20', padding: 8, borderRadius: 10 }}>
+                                        <Ionicons name="sparkles" size={20} color={colors.success} />
+                                    </View>
+                                    <View style={{ flex: 1 }}>
+                                        <Text style={{ color: colors.text, fontWeight: '700', fontSize: 14 }}>
+                                            Premium Membership Active
+                                        </Text>
+                                        <Text style={{ color: colors.textSecondary, fontSize: 12, marginTop: 2 }}>
+                                            You have unlocked all Elite recovery features.
+                                        </Text>
+                                    </View>
+                                </View>
+                            )}
                         </View>
 
                         {/* Account Actions */}
@@ -689,6 +907,61 @@ export default function ProfileScreen() {
                                 <Text style={[styles.proButtonText, { color: colors.text }]}>{!user.isPremium ? t('currentPlan') : t('chooseFreemium')}</Text>
                             </TouchableOpacity>
                         </View>
+
+                        {/* Promo Code Card in Plans & Pricing */}
+                        {!user.isPremium ? (
+                            <View style={[
+                                { 
+                                    backgroundColor: colors.cardBackground, 
+                                    borderColor: colors.cardBorder, 
+                                    borderRadius: 16, 
+                                    borderWidth: 1, 
+                                    padding: 16, 
+                                    marginTop: 16,
+                                }
+                            ]}>
+                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                                    <Ionicons name="gift-outline" size={18} color={colors.accent} />
+                                    <Text style={{ color: colors.text, fontWeight: '700', fontSize: 14 }}>
+                                        {t('promoHeaderCard' as any) || 'Have a Promo/Referral Code?'}
+                                    </Text>
+                                </View>
+                                <Text style={{ color: colors.textSecondary, fontSize: 12, lineHeight: 17, marginBottom: 12 }}>
+                                    {t('promoExplanation' as any) || 'Redeem a special code from a friend, coach, or organization to unlock premium features.'}
+                                </Text>
+                                <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
+                                    <TextInput
+                                        style={{ 
+                                            flex: 1, 
+                                            backgroundColor: isDark ? 'rgba(0,0,0,0.15)' : '#f3f4f6', 
+                                            color: colors.text, 
+                                            borderColor: colors.cardBorder,
+                                            borderWidth: 1,
+                                            borderRadius: 10,
+                                            paddingHorizontal: 12,
+                                            paddingVertical: 8,
+                                            fontSize: 13
+                                        }}
+                                        placeholder={t('promoPlaceholder' as any) || "Enter Code"}
+                                        placeholderTextColor={colors.textSecondary}
+                                        value={promoCode}
+                                        onChangeText={setPromoCode}
+                                        autoCapitalize="characters"
+                                        autoCorrect={false}
+                                    />
+                                    <TouchableOpacity
+                                        style={{ backgroundColor: colors.accent, paddingVertical: 9, paddingHorizontal: 14, borderRadius: 10, opacity: promoCode.length === 0 ? 0.6 : 1 }}
+                                        onPress={handleApplyPromoCode}
+                                        disabled={promoCode.length === 0}
+                                        activeOpacity={0.8}
+                                    >
+                                        <Text style={{ color: '#000', fontWeight: '700', fontSize: 12 }}>
+                                            {t('applyPromo' as any) || 'Apply'}
+                                        </Text>
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+                        ) : null}
                     </View>
                 )}
 

@@ -12,9 +12,10 @@ import { Image } from 'expo-image';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as React from 'react';
 import { useState } from 'react';
-import { Alert, Platform, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View, Dimensions } from 'react-native';
+import { Alert, Platform, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View, Dimensions, ActivityIndicator } from 'react-native';
 import YoutubePlayer from 'react-native-youtube-iframe';
 import Animated, { interpolateColor, useAnimatedStyle, useSharedValue, withSequence, withSpring, withTiming } from 'react-native-reanimated';
+import { getGeminiApiKey, generateAiRecoveryPlan, AiRecoveryPlan } from '@/utils/gemini';
 
 // ─── Helpers ───────────────────────────────────────────────────────────────
 
@@ -67,16 +68,18 @@ function ExerciseCard({ ex, index, colors, language, expanded, onExpand }: { ex:
     const translatedWhy = t(transWhyKey);
     const translatedProcess = t(transProcessKey);
 
-    const displayTitle = translatedTitle !== transTitleKey ? translatedTitle : (ex.solution_stretch || ex.title || ex.common_name || 'Exercise');
-    const displaySubtitle = ex.common_name && !isLocal ? ex.common_name : ex.duration;
-    const displayDescription = translatedDesc !== transDescKey ? translatedDesc : (ex.description || ex.instructions);
-    const displayWhy = translatedWhy !== transWhyKey ? translatedWhy : ex.why;
+    const displayTitle = ex.isAiPersonalized ? ex.title : (translatedTitle !== transTitleKey ? translatedTitle : (ex.solution_stretch || ex.title || ex.common_name || 'Exercise'));
+    const displaySubtitle = ex.duration;
+    const displayDescription = ex.isAiPersonalized ? ex.instructions : (translatedDesc !== transDescKey ? translatedDesc : (ex.description || ex.instructions));
+    const displayWhy = ex.isAiPersonalized ? null : (translatedWhy !== transWhyKey ? translatedWhy : ex.why);
 
     // Use translated process if available, otherwise try dynamic label translation
     const rawProcess = ex.process || '';
-    const displayProcess = translatedProcess !== transProcessKey
-        ? translatedProcess
-        : translateProcessDetails(rawProcess, t);
+    const displayProcess = ex.isAiPersonalized 
+        ? null
+        : (translatedProcess !== transProcessKey
+            ? translatedProcess
+            : translateProcessDetails(rawProcess, t));
 
     return (
         <View style={[cardStyles.card, { backgroundColor: 'rgba(30,30,35,0.95)', borderColor: expanded ? colors.accent : 'rgba(255,255,255,0.08)' }]}>
@@ -86,8 +89,17 @@ function ExerciseCard({ ex, index, colors, language, expanded, onExpand }: { ex:
                     <Text style={cardStyles.indexText}>{index + 1}</Text>
                 </View>
                 <View style={{ flex: 1 }}>
-                    <Text style={[cardStyles.title, { color: '#fff' }]}>{displayTitle}</Text>
-                    {displaySubtitle ? <Text style={[cardStyles.subtitle, { color: 'rgba(255,255,255,0.5)' }]}>{displaySubtitle}</Text> : null}
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                        <Text style={[cardStyles.title, { color: '#fff' }]}>{displayTitle}</Text>
+                        {ex.isAiPersonalized && (
+                            <View style={{ backgroundColor: 'rgba(249, 115, 22, 0.15)', borderWidth: 1, borderColor: '#f97316', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6 }}>
+                                <Text style={{ color: '#f97316', fontSize: 10, fontWeight: '700' }}>
+                                    {t('aiBadge' as any) || 'AI Personalized'}
+                                </Text>
+                            </View>
+                        )}
+                    </View>
+                    {displaySubtitle ? <Text style={[cardStyles.subtitle, { color: 'rgba(255,255,255,0.5)', marginTop: 2 }]}>{displaySubtitle}</Text> : null}
                 </View>
                 {ex.difficulty_level && (() => {
                     const diffColor = ex.difficulty_level === 'beginner' ? '#22c55e' : ex.difficulty_level === 'intermediate' ? '#f59e0b' : '#ef4444';
@@ -260,6 +272,7 @@ export default function FindReliefScreen() {
     };
 
     const { language, theme } = usePreferences();
+    const isDark = theme === 'dark';
     const { user } = useUser();
     const t = (key: Parameters<typeof getTranslation>[1]) => getTranslation(language, key);
     const colors = Colors[theme];
@@ -300,10 +313,40 @@ export default function FindReliefScreen() {
     const [isLoading, setIsLoading] = useState(true);
     const [visibleCount, setVisibleCount] = useState(1);
 
+    const [hasAiKey, setHasAiKey] = useState(false);
+    const [isAiMode, setIsAiMode] = useState(false);
+    const [isAiLoading, setIsAiLoading] = useState(false);
+    const [aiPlan, setAiPlan] = useState<AiRecoveryPlan | null>(null);
+
+    const aiExercises = React.useMemo(() => {
+        if (!aiPlan || !aiPlan.exercises || exercises.length === 0) return [];
+        return aiPlan.exercises.map(aiEx => {
+            const baseEx = EXERCISES.find(e => e.id === aiEx.id) || exercises.find(e => e.id === aiEx.id);
+            if (!baseEx) return null;
+            return {
+                ...baseEx,
+                duration: aiEx.customDuration,
+                instructions: aiEx.customInstructions,
+                isAiPersonalized: true
+            };
+        }).filter(Boolean) as any[];
+    }, [aiPlan, exercises]);
+
+    const displayedExercises = React.useMemo(() => {
+        if (isAiMode && aiExercises.length > 0) {
+            return aiExercises;
+        }
+        return exercises;
+    }, [isAiMode, aiExercises, exercises]);
+
     React.useEffect(() => {
         setVisibleCount(1); // Reset "visibleCount" whenever parameters change
-        const fetchExercises = async () => {
+        
+        const loadPlans = async () => {
             setIsLoading(true);
+            let standardData: any[] = [];
+            
+            // 1. Load Standard Exercises
             try {
                 const data = await fetchExercisesByMuscleAndSize(
                     muscleId,
@@ -314,32 +357,61 @@ export default function FindReliefScreen() {
                     assessment.duration
                 );
                 if (data && data.length > 0) {
-                    setExercises(data);
+                    standardData = data;
                 } else {
-                    // Load fallback based on activityType
-                    const fallbackData = getExercisesByActivityType(activityType, y, view);
-                    setExercises(fallbackData.slice(0, 3));
+                    standardData = getExercisesByActivityType(activityType, y, view).slice(0, 3);
                 }
             } catch (error) {
                 console.log(error);
-                const fallbackData = getExercisesByActivityType(activityType, y, view);
-                setExercises(fallbackData.slice(0, 3));
-            } finally {
-                setIsLoading(false);
+                standardData = getExercisesByActivityType(activityType, y, view).slice(0, 3);
             }
+            setExercises(standardData);
             setIsLoading(false);
+
+            // 2. Check for Gemini API key & fetch AI Plan
+            const apiKey = await getGeminiApiKey();
+            const hasKey = !!apiKey;
+            setHasAiKey(hasKey);
+
+            if (hasKey && activityType === 'relief' && standardData.length > 0) {
+                setIsAiLoading(true);
+                try {
+                    const plan = await generateAiRecoveryPlan(
+                        {
+                            muscleId,
+                            activityType,
+                            painLevel: assessment.painLevel,
+                            duration: assessment.duration,
+                            painLocation,
+                            causeNote: assessment.cause,
+                            fitnessLevel: user.attributes.fitnessLevel
+                        },
+                        standardData,
+                        language
+                    );
+                    if (plan) {
+                        setAiPlan(plan);
+                        setIsAiMode(true); // Auto-switch to AI mode on success
+                    }
+                } catch (err) {
+                    console.error('Failed to generate AI plan:', err);
+                } finally {
+                    setIsAiLoading(false);
+                }
+            }
         };
-        fetchExercises();
-    }, [muscleId, size, y, view, activityType, recommendation.difficultyFilter, painLocation]);
+
+        loadPlans();
+    }, [muscleId, size, y, view, activityType, recommendation.difficultyFilter, painLocation, language]);
 
     const targetMuscle = React.useMemo(() => {
-        if (exercises.length === 0) return formatLabel(muscleId);
-        const ex = exercises[0];
+        if (displayedExercises.length === 0) return formatLabel(muscleId);
+        const ex = displayedExercises[0];
         if (ex.muscleGroup) return formatLabel(ex.muscleGroup);
         if (Array.isArray(ex.muscle_id) && ex.muscle_id.length > 0) return formatLabel(ex.muscle_id[0]);
         if (typeof ex.muscle_id === 'string') return formatLabel(ex.muscle_id);
         return formatLabel(muscleId);
-    }, [exercises, muscleId]);
+    }, [displayedExercises, muscleId]);
 
     const targetMuscleTrans = React.useMemo(() => {
         if (targetMuscle === 'fullBody') return t('fullBody');
@@ -397,7 +469,7 @@ export default function FindReliefScreen() {
         );
         successAnim.value = withTiming(1, { duration: 400 });
 
-        const item = { date: Date.now(), muscleGroup: targetMuscle, exercises, assessment };
+        const item = { date: Date.now(), muscleGroup: targetMuscle, exercises: displayedExercises, assessment };
         await saveToHistory(item);
         await savePainSession({
             activityType,
@@ -410,7 +482,7 @@ export default function FindReliefScreen() {
             q2: assessment.q2,
             recommendationCategory: recommendation.category,
             recommendationAdvisory: recommendation.advisory,
-            exercisesShown: exercises,
+            exercisesShown: displayedExercises,
         });
 
         // Delay alert slightly to let animation finish
@@ -421,7 +493,7 @@ export default function FindReliefScreen() {
         }, 600);
     };
 
-    const totalMinutes = exercises.length * 4;
+    const totalMinutes = displayedExercises.length * 4;
 
     const renderAdvisoryBanner = () => {
         if (!recommendation.advisory) return null;
@@ -460,8 +532,8 @@ export default function FindReliefScreen() {
     };
 
     const getBestVideoUrl = () => {
-        if (!exercises || exercises.length === 0) return null;
-        const activeEx = exercises[activeVideoIndex] || exercises[0];
+        if (!displayedExercises || displayedExercises.length === 0) return null;
+        const activeEx = displayedExercises[activeVideoIndex] || displayedExercises[0];
         let url = activeEx.video_url;
         if (!url) {
             const firstTitle = activeEx.solution_stretch || activeEx.title || activeEx.common_name || '';
@@ -613,6 +685,121 @@ export default function FindReliefScreen() {
                     {renderAdvisoryBanner()}
                 </View>
 
+                {/* AI Plan Section */}
+                {activityType === 'relief' && (
+                    <View style={{ marginBottom: 16 }}>
+                        {isAiLoading ? (
+                            <View style={{ 
+                                backgroundColor: 'rgba(249, 115, 22, 0.05)', 
+                                borderColor: colors.accent, 
+                                borderWidth: 1, 
+                                borderRadius: 16, 
+                                padding: 16, 
+                                flexDirection: 'row', 
+                                alignItems: 'center', 
+                                gap: 12 
+                            }}>
+                                <ActivityIndicator size="small" color={colors.accent} />
+                                <Text style={{ color: colors.textSecondary, fontSize: 13, fontWeight: '500' }}>
+                                    Generating AI Personal Plan...
+                                </Text>
+                            </View>
+                        ) : aiPlan ? (
+                            <View style={{ 
+                                backgroundColor: isDark ? 'rgba(30, 30, 35, 0.95)' : '#fff', 
+                                borderColor: isAiMode ? colors.accent : colors.cardBorder, 
+                                borderWidth: 1, 
+                                borderRadius: 16, 
+                                padding: 16, 
+                                gap: 12,
+                                shadowColor: '#f97316',
+                                shadowOffset: { width: 0, height: 4 },
+                                shadowOpacity: isAiMode ? 0.1 : 0,
+                                shadowRadius: 8,
+                                elevation: 3
+                            }}>
+                                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                                        <Ionicons name="sparkles" size={16} color={colors.accent} />
+                                        <Text style={{ color: colors.text, fontWeight: '700', fontSize: 14 }}>
+                                            {t('aiInsightsTitle' as any) || 'AI Recovery Analysis'}
+                                        </Text>
+                                    </View>
+                                    <View style={{ backgroundColor: colors.accent + '20', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8 }}>
+                                        <Text style={{ color: colors.accent, fontSize: 11, fontWeight: '700' }}>ACTIVE</Text>
+                                    </View>
+                                </View>
+                                
+                                <Text style={{ color: colors.textSecondary, fontSize: 13, lineHeight: 18 }}>
+                                    {aiPlan.reasoning}
+                                </Text>
+
+                                {/* Toggle Buttons */}
+                                <View style={{ 
+                                    flexDirection: 'row', 
+                                    backgroundColor: isDark ? 'rgba(0,0,0,0.2)' : '#f3f4f6', 
+                                    borderRadius: 12, 
+                                    padding: 3, 
+                                    marginTop: 4 
+                                }}>
+                                    <TouchableOpacity 
+                                        style={{ 
+                                            flex: 1, 
+                                            paddingVertical: 8, 
+                                            alignItems: 'center', 
+                                            borderRadius: 9,
+                                            backgroundColor: !isAiMode ? (isDark ? 'rgba(255,255,255,0.08)' : '#fff') : 'transparent'
+                                        }}
+                                        onPress={() => setIsAiMode(false)}
+                                    >
+                                        <Text style={{ 
+                                            color: !isAiMode ? colors.text : colors.textSecondary, 
+                                            fontSize: 12, 
+                                            fontWeight: !isAiMode ? '700' : '500' 
+                                        }}>
+                                            {t('standardPlan' as any) || 'Standard Plan'}
+                                        </Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity 
+                                        style={{ 
+                                            flex: 1, 
+                                            paddingVertical: 8, 
+                                            alignItems: 'center', 
+                                            borderRadius: 9,
+                                            backgroundColor: isAiMode ? (isDark ? 'rgba(255,255,255,0.08)' : '#fff') : 'transparent'
+                                        }}
+                                        onPress={() => setIsAiMode(true)}
+                                    >
+                                        <Text style={{ 
+                                            color: isAiMode ? colors.text : colors.textSecondary, 
+                                            fontSize: 12, 
+                                            fontWeight: isAiMode ? '700' : '500' 
+                                        }}>
+                                            {t('aiPlan' as any) || 'AI Personal Plan'}
+                                        </Text>
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+                        ) : !hasAiKey ? (
+                            <View style={{ 
+                                backgroundColor: isDark ? 'rgba(30, 30, 35, 0.5)' : '#f9fafb', 
+                                borderColor: colors.cardBorder, 
+                                borderWidth: 1, 
+                                borderRadius: 16, 
+                                padding: 14, 
+                                flexDirection: 'row', 
+                                alignItems: 'center', 
+                                gap: 10 
+                            }}>
+                                <Ionicons name="sparkles-outline" size={18} color={colors.textSecondary} />
+                                <Text style={{ color: colors.textSecondary, fontSize: 12, flex: 1, lineHeight: 16 }}>
+                                    {t('enterApiKeyPrompt' as any) || 'Enter your Gemini API Key in Profile to unlock dynamic AI Personal Plans.'}
+                                </Text>
+                            </View>
+                        ) : null}
+                    </View>
+                )}
+
                 {/* Exercise list */}
                 <View style={styles.exerciseSection}>
                     <Text style={[styles.sectionTitle, { color: '#fff' }]}>
@@ -626,14 +813,14 @@ export default function FindReliefScreen() {
 
                     {isLoading ? (
                         <Text style={{ color: 'rgba(255,255,255,0.5)', textAlign: 'center', padding: 24 }}>{t('loadingRelief') || 'Loading…'}</Text>
-                    ) : exercises.length === 0 ? (
+                    ) : displayedExercises.length === 0 ? (
                         <Text style={{ color: 'rgba(255,255,255,0.5)', textAlign: 'center', padding: 24 }}>
                             {t('noRelief') || 'No exercises found for this area. Try a different selection.'}
                         </Text>
                     ) : (
                         <View>
                             {/* Show exercises incrementally */}
-                             {exercises.slice(0, visibleCount).map((ex, i) => (
+                             {displayedExercises.slice(0, visibleCount).map((ex, i) => (
                                 <ExerciseCard
                                     key={ex.id ?? i}
                                     ex={ex}
@@ -649,14 +836,14 @@ export default function FindReliefScreen() {
                             ))}
 
                             {/* Show more button if there are more exercises */}
-                            {visibleCount < exercises.length && (
+                            {visibleCount < displayedExercises.length && (
                                 <TouchableOpacity
                                     style={[styles.moreButton, { borderColor: colors.accent }]}
                                     onPress={() => setVisibleCount(v => v + 1)}
                                 >
                                     <Ionicons name="add-circle-outline" size={20} color={colors.accent} />
                                     <Text style={[styles.moreButtonText, { color: colors.accent }]}>
-                                        {t('moreStretches')} ({exercises.length - visibleCount} {t('similarStretches')})
+                                        {t('moreStretches')} ({displayedExercises.length - visibleCount} {t('similarStretches')})
                                     </Text>
                                 </TouchableOpacity>
                             )}
@@ -674,7 +861,7 @@ export default function FindReliefScreen() {
                             router.push({
                                 pathname: '/guided-session' as any,
                                 params: {
-                                    exercises: JSON.stringify(exercises),
+                                    exercises: JSON.stringify(displayedExercises),
                                     muscleGroup: targetMuscle,
                                     activityType,
                                 },
