@@ -117,12 +117,6 @@ export default function RatingScreen() {
                     <Text style={styles.buttonText}>Rate on App Store</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity 
-                    style={styles.skipButton}
-                    onPress={handleSkip}
-                >
-                    <Text style={styles.skipText}>Skip for now</Text>
-                </TouchableOpacity>
             </View>
         </SafeAreaView>
     );

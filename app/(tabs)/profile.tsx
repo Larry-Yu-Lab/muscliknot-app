@@ -92,6 +92,24 @@ export default function ProfileScreen() {
     const [isLanguageDropdownOpen, setIsLanguageDropdownOpen] = useState(false);
     const [healthKitEnabled, setHealthKitEnabledState] = useState(false);
     const [todaySteps, setTodaySteps] = useState<number>(0);
+    const [devTapCount, setDevTapCount] = useState(0);
+
+    const handleDevTap = () => {
+        setDevTapCount(prev => {
+            const next = prev + 1;
+            if (next >= 5) {
+                const newPremium = !user.isPremium;
+                updateUser({ isPremium: newPremium });
+                Alert.alert(
+                    'Developer Mode',
+                    `Premium membership has been ${newPremium ? 'ENABLED' : 'DISABLED'} for testing.`,
+                    [{ text: 'OK' }]
+                );
+                return 0;
+            }
+            return next;
+        });
+    };
 
     // Load persisted HealthKit preference on mount
     useEffect(() => {
@@ -271,7 +289,9 @@ export default function ProfileScreen() {
 
                             {/* Name and Status */}
                             <View style={styles.nameSection}>
-                                <Text style={[styles.userName, { color: colors.text }]}>{user.name}</Text>
+                                <TouchableOpacity onPress={handleDevTap} activeOpacity={0.8}>
+                                    <Text style={[styles.userName, { color: colors.text }]}>{user.name}</Text>
+                                </TouchableOpacity>
                                 <View style={styles.statusRow}>
                                     <Text style={[styles.athleteStatus, { color: colors.accent }]}>
                                         {t('statusAthlete')}
@@ -560,25 +580,6 @@ export default function ProfileScreen() {
                                 <Text style={[styles.logoutText, { color: colors.danger }]}>{t('logout')}</Text>
                             </TouchableOpacity>
                         </View>
-
-                        {/* Dev Tools */}
-                        {__DEV__ && (
-                            <View style={[styles.settingsSection, { marginTop: 16 }]}>
-                                <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>Dev Tools</Text>
-                                <TouchableOpacity
-                                    style={[
-                                        styles.logoutButton,
-                                        { backgroundColor: colors.cardBackground, borderColor: colors.accent || '#f97316' }
-                                    ]}
-                                    onPress={() => {
-                                        router.push('/auth/signup-success' as any);
-                                    }}
-                                >
-                                    <Ionicons name="eye-outline" size={20} color={colors.accent || '#f97316'} />
-                                    <Text style={[styles.logoutText, { color: colors.accent || '#f97316' }]}>Dev: Preview Trial Flow</Text>
-                                </TouchableOpacity>
-                            </View>
-                        )}
                     </>
                 ) : (
                     <View style={styles.plansContainer}>

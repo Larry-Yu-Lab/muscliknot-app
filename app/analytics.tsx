@@ -20,6 +20,18 @@ export default function AnalyticsScreen() {
     const isDark = theme === 'dark';
     const t = (key: Parameters<typeof getTranslation>[1], params?: Record<string, string>) => getTranslation(language, key, params);
 
+    const [data, setData] = useState<AnalyticsData | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [selectedPoint, setSelectedPoint] = useState<DailyDetail | null>(null);
+
+    useEffect(() => {
+        getHistory().then(history => {
+            const processed = processAnalytics(history);
+            setData(processed);
+            setLoading(false);
+        });
+    }, []);
+
     if (!user.isPremium) {
         return (
             <SafeAreaView style={[styles.container, { backgroundColor: colors.background, justifyContent: 'center', alignItems: 'center', padding: 24 }]}>
@@ -76,18 +88,6 @@ export default function AnalyticsScreen() {
             </SafeAreaView>
         );
     }
-
-    const [data, setData] = useState<AnalyticsData | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [selectedPoint, setSelectedPoint] = useState<DailyDetail | null>(null);
-
-    useEffect(() => {
-        getHistory().then(history => {
-            const processed = processAnalytics(history);
-            setData(processed);
-            setLoading(false);
-        });
-    }, []);
 
     if (loading) {
         return (
@@ -859,5 +859,5 @@ const styles = StyleSheet.create({
     bulletCheck: { width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
     bulletText: { fontSize: 15, fontWeight: '600' },
     lockScreenButton: { width: '100%', maxWidth: 300, height: 52, borderRadius: 14, alignItems: 'center', justifyContent: 'center', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 4 },
-    lockScreenButtonText: { color: '#000', fontSize: 16, fontWeight: '950' },
+    lockScreenButtonText: { color: '#000', fontSize: 16, fontWeight: '900' },
 });

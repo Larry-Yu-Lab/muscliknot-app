@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { KeyboardAvoidingView, Platform, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, KeyboardAvoidingView, Platform, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 export default function ReferralScreen() {
     const router = useRouter();
@@ -16,14 +16,42 @@ export default function ReferralScreen() {
     const t = (key: Parameters<typeof getTranslation>[1]) => getTranslation(language, key);
 
     const handleContinue = async () => {
-        if (code.trim()) {
-            await AsyncStorage.setItem('user_referral_code', code.trim());
-        }
-        router.push('/onboarding/equipment');
-    };
+        const trimmedCode = code.trim().toUpperCase();
+        
+        const tiers: Record<string, string> = {
+            'KNOTFREE': 'Lifetime',
+            'FREEKNOT': '1-Month',
+            'GIFT2026': '3-Month',
+            'COACH100': '1-Year',
+            'VIPRECOVERY': '1-Year'
+        };
 
-    const handleSkip = () => {
-        router.push('/onboarding/equipment');
+        if (trimmedCode) {
+            if (tiers[trimmedCode]) {
+                const tierName = tiers[trimmedCode];
+                await AsyncStorage.setItem('user_referral_code', trimmedCode);
+                Alert.alert(
+                    "Code Accepted!",
+                    `Valid referral code. ${tierName} Premium Access has been unlocked for your account!`,
+                    [
+                        { 
+                            text: "Awesome", 
+                            onPress: () => router.push('/onboarding/equipment') 
+                        }
+                    ]
+                );
+            } else {
+                Alert.alert(
+                    "Invalid Code",
+                    "The code you entered is invalid. Please check the spelling or enter a different code.",
+                    [
+                        { text: "Try Again" }
+                    ]
+                );
+            }
+        } else {
+            router.push('/onboarding/equipment');
+        }
     };
 
     return (
@@ -88,13 +116,6 @@ export default function ReferralScreen() {
                         onPress={handleContinue}
                     >
                         <Text style={styles.buttonText}>Continue</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={styles.skipButton}
-                        onPress={handleSkip}
-                        activeOpacity={0.6}
-                    >
-                        <Text style={styles.skipText}>Skip</Text>
                     </TouchableOpacity>
                 </View>
             </KeyboardAvoidingView>

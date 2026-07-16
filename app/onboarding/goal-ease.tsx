@@ -63,13 +63,13 @@ export default function GoalEaseScreen() {
                 {/* Encouraging Phrase */}
                 <View style={styles.textContainer}>
                     <Text style={styles.highlightText}>
-                        "{getGoalLabel()}"
+                        {"\"" + getGoalLabel() + "\""}
                     </Text>
                     <Text style={styles.title}>
                         is not hard at all!
                     </Text>
                     <Text style={styles.subtitle}>
-                        With MuscliKnot's data-driven guidelines, daily progress is simple, structured, and easy to follow.
+                        {"With MuscliKnot's data-driven guidelines, daily progress is simple, structured, and easy to follow."}
                     </Text>
                 </View>
             </View>

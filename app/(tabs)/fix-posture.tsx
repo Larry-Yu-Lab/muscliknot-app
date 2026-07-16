@@ -1,7 +1,8 @@
 import { fetchExercisesByMuscleAndSize } from '@/components/AnatomyMap';
 import { Colors } from '@/constants/theme';
 import { usePreferences } from '@/context/PreferencesContext';
-import { getExercisesByActivityType, EXERCISES } from '@/data/exercises';
+import { useUser } from '@/context/UserContext';
+import { getExercisesByActivityType, EXERCISES, Exercise } from '@/data/exercises';
 import { getTranslation } from '@/utils/i18n';
 import { saveToHistory } from '@/utils/storage';
 import { Ionicons } from '@expo/vector-icons';
@@ -153,6 +154,7 @@ export default function FixPostureScreen() {
     const params = useLocalSearchParams();
     const { width: windowWidth } = Dimensions.get('window');
     const { language, theme } = usePreferences();
+    const { user } = useUser();
     const t = (key: Parameters<typeof getTranslation>[1]) => getTranslation(language, key);
     const colors = Colors[theme];
     const accentColor = '#06b6d4';
@@ -220,8 +222,8 @@ export default function FixPostureScreen() {
             const cleanStr = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
             const cleanTarget = cleanStr(firstTitle);
 
-            // 1. Fuzzy match by title
-            const match = EXERCISES.find(e => {
+            // 1. Fuzzy match by exact title inclusion
+            let match = EXERCISES.find(e => {
                 if (!e.video_url) return false;
                 const cleanLocal = cleanStr(e.title);
                 return cleanLocal.includes(cleanTarget) || cleanTarget.includes(cleanLocal);
@@ -230,15 +232,48 @@ export default function FixPostureScreen() {
             if (match && match.video_url) {
                 url = match.video_url;
             } else {
-                // 2. Muscle-specific fallback
+                // 2. Keyword overlap match
                 const localMG = mapToLocalMuscleGroup(activeEx.muscleGroup || muscleId);
-                const fallbackMatch = EXERCISES.find(e => 
-                    e.video_url && 
-                    e.category === 'Posture' &&
-                    e.muscleGroup.toLowerCase() === localMG.toLowerCase()
-                ) || EXERCISES.find(e => e.video_url && e.category === 'Posture')
-                  || EXERCISES.find(e => e.video_url);
-                url = fallbackMatch ? fallbackMatch.video_url : 'https://youtube.com/watch?v=1UU4VvklQ44';
+                const targetWords = firstTitle.toLowerCase()
+                    .replace(/[^a-z0-9\s]/g, '')
+                    .split(/\s+/)
+                    .filter((w: string) => w.length > 2 && w !== 'stretch' && w !== 'release' && w !== 'exercise' && w !== 'pose');
+
+                let bestScore = 0;
+                let bestMatch: Exercise | null = null;
+
+                for (const e of EXERCISES) {
+                    if (!e.video_url) continue;
+                    if (e.muscleGroup.toLowerCase() !== localMG.toLowerCase()) continue;
+
+                    const localTitleLower = e.title.toLowerCase();
+                    const localWords = localTitleLower.split(/\s+/);
+                    let score = 0;
+
+                    for (const w of targetWords) {
+                        if (localWords.includes(w) || localTitleLower.includes(w)) {
+                            score += 1;
+                        }
+                    }
+
+                    if (score > bestScore) {
+                        bestScore = score;
+                        bestMatch = e;
+                    }
+                }
+
+                if (bestMatch && bestScore > 0) {
+                    url = bestMatch.video_url;
+                } else {
+                    // 3. Muscle-specific fallback
+                    const fallbackMatch = EXERCISES.find(e => 
+                        e.video_url && 
+                        e.category === 'Posture' &&
+                        e.muscleGroup.toLowerCase() === localMG.toLowerCase()
+                    ) || EXERCISES.find(e => e.video_url && e.category === 'Posture')
+                      || EXERCISES.find(e => e.video_url);
+                    url = fallbackMatch ? fallbackMatch.video_url : 'https://youtube.com/watch?v=1UU4VvklQ44';
+                }
             }
         }
         return url;
@@ -274,6 +309,62 @@ export default function FixPostureScreen() {
         const trans = t(locKey);
         return trans !== locKey ? trans : muscleId;
     }, [muscleId, t]);
+
+    if (!user.isPremium) {
+        return (
+            <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+                {/* Header with Back Button */}
+                <View style={[styles.header, { justifyContent: 'flex-start', paddingHorizontal: 16 }]}>
+                    <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+                        <Ionicons name="arrow-back" size={24} color={colors.text} />
+                    </TouchableOpacity>
+                </View>
+
+                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24, marginTop: -40 }}>
+                    <View style={styles.lockIconContainer}>
+                        <View style={[styles.lockGlow, { backgroundColor: colors.accent || accentColor + '15' }]} />
+                        <View style={styles.glassCircle}>
+                            <Ionicons name="lock-closed" size={36} color={colors.accent || accentColor} />
+                        </View>
+                    </View>
+                    
+                    <Text style={[styles.lockScreenTitle, { color: colors.text }]}>Posture Correction</Text>
+                    <Text style={[styles.lockScreenSubtitle, { color: colors.textSecondary }]}>
+                        Unlock targeted ergonomic and postural routines to fix tech neck, rounded shoulders, and anterior pelvic tilt.
+                    </Text>
+
+                    <View style={styles.bulletList}>
+                        <View style={styles.bulletRow}>
+                            <View style={[styles.bulletCheck, { backgroundColor: (colors.accent || accentColor) + '15' }]}>
+                                <Ionicons name="checkmark" size={14} color={colors.accent || accentColor} />
+                            </View>
+                            <Text style={[styles.bulletText, { color: colors.text }]}>Ergonomic alignment guidelines</Text>
+                        </View>
+                        <View style={styles.bulletRow}>
+                            <View style={[styles.bulletCheck, { backgroundColor: (colors.accent || accentColor) + '15' }]}>
+                                <Ionicons name="checkmark" size={14} color={colors.accent || accentColor} />
+                            </View>
+                            <Text style={[styles.bulletText, { color: colors.text }]}>Fixes sedentary posture issues</Text>
+                        </View>
+                        <View style={styles.bulletRow}>
+                            <View style={[styles.bulletCheck, { backgroundColor: (colors.accent || accentColor) + '15' }]}>
+                                <Ionicons name="checkmark" size={14} color={colors.accent || accentColor} />
+                            </View>
+                            <Text style={[styles.bulletText, { color: colors.text }]}>Real-time desk warning prevention</Text>
+                        </View>
+                    </View>
+
+                    <TouchableOpacity
+                        style={[styles.lockScreenButton, { backgroundColor: colors.accent || accentColor }]}
+                        onPress={() => router.push('/auth/signup-success' as any)}
+                        activeOpacity={0.85}
+                    >
+                        <Text style={styles.lockScreenButtonText}>Start 14-Day Free Trial</Text>
+                    </TouchableOpacity>
+                </View>
+            </SafeAreaView>
+        );
+    }
 
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
@@ -370,4 +461,17 @@ const styles = StyleSheet.create({
     completeBtnText: { color: '#000', fontSize: 16, fontWeight: '900', letterSpacing: 1.5 },
     moreButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 12, borderRadius: 12, borderWidth: 1, borderStyle: 'dashed', marginTop: 4, backgroundColor: 'rgba(255,255,255,0.02)' },
     moreButtonText: { fontSize: 14, fontWeight: '700' },
+
+    // Lock screen styles
+    lockIconContainer: { position: 'relative', alignItems: 'center', justifyContent: 'center', marginBottom: 20 },
+    lockGlow: { position: 'absolute', width: 140, height: 140, borderRadius: 70 },
+    glassCircle: { width: 80, height: 80, borderRadius: 40, backgroundColor: 'rgba(255,255,255,0.03)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', alignItems: 'center', justifyContent: 'center' },
+    lockScreenTitle: { fontSize: 26, fontWeight: '800', textAlign: 'center', marginBottom: 12 },
+    lockScreenSubtitle: { fontSize: 15, textAlign: 'center', lineHeight: 22, paddingHorizontal: 16, marginBottom: 28 },
+    bulletList: { width: '100%', gap: 14, paddingHorizontal: 16, marginBottom: 32 },
+    bulletRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+    bulletCheck: { width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
+    bulletText: { fontSize: 15, fontWeight: '600' },
+    lockScreenButton: { width: '100%', maxWidth: 300, height: 52, borderRadius: 14, alignItems: 'center', justifyContent: 'center', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 4 },
+    lockScreenButtonText: { color: '#000', fontSize: 16, fontWeight: '900' },
 });

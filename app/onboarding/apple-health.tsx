@@ -212,14 +212,6 @@ export default function AppleHealthScreen() {
                         <Text style={styles.continueTxt}>Continue</Text>
                     )}
                 </TouchableOpacity>
-                <TouchableOpacity
-                    style={styles.skipBtn}
-                    onPress={handleSkip}
-                    disabled={loading}
-                    activeOpacity={0.6}
-                >
-                    <Text style={styles.skipTxt}>Skip</Text>
-                </TouchableOpacity>
             </View>
         </SafeAreaView>
     );

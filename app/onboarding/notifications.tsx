@@ -100,12 +100,6 @@ export default function NotificationsScreen() {
                     <Text style={styles.buttonText}>Enable Notifications</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity 
-                    style={styles.skipButton}
-                    onPress={handleSkip}
-                >
-                    <Text style={styles.skipText}>Skip for now</Text>
-                </TouchableOpacity>
             </View>
         </SafeAreaView>
     );

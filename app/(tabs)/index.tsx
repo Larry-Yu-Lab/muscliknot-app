@@ -126,6 +126,7 @@ export default function HomeScreen() {
   const [recentPlans, setRecentPlans] = useState<HistoryItem[]>([]);
   const [roadmap, setRoadmap] = useState<RecoveryRoadmap | null>(null);
   const [historyCount, setHistoryCount] = useState(0);
+  const [loggedMuscles, setLoggedMuscles] = useState<string[]>([]);
   const [preventionAlerts, setPreventionAlerts] = useState<PreventionAlert[]>([]);
   const [dismissedAlerts, setDismissedAlerts] = useState<string[]>([]);
   const startCtx = useSharedValue({ x: 0, y: 0 });
@@ -183,6 +184,12 @@ export default function HomeScreen() {
         // Count how many assessments have pain scores
         const relevantCount = data.filter(h => h.assessment?.painLevel !== undefined).length;
         setHistoryCount(relevantCount);
+
+        const uniqueMuscles = Array.from(new Set(
+            data.filter(h => h.assessment?.painLevel !== undefined && h.muscleGroup)
+                .map(h => h.muscleGroup)
+        ));
+        setLoggedMuscles(uniqueMuscles);
 
         // Generate Prevention Alerts
         const alerts = generatePreventionAlerts(data);
@@ -626,7 +633,7 @@ export default function HomeScreen() {
                   ) : historyCount === 1 ? (
                     "Log 1 more pain assessment to build your dynamic injury recovery roadmap and daily coach messages."
                   ) : (
-                    "Log 1 more assessment for a previously tracked muscle group (e.g. Neck or Shoulder) to build your recovery plan."
+                    `Log 1 more assessment for a previously tracked muscle group (e.g. ${loggedMuscles.map(m => formatLabel(m)).join(' or ') || 'Neck or Shoulder'}) to build your recovery plan.`
                   )}
                 </Text>
                 <TouchableOpacity

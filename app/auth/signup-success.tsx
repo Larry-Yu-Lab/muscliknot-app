@@ -221,7 +221,7 @@ export default function SignupSuccessScreen() {
     };
 
     const handleSkip = () => {
-        router.replace('/(tabs)' as any);
+        router.replace('/auth/login-welcome' as any);
     };
 
     // Entrance animation

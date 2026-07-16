@@ -72,12 +72,6 @@ export default function CoachScreen() {
                     <Text style={styles.buttonText}>{t('continue')}</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity 
-                    style={styles.skipButton}
-                    onPress={() => router.push('/onboarding/equipment')}
-                >
-                    <Text style={styles.skipText}>Skip for now</Text>
-                </TouchableOpacity>
             </View>
         </SafeAreaView>
     );

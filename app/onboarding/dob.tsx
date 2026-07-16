@@ -138,12 +138,6 @@ export default function DOBScreen() {
                     <Text style={styles.buttonText}>{t('continue')}</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity 
-                    style={styles.skipButton}
-                    onPress={() => router.push('/onboarding/goals')}
-                >
-                    <Text style={styles.skipText}>Skip for now</Text>
-                </TouchableOpacity>
             </View>
         </SafeAreaView>
     );

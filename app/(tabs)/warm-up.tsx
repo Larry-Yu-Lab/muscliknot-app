@@ -1,7 +1,7 @@
 import { fetchExercisesByMuscleAndSize } from '@/components/AnatomyMap';
 import { Colors } from '@/constants/theme';
 import { usePreferences } from '@/context/PreferencesContext';
-import { getExercisesByActivityType, EXERCISES } from '@/data/exercises';
+import { getExercisesByActivityType, EXERCISES, Exercise } from '@/data/exercises';
 import { getTranslation } from '@/utils/i18n';
 import { useUser } from '@/context/UserContext';
 import { savePainSession, saveToHistory } from '@/utils/storage';
@@ -156,53 +156,6 @@ export default function WarmUpScreen() {
     const t = (key: Parameters<typeof getTranslation>[1]) => getTranslation(language, key);
     const colors = Colors[theme];
 
-    if (!user.isPremium) {
-        return (
-            <SafeAreaView style={[styles.container, { backgroundColor: colors.background, justifyContent: 'center', alignItems: 'center', padding: 24 }]}>
-                <View style={styles.lockIconContainer}>
-                    <View style={[styles.lockGlow, { backgroundColor: colors.accent + '15' }]} />
-                    <View style={styles.glassCircle}>
-                        <Ionicons name="lock-closed" size={36} color={colors.accent} />
-                    </View>
-                </View>
-                
-                <Text style={[styles.lockScreenTitle, { color: colors.text }]}>Elite Warm-Ups</Text>
-                <Text style={[styles.lockScreenSubtitle, { color: colors.textSecondary }]}>
-                    Get pre-workout routines dynamically generated around your active pain zones, injuries, and recovery phases.
-                </Text>
-
-                <View style={styles.bulletList}>
-                    <View style={styles.bulletRow}>
-                        <View style={[styles.bulletCheck, { backgroundColor: colors.accent + '15' }]}>
-                            <Ionicons name="checkmark" size={14} color={colors.accent} />
-                        </View>
-                        <Text style={[styles.bulletText, { color: colors.text }]}>Tailored to your daily pain profile</Text>
-                    </View>
-                    <View style={styles.bulletRow}>
-                        <View style={[styles.bulletCheck, { backgroundColor: colors.accent + '15' }]}>
-                            <Ionicons name="checkmark" size={14} color={colors.accent} />
-                        </View>
-                        <Text style={[styles.bulletText, { color: colors.text }]}>Prevents further joint and muscle injuries</Text>
-                    </View>
-                    <View style={styles.bulletRow}>
-                        <View style={[styles.bulletCheck, { backgroundColor: colors.accent + '15' }]}>
-                            <Ionicons name="checkmark" size={14} color={colors.accent} />
-                        </View>
-                        <Text style={[styles.bulletText, { color: colors.text }]}>Adaptive coaching guidelines</Text>
-                    </View>
-                </View>
-
-                <TouchableOpacity
-                    style={[styles.lockScreenButton, { backgroundColor: colors.accent }]}
-                    onPress={() => router.push('/auth/signup-success' as any)}
-                    activeOpacity={0.85}
-                >
-                    <Text style={styles.lockScreenButtonText}>Start 14-Day Free Trial</Text>
-                </TouchableOpacity>
-            </SafeAreaView>
-        );
-    }
-
     const muscleId = (params.muscleId as string) || 'unknown';
     const size = (params.size as string) || 'medium';
     const activityType = 'warmup';
@@ -266,8 +219,8 @@ export default function WarmUpScreen() {
             const cleanStr = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
             const cleanTarget = cleanStr(firstTitle);
 
-            // 1. Fuzzy match by title
-            const match = EXERCISES.find(e => {
+            // 1. Fuzzy match by exact title inclusion
+            let match = EXERCISES.find(e => {
                 if (!e.video_url) return false;
                 const cleanLocal = cleanStr(e.title);
                 return cleanLocal.includes(cleanTarget) || cleanTarget.includes(cleanLocal);
@@ -276,13 +229,46 @@ export default function WarmUpScreen() {
             if (match && match.video_url) {
                 url = match.video_url;
             } else {
-                // 2. Muscle-specific fallback
+                // 2. Keyword overlap match
                 const localMG = mapToLocalMuscleGroup(activeEx.muscleGroup || muscleId);
-                const fallbackMatch = EXERCISES.find(e => 
-                    e.video_url && 
-                    e.muscleGroup.toLowerCase() === localMG.toLowerCase()
-                ) || EXERCISES.find(e => e.video_url);
-                url = fallbackMatch ? fallbackMatch.video_url : 'https://youtube.com/watch?v=WjMwXDgdgwI';
+                const targetWords = firstTitle.toLowerCase()
+                    .replace(/[^a-z0-9\s]/g, '')
+                    .split(/\s+/)
+                    .filter((w: string) => w.length > 2 && w !== 'stretch' && w !== 'release' && w !== 'exercise' && w !== 'pose');
+
+                let bestScore = 0;
+                let bestMatch: Exercise | null = null;
+
+                for (const e of EXERCISES) {
+                    if (!e.video_url) continue;
+                    if (e.muscleGroup.toLowerCase() !== localMG.toLowerCase()) continue;
+
+                    const localTitleLower = e.title.toLowerCase();
+                    const localWords = localTitleLower.split(/\s+/);
+                    let score = 0;
+
+                    for (const w of targetWords) {
+                        if (localWords.includes(w) || localTitleLower.includes(w)) {
+                            score += 1;
+                        }
+                    }
+
+                    if (score > bestScore) {
+                        bestScore = score;
+                        bestMatch = e;
+                    }
+                }
+
+                if (bestMatch && bestScore > 0) {
+                    url = bestMatch.video_url;
+                } else {
+                    // 3. Muscle-specific fallback
+                    const fallbackMatch = EXERCISES.find(e => 
+                        e.video_url && 
+                        e.muscleGroup.toLowerCase() === localMG.toLowerCase()
+                    ) || EXERCISES.find(e => e.video_url);
+                    url = fallbackMatch ? fallbackMatch.video_url : 'https://youtube.com/watch?v=WjMwXDgdgwI';
+                }
             }
         }
         return url;
@@ -318,6 +304,62 @@ export default function WarmUpScreen() {
         const trans = t(locKey);
         return trans !== locKey ? trans : muscleId;
     }, [muscleId, t]);
+
+    if (!user.isPremium) {
+        return (
+            <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+                {/* Header with Back Button */}
+                <View style={[styles.header, { justifyContent: 'flex-start', paddingHorizontal: 16 }]}>
+                    <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+                        <Ionicons name="arrow-back" size={24} color={colors.text} />
+                    </TouchableOpacity>
+                </View>
+
+                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24, marginTop: -40 }}>
+                    <View style={styles.lockIconContainer}>
+                        <View style={[styles.lockGlow, { backgroundColor: colors.accent + '15' }]} />
+                        <View style={styles.glassCircle}>
+                            <Ionicons name="lock-closed" size={36} color={colors.accent} />
+                        </View>
+                    </View>
+                    
+                    <Text style={[styles.lockScreenTitle, { color: colors.text }]}>Elite Warm-Ups</Text>
+                    <Text style={[styles.lockScreenSubtitle, { color: colors.textSecondary }]}>
+                        Get pre-workout routines dynamically generated around your active pain zones, injuries, and recovery phases.
+                    </Text>
+
+                    <View style={styles.bulletList}>
+                        <View style={styles.bulletRow}>
+                            <View style={[styles.bulletCheck, { backgroundColor: colors.accent + '15' }]}>
+                                <Ionicons name="checkmark" size={14} color={colors.accent} />
+                            </View>
+                            <Text style={[styles.bulletText, { color: colors.text }]}>Tailored to your daily pain profile</Text>
+                        </View>
+                        <View style={styles.bulletRow}>
+                            <View style={[styles.bulletCheck, { backgroundColor: colors.accent + '15' }]}>
+                                <Ionicons name="checkmark" size={14} color={colors.accent} />
+                            </View>
+                            <Text style={[styles.bulletText, { color: colors.text }]}>Prevents further joint and muscle injuries</Text>
+                        </View>
+                        <View style={styles.bulletRow}>
+                            <View style={[styles.bulletCheck, { backgroundColor: colors.accent + '15' }]}>
+                                <Ionicons name="checkmark" size={14} color={colors.accent} />
+                            </View>
+                            <Text style={[styles.bulletText, { color: colors.text }]}>Adaptive coaching guidelines</Text>
+                        </View>
+                    </View>
+
+                    <TouchableOpacity
+                        style={[styles.lockScreenButton, { backgroundColor: colors.accent }]}
+                        onPress={() => router.push('/auth/signup-success' as any)}
+                        activeOpacity={0.85}
+                    >
+                        <Text style={styles.lockScreenButtonText}>Start 14-Day Free Trial</Text>
+                    </TouchableOpacity>
+                </View>
+            </SafeAreaView>
+        );
+    }
 
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
@@ -426,6 +468,6 @@ const styles = StyleSheet.create({
     bulletCheck: { width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
     bulletText: { fontSize: 15, fontWeight: '600' },
     lockScreenButton: { width: '100%', maxWidth: 300, height: 52, borderRadius: 14, alignItems: 'center', justifyContent: 'center', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 4 },
-    lockScreenButtonText: { color: '#000', fontSize: 16, fontWeight: '950' },
+    lockScreenButtonText: { color: '#000', fontSize: 16, fontWeight: '900' },
 });
 

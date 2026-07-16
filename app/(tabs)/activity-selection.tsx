@@ -1,5 +1,6 @@
 import { Colors } from '@/constants/theme';
 import { usePreferences } from '@/context/PreferencesContext';
+import { useUser } from '@/context/UserContext';
 import { getTranslation } from '@/utils/i18n';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -10,6 +11,7 @@ export default function ActivitySelectionScreen() {
     const router = useRouter();
     const params = useLocalSearchParams();
     const { language, theme } = usePreferences();
+    const { user } = useUser();
     const t = (key: Parameters<typeof getTranslation>[1]) => getTranslation(language, key);
     const colors = Colors[theme];
 
@@ -17,6 +19,17 @@ export default function ActivitySelectionScreen() {
     const { x, y, width, height, rotation, view, size, muscleId, timestamp } = params;
 
     const handleSelection = (type: string) => {
+        const isPremiumType = ['warmup', 'posture', 'strength'].includes(type);
+        if (isPremiumType && !user.isPremium) {
+            // Send directly to the routine screen to display the paywall/lock screen immediately
+            const targetPage = type === 'warmup' ? 'warm-up' : type === 'posture' ? 'fix-posture' : 'strengthen';
+            router.push({
+                pathname: `/(tabs)/${targetPage}` as any,
+                params: { muscleId }
+            });
+            return;
+        }
+
         router.push({
             pathname: '/(tabs)/pain-assessment',
             params: {

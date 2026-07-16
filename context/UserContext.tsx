@@ -1,4 +1,5 @@
 import { supabase } from '@/utils/supabase';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useAuth } from './AuthContext';
 
@@ -91,14 +92,33 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     }
                 } catch (e) {
                     console.error('Error fetching user stats:', e);
-                    // Fallback to basic auth info but default stats
+                    // Fallback to basic auth info but check local referral status for premium flag
                     if (mounted) {
                         const meta = authUser.user_metadata;
-                        setUser(prev => ({
-                            ...prev,
-                            name: meta.full_name || 'User',
-                            avatarUrl: meta.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(meta.full_name || 'User')}&background=f97316&color=fff`,
-                        }));
+                        
+                        // Check if premium referral code was entered offline
+                        AsyncStorage.getItem('user_referral_code').then((refCode) => {
+                            const validCodes = ['GIFT2026', 'COACH100', 'KNOTFREE', 'VIPRECOVERY', 'FREEKNOT'];
+                            const isOfflinePremium = !!(refCode && validCodes.includes(refCode.trim().toUpperCase()));
+                            
+                            if (mounted) {
+                                setUser(prev => ({
+                                    ...prev,
+                                    name: meta.full_name || 'User',
+                                    avatarUrl: meta.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(meta.full_name || 'User')}&background=f97316&color=fff`,
+                                    isPremium: isOfflinePremium,
+                                }));
+                            }
+                        }).catch((err) => {
+                            console.log('Error reading local referral code offline:', err);
+                            if (mounted) {
+                                setUser(prev => ({
+                                    ...prev,
+                                    name: meta.full_name || 'User',
+                                    avatarUrl: meta.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(meta.full_name || 'User')}&background=f97316&color=fff`,
+                                }));
+                            }
+                        });
                     }
                 }
             } else {
@@ -121,6 +141,9 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (authUser) {
             try {
                 const updates: any = {};
+                if (data.isPremium !== undefined) {
+                    updates.is_premium = data.isPremium;
+                }
                 if (data.stats) {
                     updates.workouts = data.stats.workouts;
                     updates.recovery_score = data.stats.recoveryScore;

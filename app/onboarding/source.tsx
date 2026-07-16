@@ -46,7 +46,7 @@ export default function SourceScreen() {
                 </View>
             </View>
 
-            <ScrollView style={styles.content} contentContainerStyle={{ paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
+            <ScrollView style={styles.content} contentContainerStyle={{ paddingBottom: 190 }} showsVerticalScrollIndicator={false}>
                 <Text style={styles.title}>Where did you hear about us?</Text>
                 <Text style={styles.subtitle}>Let us know how you found MuscliKnot.</Text>
                 
@@ -84,12 +84,6 @@ export default function SourceScreen() {
                     <Text style={styles.buttonText}>{t('continue')}</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity 
-                    style={styles.skipButton}
-                    onPress={() => router.push('/onboarding/experience')}
-                >
-                    <Text style={styles.skipText}>Skip for now</Text>
-                </TouchableOpacity>
             </View>
         </SafeAreaView>
     );
@@ -170,8 +164,14 @@ const styles = StyleSheet.create({
         color: '#fff',
     },
     bottom: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        backgroundColor: '#1a1a1a',
         paddingHorizontal: 24,
         paddingBottom: 32,
+        paddingTop: 16,
     },
     button: {
         backgroundColor: '#f97316',

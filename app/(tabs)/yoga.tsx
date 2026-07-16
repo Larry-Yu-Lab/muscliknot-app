@@ -1,7 +1,7 @@
 import { fetchExercisesByMuscleAndSize } from '@/components/AnatomyMap';
 import { Colors } from '@/constants/theme';
 import { usePreferences } from '@/context/PreferencesContext';
-import { getExercisesByActivityType, EXERCISES } from '@/data/exercises';
+import { getExercisesByActivityType, EXERCISES, Exercise } from '@/data/exercises';
 import { getTranslation } from '@/utils/i18n';
 import { saveToHistory } from '@/utils/storage';
 import { Ionicons } from '@expo/vector-icons';
@@ -221,8 +221,8 @@ export default function YogaScreen() {
             const cleanStr = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
             const cleanTarget = cleanStr(firstTitle);
 
-            // 1. Fuzzy match by title
-            const match = EXERCISES.find(e => {
+            // 1. Fuzzy match by exact title inclusion
+            let match = EXERCISES.find(e => {
                 if (!e.video_url) return false;
                 const cleanLocal = cleanStr(e.title);
                 return cleanLocal.includes(cleanTarget) || cleanTarget.includes(cleanLocal);
@@ -231,15 +231,48 @@ export default function YogaScreen() {
             if (match && match.video_url) {
                 url = match.video_url;
             } else {
-                // 2. Muscle-specific fallback
+                // 2. Keyword overlap match
                 const localMG = mapToLocalMuscleGroup(activeEx.muscleGroup || muscleId);
-                const fallbackMatch = EXERCISES.find(e => 
-                    e.video_url && 
-                    e.category === 'Yoga' &&
-                    e.muscleGroup.toLowerCase() === localMG.toLowerCase()
-                ) || EXERCISES.find(e => e.video_url && e.category === 'Yoga')
-                  || EXERCISES.find(e => e.video_url);
-                url = fallbackMatch ? fallbackMatch.video_url : 'https://youtube.com/watch?v=sTANio_2E0Q';
+                const targetWords = firstTitle.toLowerCase()
+                    .replace(/[^a-z0-9\s]/g, '')
+                    .split(/\s+/)
+                    .filter((w: string) => w.length > 2 && w !== 'stretch' && w !== 'release' && w !== 'exercise' && w !== 'pose');
+
+                let bestScore = 0;
+                let bestMatch: Exercise | null = null;
+
+                for (const e of EXERCISES) {
+                    if (!e.video_url) continue;
+                    if (e.muscleGroup.toLowerCase() !== localMG.toLowerCase()) continue;
+
+                    const localTitleLower = e.title.toLowerCase();
+                    const localWords = localTitleLower.split(/\s+/);
+                    let score = 0;
+
+                    for (const w of targetWords) {
+                        if (localWords.includes(w) || localTitleLower.includes(w)) {
+                            score += 1;
+                        }
+                    }
+
+                    if (score > bestScore) {
+                        bestScore = score;
+                        bestMatch = e;
+                    }
+                }
+
+                if (bestMatch && bestScore > 0) {
+                    url = bestMatch.video_url;
+                } else {
+                    // 3. Muscle-specific fallback
+                    const fallbackMatch = EXERCISES.find(e => 
+                        e.video_url && 
+                        e.category === 'Yoga' &&
+                        e.muscleGroup.toLowerCase() === localMG.toLowerCase()
+                    ) || EXERCISES.find(e => e.video_url && e.category === 'Yoga')
+                      || EXERCISES.find(e => e.video_url);
+                    url = fallbackMatch ? fallbackMatch.video_url : 'https://youtube.com/watch?v=sTANio_2E0Q';
+                }
             }
         }
         return url;

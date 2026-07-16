@@ -219,6 +219,16 @@ export default function RegisterScreen() {
                             theme: theme as 'light' | 'dark',
                             language: language as 'en' | 'zh' | 'fr' | 'es',
                         });
+
+                        // Verify and activate referral code
+                        const referralCode = await AsyncStorage.getItem('user_referral_code');
+                        const validCodes = ['GIFT2026', 'COACH100', 'KNOTFREE', 'VIPRECOVERY', 'FREEKNOT'];
+                        if (referralCode && validCodes.includes(referralCode.trim().toUpperCase())) {
+                            await supabase
+                                .from('user_stats')
+                                .update({ is_premium: true })
+                                .eq('user_id', data.user.id);
+                        }
                     }
                 } catch (syncError) {
                     console.log('Error syncing preferences:', syncError);
