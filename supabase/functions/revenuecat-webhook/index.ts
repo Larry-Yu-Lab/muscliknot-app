@@ -34,6 +34,8 @@ serve(async (req) => {
       let isPremium = false;
       let shouldUpdate = false;
 
+      const entitlementId = "MuscliKnot Pro";
+
       // Determine the state based on event type
       if (
         eventType === "INITIAL_PURCHASE" ||
@@ -41,7 +43,7 @@ serve(async (req) => {
         eventType === "UNCANCELLATION" ||
         eventType === "TRANSFER"
       ) {
-        if (entitlementIds.includes("premium")) {
+        if (entitlementIds.includes(entitlementId)) {
           isPremium = true;
           shouldUpdate = true;
         }

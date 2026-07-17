@@ -6,6 +6,8 @@ const API_KEY = Platform.select({
   android: process.env.EXPO_PUBLIC_REVENUECAT_ANDROID_API_KEY || '',
 }) || '';
 
+export const ENTITLEMENT_ID = 'MuscliKnot Pro';
+
 /**
  * Configure the RevenueCat SDK with the active user ID.
  */
@@ -57,7 +59,7 @@ export const getOfferings = async (): Promise<PurchasesPackage[]> => {
 export const purchasePackage = async (rcPackage: PurchasesPackage) => {
   try {
     const { customerInfo } = await Purchases.purchasePackage(rcPackage);
-    const hasPremium = typeof customerInfo.entitlements.active['premium'] !== 'undefined';
+    const hasPremium = typeof customerInfo.entitlements.active[ENTITLEMENT_ID] !== 'undefined';
     return { success: hasPremium, customerInfo, error: null };
   } catch (error: any) {
     if (error.userCancelled) {
@@ -77,7 +79,7 @@ export const checkPremiumStatus = async (): Promise<boolean> => {
       return false;
     }
     const customerInfo = await Purchases.getCustomerInfo();
-    return typeof customerInfo.entitlements.active['premium'] !== 'undefined';
+    return typeof customerInfo.entitlements.active[ENTITLEMENT_ID] !== 'undefined';
   } catch (error) {
     console.error('Error checking premium status:', error);
     return false;
