@@ -13,6 +13,7 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { useFocusEffect, useRouter } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
+import { getOfferings, purchasePackage } from '@/utils/purchases';
 import React, { useCallback, useEffect, useState } from 'react';
 import { Alert, Dimensions, Modal, Platform, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import Svg, { Circle, Line, Path } from 'react-native-svg';
@@ -200,13 +201,55 @@ export default function ProfileScreen() {
     };
 
     const handleUpgrade = async () => {
-        const url = billingCycle === 'annual' 
-            ? 'https://buy.stripe.com/dRm28qdjh8vN1jcbAp9oc01' 
-            : 'https://buy.stripe.com/14A28q1Az27p1jcdIx9oc00';
-        
-        // Pass the user's ID as a client_reference_id in the URL to associate the webhook event with this user
-        const checkoutUrl = `${url}?client_reference_id=${authUser?.id || ''}`;
-        await WebBrowser.openBrowserAsync(checkoutUrl);
+        try {
+            const packages = await getOfferings();
+            if (packages.length === 0) {
+                Alert.alert(
+                    'Error',
+                    'No subscription packages found. Please verify your connection or try again later.',
+                    [{ text: 'OK' }]
+                );
+                return;
+            }
+
+            // Find the package corresponding to selected billing cycle
+            // 'annual' -> PACKAGE_TYPE.ANNUAL, 'monthly' -> PACKAGE_TYPE.MONTHLY
+            // RevenueCat SDK uses 'ANNUAL' and 'MONTHLY' string keys or enum properties
+            const packageTypeToFind = billingCycle === 'annual' ? 'ANNUAL' : 'MONTHLY';
+            const selectedPackage = packages.find(pkg => pkg.packageType === packageTypeToFind) || packages[0];
+
+            if (!selectedPackage) {
+                Alert.alert(
+                    'Error',
+                    'The selected plan is not available at this moment.',
+                    [{ text: 'OK' }]
+                );
+                return;
+            }
+
+            const result = await purchasePackage(selectedPackage);
+            if (result.success) {
+                await updateUser({ isPremium: true });
+                Alert.alert(
+                    'Success',
+                    'Congratulations! Your Premium Access has been unlocked.',
+                    [{ text: 'OK' }]
+                );
+            } else if (result.error && result.error !== 'User cancelled the purchase') {
+                Alert.alert(
+                    'Purchase Failed',
+                    result.error,
+                    [{ text: 'OK' }]
+                );
+            }
+        } catch (error: any) {
+            console.error('Failed upgrading:', error);
+            Alert.alert(
+                'Error',
+                'An unexpected error occurred. Please try again.',
+                [{ text: 'OK' }]
+            );
+        }
     };
 
     const handleHealthKitToggle = async () => {

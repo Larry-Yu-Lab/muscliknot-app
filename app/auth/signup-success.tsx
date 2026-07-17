@@ -5,7 +5,8 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, Dimensions, Easing, Linking, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Animated, Dimensions, Easing, Linking, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { getOfferings, purchasePackage } from '@/utils/purchases';
 
 const { width } = Dimensions.get('window');
 
@@ -200,22 +201,41 @@ export default function SignupSuccessScreen() {
         });
     };
 
-    const STRIPE_TRIAL_URL = 'https://buy.stripe.com/14A28q1Az27p1jcdIx9oc00';
-
     const handleNext = async () => {
         if (step < 2) {
             animateTransition(step + 1);
         } else {
-            // Pass the user's ID as a client_reference_id in the URL to associate the webhook event with this user
-            const checkoutUrl = `${STRIPE_TRIAL_URL}?client_reference_id=${user?.id || ''}`;
-            
             try {
-                await WebBrowser.openBrowserAsync(checkoutUrl);
+                const packages = await getOfferings();
+                if (packages.length > 0) {
+                    // Try to find a monthly/trial package or just the first available one
+                    const trialPackage = packages.find(pkg => pkg.packageType === 'MONTHLY') || packages[0];
+                    if (trialPackage) {
+                        const result = await purchasePackage(trialPackage);
+                        if (result.success) {
+                            Alert.alert(
+                                'Trial Started',
+                                'Your free trial has started successfully!',
+                                [
+                                    {
+                                        text: 'Get Started',
+                                        onPress: () => router.replace('/(tabs)' as any)
+                                    }
+                                ]
+                            );
+                            return;
+                        } else if (result.error && result.error !== 'User cancelled the purchase') {
+                            Alert.alert('Subscription Failed', result.error);
+                        }
+                    }
+                } else {
+                    console.warn('No active packages found in onboarding');
+                }
             } catch (err) {
-                console.error('Failed to open web browser, falling back to Linking:', err);
-                Linking.openURL(checkoutUrl);
+                console.error('Error initiating trial:', err);
             }
             
+            // Navigate to tabs regardless (either they purchased, cancelled, or it failed but they still have basic account)
             router.replace('/(tabs)' as any);
         }
     };

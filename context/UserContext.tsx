@@ -2,6 +2,7 @@ import { supabase } from '@/utils/supabase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useAuth } from './AuthContext';
+import { configurePurchases, checkPremiumStatus, logoutPurchases } from '@/utils/purchases';
 
 // Define the shape of the user data
 export interface UserData {
@@ -57,6 +58,10 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const fetchUserStats = async () => {
             if (authUser) {
                 try {
+                    // Initialize RevenueCat for the logged in user and check premium entitlement
+                    await configurePurchases(authUser.id);
+                    const rcPremium = await checkPremiumStatus();
+
                     // 1. Fetch Stats from Supabase
                     const { data: statsData, error } = await supabase
                         .from('user_stats')
@@ -81,14 +86,22 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
                             injuryRecovery: statsData.injury_recovery ?? 0,
                         } : defaultUser.attributes;
 
+                        const isPremiumActive = (statsData ? statsData.is_premium : false) || rcPremium;
+
                         setUser({
                             name: meta.full_name || 'User',
                             avatarUrl: meta.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(meta.full_name || 'User')}&background=f97316&color=fff`,
                             status: 'DATA-DRIVEN ATHLETE', // could also be DB field
-                            isPremium: statsData ? statsData.is_premium : false,
+                            isPremium: isPremiumActive,
                             stats,
                             attributes,
                         });
+
+                        // Auto-sync database if RevenueCat has premium active but DB doesn't
+                        if (rcPremium && statsData && !statsData.is_premium) {
+                            supabase.from('user_stats').update({ is_premium: true }).eq('user_id', authUser.id).then();
+                            supabase.from('profiles').update({ is_premium: true }).eq('id', authUser.id).then();
+                        }
                     }
                 } catch (e) {
                     console.error('Error fetching user stats:', e);
@@ -122,6 +135,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     }
                 }
             } else {
+                logoutPurchases();
                 if (mounted) {
                     setUser(defaultUser);
                 }
