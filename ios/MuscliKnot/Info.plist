@@ -46,9 +46,9 @@
       <true/>
     </dict>
     <key>NSHealthShareUsageDescription</key>
-    <string>Allow $(PRODUCT_NAME) to check health info</string>
+    <string>MuscliKnot uses your activity data and workouts to accurately calculate muscle fatigue and customize your recovery roadmap.</string>
     <key>NSHealthUpdateUsageDescription</key>
-    <string>Allow $(PRODUCT_NAME) to update health info</string>
+    <string>MuscliKnot will write completed stretching and recovery sessions back to your Health app to keep your fitness profile updated.</string>
     <key>NSUserActivityTypes</key>
     <array>
       <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
