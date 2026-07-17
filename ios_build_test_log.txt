@@ -64125,3 +64125,146 @@ SKIP_BUNDLING enabled; skipping.
 GenerateDSYMFile /Users/larry/Library/Developer/Xcode/DerivedData/MuscliKnot-bnpemtaurqzfezdwwiucdkpkpxte/Build/Products/Debug-iphonesimulator/MuscliKnot.app.dSYM /Users/larry/Library/Developer/Xcode/DerivedData/MuscliKnot-bnpemtaurqzfezdwwiucdkpkpxte/Build/Products/Debug-iphonesimulator/MuscliKnot.app/MuscliKnot.debug.dylib (in target 'MuscliKnot' from project 'MuscliKnot')
     cd /Users/larry/Desktop/Developer/MuscliKnot-App/ios
     /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/dsymutil /Users/larry/Library/Developer/Xcode/DerivedData/MuscliKnot-bnpemtaurqzfezdwwiucdkpkpxte/Build/Products/Debug-iphonesimulator/MuscliKnot.app/MuscliKnot.debug.dylib -o /Users/larry/Library/Developer/Xcode/DerivedData/MuscliKnot-bnpemtaurqzfezdwwiucdkpkpxte/Build/Products/Debug-iphonesimulator/MuscliKnot.app.dSYM
+
+PhaseScriptExecution [CP]\ Copy\ Pods\ Resources /Users/larry/Library/Developer/Xcode/DerivedData/MuscliKnot-bnpemtaurqzfezdwwiucdkpkpxte/Build/Intermediates.noindex/MuscliKnot.build/Debug-iphonesimulator/MuscliKnot.build/Script-800E24972A6A228C8D4807E9.sh (in target 'MuscliKnot' from project 'MuscliKnot')
+    cd /Users/larry/Desktop/Developer/MuscliKnot-App/ios
+    /bin/sh -c /Users/larry/Library/Developer/Xcode/DerivedData/MuscliKnot-bnpemtaurqzfezdwwiucdkpkpxte/Build/Intermediates.noindex/MuscliKnot.build/Debug-iphonesimulator/MuscliKnot.build/Script-800E24972A6A228C8D4807E9.sh
+/Users/larry/Library/Developer/Xcode/DerivedData/MuscliKnot-bnpemtaurqzfezdwwiucdkpkpxte/Build/Products/Debug-iphonesimulator/EXApplication/ExpoApplication_privacy.bundle
+/Users/larry/Library/Developer/Xcode/DerivedData/MuscliKnot-bnpemtaurqzfezdwwiucdkpkpxte/Build/Products/Debug-iphonesimulator/EXConstants/EXConstants.bundle
+/Users/larry/Library/Developer/Xcode/DerivedData/MuscliKnot-bnpemtaurqzfezdwwiucdkpkpxte/Build/Products/Debug-iphonesimulator/EXConstants/ExpoConstants_privacy.bundle
+/Users/larry/Library/Developer/Xcode/DerivedData/MuscliKnot-bnpemtaurqzfezdwwiucdkpkpxte/Build/Products/Debug-iphonesimulator/EXNotifications/ExpoNotifications_privacy.bundle
+/Users/larry/Library/Developer/Xcode/DerivedData/MuscliKnot-bnpemtaurqzfezdwwiucdkpkpxte/Build/Products/Debug-iphonesimulator/ExpoFileSystem/ExpoFileSystem_privacy.bundle
+/Users/larry/Library/Developer/Xcode/DerivedData/MuscliKnot-bnpemtaurqzfezdwwiucdkpkpxte/Build/Products/Debug-iphonesimulator/ExpoSystemUI/ExpoSystemUI_privacy.bundle
+/Users/larry/Library/Developer/Xcode/DerivedData/MuscliKnot-bnpemtaurqzfezdwwiucdkpkpxte/Build/Products/Debug-iphonesimulator/PurchasesHybridCommon/PurchasesHybridCommon.bundle
+/Users/larry/Library/Developer/Xcode/DerivedData/MuscliKnot-bnpemtaurqzfezdwwiucdkpkpxte/Build/Products/Debug-iphonesimulator/RNCAsyncStorage/RNCAsyncStorage_resources.bundle
+/Users/larry/Library/Developer/Xcode/DerivedData/MuscliKnot-bnpemtaurqzfezdwwiucdkpkpxte/Build/Products/Debug-iphonesimulator/RNSVG/RNSVGFilters.bundle
+/Users/larry/Library/Developer/Xcode/DerivedData/MuscliKnot-bnpemtaurqzfezdwwiucdkpkpxte/Build/Products/Debug-iphonesimulator/React-Core/React-Core_privacy.bundle
+/Users/larry/Library/Developer/Xcode/DerivedData/MuscliKnot-bnpemtaurqzfezdwwiucdkpkpxte/Build/Products/Debug-iphonesimulator/React-cxxreact/React-cxxreact_privacy.bundle
+/Users/larry/Library/Developer/Xcode/DerivedData/MuscliKnot-bnpemtaurqzfezdwwiucdkpkpxte/Build/Products/Debug-iphonesimulator/RevenueCat/RevenueCat.bundle
+/Users/larry/Library/Developer/Xcode/DerivedData/MuscliKnot-bnpemtaurqzfezdwwiucdkpkpxte/Build/Products/Debug-iphonesimulator/SDWebImage/SDWebImage.bundle
+Transfer starting: 40 files
+EXConstants.bundle/app.config
+ExpoApplication_privacy.bundle/
+ExpoApplication_privacy.bundle/PrivacyInfo.xcprivacy
+ExpoConstants_privacy.bundle/
+ExpoConstants_privacy.bundle/PrivacyInfo.xcprivacy
+ExpoFileSystem_privacy.bundle/
+ExpoFileSystem_privacy.bundle/PrivacyInfo.xcprivacy
+ExpoNotifications_privacy.bundle/
+ExpoNotifications_privacy.bundle/PrivacyInfo.xcprivacy
+ExpoSystemUI_privacy.bundle/
+ExpoSystemUI_privacy.bundle/PrivacyInfo.xcprivacy
+PurchasesHybridCommon.bundle/
+PurchasesHybridCommon.bundle/Info.plist
+PurchasesHybridCommon.bundle/PrivacyInfo.xcprivacy
+RNCAsyncStorage_resources.bundle/
+RNCAsyncStorage_resources.bundle/PrivacyInfo.xcprivacy
+RNSVGFilters.bundle/
+RNSVGFilters.bundle/RNSVGArithmeticFilter.iphoneos.metallib
+RNSVGFilters.bundle/RNSVGCompositeXor.iphoneos.metallib
+React-Core_privacy.bundle/
+React-Core_privacy.bundle/PrivacyInfo.xcprivacy
+React-cxxreact_privacy.bundle/
+React-cxxreact_privacy.bundle/PrivacyInfo.xcprivacy
+RevenueCat.bundle/
+RevenueCat.bundle/Info.plist
+RevenueCat.bundle/PrivacyInfo.xcprivacy
+SDWebImage.bundle/
+SDWebImage.bundle/PrivacyInfo.xcprivacy
+
+sent 21131 bytes  received 444 bytes  2663580 bytes/sec
+total size is 26211  speedup is 1.21
+
+PhaseScriptExecution [CP]\ Embed\ Pods\ Frameworks /Users/larry/Library/Developer/Xcode/DerivedData/MuscliKnot-bnpemtaurqzfezdwwiucdkpkpxte/Build/Intermediates.noindex/MuscliKnot.build/Debug-iphonesimulator/MuscliKnot.build/Script-A350C72525D4B104DD533BE4.sh (in target 'MuscliKnot' from project 'MuscliKnot')
+    cd /Users/larry/Desktop/Developer/MuscliKnot-App/ios
+    /bin/sh -c /Users/larry/Library/Developer/Xcode/DerivedData/MuscliKnot-bnpemtaurqzfezdwwiucdkpkpxte/Build/Intermediates.noindex/MuscliKnot.build/Debug-iphonesimulator/MuscliKnot.build/Script-A350C72525D4B104DD533BE4.sh
+mkdir -p /Users/larry/Library/Developer/Xcode/DerivedData/MuscliKnot-bnpemtaurqzfezdwwiucdkpkpxte/Build/Products/Debug-iphonesimulator/MuscliKnot.app/Frameworks
+rsync --delete -av --filter P .*.?????? --links --filter "- CVS/" --filter "- .svn/" --filter "- .git/" --filter "- .hg/" --filter "- Headers" --filter "- PrivateHeaders" --filter "- Modules" "/Users/larry/Library/Developer/Xcode/DerivedData/MuscliKnot-bnpemtaurqzfezdwwiucdkpkpxte/Build/Products/Debug-iphonesimulator/XCFrameworkIntermediates/React-Core-prebuilt/React.framework" "/Users/larry/Library/Developer/Xcode/DerivedData/MuscliKnot-bnpemtaurqzfezdwwiucdkpkpxte/Build/Products/Debug-iphonesimulator/MuscliKnot.app/Frameworks"
+Transfer starting: 5 files
+React.framework/
+React.framework/Info.plist
+React.framework/React
+React.framework/_CodeSignature/
+React.framework/_CodeSignature/CodeResources
+
+sent 110391030 bytes  received 98 bytes  280821999 bytes/sec
+total size is 110376991  speedup is 1.00
+rsync --delete -av --filter P .*.?????? --links --filter "- CVS/" --filter "- .svn/" --filter "- .git/" --filter "- .hg/" --filter "- Headers" --filter "- PrivateHeaders" --filter "- Modules" "/Users/larry/Library/Developer/Xcode/DerivedData/MuscliKnot-bnpemtaurqzfezdwwiucdkpkpxte/Build/Products/Debug-iphonesimulator/XCFrameworkIntermediates/ReactNativeDependencies/ReactNativeDependencies.framework" "/Users/larry/Library/Developer/Xcode/DerivedData/MuscliKnot-bnpemtaurqzfezdwwiucdkpkpxte/Build/Products/Debug-iphonesimulator/MuscliKnot.app/Frameworks"
+Transfer starting: 32 files
+ReactNativeDependencies.framework/
+ReactNativeDependencies.framework/Info.plist
+ReactNativeDependencies.framework/ReactNativeDependencies
+ReactNativeDependencies.framework/ReactNativeDependencies_boost.bundle/
+ReactNativeDependencies.framework/ReactNativeDependencies_boost.bundle/Info.plist
+ReactNativeDependencies.framework/ReactNativeDependencies_boost.bundle/PrivacyInfo.xcprivacy
+ReactNativeDependencies.framework/ReactNativeDependencies_boost.bundle/_CodeSignature/
+ReactNativeDependencies.framework/ReactNativeDependencies_boost.bundle/_CodeSignature/CodeDirectory
+ReactNativeDependencies.framework/ReactNativeDependencies_boost.bundle/_CodeSignature/CodeRequirements
+ReactNativeDependencies.framework/ReactNativeDependencies_boost.bundle/_CodeSignature/CodeRequirements-1
+ReactNativeDependencies.framework/ReactNativeDependencies_boost.bundle/_CodeSignature/CodeResources
+ReactNativeDependencies.framework/ReactNativeDependencies_boost.bundle/_CodeSignature/CodeSignature
+ReactNativeDependencies.framework/ReactNativeDependencies_folly.bundle/
+ReactNativeDependencies.framework/ReactNativeDependencies_folly.bundle/Info.plist
+ReactNativeDependencies.framework/ReactNativeDependencies_folly.bundle/PrivacyInfo.xcprivacy
+ReactNativeDependencies.framework/ReactNativeDependencies_folly.bundle/_CodeSignature/
+ReactNativeDependencies.framework/ReactNativeDependencies_folly.bundle/_CodeSignature/CodeDirectory
+ReactNativeDependencies.framework/ReactNativeDependencies_folly.bundle/_CodeSignature/CodeRequirements
+ReactNativeDependencies.framework/ReactNativeDependencies_folly.bundle/_CodeSignature/CodeRequirements-1
+ReactNativeDependencies.framework/ReactNativeDependencies_folly.bundle/_CodeSignature/CodeResources
+ReactNativeDependencies.framework/ReactNativeDependencies_folly.bundle/_CodeSignature/CodeSignature
+ReactNativeDependencies.framework/ReactNativeDependencies_glog.bundle/
+ReactNativeDependencies.framework/ReactNativeDependencies_glog.bundle/Info.plist
+ReactNativeDependencies.framework/ReactNativeDependencies_glog.bundle/PrivacyInfo.xcprivacy
+ReactNativeDependencies.framework/ReactNativeDependencies_glog.bundle/_CodeSignature/
+ReactNativeDependencies.framework/ReactNativeDependencies_glog.bundle/_CodeSignature/CodeDirectory
+ReactNativeDependencies.framework/ReactNativeDependencies_glog.bundle/_CodeSignature/CodeRequirements
+ReactNativeDependencies.framework/ReactNativeDependencies_glog.bundle/_CodeSignature/CodeRequirements-1
+ReactNativeDependencies.framework/ReactNativeDependencies_glog.bundle/_CodeSignature/CodeResources
+ReactNativeDependencies.framework/ReactNativeDependencies_glog.bundle/_CodeSignature/CodeSignature
+ReactNativeDependencies.framework/_CodeSignature/
+ReactNativeDependencies.framework/_CodeSignature/CodeResources
+
+sent 7342574 bytes  received 596 bytes  228759190 bytes/sec
+total size is 7336858  speedup is 1.00
+rsync --delete -av --filter P .*.?????? --links --filter "- CVS/" --filter "- .svn/" --filter "- .git/" --filter "- .hg/" --filter "- Headers" --filter "- PrivateHeaders" --filter "- Modules" "/Users/larry/Library/Developer/Xcode/DerivedData/MuscliKnot-bnpemtaurqzfezdwwiucdkpkpxte/Build/Products/Debug-iphonesimulator/XCFrameworkIntermediates/hermes-engine/Pre-built/hermes.framework" "/Users/larry/Library/Developer/Xcode/DerivedData/MuscliKnot-bnpemtaurqzfezdwwiucdkpkpxte/Build/Products/Debug-iphonesimulator/MuscliKnot.app/Frameworks"
+Transfer starting: 3 files
+deleting hermes.framework/_CodeSignature/CodeResources
+deleting hermes.framework/_CodeSignature/
+hermes.framework/
+hermes.framework/Info.plist
+hermes.framework/hermes
+
+sent 13803625 bytes  received 70 bytes  255151478 bytes/sec
+total size is 13801546  speedup is 1.00
+
+CopySwiftLibs /Users/larry/Library/Developer/Xcode/DerivedData/MuscliKnot-bnpemtaurqzfezdwwiucdkpkpxte/Build/Products/Debug-iphonesimulator/MuscliKnot.app (in target 'MuscliKnot' from project 'MuscliKnot')
+    cd /Users/larry/Desktop/Developer/MuscliKnot-App/ios
+    builtin-swiftStdLibTool --copy --verbose --scan-executable /Users/larry/Library/Developer/Xcode/DerivedData/MuscliKnot-bnpemtaurqzfezdwwiucdkpkpxte/Build/Products/Debug-iphonesimulator/MuscliKnot.app/MuscliKnot.debug.dylib --scan-folder /Users/larry/Library/Developer/Xcode/DerivedData/MuscliKnot-bnpemtaurqzfezdwwiucdkpkpxte/Build/Products/Debug-iphonesimulator/MuscliKnot.app/Frameworks --scan-folder /Users/larry/Library/Developer/Xcode/DerivedData/MuscliKnot-bnpemtaurqzfezdwwiucdkpkpxte/Build/Products/Debug-iphonesimulator/MuscliKnot.app/PlugIns --scan-folder /Users/larry/Library/Developer/Xcode/DerivedData/MuscliKnot-bnpemtaurqzfezdwwiucdkpkpxte/Build/Products/Debug-iphonesimulator/MuscliKnot.app/SystemExtensions --scan-folder /Users/larry/Library/Developer/Xcode/DerivedData/MuscliKnot-bnpemtaurqzfezdwwiucdkpkpxte/Build/Products/Debug-iphonesimulator/MuscliKnot.app/Extensions --platform iphonesimulator --toolchain /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain --destination /Users/larry/Library/Developer/Xcode/DerivedData/MuscliKnot-bnpemtaurqzfezdwwiucdkpkpxte/Build/Products/Debug-iphonesimulator/MuscliKnot.app/Frameworks --strip-bitcode --strip-bitcode-tool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/bitcode_strip --emit-dependency-info /Users/larry/Library/Developer/Xcode/DerivedData/MuscliKnot-bnpemtaurqzfezdwwiucdkpkpxte/Build/Intermediates.noindex/MuscliKnot.build/Debug-iphonesimulator/MuscliKnot.build/SwiftStdLibToolInputDependencies.dep --filter-for-swift-os --back-deploy-swift-span
+Ignoring --strip-bitcode because --sign was not passed
+
+ExtractAppIntentsMetadata (in target 'MuscliKnot' from project 'MuscliKnot')
+    cd /Users/larry/Desktop/Developer/MuscliKnot-App/ios
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/appintentsmetadataprocessor --toolchain-dir /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain --module-name MuscliKnot --sdk-root /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk --xcode-version 17F113 --platform-family iOS --deployment-target 15.1 --bundle-identifier com.muscliknot.app --output /Users/larry/Library/Developer/Xcode/DerivedData/MuscliKnot-bnpemtaurqzfezdwwiucdkpkpxte/Build/Products/Debug-iphonesimulator/MuscliKnot.app --target-triple arm64-apple-ios15.1-simulator --target-triple x86_64-apple-ios15.1-simulator --binary-file /Users/larry/Library/Developer/Xcode/DerivedData/MuscliKnot-bnpemtaurqzfezdwwiucdkpkpxte/Build/Products/Debug-iphonesimulator/MuscliKnot.app/MuscliKnot --dependency-file /Users/larry/Library/Developer/Xcode/DerivedData/MuscliKnot-bnpemtaurqzfezdwwiucdkpkpxte/Build/Intermediates.noindex/MuscliKnot.build/Debug-iphonesimulator/MuscliKnot.build/Objects-normal/arm64/MuscliKnot_dependency_info.dat --dependency-file /Users/larry/Library/Developer/Xcode/DerivedData/MuscliKnot-bnpemtaurqzfezdwwiucdkpkpxte/Build/Intermediates.noindex/MuscliKnot.build/Debug-iphonesimulator/MuscliKnot.build/Objects-normal/x86_64/MuscliKnot_dependency_info.dat --stringsdata-file /Users/larry/Library/Developer/Xcode/DerivedData/MuscliKnot-bnpemtaurqzfezdwwiucdkpkpxte/Build/Intermediates.noindex/MuscliKnot.build/Debug-iphonesimulator/MuscliKnot.build/Objects-normal/arm64/ExtractedAppShortcutsMetadata.stringsdata --stringsdata-file /Users/larry/Library/Developer/Xcode/DerivedData/MuscliKnot-bnpemtaurqzfezdwwiucdkpkpxte/Build/Intermediates.noindex/MuscliKnot.build/Debug-iphonesimulator/MuscliKnot.build/Objects-normal/x86_64/ExtractedAppShortcutsMetadata.stringsdata --source-file-list /Users/larry/Library/Developer/Xcode/DerivedData/MuscliKnot-bnpemtaurqzfezdwwiucdkpkpxte/Build/Intermediates.noindex/MuscliKnot.build/Debug-iphonesimulator/MuscliKnot.build/Objects-normal/arm64/MuscliKnot.SwiftFileList --source-file-list /Users/larry/Library/Developer/Xcode/DerivedData/MuscliKnot-bnpemtaurqzfezdwwiucdkpkpxte/Build/Intermediates.noindex/MuscliKnot.build/Debug-iphonesimulator/MuscliKnot.build/Objects-normal/x86_64/MuscliKnot.SwiftFileList --metadata-file-list /Users/larry/Library/Developer/Xcode/DerivedData/MuscliKnot-bnpemtaurqzfezdwwiucdkpkpxte/Build/Intermediates.noindex/MuscliKnot.build/Debug-iphonesimulator/MuscliKnot.build/MuscliKnot.DependencyMetadataFileList --static-metadata-file-list /Users/larry/Library/Developer/Xcode/DerivedData/MuscliKnot-bnpemtaurqzfezdwwiucdkpkpxte/Build/Intermediates.noindex/MuscliKnot.build/Debug-iphonesimulator/MuscliKnot.build/MuscliKnot.DependencyStaticMetadataFileList --swift-const-vals-list /Users/larry/Library/Developer/Xcode/DerivedData/MuscliKnot-bnpemtaurqzfezdwwiucdkpkpxte/Build/Intermediates.noindex/MuscliKnot.build/Debug-iphonesimulator/MuscliKnot.build/Objects-normal/arm64/MuscliKnot.SwiftConstValuesFileList --swift-const-vals-list /Users/larry/Library/Developer/Xcode/DerivedData/MuscliKnot-bnpemtaurqzfezdwwiucdkpkpxte/Build/Intermediates.noindex/MuscliKnot.build/Debug-iphonesimulator/MuscliKnot.build/Objects-normal/x86_64/MuscliKnot.SwiftConstValuesFileList --compile-time-extraction --deployment-aware-processing --validate-assistant-intents --no-app-shortcuts-localization
+2026-07-17 17:38:45.855 appintentsmetadataprocessor[23025:249560] Starting appintentsmetadataprocessor export
+2026-07-17 17:38:45.860 appintentsmetadataprocessor[23025:249560] warning: Metadata extraction skipped. No AppIntents.framework dependency found.
+
+AppIntentsSSUTraining (in target 'MuscliKnot' from project 'MuscliKnot')
+    cd /Users/larry/Desktop/Developer/MuscliKnot-App/ios
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/appintentsnltrainingprocessor --infoplist-path /Users/larry/Library/Developer/Xcode/DerivedData/MuscliKnot-bnpemtaurqzfezdwwiucdkpkpxte/Build/Products/Debug-iphonesimulator/MuscliKnot.app/Info.plist --temp-dir-path /Users/larry/Library/Developer/Xcode/DerivedData/MuscliKnot-bnpemtaurqzfezdwwiucdkpkpxte/Build/Intermediates.noindex/MuscliKnot.build/Debug-iphonesimulator/MuscliKnot.build/ssu --bundle-id com.muscliknot.app --product-path /Users/larry/Library/Developer/Xcode/DerivedData/MuscliKnot-bnpemtaurqzfezdwwiucdkpkpxte/Build/Products/Debug-iphonesimulator/MuscliKnot.app --extracted-metadata-path /Users/larry/Library/Developer/Xcode/DerivedData/MuscliKnot-bnpemtaurqzfezdwwiucdkpkpxte/Build/Products/Debug-iphonesimulator/MuscliKnot.app/Metadata.appintents --metadata-file-list /Users/larry/Library/Developer/Xcode/DerivedData/MuscliKnot-bnpemtaurqzfezdwwiucdkpkpxte/Build/Intermediates.noindex/MuscliKnot.build/Debug-iphonesimulator/MuscliKnot.build/MuscliKnot.DependencyMetadataFileList --source-file /Users/larry/Library/Developer/Xcode/DerivedData/MuscliKnot-bnpemtaurqzfezdwwiucdkpkpxte/Build/Products/Debug-iphonesimulator/MuscliKnot.app/Info.plist --archive-ssu-assets
+2026-07-17 17:38:45.877 appintentsnltrainingprocessor[23026:249576] Parsing options for appintentsnltrainingprocessor
+2026-07-17 17:38:45.877 appintentsnltrainingprocessor[23026:249576] Starting AppIntents SSU YAML Generation
+2026-07-17 17:38:45.881 appintentsnltrainingprocessor[23026:249576] No AppShortcuts found - Skipping.
+
+Validate /Users/larry/Library/Developer/Xcode/DerivedData/MuscliKnot-bnpemtaurqzfezdwwiucdkpkpxte/Build/Products/Debug-iphonesimulator/MuscliKnot.app (in target 'MuscliKnot' from project 'MuscliKnot')
+    cd /Users/larry/Desktop/Developer/MuscliKnot-App/ios
+    builtin-validationUtility /Users/larry/Library/Developer/Xcode/DerivedData/MuscliKnot-bnpemtaurqzfezdwwiucdkpkpxte/Build/Products/Debug-iphonesimulator/MuscliKnot.app -shallow-bundle -infoplist-subpath Info.plist
+
+note: Run script build phase '[CP-User] Generate app.config for prebuilt Constants.manifest' will be run during every build because the option to run the script phase "Based on dependency analysis" is unchecked. (in target 'EXConstants' from project 'Pods')
+/Users/larry/Desktop/Developer/MuscliKnot-App/ios/Pods/Pods.xcodeproj: warning: The iOS Simulator deployment target 'IPHONEOS_DEPLOYMENT_TARGET' is set to 9.0, but the range of supported deployment target versions is 12.0 to 26.5.99. (in target 'SDWebImage-SDWebImage' from project 'Pods')
+note: Run script build phase '[Expo] Configure project' will be run during every build because the option to run the script phase "Based on dependency analysis" is unchecked. (in target 'MuscliKnot' from project 'MuscliKnot')
+note: Run script build phase 'Bundle React Native code and images' will be run during every build because the option to run the script phase "Based on dependency analysis" is unchecked. (in target 'MuscliKnot' from project 'MuscliKnot')
+warning: Run script build phase '[CP-User] [Hermes] Replace Hermes for the right configuration, if needed' will be run during every build because it does not specify any outputs. To address this issue, either add output dependencies to the script phase, or configure it to run in every build by unchecking "Based on dependency analysis" in the script phase. (in target 'hermes-engine' from project 'Pods')
+note: Run script build phase '[CP-User] [RNDeps] Replace React Native Dependencies for the right configuration, if needed' will be run during every build because the option to run the script phase "Based on dependency analysis" is unchecked. (in target 'ReactNativeDependencies' from project 'Pods')
+note: Run script build phase '[CP-User] [RN]Check FBReactNativeSpec' will be run during every build because the option to run the script phase "Based on dependency analysis" is unchecked. (in target 'React-RCTFBReactNativeSpec' from project 'Pods')
+** BUILD SUCCEEDED **
+
