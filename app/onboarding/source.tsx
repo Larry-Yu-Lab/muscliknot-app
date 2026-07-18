@@ -8,16 +8,16 @@ import React, { useState } from 'react';
 import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 const OPTIONS = [
-    { id: 'tiktok', label: 'TikTok', icon: 'logo-tiktok' },
-    { id: 'youtube', label: 'YouTube', icon: 'logo-youtube' },
-    { id: 'instagram', label: 'Instagram', icon: 'logo-instagram' },
-    { id: 'facebook', label: 'Facebook', icon: 'logo-facebook' },
-    { id: 'x', label: 'X', icon: 'logo-x' },
-    { id: 'google', label: 'Google Search', icon: 'logo-google' },
-    { id: 'tv', label: 'TV', icon: 'tv-outline' },
-    { id: 'friends_family', label: 'Friends or Family', icon: 'people-outline' },
-    { id: 'app_store', label: 'App Store', icon: 'logo-apple-appstore' },
-    { id: 'other', label: 'Other', icon: 'ellipsis-horizontal-outline' },
+    { id: 'tiktok', labelKey: 'srcTiktok', icon: 'logo-tiktok' },
+    { id: 'youtube', labelKey: 'srcYoutube', icon: 'logo-youtube' },
+    { id: 'instagram', labelKey: 'srcInstagram', icon: 'logo-instagram' },
+    { id: 'facebook', labelKey: 'srcFacebook', icon: 'logo-facebook' },
+    { id: 'x', labelKey: 'srcX', icon: 'logo-x' },
+    { id: 'google', labelKey: 'srcGoogle', icon: 'logo-google' },
+    { id: 'tv', labelKey: 'srcTv', icon: 'tv-outline' },
+    { id: 'friends_family', labelKey: 'srcFriends', icon: 'people-outline' },
+    { id: 'app_store', labelKey: 'srcAppStore', icon: 'logo-apple-appstore' },
+    { id: 'other', labelKey: 'srcOther', icon: 'ellipsis-horizontal-outline' },
 ];
 
 export default function SourceScreen() {
@@ -47,8 +47,8 @@ export default function SourceScreen() {
             </View>
 
             <ScrollView style={styles.content} contentContainerStyle={{ paddingBottom: 190 }} showsVerticalScrollIndicator={false}>
-                <Text style={styles.title}>Where did you hear about us?</Text>
-                <Text style={styles.subtitle}>Let us know how you found MuscliKnot.</Text>
+                <Text style={styles.title}>{t('whereDidYouHear')}</Text>
+                <Text style={styles.subtitle}>{t('letUsKnowHowFound')}</Text>
                 
                 <View style={styles.optionsContainer}>
                     {OPTIONS.map((option) => (
@@ -69,7 +69,7 @@ export default function SourceScreen() {
                             <Text style={[
                                 styles.optionTitle,
                                 selected === option.id && { color: '#f97316' }
-                            ]}>{option.label}</Text>
+                            ]}>{t(option.labelKey as any)}</Text>
                         </TouchableOpacity>
                     ))}
                 </View>

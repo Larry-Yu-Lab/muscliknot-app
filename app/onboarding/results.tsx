@@ -31,8 +31,8 @@ export default function ResultsScreen() {
             </View>
 
             <View style={styles.content}>
-                <Text style={styles.title}>MuscliKnot creates long-term results.</Text>
-                <Text style={styles.subtitle}>See the difference between our targeted approach and traditional methods over time.</Text>
+                <Text style={styles.title}>{t('resultsTitle')}</Text>
+                <Text style={styles.subtitle}>{t('resultsSubtitle')}</Text>
                 
                 <View style={styles.graphContainer}>
                     <Svg 
@@ -46,8 +46,8 @@ export default function ResultsScreen() {
                         <Line x1="40" y1="210" x2="280" y2="210" stroke="#555" strokeWidth="2" />
                         
                         {/* Labels */}
-                        <SvgText x="10" y="115" fill="#888" fontSize="12" originX="10" originY="115" rotation="-90" textAnchor="middle">Pain / Tension</SvgText>
-                        <SvgText x="160" y="235" fill="#888" fontSize="12" textAnchor="middle">Time (Weeks)</SvgText>
+                        <SvgText x="10" y="115" fill="#888" fontSize="12" originX="10" originY="115" rotation="-90" textAnchor="middle">{t('painTensionLabel')}</SvgText>
+                        <SvgText x="160" y="235" fill="#888" fontSize="12" textAnchor="middle">{t('timeWeeksLabel')}</SvgText>
 
                         {/* Traditional Methods Line (oscillating high) */}
                         <Path d="M 40 80 Q 70 40 100 90 T 160 70 T 220 100 T 280 60" fill="none" stroke="#888" strokeWidth="3" strokeDasharray="5,5" />
@@ -62,11 +62,11 @@ export default function ResultsScreen() {
                     <View style={styles.legendContainer}>
                         <View style={styles.legendItem}>
                             <View style={[styles.legendIndicator, { backgroundColor: '#f97316' }]} />
-                            <Text style={styles.legendText}>MuscliKnot</Text>
+                            <Text style={styles.legendText}>{t('muscliknotLegend')}</Text>
                         </View>
                         <View style={styles.legendItem}>
                             <View style={[styles.legendIndicator, { backgroundColor: '#888' }]} />
-                            <Text style={styles.legendText}>Traditional Methods</Text>
+                            <Text style={styles.legendText}>{t('traditionalLegend')}</Text>
                         </View>
                     </View>
                 </View>

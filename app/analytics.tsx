@@ -52,9 +52,9 @@ export default function AnalyticsScreen() {
                     </View>
                 </View>
                 
-                <Text style={[styles.lockScreenTitle, { color: colors.text }]}>Elite Analytics</Text>
+                <Text style={[styles.lockScreenTitle, { color: colors.text }]}>{t('analyticsLockTitle')}</Text>
                 <Text style={[styles.lockScreenSubtitle, { color: colors.textSecondary }]}>
-                    Unlock detailed pain projection timelines, muscle group intensity tracking, and full weekly metrics.
+                    {t('analyticsLockSubtitle')}
                 </Text>
 
                 <View style={styles.bulletList}>
@@ -62,19 +62,19 @@ export default function AnalyticsScreen() {
                         <View style={[styles.bulletCheck, { backgroundColor: colors.accent + '15' }]}>
                             <Ionicons name="checkmark" size={14} color={colors.accent} />
                         </View>
-                        <Text style={[styles.bulletText, { color: colors.text }]}>Daily stretch & session counters</Text>
+                        <Text style={[styles.bulletText, { color: colors.text }]}>{t('analyticsLockBullet1')}</Text>
                     </View>
                     <View style={styles.bulletRow}>
                         <View style={[styles.bulletCheck, { backgroundColor: colors.accent + '15' }]}>
                             <Ionicons name="checkmark" size={14} color={colors.accent} />
                         </View>
-                        <Text style={[styles.bulletText, { color: colors.text }]}>Multi-zone pain levels graph</Text>
+                        <Text style={[styles.bulletText, { color: colors.text }]}>{t('analyticsLockBullet2')}</Text>
                     </View>
                     <View style={styles.bulletRow}>
                         <View style={[styles.bulletCheck, { backgroundColor: colors.accent + '15' }]}>
                             <Ionicons name="checkmark" size={14} color={colors.accent} />
                         </View>
-                        <Text style={[styles.bulletText, { color: colors.text }]}>Stiffness and recovery score tracking</Text>
+                        <Text style={[styles.bulletText, { color: colors.text }]}>{t('analyticsLockBullet3')}</Text>
                     </View>
                 </View>
 
@@ -83,7 +83,7 @@ export default function AnalyticsScreen() {
                     onPress={() => router.push('/auth/signup-success' as any)}
                     activeOpacity={0.85}
                 >
-                    <Text style={styles.lockScreenButtonText}>Start 14-Day Free Trial</Text>
+                    <Text style={styles.lockScreenButtonText}>{t('startFreeTrial')}</Text>
                 </TouchableOpacity>
             </SafeAreaView>
         );
@@ -252,7 +252,7 @@ export default function AnalyticsScreen() {
                 {/* Insights Section */}
                 <View style={[styles.glassCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
                     <View style={styles.cardHeader}>
-                        <Text style={[styles.cardTitle, { color: colors.text }]}>Insights</Text>
+                        <Text style={[styles.cardTitle, { color: colors.text }]}>{t('insights')}</Text>
                         <MaterialCommunityIcons name="lightbulb-on-outline" size={20} color={colors.accent} />
                     </View>
                     <View style={styles.insightsList}>

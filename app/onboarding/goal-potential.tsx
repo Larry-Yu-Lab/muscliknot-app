@@ -45,23 +45,17 @@ export default function GoalPotentialScreen() {
     };
 
     const getCardTitle = () => {
-        if (goalId === 'relieve_pain') return 'Your pain projection';
-        if (goalId === 'improve_mobility') return 'Your mobility projection';
-        if (goalId === 'daily_maintenance') return 'Your wellness trajectory';
-        return 'Your recovery trajectory';
+        if (goalId === 'relieve_pain') return t('potCardPain');
+        if (goalId === 'improve_mobility') return t('potCardMobility');
+        if (goalId === 'daily_maintenance') return t('potCardWellness');
+        return t('potCardDefault');
     };
 
     const getCardDesc = () => {
-        if (goalId === 'relieve_pain') {
-            return "Based on MuscliKnot's historical data, pain relief is usually gradual at first, but after 7 days of consistency, you can significantly reduce soreness!";
-        }
-        if (goalId === 'improve_mobility') {
-            return "Based on MuscliKnot's historical data, mobility gains are usually subtle at first, but after 7 days of consistency, you will feel noticeably looser and more flexible!";
-        }
-        if (goalId === 'daily_maintenance') {
-            return "Based on MuscliKnot's historical data, habit building is usually slow at first, but after 7 days of consistency, your routine becomes second nature!";
-        }
-        return "Based on MuscliKnot's historical data, muscle relief is usually gradual at first, but after 7 days of consistency, your dedication will help you crush your goal!";
+        if (goalId === 'relieve_pain') return t('potDescPain');
+        if (goalId === 'improve_mobility') return t('potDescMobility');
+        if (goalId === 'daily_maintenance') return t('potDescWellness');
+        return t('potDescDefault');
     };
 
     return (
@@ -147,10 +141,10 @@ export default function GoalPotentialScreen() {
                         </View>
 
                         {/* X-Axis labels absolute positioned relative to chartContainer */}
-                        <Text style={[styles.axisLabel, { left: 4 }]}>Start</Text>
-                        <Text style={[styles.axisLabel, { left: 66 }]}>3 Days</Text>
-                        <Text style={[styles.axisLabel, { left: 126 }]}>7 Days</Text>
-                        <Text style={[styles.axisLabel, { left: 202 }]}>30 Days</Text>
+                        <Text style={[styles.axisLabel, { left: 4 }]}>{t('axisStart')}</Text>
+                        <Text style={[styles.axisLabel, { left: 66 }]}>{t('axis3Days')}</Text>
+                        <Text style={[styles.axisLabel, { left: 126 }]}>{t('axis7Days')}</Text>
+                        <Text style={[styles.axisLabel, { left: 202 }]}>{t('axis30Days')}</Text>
                     </View>
 
                     {/* Explanatory text under chart */}

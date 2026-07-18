@@ -323,9 +323,9 @@ export default function WarmUpScreen() {
                         </View>
                     </View>
                     
-                    <Text style={[styles.lockScreenTitle, { color: colors.text }]}>Elite Warm-Ups</Text>
+                    <Text style={[styles.lockScreenTitle, { color: colors.text }]}>{t('warmUpLockTitle')}</Text>
                     <Text style={[styles.lockScreenSubtitle, { color: colors.textSecondary }]}>
-                        Get pre-workout routines dynamically generated around your active pain zones, injuries, and recovery phases.
+                        {t('warmUpLockSubtitle')}
                     </Text>
 
                     <View style={styles.bulletList}>
@@ -333,19 +333,19 @@ export default function WarmUpScreen() {
                             <View style={[styles.bulletCheck, { backgroundColor: colors.accent + '15' }]}>
                                 <Ionicons name="checkmark" size={14} color={colors.accent} />
                             </View>
-                            <Text style={[styles.bulletText, { color: colors.text }]}>Tailored to your daily pain profile</Text>
+                            <Text style={[styles.bulletText, { color: colors.text }]}>{t('warmUpLockBullet1')}</Text>
                         </View>
                         <View style={styles.bulletRow}>
                             <View style={[styles.bulletCheck, { backgroundColor: colors.accent + '15' }]}>
                                 <Ionicons name="checkmark" size={14} color={colors.accent} />
                             </View>
-                            <Text style={[styles.bulletText, { color: colors.text }]}>Prevents further joint and muscle injuries</Text>
+                            <Text style={[styles.bulletText, { color: colors.text }]}>{t('warmUpLockBullet2')}</Text>
                         </View>
                         <View style={styles.bulletRow}>
                             <View style={[styles.bulletCheck, { backgroundColor: colors.accent + '15' }]}>
                                 <Ionicons name="checkmark" size={14} color={colors.accent} />
                             </View>
-                            <Text style={[styles.bulletText, { color: colors.text }]}>Adaptive coaching guidelines</Text>
+                            <Text style={[styles.bulletText, { color: colors.text }]}>{t('warmUpLockBullet3')}</Text>
                         </View>
                     </View>
 
@@ -354,7 +354,7 @@ export default function WarmUpScreen() {
                         onPress={() => router.push('/auth/signup-success' as any)}
                         activeOpacity={0.85}
                     >
-                        <Text style={styles.lockScreenButtonText}>Start 14-Day Free Trial</Text>
+                        <Text style={styles.lockScreenButtonText}>{t('startFreeTrial')}</Text>
                     </TouchableOpacity>
                 </View>
             </SafeAreaView>

@@ -90,8 +90,8 @@ export default function VitalsScreen() {
             </View>
 
             <View style={styles.content}>
-                <Text style={styles.title}>Height & Weight</Text>
-                <Text style={styles.subtitle}>This helps us personalize your recovery and exercise plans.</Text>
+                <Text style={styles.title}>{t('vitalsTitle')}</Text>
+                <Text style={styles.subtitle}>{t('vitalsSubtitle')}</Text>
                 
                 {/* Imperial / Metric Toggle */}
                 <View style={styles.toggleContainer}>
@@ -99,20 +99,20 @@ export default function VitalsScreen() {
                         style={[styles.toggleButton, isImperial && styles.toggleActive]} 
                         onPress={() => setIsImperial(true)}
                     >
-                        <Text style={[styles.toggleText, isImperial && styles.toggleTextActive]}>Imperial</Text>
+                        <Text style={[styles.toggleText, isImperial && styles.toggleTextActive]}>{t('imperialToggle')}</Text>
                     </TouchableOpacity>
                     <TouchableOpacity 
                         style={[styles.toggleButton, !isImperial && styles.toggleActive]} 
                         onPress={() => setIsImperial(false)}
                     >
-                        <Text style={[styles.toggleText, !isImperial && styles.toggleTextActive]}>Metric</Text>
+                        <Text style={[styles.toggleText, !isImperial && styles.toggleTextActive]}>{t('metricToggle')}</Text>
                     </TouchableOpacity>
                 </View>
 
                 {/* Rollers Side by Side */}
                 <View style={styles.rollersRow}>
                     <View style={styles.rollerCol}>
-                        <Text style={styles.rollerLabel}>Height</Text>
+                        <Text style={styles.rollerLabel}>{t('heightLabel')}</Text>
                         <Roller 
                             data={isImperial ? IMPERIAL_HEIGHTS : METRIC_HEIGHTS} 
                             selectedValue={isImperial ? impHeight : metHeight} 
@@ -120,7 +120,7 @@ export default function VitalsScreen() {
                         />
                     </View>
                     <View style={styles.rollerCol}>
-                        <Text style={styles.rollerLabel}>Weight</Text>
+                        <Text style={styles.rollerLabel}>{t('weightLabel')}</Text>
                         <Roller 
                             data={isImperial ? IMPERIAL_WEIGHTS : METRIC_WEIGHTS} 
                             selectedValue={isImperial ? impWeight : metWeight} 

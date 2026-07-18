@@ -328,9 +328,9 @@ export default function StrengthenScreen() {
                         </View>
                     </View>
                     
-                    <Text style={[styles.lockScreenTitle, { color: colors.text }]}>Elite Strengthening</Text>
+                    <Text style={[styles.lockScreenTitle, { color: colors.text }]}>{t('strengthenLockTitle')}</Text>
                     <Text style={[styles.lockScreenSubtitle, { color: colors.textSecondary }]}>
-                        Unlock custom, targeted muscle strengthening routines designed to rebuild tissue, stabilize weak joints, and avoid future pain.
+                        {t('strengthenLockSubtitle')}
                     </Text>
 
                     <View style={styles.bulletList}>
@@ -338,19 +338,19 @@ export default function StrengthenScreen() {
                             <View style={[styles.bulletCheck, { backgroundColor: (colors.accent || accentColor) + '15' }]}>
                                 <Ionicons name="checkmark" size={14} color={colors.accent || accentColor} />
                             </View>
-                            <Text style={[styles.bulletText, { color: colors.text }]}>Hyper-targeted progressive overload</Text>
+                            <Text style={[styles.bulletText, { color: colors.text }]}>{t('strengthenLockBullet1')}</Text>
                         </View>
                         <View style={styles.bulletRow}>
                             <View style={[styles.bulletCheck, { backgroundColor: (colors.accent || accentColor) + '15' }]}>
                                 <Ionicons name="checkmark" size={14} color={colors.accent || accentColor} />
                             </View>
-                            <Text style={[styles.bulletText, { color: colors.text }]}>Stabilizes ligaments and joints</Text>
+                            <Text style={[styles.bulletText, { color: colors.text }]}>{t('strengthenLockBullet2')}</Text>
                         </View>
                         <View style={styles.bulletRow}>
                             <View style={[styles.bulletCheck, { backgroundColor: (colors.accent || accentColor) + '15' }]}>
                                 <Ionicons name="checkmark" size={14} color={colors.accent || accentColor} />
                             </View>
-                            <Text style={[styles.bulletText, { color: colors.text }]}>Rebuilds muscle endurance over time</Text>
+                            <Text style={[styles.bulletText, { color: colors.text }]}>{t('strengthenLockBullet3')}</Text>
                         </View>
                     </View>
 
@@ -359,7 +359,7 @@ export default function StrengthenScreen() {
                         onPress={() => router.push('/auth/signup-success' as any)}
                         activeOpacity={0.85}
                     >
-                        <Text style={styles.lockScreenButtonText}>Start 14-Day Free Trial</Text>
+                        <Text style={styles.lockScreenButtonText}>{t('startFreeTrial')}</Text>
                     </TouchableOpacity>
                 </View>
             </SafeAreaView>

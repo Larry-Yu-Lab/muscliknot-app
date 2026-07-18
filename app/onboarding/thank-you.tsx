@@ -46,10 +46,10 @@ export default function ThankYouScreen() {
                 {/* Thank You Message */}
                 <View style={styles.textContainer}>
                     <Text style={styles.title}>
-                        Thank you for trusting us
+                        {t('thankYouTitle')}
                     </Text>
                     <Text style={styles.subtitle}>
-                        We are fully committed to providing you with the most effective, personalized, and scientific guidance to keep you active and pain-free.
+                        {t('thankYouSubtitle')}
                     </Text>
                 </View>
             </View>

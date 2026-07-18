@@ -488,7 +488,7 @@ export default function RegisterScreen() {
                         {/* Divider */}
                         <View style={styles.dividerContainer}>
                             <View style={styles.dividerLine} />
-                            <Text style={styles.dividerText}>OR</Text>
+                            <Text style={styles.dividerText}>{t('or')}</Text>
                             <View style={styles.dividerLine} />
                         </View>
 
@@ -500,11 +500,11 @@ export default function RegisterScreen() {
                         >
                             <View style={styles.googleButtonContent}>
                                 <Ionicons name="logo-google" size={20} color="#fff" style={styles.googleIcon} />
-                                <Text style={styles.googleButtonText}>Sign up with Google</Text>
+                                <Text style={styles.googleButtonText}>{t('signUpWithGoogle')}</Text>
                             </View>
                             {/* Popular Badge */}
                             <View style={styles.popularBadge}>
-                                <Text style={styles.popularBadgeText}>POPULAR</Text>
+                                <Text style={styles.popularBadgeText}>{t('popular')}</Text>
                             </View>
                         </TouchableOpacity>
 

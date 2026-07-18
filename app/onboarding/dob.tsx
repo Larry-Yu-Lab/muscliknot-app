@@ -73,8 +73,8 @@ export default function DOBScreen() {
 
         if (age <= 10) {
             Alert.alert(
-                "Age Restriction",
-                "You must be older than 10 to use MuscliKnot.",
+                t('ageRestrictionTitle'),
+                t('ageRestrictionMsg'),
                 [{ text: "OK" }]
             );
             return;
@@ -99,12 +99,12 @@ export default function DOBScreen() {
             </View>
 
             <View style={styles.content}>
-                <Text style={styles.title}>When were you born?</Text>
-                <Text style={styles.subtitle}>Age helps us refine muscle recovery predictions.</Text>
+                <Text style={styles.title}>{t('dobTitle')}</Text>
+                <Text style={styles.subtitle}>{t('dobSubtitle')}</Text>
                 
                 <View style={styles.rollersRow}>
                     <View style={styles.rollerCol}>
-                        <Text style={styles.rollerLabel}>Month</Text>
+                        <Text style={styles.rollerLabel}>{t('monthLabel')}</Text>
                         <Roller 
                             data={MONTHS} 
                             selectedValue={month} 
@@ -112,7 +112,7 @@ export default function DOBScreen() {
                         />
                     </View>
                     <View style={styles.rollerCol}>
-                        <Text style={styles.rollerLabel}>Day</Text>
+                        <Text style={styles.rollerLabel}>{t('dayLabel')}</Text>
                         <Roller 
                             data={DAYS} 
                             selectedValue={day} 
@@ -120,7 +120,7 @@ export default function DOBScreen() {
                         />
                     </View>
                     <View style={styles.rollerCol}>
-                        <Text style={styles.rollerLabel}>Year</Text>
+                        <Text style={styles.rollerLabel}>{t('yearLabel')}</Text>
                         <Roller 
                             data={YEARS} 
                             selectedValue={year} 

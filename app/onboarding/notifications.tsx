@@ -83,11 +83,11 @@ export default function NotificationsScreen() {
                 <View style={styles.mockNotification}>
                     <View style={styles.mockHeader}>
                         <Ionicons name="flash" size={16} color="#f97316" style={{ marginRight: 6 }} />
-                        <Text style={styles.mockAppName}>MuscliKnot</Text>
-                        <Text style={styles.mockTime}>now</Text>
+                        <Text style={styles.mockAppName}>{t('notifMockAppName')}</Text>
+                        <Text style={styles.mockTime}>{t('notifMockTime')}</Text>
                     </View>
-                    <Text style={styles.mockTitle}>Your personalized relief session is ready!</Text>
-                    <Text style={styles.mockBody}>Perform a 5-minute Neck Release to alleviate stiffness from sitting today. ⏱️</Text>
+                    <Text style={styles.mockTitle}>{t('notifMockTitle')}</Text>
+                    <Text style={styles.mockBody}>{t('notifMockBody')}</Text>
                 </View>
             </View>
 
@@ -97,7 +97,7 @@ export default function NotificationsScreen() {
                     style={styles.button}
                     onPress={handleEnable}
                 >
-                    <Text style={styles.buttonText}>Enable Notifications</Text>
+                    <Text style={styles.buttonText}>{t('notifBtnText')}</Text>
                 </TouchableOpacity>
 
             </View>

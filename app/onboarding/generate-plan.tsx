@@ -13,7 +13,10 @@ export default function GeneratePlanScreen() {
     const colors = Colors[theme];
 
     const [progress, setProgress] = useState(0);
-    const [statusText, setStatusText] = useState('Analyzing your goals...');
+    const [statusText, setStatusText] = useState('');
+    useEffect(() => {
+        setStatusText(t('analyzingGoals'));
+    }, [language]);
     const [isComplete, setIsComplete] = useState(false);
 
     const t = (key: Parameters<typeof getTranslation>[1]) => getTranslation(language, key);
@@ -25,14 +28,14 @@ export default function GeneratePlanScreen() {
             if (currentProgress >= 100) {
                 currentProgress = 100;
                 setIsComplete(true);
-                setStatusText('Plan successfully generated!');
+                setStatusText(t('planGenerated'));
                 clearInterval(interval);
             } else if (currentProgress >= 75) {
-                setStatusText('Finalizing your custom plan...');
+                setStatusText(t('finalizingPlan'));
             } else if (currentProgress >= 50) {
-                setStatusText('Configuring equipment presets...');
+                setStatusText(t('configuringEquipment'));
             } else if (currentProgress >= 25) {
-                setStatusText('Customizing recovery routines...');
+                setStatusText(t('customizingRoutines'));
             }
             setProgress(currentProgress);
         }, 150);
@@ -80,7 +83,7 @@ export default function GeneratePlanScreen() {
                 {/* Progress Text & Loading Bar */}
                 <View style={styles.textContainer}>
                     <Text style={styles.title}>
-                        {isComplete ? "Plan Generated!" : "Time to generate your custom plan"}
+                        {isComplete ? t('planGenerated') : t('generatingCustomPlan')}
                     </Text>
                     
                     {/* Inline Progress Bar */}
@@ -103,7 +106,7 @@ export default function GeneratePlanScreen() {
                     disabled={!isComplete}
                 >
                     <Text style={styles.buttonText}>
-                        {isComplete ? "Access My Plan" : "Generating..."}
+                        {isComplete ? t('accessMyPlan') : t('generating')}
                     </Text>
                 </TouchableOpacity>
             </View>

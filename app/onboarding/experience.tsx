@@ -8,8 +8,8 @@ import React, { useState } from 'react';
 import { SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 const OPTIONS = [
-    { id: 'yes', label: 'Yes' },
-    { id: 'no', label: 'No' },
+    { id: 'yes', labelKey: 'optYes' },
+    { id: 'no', labelKey: 'optNo' },
 ];
 
 export default function ExperienceScreen() {
@@ -39,8 +39,8 @@ export default function ExperienceScreen() {
             </View>
 
             <View style={styles.content}>
-                <Text style={styles.title}>Have you tried other muscle care apps?</Text>
-                <Text style={styles.subtitle}>Tell us about your previous experience to help us personalize your journey.</Text>
+                <Text style={styles.title}>{t('experienceTitle')}</Text>
+                <Text style={styles.subtitle}>{t('experienceSubtitle')}</Text>
                 
                 <View style={styles.optionsContainer}>
                     {OPTIONS.map((option) => (
@@ -52,7 +52,7 @@ export default function ExperienceScreen() {
                             ]}
                             onPress={() => setSelected(option.id)}
                         >
-                            <Text style={styles.optionTitle}>{option.label}</Text>
+                            <Text style={styles.optionTitle}>{t(option.labelKey as any)}</Text>
                         </TouchableOpacity>
                     ))}
                 </View>

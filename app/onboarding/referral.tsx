@@ -31,8 +31,8 @@ export default function ReferralScreen() {
                 const tierName = tiers[trimmedCode];
                 await AsyncStorage.setItem('user_referral_code', trimmedCode);
                 Alert.alert(
-                    "Code Accepted!",
-                    `Valid referral code. ${tierName} Premium Access has been unlocked for your account!`,
+                    t('codeAcceptedTitle'),
+                    t('codeAcceptedMsg').replace('${tierName}', tierName),
                     [
                         { 
                             text: "Awesome", 
@@ -42,10 +42,10 @@ export default function ReferralScreen() {
                 );
             } else {
                 Alert.alert(
-                    "Invalid Code",
-                    "The code you entered is invalid. Please check the spelling or enter a different code.",
+                    t('invalidCodeTitle'),
+                    t('invalidCodeMsg'),
                     [
-                        { text: "Try Again" }
+                        { text: t('tryAgain') }
                     ]
                 );
             }
@@ -87,10 +87,10 @@ export default function ReferralScreen() {
                     {/* Title & Description */}
                     <View style={styles.textContainer}>
                         <Text style={styles.title}>
-                            Enter referral code
+                            {t('enterReferralCode')}
                         </Text>
                         <Text style={styles.subtitle}>
-                            If you were referred by a friend, coach, or gym partner, enter their code here (optional).
+                            {t('referralExplanation')}
                         </Text>
                     </View>
 
@@ -115,7 +115,7 @@ export default function ReferralScreen() {
                         style={styles.button}
                         onPress={handleContinue}
                     >
-                        <Text style={styles.buttonText}>Continue</Text>
+                        <Text style={styles.buttonText}>{t('continue')}</Text>
                     </TouchableOpacity>
                 </View>
             </KeyboardAvoidingView>

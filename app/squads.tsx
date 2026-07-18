@@ -93,14 +93,14 @@ function JoinOrCreateView({
                             onPress={() => setMode('create')}
                         >
                             <Ionicons name="add-circle-outline" size={20} color="#000" />
-                            <Text style={styles.primaryBtnText}>Create Squad</Text>
+                            <Text style={styles.primaryBtnText}>{t('createSquad')}</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
                             style={[styles.outlineBtn, { borderColor: colors.accent }]}
                             onPress={() => setMode('join')}
                         >
                             <Ionicons name="enter-outline" size={20} color={colors.accent} />
-                            <Text style={[styles.outlineBtnText, { color: colors.accent }]}>Join with Code</Text>
+                            <Text style={[styles.outlineBtnText, { color: colors.accent }]}>{t('joinWithCode')}</Text>
                         </TouchableOpacity>
                     </View>
                 )}
@@ -121,7 +121,7 @@ function JoinOrCreateView({
                                 style={[styles.cancelBtn, { borderColor: colors.cardBorder }]}
                                 onPress={() => { setMode('idle'); setName(''); }}
                             >
-                                <Text style={[styles.cancelBtnText, { color: colors.textSecondary }]}>Cancel</Text>
+                                <Text style={[styles.cancelBtnText, { color: colors.textSecondary }]}>{t('cancel')}</Text>
                             </TouchableOpacity>
                             <TouchableOpacity
                                 style={[styles.primaryBtn, { backgroundColor: colors.accent, flex: 1 }]}
@@ -133,7 +133,7 @@ function JoinOrCreateView({
                                 ) : (
                                     <>
                                         <Ionicons name="add" size={18} color="#000" />
-                                        <Text style={styles.primaryBtnText}>Create</Text>
+                                        <Text style={styles.primaryBtnText}>{t('create')}</Text>
                                     </>
                                 )}
                             </TouchableOpacity>
@@ -158,7 +158,7 @@ function JoinOrCreateView({
                                 style={[styles.cancelBtn, { borderColor: colors.cardBorder }]}
                                 onPress={() => { setMode('idle'); setCode(''); }}
                             >
-                                <Text style={[styles.cancelBtnText, { color: colors.textSecondary }]}>Cancel</Text>
+                                <Text style={[styles.cancelBtnText, { color: colors.textSecondary }]}>{t('cancel')}</Text>
                             </TouchableOpacity>
                             <TouchableOpacity
                                 style={[styles.primaryBtn, { backgroundColor: colors.accent, flex: 1 }]}
@@ -170,7 +170,7 @@ function JoinOrCreateView({
                                 ) : (
                                     <>
                                         <Ionicons name="enter" size={18} color="#000" />
-                                        <Text style={styles.primaryBtnText}>Join</Text>
+                                        <Text style={styles.primaryBtnText}>{t('join')}</Text>
                                     </>
                                 )}
                             </TouchableOpacity>
@@ -375,7 +375,7 @@ export default function SquadsScreen() {
                                 </Text>
                                 <View style={[styles.liveBadge, { backgroundColor: '#22c55e20' }]}>
                                     <View style={styles.liveIndicator} />
-                                    <Text style={[styles.liveText, { color: '#22c55e' }]}>LIVE</Text>
+                                    <Text style={[styles.liveText, { color: '#22c55e' }]}>{t('live')}</Text>
                                 </View>
                             </View>
 
@@ -415,7 +415,7 @@ export default function SquadsScreen() {
                                                     </Text>
                                                     {member.is_current_user && (
                                                         <View style={[styles.youBadge, { backgroundColor: colors.accent }]}>
-                                                            <Text style={styles.youBadgeText}>YOU</Text>
+                                                            <Text style={styles.youBadgeText}>{t('you')}</Text>
                                                         </View>
                                                     )}
                                                 </View>
@@ -463,7 +463,7 @@ export default function SquadsScreen() {
                             onPress={handleLeave}
                         >
                             <Ionicons name="exit-outline" size={18} color="#ef4444" />
-                            <Text style={styles.leaveButtonText}>Leave Squad</Text>
+                            <Text style={styles.leaveButtonText}>{t('leaveSquad')}</Text>
                         </TouchableOpacity>
                     </>
                 )}

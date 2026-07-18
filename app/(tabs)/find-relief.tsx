@@ -726,7 +726,7 @@ export default function FindReliefScreen() {
                                         </Text>
                                     </View>
                                     <View style={{ backgroundColor: colors.accent + '20', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8 }}>
-                                        <Text style={{ color: colors.accent, fontSize: 11, fontWeight: '700' }}>ACTIVE</Text>
+                                        <Text style={{ color: colors.accent, fontSize: 11, fontWeight: '700' }}>{t('active').toUpperCase()}</Text>
                                     </View>
                                 </View>
                                 

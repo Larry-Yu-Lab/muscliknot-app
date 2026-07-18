@@ -59,16 +59,16 @@ export default function AppleHealthScreen() {
                 // Write a real test workout to prove the connection works
                 const synced = await syncSessionToHealthKit(5, 'relief', 'Full Body');
                 Alert.alert(
-                    '✅ Connected!',
+                    t('healthConnectedTitle'),
                     synced
-                        ? 'MuscliKnot is now syncing with Apple Health! A 5-minute test workout was saved — open the Health app → Browse → Workouts to verify it.'
-                        : 'MuscliKnot is now syncing with Apple Health. Your workouts and recovery sessions will automatically appear in the Health app.',
-                    [{ text: 'Continue', onPress: () => router.push('/onboarding/rating') }]
+                        ? t('healthConnectedMsgWithTest')
+                        : t('healthConnectedMsg'),
+                    [{ text: t('continue'), onPress: () => router.push('/onboarding/rating') }]
                 );
             } else {
                 Alert.alert(
-                    'Connection Skipped',
-                    'Apple Health permissions were not granted. You can enable this later in your Profile settings.',
+                    t('healthSkippedTitle'),
+                    t('healthSkippedMsg'),
                     [{ text: 'OK', onPress: () => router.push('/onboarding/rating') }]
                 );
             }
@@ -168,19 +168,19 @@ export default function AppleHealthScreen() {
                     {/* Labels in mini widget boxes positioned around scene */}
                     <View style={[styles.widget, styles.posWorkouts]}>
                         <Ionicons name="barbell" size={12} color="#f97316" style={styles.widgetIcon} />
-                        <Text style={styles.widgetTxt}>Workouts</Text>
+                        <Text style={styles.widgetTxt}>{t('workoutsLabel')}</Text>
                     </View>
                     <View style={[styles.widget, styles.posMobility]}>
                         <Ionicons name="body" size={12} color="#f97316" style={styles.widgetIcon} />
-                        <Text style={styles.widgetTxt}>Mobility</Text>
+                        <Text style={styles.widgetTxt}>{t('recoveryTrack')}</Text>
                     </View>
                     <View style={[styles.widget, styles.posRecovery]}>
                         <Ionicons name="leaf" size={12} color="#f97316" style={styles.widgetIcon} />
-                        <Text style={styles.widgetTxt}>Recovery</Text>
+                        <Text style={styles.widgetTxt}>{t('recoveryLabel')}</Text>
                     </View>
                     <View style={[styles.widget, styles.posVitals]}>
                         <Ionicons name="pulse" size={12} color="#f97316" style={styles.widgetIcon} />
-                        <Text style={styles.widgetTxt}>Vitals</Text>
+                        <Text style={styles.widgetTxt}>{t('vitalsTitle').split('&')[1]?.trim() || t('vitalsTitle')}</Text>
                     </View>
                 </Animated.View>
 
@@ -191,9 +191,9 @@ export default function AppleHealthScreen() {
                         { opacity: fadeAnim, transform: [{ translateY: slideAnim }] },
                     ]}
                 >
-                    <Text style={styles.title}>Connect to{'\n'}Apple Health</Text>
+                    <Text style={styles.title}>{t('connectAppleHealthTitle')}</Text>
                     <Text style={styles.subtitle}>
-                        Sync your daily activity between MuscliKnot and the Health app to have the most thorough data.
+                        {t('connectAppleHealthDesc')}
                     </Text>
                 </Animated.View>
             </View>
@@ -209,7 +209,7 @@ export default function AppleHealthScreen() {
                     {loading ? (
                         <ActivityIndicator color="#000" />
                     ) : (
-                        <Text style={styles.continueTxt}>Continue</Text>
+                        <Text style={styles.continueTxt}>{t('continue')}</Text>
                     )}
                 </TouchableOpacity>
             </View>

@@ -8,8 +8,8 @@ import React, { useState } from 'react';
 import { SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 const OPTIONS = [
-    { id: 'yes', label: 'Yes' },
-    { id: 'no', label: 'No' },
+    { id: 'yes', labelKey: 'optYes' },
+    { id: 'no', labelKey: 'optNo' },
 ];
 
 export default function CoachScreen() {
@@ -39,8 +39,8 @@ export default function CoachScreen() {
             </View>
 
             <View style={styles.content}>
-                <Text style={styles.title}>Do you currently work with a personal coach or physio?</Text>
-                <Text style={styles.subtitle}>This helps us tailor your plan to complement your current routine.</Text>
+                <Text style={styles.title}>{t('coachTitle')}</Text>
+                <Text style={styles.subtitle}>{t('coachSubtitle')}</Text>
                 
                 <View style={styles.optionsContainer}>
                     {OPTIONS.map((option) => (
@@ -56,7 +56,7 @@ export default function CoachScreen() {
                                 styles.optionText,
                                 selected === option.id && styles.optionTextSelected
                             ]}>
-                                {option.label}
+                                {t(option.labelKey as any)}
                             </Text>
                         </TouchableOpacity>
                     ))}

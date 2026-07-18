@@ -513,14 +513,14 @@ export default function HomeScreen() {
                     <View style={[styles.lockIconCircle, { backgroundColor: colors.accent + '15' }]}>
                       <Ionicons name="lock-closed" size={18} color={colors.accent} />
                     </View>
-                    <Text style={[styles.lockTitle, { color: colors.text }]}>Personal AI Coach</Text>
-                    <Text style={[styles.lockSubtitle, { color: colors.textSecondary }]}>Unlock phase targets, daily coach warnings & analytics.</Text>
+                    <Text style={[styles.lockTitle, { color: colors.text }]}>{t('indexCoachLockTitle')}</Text>
+                    <Text style={[styles.lockSubtitle, { color: colors.textSecondary }]}>{t('indexCoachLockSubtitle')}</Text>
                     <TouchableOpacity
                       style={[styles.lockButton, { backgroundColor: colors.accent }]}
                       onPress={() => router.push('/auth/signup-success' as any)}
                       activeOpacity={0.85}
                     >
-                      <Text style={styles.lockButtonText}>Unlock Elite Plan</Text>
+                      <Text style={styles.lockButtonText}>{t('indexCoachLockBtn')}</Text>
                     </TouchableOpacity>
                   </View>
                 </View>
@@ -529,7 +529,7 @@ export default function HomeScreen() {
                 <View style={styles.roadmapHeader}>
                   <View style={[styles.roadmapPhaseBadge, { backgroundColor: colors.accent + '20' }]}>
                     <Ionicons name="body-outline" size={16} color={colors.accent} />
-                    <Text style={[styles.roadmapPhaseText, { color: colors.accent }]}>MOBILITY</Text>
+                    <Text style={[styles.roadmapPhaseText, { color: colors.accent }]}>{t('roadmapMobility' as any) || 'MOBILITY'}</Text>
                   </View>
                   <Text style={[styles.roadmapDay, { color: colors.textSecondary }]}>{t('dayNumber' as any) || 'Day'} 3</Text>
                 </View>
@@ -540,7 +540,7 @@ export default function HomeScreen() {
                 <View style={styles.roadmapMeta}>
                   <View style={styles.roadmapMetaItem}>
                     <Ionicons name="trending-up-outline" size={14} color="#22c55e" />
-                    <Text style={[styles.roadmapMetaText, { color: colors.textSecondary }]}>Improving</Text>
+                    <Text style={[styles.roadmapMetaText, { color: colors.textSecondary }]}>{t('trend_improving')}</Text>
                   </View>
                   <View style={styles.roadmapMetaItem}>
                     <Ionicons name="analytics-outline" size={14} color={colors.textSecondary} />
@@ -623,17 +623,17 @@ export default function HomeScreen() {
                 <View style={styles.roadmapHeader}>
                   <View style={[styles.roadmapPhaseBadge, { backgroundColor: 'rgba(255,255,255,0.06)' }]}>
                     <Ionicons name="sparkles-outline" size={16} color={colors.accent} />
-                    <Text style={[styles.roadmapPhaseText, { color: colors.accent }]}>SETUP ACTIVE</Text>
+                    <Text style={[styles.roadmapPhaseText, { color: colors.accent }]}>{t('indexSetupActive')}</Text>
                   </View>
                 </View>
                 <Text style={[styles.roadmapTitle, { color: colors.text }]}>🧠 Personal AI Coach</Text>
                 <Text style={[styles.roadmapCoach, { color: colors.textSecondary }]}>
                   {historyCount === 0 ? (
-                    "Log 2 pain assessments to build your dynamic injury recovery roadmap and daily coach messages."
+                    t('coachSetupNoData')
                   ) : historyCount === 1 ? (
-                    "Log 1 more pain assessment to build your dynamic injury recovery roadmap and daily coach messages."
+                    t('coachSetupOneData')
                   ) : (
-                    `Log 1 more assessment for a previously tracked muscle group (e.g. ${loggedMuscles.map(m => formatLabel(m)).join(' or ') || 'Neck or Shoulder'}) to build your recovery plan.`
+                    t('coachSetupMultiData') + (loggedMuscles.map(m => formatLabel(m)).join(' or ') || 'Neck or Shoulder') + t('coachSetupMultiDataEnd')
                   )}
                 </Text>
                 <TouchableOpacity
@@ -642,7 +642,7 @@ export default function HomeScreen() {
                     router.push('/(tabs)/find-relief' as any);
                   }}
                 >
-                  <Text style={styles.roadmapCTAText}>Log Pain Assessment</Text>
+                  <Text style={styles.roadmapCTAText}>{t('indexLogPainAssessment')}</Text>
                   <Ionicons name="add" size={18} color="#000" />
                 </TouchableOpacity>
               </View>

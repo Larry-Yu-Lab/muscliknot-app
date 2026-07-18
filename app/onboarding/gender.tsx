@@ -8,9 +8,9 @@ import React, { useState } from 'react';
 import { SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 const OPTIONS = [
-    { id: 'male', label: 'Male' },
-    { id: 'female', label: 'Female' },
-    { id: 'other', label: 'Other' },
+    { id: 'male', labelKey: 'genderMale' },
+    { id: 'female', labelKey: 'genderFemale' },
+    { id: 'other', labelKey: 'genderOther' },
 ];
 
 export default function GenderScreen() {
@@ -40,8 +40,8 @@ export default function GenderScreen() {
             </View>
 
             <View style={styles.content}>
-                <Text style={styles.title}>Choose your Gender</Text>
-                <Text style={styles.subtitle}>This will be used to calibrate your custom plan.</Text>
+                <Text style={styles.title}>{t('genderTitle')}</Text>
+                <Text style={styles.subtitle}>{t('genderSubtitle')}</Text>
                 
                 <View style={styles.optionsContainer}>
                     {OPTIONS.map((option) => (
@@ -53,7 +53,7 @@ export default function GenderScreen() {
                             ]}
                             onPress={() => setSelected(option.id)}
                         >
-                            <Text style={styles.optionTitle}>{option.label}</Text>
+                            <Text style={styles.optionTitle}>{t(option.labelKey as any)}</Text>
                         </TouchableOpacity>
                     ))}
                 </View>

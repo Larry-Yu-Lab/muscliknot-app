@@ -65,10 +65,10 @@ export default function RatingScreen() {
                 {/* Rating Message */}
                 <View style={styles.textContainer}>
                     <Text style={styles.title}>
-                        Enjoying MuscliKnot?
+                        {t('enjoyingMuscliKnot')}
                     </Text>
                     <Text style={styles.subtitle}>
-                        Support our team by giving us a 5-star rating on the App Store! It takes less than a minute.
+                        {t('support5StarRating')}
                     </Text>
                 </View>
 
@@ -114,7 +114,7 @@ export default function RatingScreen() {
                     style={styles.button}
                     onPress={handleRate}
                 >
-                    <Text style={styles.buttonText}>Rate on App Store</Text>
+                    <Text style={styles.buttonText}>{t('rateOnAppStore')}</Text>
                 </TouchableOpacity>
 
             </View>

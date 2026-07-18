@@ -27,7 +27,7 @@ export default function GoalEaseScreen() {
         if (goalId === 'relieve_pain') return t('relievePain');
         if (goalId === 'improve_mobility') return t('improveMobility');
         if (goalId === 'daily_maintenance') return t('dailyMaintenance');
-        return 'Your goal';
+        return t('goalLabel' as any) || 'Your goal';
     };
 
     const handleContinue = () => {
@@ -66,10 +66,10 @@ export default function GoalEaseScreen() {
                         {"\"" + getGoalLabel() + "\""}
                     </Text>
                     <Text style={styles.title}>
-                        is not hard at all!
+                        {t('goalEaseTitle')}
                     </Text>
                     <Text style={styles.subtitle}>
-                        {"With MuscliKnot's data-driven guidelines, daily progress is simple, structured, and easy to follow."}
+                        {t('goalEaseSubtitle')}
                     </Text>
                 </View>
             </View>

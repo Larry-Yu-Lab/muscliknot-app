@@ -203,11 +203,10 @@ export default function WelcomeScreen() {
                     {/* Typography block */}
                     <View style={styles.textContainer}>
                         <Text style={styles.title}>
-                            Muscle care{"\n"}
-                            <Text style={styles.titleAccent}>made easy</Text>
+                            {t('welcomeTitle')}
                         </Text>
                         <Text style={styles.subtitle}>
-                            Personalized recovery roadmaps & real-time fatigue scanning.
+                            {t('welcomeSubtitle')}
                         </Text>
                     </View>
 
@@ -234,7 +233,7 @@ export default function WelcomeScreen() {
                         activeOpacity={0.7}
                     >
                         <Text style={styles.signInText}>
-                            Already have an account? <Text style={styles.signInLink}>Sign in</Text>
+                            {t('alreadyHaveAccount')} <Text style={styles.signInLink}>{t('signIn')}</Text>
                         </Text>
                     </TouchableOpacity>
                 </Animated.View>

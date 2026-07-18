@@ -1,4 +1,5 @@
 import { usePreferences } from '@/context/PreferencesContext';
+import { getTranslation } from '@/utils/i18n';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useRef } from 'react';
@@ -7,7 +8,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function OnboardingSplash() {
     const router = useRouter();
-    const { theme } = usePreferences();
+    const { theme, language } = usePreferences();
+    const t = (key: Parameters<typeof getTranslation>[1]) => getTranslation(language, key);
 
     const logoAnim = useRef(new Animated.Value(0)).current;
     const textAnim = useRef(new Animated.Value(0)).current;
@@ -72,12 +74,12 @@ export default function OnboardingSplash() {
                         }],
                     }]}>
                         <Text style={styles.appName}>MuscliKnot</Text>
-                        <Text style={styles.tagline}>Your body. Your progress.</Text>
+                        <Text style={styles.tagline}>{t('splashTagline')}</Text>
                     </Animated.View>
                 </View>
 
                 <SafeAreaView edges={['bottom']}>
-                    <Text style={styles.hint}>Tap anywhere to continue</Text>
+                    <Text style={styles.hint}>{t('splashHint')}</Text>
                 </SafeAreaView>
             </TouchableOpacity>
         </Animated.View>

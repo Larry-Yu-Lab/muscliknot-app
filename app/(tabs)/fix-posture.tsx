@@ -328,9 +328,9 @@ export default function FixPostureScreen() {
                         </View>
                     </View>
                     
-                    <Text style={[styles.lockScreenTitle, { color: colors.text }]}>Posture Correction</Text>
+                    <Text style={[styles.lockScreenTitle, { color: colors.text }]}>{t('postureLockTitle')}</Text>
                     <Text style={[styles.lockScreenSubtitle, { color: colors.textSecondary }]}>
-                        Unlock targeted ergonomic and postural routines to fix tech neck, rounded shoulders, and anterior pelvic tilt.
+                        {t('postureLockSubtitle')}
                     </Text>
 
                     <View style={styles.bulletList}>
@@ -338,19 +338,19 @@ export default function FixPostureScreen() {
                             <View style={[styles.bulletCheck, { backgroundColor: (colors.accent || accentColor) + '15' }]}>
                                 <Ionicons name="checkmark" size={14} color={colors.accent || accentColor} />
                             </View>
-                            <Text style={[styles.bulletText, { color: colors.text }]}>Ergonomic alignment guidelines</Text>
+                            <Text style={[styles.bulletText, { color: colors.text }]}>{t('postureLockBullet1')}</Text>
                         </View>
                         <View style={styles.bulletRow}>
                             <View style={[styles.bulletCheck, { backgroundColor: (colors.accent || accentColor) + '15' }]}>
                                 <Ionicons name="checkmark" size={14} color={colors.accent || accentColor} />
                             </View>
-                            <Text style={[styles.bulletText, { color: colors.text }]}>Fixes sedentary posture issues</Text>
+                            <Text style={[styles.bulletText, { color: colors.text }]}>{t('postureLockBullet2')}</Text>
                         </View>
                         <View style={styles.bulletRow}>
                             <View style={[styles.bulletCheck, { backgroundColor: (colors.accent || accentColor) + '15' }]}>
                                 <Ionicons name="checkmark" size={14} color={colors.accent || accentColor} />
                             </View>
-                            <Text style={[styles.bulletText, { color: colors.text }]}>Real-time desk warning prevention</Text>
+                            <Text style={[styles.bulletText, { color: colors.text }]}>{t('postureLockBullet3')}</Text>
                         </View>
                     </View>
 
@@ -359,7 +359,7 @@ export default function FixPostureScreen() {
                         onPress={() => router.push('/auth/signup-success' as any)}
                         activeOpacity={0.85}
                     >
-                        <Text style={styles.lockScreenButtonText}>Start 14-Day Free Trial</Text>
+                        <Text style={styles.lockScreenButtonText}>{t('startFreeTrial')}</Text>
                     </TouchableOpacity>
                 </View>
             </SafeAreaView>
