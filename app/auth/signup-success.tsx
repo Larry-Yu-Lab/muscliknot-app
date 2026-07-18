@@ -1,12 +1,13 @@
 import { useAuth } from '@/context/AuthContext';
 import { usePreferences } from '@/context/PreferencesContext';
+import { useUser } from '@/context/UserContext';
 import { getTranslation } from '@/utils/i18n';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import React, { useEffect, useRef, useState } from 'react';
 import { Alert, Animated, Dimensions, Easing, Linking, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { getOfferings, purchasePackage } from '@/utils/purchases';
+import { getOfferings, purchasePackage, restorePurchases } from '@/utils/purchases';
 
 const { width } = Dimensions.get('window');
 
@@ -176,6 +177,7 @@ export default function SignupSuccessScreen() {
     const router = useRouter();
     const { language } = usePreferences();
     const { user } = useAuth();
+    const { updateUser } = useUser();
     const [step, setStep] = useState(0);
 
     const fadeAnim = useRef(new Animated.Value(1)).current;
@@ -237,6 +239,38 @@ export default function SignupSuccessScreen() {
             
             // Navigate to tabs regardless (either they purchased, cancelled, or it failed but they still have basic account)
             router.replace('/(tabs)' as any);
+        }
+    };
+
+    const handleRestorePurchases = async () => {
+        try {
+            const result = await restorePurchases();
+            if (result.success) {
+                await updateUser({ isPremium: true });
+                Alert.alert(
+                    'Success',
+                    'Your purchases have been successfully restored! Premium Access is active.',
+                    [
+                        {
+                            text: 'Get Started',
+                            onPress: () => router.replace('/(tabs)' as any)
+                        }
+                    ]
+                );
+            } else {
+                Alert.alert(
+                    'No Active Subscription',
+                    result.error || 'We could not find an active premium subscription for your App Store account.',
+                    [{ text: 'OK' }]
+                );
+            }
+        } catch (error: any) {
+            console.error('Failed restoring purchases:', error);
+            Alert.alert(
+                'Error',
+                'An unexpected error occurred while restoring purchases. Please try again.',
+                [{ text: 'OK' }]
+            );
         }
     };
 
@@ -402,6 +436,18 @@ export default function SignupSuccessScreen() {
                             <Text style={styles.guaranteeText}>No charge now</Text>
                         </View>
                     </View>
+                )}
+
+                {/* Restore Purchases Link for Paywall Step */}
+                {step === 2 && (
+                    <TouchableOpacity
+                        style={{ alignSelf: 'center', marginTop: 14, paddingVertical: 4 }}
+                        onPress={handleRestorePurchases}
+                    >
+                        <Text style={{ color: 'rgba(255,255,255,0.4)', fontSize: 12, textDecorationLine: 'underline' }}>
+                            Restore Purchases
+                        </Text>
+                    </TouchableOpacity>
                 )}
             </View>
         </SafeAreaView>

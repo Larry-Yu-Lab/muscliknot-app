@@ -22,7 +22,7 @@
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = MuscliKnot/Info.plist; sourceTree = "<group>"; };
 		318047A92067FD9DDF36EBFB /* Pods-MuscliKnot.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MuscliKnot.debug.xcconfig"; path = "Target Support Files/Pods-MuscliKnot/Pods-MuscliKnot.debug.xcconfig"; sourceTree = "<group>"; };
 		52D2E21ECD99B5C0FD2294D6 /* Pods-MuscliKnot.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MuscliKnot.release.xcconfig"; path = "Target Support Files/Pods-MuscliKnot/Pods-MuscliKnot.release.xcconfig"; sourceTree = "<group>"; };
-		6D6E7B02B54AA9B65003246C /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = MuscliKnot/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		6D6E7B02B54AA9B65003246C /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = MuscliKnot/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		753B8D5D5F6613D2ECCB8F91 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-MuscliKnot/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 		87A15D7BBF6BA16B9ED77AD1 /* libPods-MuscliKnot.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-MuscliKnot.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = MuscliKnot/SplashScreen.storyboard; sourceTree = "<group>"; };
@@ -58,7 +58,6 @@
 				318047A92067FD9DDF36EBFB /* Pods-MuscliKnot.debug.xcconfig */,
 				52D2E21ECD99B5C0FD2294D6 /* Pods-MuscliKnot.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -353,6 +352,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = MuscliKnot/MuscliKnot.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6R7J8SX64X;
 				ENABLE_BITCODE = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
@@ -389,6 +389,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = MuscliKnot/MuscliKnot.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6R7J8SX64X;
 				INFOPLIST_FILE = MuscliKnot/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (

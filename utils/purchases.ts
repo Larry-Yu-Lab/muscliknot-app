@@ -87,6 +87,23 @@ export const checkPremiumStatus = async (): Promise<boolean> => {
 };
 
 /**
+ * Restore user purchases.
+ */
+export const restorePurchases = async () => {
+  try {
+    if (!(await Purchases.isConfigured())) {
+      return { success: false, customerInfo: null, error: 'Purchases are not configured yet' };
+    }
+    const customerInfo = await Purchases.restorePurchases();
+    const hasPremium = typeof customerInfo.entitlements.active[ENTITLEMENT_ID] !== 'undefined';
+    return { success: hasPremium, customerInfo, error: null };
+  } catch (error: any) {
+    console.error('Error restoring purchases:', error);
+    return { success: false, customerInfo: null, error: error.message || 'An error occurred during restore' };
+  }
+};
+
+/**
  * Handle user logout.
  */
 export const logoutPurchases = async () => {

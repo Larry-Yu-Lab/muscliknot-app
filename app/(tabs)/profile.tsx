@@ -13,7 +13,7 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { useFocusEffect, useRouter } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
-import { getOfferings, purchasePackage } from '@/utils/purchases';
+import { getOfferings, purchasePackage, restorePurchases } from '@/utils/purchases';
 import React, { useCallback, useEffect, useState } from 'react';
 import { Alert, Dimensions, Modal, Platform, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import Svg, { Circle, Line, Path } from 'react-native-svg';
@@ -247,6 +247,33 @@ export default function ProfileScreen() {
             Alert.alert(
                 'Error',
                 'An unexpected error occurred. Please try again.',
+                [{ text: 'OK' }]
+            );
+        }
+    };
+
+    const handleRestorePurchases = async () => {
+        try {
+            const result = await restorePurchases();
+            if (result.success) {
+                await updateUser({ isPremium: true });
+                Alert.alert(
+                    'Success',
+                    'Your purchases have been successfully restored! Premium Access is active.',
+                    [{ text: 'OK' }]
+                );
+            } else {
+                Alert.alert(
+                    'No Active Subscription',
+                    result.error || 'We could not find an active premium subscription for your App Store account.',
+                    [{ text: 'OK' }]
+                );
+            }
+        } catch (error: any) {
+            console.error('Failed restoring purchases:', error);
+            Alert.alert(
+                'Error',
+                'An unexpected error occurred while restoring purchases. Please try again.',
                 [{ text: 'OK' }]
             );
         }
@@ -1005,6 +1032,22 @@ export default function ProfileScreen() {
                                 </View>
                             </View>
                         ) : null}
+
+                        {/* Restore Purchases Link */}
+                        <TouchableOpacity
+                            style={{ 
+                                alignSelf: 'center', 
+                                marginTop: 24, 
+                                marginBottom: 16,
+                                paddingVertical: 8,
+                                paddingHorizontal: 16
+                            }}
+                            onPress={handleRestorePurchases}
+                        >
+                            <Text style={{ color: colors.textSecondary, fontSize: 13, textDecorationLine: 'underline', fontWeight: '500' }}>
+                                {t('restorePurchases' as any) || 'Restore Purchases'}
+                            </Text>
+                        </TouchableOpacity>
                     </View>
                 )}
 
