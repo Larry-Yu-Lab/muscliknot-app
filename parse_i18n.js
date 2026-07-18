@@ -16,7 +16,7 @@ try {
     const langKeys = Object.keys(ast[lang] || {});
     const missing = enKeys.filter(k => !langKeys.includes(k));
     console.log(`${lang} missing ${missing.length} keys out of ${enKeys.length}`);
-    if (missing.length > 0) console.log(missing.slice(0, 10).join(', ') + '...');
+    if (missing.length > 0) console.log(missing.join(', '));
   });
 } catch(e) {
   console.log("Error: " + e.message);
