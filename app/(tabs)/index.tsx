@@ -6,11 +6,12 @@ import { getTranslation, formatLabel } from '@/utils/i18n';
 import { generatePreventionAlerts, PreventionAlert } from '@/utils/preventionEngine';
 import { generateRoadmap, phaseLabelKey, RecoveryRoadmap } from '@/utils/recoveryRoadmap';
 import { getHistory, HistoryItem } from '@/utils/storage';
+import { getDailyCoach, refreshDailyCoach, DailyCoachData } from '@/utils/aiCoach';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
-import { SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, ActivityIndicator } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { runOnJS, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
 
@@ -125,6 +126,8 @@ export default function HomeScreen() {
   const [searchError, setSearchError] = useState('');
   const [recentPlans, setRecentPlans] = useState<HistoryItem[]>([]);
   const [roadmap, setRoadmap] = useState<RecoveryRoadmap | null>(null);
+  const [coachData, setCoachData] = useState<DailyCoachData | null>(null);
+  const [isCoachLoading, setIsCoachLoading] = useState(false);
   const [historyCount, setHistoryCount] = useState(0);
   const [loggedMuscles, setLoggedMuscles] = useState<string[]>([]);
   const [preventionAlerts, setPreventionAlerts] = useState<PreventionAlert[]>([]);
@@ -180,6 +183,22 @@ export default function HomeScreen() {
         // Generate AI Roadmap from full history
         const rm = generateRoadmap(data);
         setRoadmap(rm);
+
+        if (rm && user.isPremium) {
+          setIsCoachLoading(true);
+          getDailyCoach(rm, data, user.attributes.fitnessLevel || 'BEGINNER', language)
+            .then(coachRes => {
+              setCoachData(coachRes);
+            })
+            .catch(err => {
+              console.error('Error fetching daily coach:', err);
+            })
+            .finally(() => {
+              setIsCoachLoading(false);
+            });
+        } else {
+          setCoachData(null);
+        }
 
         // Count how many assessments have pain scores
         const relevantCount = data.filter(h => h.assessment?.painLevel !== undefined).length;
@@ -349,6 +368,22 @@ export default function HomeScreen() {
       });
     }
   };
+
+  const handleRefreshCoach = async () => {
+    if (!roadmap) return;
+    setIsCoachLoading(true);
+    await refreshDailyCoach();
+    try {
+      const data = await getHistory();
+      const coachRes = await getDailyCoach(roadmap, data, user.attributes.fitnessLevel || 'BEGINNER', language);
+      setCoachData(coachRes);
+    } catch (err) {
+      console.error('Failed to refresh daily coach:', err);
+    } finally {
+      setIsCoachLoading(false);
+    }
+  };
+
   /* ZOOM STATE */
   const [zoomLevel, setZoomLevel] = useState(1);
 
@@ -555,8 +590,10 @@ export default function HomeScreen() {
             );
           } else if (roadmap) {
             // 2. PREMIUM USER WITH ACTIVE ROADMAP: Render full interactive roadmap
+            const suggestedActivity = coachData?.suggestedActivity || roadmap.suggestedActivityType;
             return (
               <View style={[styles.roadmapCard, { backgroundColor: colors.cardBackground, borderColor: roadmap.phaseColor + '40', overflow: 'hidden' }]}>
+                {/* Header */}
                 <View style={styles.roadmapHeader}>
                   <View style={[styles.roadmapPhaseBadge, { backgroundColor: roadmap.phaseColor + '20' }]}>
                     <Ionicons name={roadmap.phaseIcon as any} size={16} color={roadmap.phaseColor} />
@@ -564,56 +601,173 @@ export default function HomeScreen() {
                       {t(phaseLabelKey(roadmap.currentPhase) as any) || roadmap.currentPhase.toUpperCase()}
                     </Text>
                   </View>
-                  <Text style={[styles.roadmapDay, { color: colors.textSecondary }]}>
-                    {t('dayNumber' as any) || 'Day'} {roadmap.dayNumber}
-                  </Text>
-                </View>
-                <Text style={[styles.roadmapTitle, { color: colors.text }]}>
-                  🧠 {t('recoveryRoadmap' as any) || 'Recovery Roadmap'}
-                </Text>
-                <Text style={[styles.roadmapCoach, { color: colors.textSecondary }]}>
-                  {(() => {
-                    const params = { ...roadmap.coachParams };
-                    if (params.muscle) {
-                      const mgKey = `mg${(params.muscle as string).replace(/\s/g, '').replace(/_/g, '')}` as any;
-                      const trans = t(mgKey);
-                      params.muscle = trans !== mgKey ? trans : formatLabel(params.muscle as string);
-                    }
-                    return t(roadmap.coachMessage as any, params as any) || `${formatLabel(roadmap.targetMuscle)} — ${formatLabel(roadmap.currentPhase)} phase. Pain trend: ${formatLabel(roadmap.painTrend)}.`;
-                  })()}
-                </Text>
-                <View style={styles.roadmapMeta}>
-                  <View style={styles.roadmapMetaItem}>
-                    <Ionicons name="trending-up-outline" size={14} color={roadmap.painTrend === 'improving' ? '#22c55e' : roadmap.painTrend === 'worsening' ? '#ef4444' : colors.textSecondary} />
-                    <Text style={[styles.roadmapMetaText, { color: colors.textSecondary }]}>
-                      {t(`trend_${roadmap.painTrend}` as any) || formatLabel(roadmap.painTrend)}
-                    </Text>
-                  </View>
-                  <View style={styles.roadmapMetaItem}>
-                    <Ionicons name="analytics-outline" size={14} color={colors.textSecondary} />
-                    <Text style={[styles.roadmapMetaText, { color: colors.textSecondary }]}>
-                      {t('avgPain' as any) || 'Avg Pain'}: {roadmap.avgPainLevel}/10
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                    {coachData?.isAiGenerated ? (
+                      <View style={styles.aiBadge}>
+                        <Text style={styles.aiBadgeText}>{t('aiCoachPoweredBy')}</Text>
+                      </View>
+                    ) : (
+                      <View style={[styles.aiBadge, { backgroundColor: 'rgba(255,255,255,0.06)' }]}>
+                        <Text style={[styles.aiBadgeText, { color: colors.textSecondary }]}>{t('aiCoachFallback')}</Text>
+                      </View>
+                    )}
+                    <TouchableOpacity onPress={handleRefreshCoach} disabled={isCoachLoading} style={styles.refreshBtn}>
+                      <Ionicons name="refresh-outline" size={16} color={colors.textSecondary} />
+                    </TouchableOpacity>
+                    <Text style={[styles.roadmapDay, { color: colors.textSecondary }]}>
+                      {t('dayNumber' as any) || 'Day'} {roadmap.dayNumber}
                     </Text>
                   </View>
                 </View>
-                <TouchableOpacity
-                  style={[styles.roadmapCTA, { backgroundColor: roadmap.phaseColor }]}
-                  onPress={() => {
-                    router.push({
-                      pathname: '/(tabs)/pain-assessment',
-                      params: {
-                        muscleId: roadmap.targetMuscle,
-                        activityType: roadmap.suggestedActivityType,
-                        timestamp: Date.now(),
-                      },
-                    });
-                  }}
-                >
-                  <Text style={styles.roadmapCTAText}>
-                    {t('startTodaysPlan' as any) || "Start Today's Plan"}
-                  </Text>
-                  <Ionicons name="arrow-forward" size={18} color="#000" />
-                </TouchableOpacity>
+
+                {isCoachLoading ? (
+                  <View style={{ paddingVertical: 30, alignItems: 'center', justifyContent: 'center' }}>
+                    <ActivityIndicator size="small" color={colors.accent} />
+                    <Text style={{ color: colors.textSecondary, fontSize: 13, marginTop: 8 }}>{t('aiCoachLoading')}</Text>
+                  </View>
+                ) : (
+                  <>
+                    {/* Title */}
+                    <Text style={[styles.roadmapTitle, { color: colors.text }]}>
+                      🧠 {t('aiCoachTitle')}
+                    </Text>
+
+                    {/* Coach message */}
+                    <Text style={[styles.roadmapCoach, { color: colors.text }]}>
+                      {coachData?.message || `${formatLabel(roadmap.targetMuscle)} — ${formatLabel(roadmap.currentPhase)} phase.`}
+                    </Text>
+
+                    {/* Tip Container */}
+                    {coachData?.tip ? (
+                      <View style={[styles.tipContainer, { backgroundColor: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)', borderColor: colors.cardBorder }]}>
+                        <Text style={[styles.tipTitle, { color: colors.accent }]}>💡 {t('aiCoachTip')}</Text>
+                        <Text style={[styles.tipText, { color: colors.textSecondary }]}>{coachData.tip}</Text>
+                      </View>
+                    ) : null}
+
+                    {/* Weekly Progress & Stats */}
+                    <View style={[styles.progressSection, { borderTopWidth: 1, borderBottomWidth: 1, borderColor: colors.cardBorder }]}>
+                      <View style={styles.statRow}>
+                        <View style={{ flex: 1 }}>
+                          <View style={styles.progressHeaderRow}>
+                            <Text style={[styles.statLabel, { color: colors.textSecondary }]}>{t('aiCoachWeeklyProgress')}</Text>
+                            <Text style={[styles.statValue, { color: colors.text }]}>
+                              {roadmap.weeklyProgress.sessionsThisWeek} / 5 {t('aiCoachSessions')}
+                            </Text>
+                          </View>
+                          {/* Progress Bar */}
+                          <View style={[styles.progressBarBg, { backgroundColor: isDark ? 'rgba(255,255,255,0.1)' : '#e0e0e0' }]}>
+                            <View style={[styles.progressBarFill, { width: `${Math.min(100, (roadmap.weeklyProgress.sessionsThisWeek / 5) * 100)}%`, backgroundColor: roadmap.phaseColor }]} />
+                          </View>
+                        </View>
+                      </View>
+
+                      <View style={styles.metaRow}>
+                        <View style={styles.roadmapMetaItem}>
+                          <Ionicons name="trending-up-outline" size={14} color={roadmap.painTrend === 'improving' ? '#22c55e' : roadmap.painTrend === 'worsening' ? '#ef4444' : colors.textSecondary} />
+                          <Text style={[styles.roadmapMetaText, { color: colors.textSecondary }]}>
+                            {t(`trend_${roadmap.painTrend}` as any) || formatLabel(roadmap.painTrend)}
+                          </Text>
+                        </View>
+
+                        {roadmap.weeklyProgress.painChangePercent !== 0 && (
+                          <View style={styles.roadmapMetaItem}>
+                            <Ionicons 
+                              name={roadmap.weeklyProgress.painChangePercent < 0 ? 'arrow-down-outline' : 'arrow-up-outline'} 
+                              size={14} 
+                              color={roadmap.weeklyProgress.painChangePercent < 0 ? '#22c55e' : '#ef4444'} 
+                            />
+                            <Text style={[styles.roadmapMetaText, { color: colors.textSecondary }]}>
+                              {t('aiCoachPainChange')}: {roadmap.weeklyProgress.painChangePercent}%
+                            </Text>
+                          </View>
+                        )}
+
+                        <View style={styles.roadmapMetaItem}>
+                          <Ionicons name="analytics-outline" size={14} color={colors.textSecondary} />
+                          <Text style={[styles.roadmapMetaText, { color: colors.textSecondary }]}>
+                            {t('avgPain' as any) || 'Avg Pain'}: {roadmap.avgPainLevel}/10
+                          </Text>
+                        </View>
+                      </View>
+                    </View>
+
+                    {/* Milestones */}
+                    <View style={styles.milestonesSection}>
+                      <Text style={[styles.sectionSubtitle, { color: colors.textSecondary }]}>{t('aiCoachMilestones')}</Text>
+                      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.milestonesList}>
+                        {roadmap.milestones.map((milestone) => (
+                          <View 
+                            key={milestone.id} 
+                            style={[
+                              styles.milestonePill, 
+                              { 
+                                backgroundColor: milestone.achieved ? 'rgba(34, 197, 94, 0.1)' : 'rgba(255,255,255,0.05)',
+                                borderColor: milestone.achieved ? 'rgba(34, 197, 94, 0.2)' : 'transparent',
+                                borderWidth: 1
+                              }
+                            ]}
+                          >
+                            <Text style={styles.milestoneIcon}>{milestone.icon}</Text>
+                            <Text style={[styles.milestoneLabel, { color: milestone.achieved ? '#22c55e' : colors.textSecondary }]}>
+                              {t(milestone.labelKey as any)}
+                            </Text>
+                            {milestone.achieved && (
+                              <Ionicons name="checkmark-circle" size={12} color="#22c55e" style={{ marginLeft: 4 }} />
+                            )}
+                          </View>
+                        ))}
+                      </ScrollView>
+                    </View>
+
+                    {/* Recommended Activity Indicator */}
+                    {coachData?.activityReason ? (
+                      <View style={styles.activityIndicatorRow}>
+                        <View style={[styles.activityDot, { backgroundColor: roadmap.phaseColor }]} />
+                        <Text style={[styles.activityReasonText, { color: colors.textSecondary }]}>
+                          <Text style={{ fontWeight: '700', color: colors.text }}>{t('aiCoachSuggestedActivity')}: </Text>
+                          {coachData.activityReason}
+                        </Text>
+                      </View>
+                    ) : null}
+
+                    {/* Buttons Row */}
+                    <View style={{ flexDirection: 'row', gap: 12, marginTop: 8 }}>
+                      <TouchableOpacity
+                        style={[styles.roadmapCTA, { backgroundColor: roadmap.phaseColor, flex: 1, marginTop: 0 }]}
+                        onPress={() => {
+                          // Go directly to find-relief with pre-selected variables
+                          router.push({
+                            pathname: '/(tabs)/find-relief',
+                            params: {
+                              muscleId: roadmap.targetMuscle,
+                              activityType: suggestedActivity,
+                              assessment_slider: Math.round(roadmap.avgPainLevel),
+                              assessment_q1: 'today',
+                              assessment_note: 'Coach daily plan',
+                              timestamp: Date.now(),
+                            },
+                          });
+                        }}
+                      >
+                        <Text style={styles.roadmapCTAText}>
+                          {t('aiCoachStartPlan')}
+                        </Text>
+                        <Ionicons name="play-outline" size={18} color="#000" />
+                      </TouchableOpacity>
+
+                      <TouchableOpacity
+                        style={[styles.roadmapCTA, { backgroundColor: 'rgba(255,255,255,0.08)', borderWidth: 1, borderColor: colors.cardBorder, flex: 1, marginTop: 0 }]}
+                        onPress={() => router.push('/coach-chat')}
+                      >
+                        <Text style={[styles.roadmapCTAText, { color: colors.text }]}>
+                          {t('aiCoachAskBtn')}
+                        </Text>
+                        <Ionicons name="chatbubble-ellipses-outline" size={18} color={colors.text} />
+                      </TouchableOpacity>
+                    </View>
+                  </>
+                )}
               </View>
             );
           } else {
@@ -1142,6 +1296,125 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '800',
     letterSpacing: 0.5,
+  },
+  aiBadge: {
+    backgroundColor: 'rgba(249, 115, 22, 0.15)',
+    borderWidth: 1,
+    borderColor: '#f97316',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
+  },
+  aiBadgeText: {
+    color: '#f97316',
+    fontSize: 9,
+    fontWeight: '800',
+    textTransform: 'uppercase',
+  },
+  refreshBtn: {
+    padding: 4,
+    borderRadius: 6,
+    backgroundColor: 'rgba(255,255,255,0.05)',
+  },
+  tipContainer: {
+    padding: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    marginTop: 4,
+    gap: 4,
+  },
+  tipTitle: {
+    fontSize: 12,
+    fontWeight: '800',
+    letterSpacing: 0.5,
+  },
+  tipText: {
+    fontSize: 13,
+    lineHeight: 18,
+    fontWeight: '500',
+  },
+  progressSection: {
+    paddingVertical: 12,
+    gap: 12,
+    marginTop: 4,
+  },
+  statRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  progressHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  statLabel: {
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  statValue: {
+    fontSize: 12,
+    fontWeight: '800',
+  },
+  progressBarBg: {
+    height: 6,
+    borderRadius: 3,
+    width: '100%',
+    overflow: 'hidden',
+  },
+  progressBarFill: {
+    height: '100%',
+    borderRadius: 3,
+  },
+  metaRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 16,
+  },
+  milestonesSection: {
+    gap: 6,
+  },
+  sectionSubtitle: {
+    fontSize: 11,
+    fontWeight: '800',
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+  },
+  milestonesList: {
+    gap: 8,
+    paddingRight: 20,
+  },
+  milestonePill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 10,
+    gap: 6,
+  },
+  milestoneIcon: {
+    fontSize: 14,
+  },
+  milestoneLabel: {
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  activityIndicatorRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginTop: 4,
+  },
+  activityDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+  },
+  activityReasonText: {
+    fontSize: 12,
+    lineHeight: 16,
+    fontWeight: '500',
+    flex: 1,
   },
 
   // ── Prevention Alerts ──────────────────────────────────────────────

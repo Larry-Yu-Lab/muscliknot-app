@@ -184,6 +184,7 @@ function RootLayoutNav() {
           <Stack.Screen name="privacy" />
           <Stack.Screen name="guided-session" options={{ presentation: 'fullScreenModal', gestureEnabled: false }} />
           <Stack.Screen name="squads" />
+          <Stack.Screen name="coach-chat" />
         </Stack>
       </View>
       <StatusBar style={theme === 'dark' ? 'light' : 'dark'} />
