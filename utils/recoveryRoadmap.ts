@@ -7,12 +7,27 @@
  * This is a local, deterministic engine — no API keys required.
  */
 
+import { EXERCISES } from '@/data/exercises';
 import { HistoryItem } from './storage';
 
 // ─── Types ─────────────────────────────────────────────────────────────────
 
 export type RecoveryPhase = 'acute' | 'mobility' | 'strengthening' | 'maintenance';
 export type PainTrend = 'improving' | 'stable' | 'worsening';
+
+export interface WeeklyProgress {
+    sessionsThisWeek: number;
+    sessionsLastWeek: number;
+    painChangePercent: number;
+    musclesWorked: string[];
+}
+
+export interface Milestone {
+    id: string;
+    labelKey: string;
+    icon: string;
+    achieved: boolean;
+}
 
 export interface RecoveryRoadmap {
     /** The muscle group being recovered */
@@ -37,12 +52,21 @@ export interface RecoveryRoadmap {
     phaseColor: string;
     /** Icon name for the phase */
     phaseIcon: string;
+    /** Weekly progress metrics */
+    weeklyProgress: WeeklyProgress;
+    /** Recovery milestones */
+    milestones: Milestone[];
+    /** Pre-selected exercise IDs for today's plan */
+    suggestedExerciseIds: string[];
+    /** Total number of sessions in the analysis window */
+    totalSessions: number;
 }
 
 // ─── Constants ─────────────────────────────────────────────────────────────
 
 const ANALYSIS_WINDOW_MS = 14 * 24 * 60 * 60 * 1000; // 14 days
 const RECENT_WINDOW_MS = 2 * 24 * 60 * 60 * 1000;   // 2 days
+const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 
 const PHASE_COLORS: Record<RecoveryPhase, string> = {
     acute: '#ef4444',        // Red
@@ -72,12 +96,18 @@ const PHASE_DIFFICULTY_MAP: Record<RecoveryPhase, string[]> = {
     maintenance: ['beginner', 'intermediate', 'advanced'],
 };
 
+const PHASE_CATEGORY_MAP: Record<RecoveryPhase, string> = {
+    acute: 'Relief',
+    mobility: 'Yoga',
+    strengthening: 'Strength',
+    maintenance: 'Warm-ups',
+};
+
 // ─── Helpers ───────────────────────────────────────────────────────────────
 
 function calculatePainTrend(painLevels: { date: number; level: number }[]): PainTrend {
     if (painLevels.length < 2) return 'stable';
 
-    // Compare first half to second half average
     const mid = Math.floor(painLevels.length / 2);
     const firstHalf = painLevels.slice(0, mid);
     const secondHalf = painLevels.slice(mid);
@@ -97,16 +127,9 @@ function determinePhase(
     painTrend: PainTrend,
     recentHighPain: boolean
 ): RecoveryPhase {
-    // High pain recently → acute
     if (recentHighPain || avgPainLevel >= 6) return 'acute';
-
-    // Moderate pain or worsening → mobility
     if (avgPainLevel >= 3 || painTrend === 'worsening') return 'mobility';
-
-    // Low pain, improving, and enough sessions → strengthening
     if (avgPainLevel >= 1 && daysSinceFirstSession >= 3) return 'strengthening';
-
-    // Very low pain, stable/improving, been at it for a while → maintenance
     return 'maintenance';
 }
 
@@ -117,6 +140,125 @@ function getCoachMessageKey(phase: RecoveryPhase, painTrend: PainTrend): string 
     if (phase === 'mobility') return 'coach_mobility';
     if (phase === 'strengthening') return 'coach_strengthening';
     return 'coach_maintenance';
+}
+
+function computeWeeklyProgress(history: HistoryItem[]): WeeklyProgress {
+    const now = Date.now();
+    const thisWeekCutoff = now - ONE_WEEK_MS;
+    const lastWeekCutoff = now - 2 * ONE_WEEK_MS;
+
+    const thisWeekSessions = history.filter(h => h.date >= thisWeekCutoff);
+    const lastWeekSessions = history.filter(h => h.date >= lastWeekCutoff && h.date < thisWeekCutoff);
+
+    const thisWeekPain = thisWeekSessions
+        .filter(h => h.assessment?.painLevel !== undefined)
+        .map(h => h.assessment!.painLevel!);
+    const lastWeekPain = lastWeekSessions
+        .filter(h => h.assessment?.painLevel !== undefined)
+        .map(h => h.assessment!.painLevel!);
+
+    const thisWeekAvg = thisWeekPain.length > 0
+        ? thisWeekPain.reduce((a, b) => a + b, 0) / thisWeekPain.length : 0;
+    const lastWeekAvg = lastWeekPain.length > 0
+        ? lastWeekPain.reduce((a, b) => a + b, 0) / lastWeekPain.length : 0;
+
+    let painChangePercent = 0;
+    if (lastWeekAvg > 0) {
+        painChangePercent = Math.round(((thisWeekAvg - lastWeekAvg) / lastWeekAvg) * 100);
+    }
+
+    const musclesWorked = Array.from(new Set(
+        thisWeekSessions.map(h => h.muscleGroup).filter(Boolean)
+    ));
+
+    return {
+        sessionsThisWeek: thisWeekSessions.length,
+        sessionsLastWeek: lastWeekSessions.length,
+        painChangePercent,
+        musclesWorked,
+    };
+}
+
+function computeMilestones(history: HistoryItem[], dayNumber: number, painTrend: PainTrend, avgPain: number): Milestone[] {
+    const totalSessions = history.filter(h => h.assessment?.painLevel !== undefined).length;
+    const now = Date.now();
+    const oneWeekAgo = now - ONE_WEEK_MS;
+    const thisWeekSessions = history.filter(h => h.date >= oneWeekAgo).length;
+
+    return [
+        {
+            id: 'first_session',
+            labelKey: 'milestoneFirstSession',
+            icon: '🎯',
+            achieved: totalSessions >= 1,
+        },
+        {
+            id: 'three_sessions',
+            labelKey: 'milestoneThreeSessions',
+            icon: '💪',
+            achieved: totalSessions >= 3,
+        },
+        {
+            id: 'week_streak',
+            labelKey: 'milestoneWeekStreak',
+            icon: '🔥',
+            achieved: thisWeekSessions >= 5,
+        },
+        {
+            id: 'pain_improving',
+            labelKey: 'milestonePainImproving',
+            icon: '📉',
+            achieved: painTrend === 'improving',
+        },
+        {
+            id: 'ten_sessions',
+            labelKey: 'milestoneTenSessions',
+            icon: '🏆',
+            achieved: totalSessions >= 10,
+        },
+        {
+            id: 'low_pain',
+            labelKey: 'milestoneLowPain',
+            icon: '🌟',
+            achieved: avgPain < 3 && totalSessions >= 3,
+        },
+    ];
+}
+
+/**
+ * Selects exercises for today's plan based on the recovery phase and target muscle.
+ */
+function selectDailyExercises(targetMuscle: string, phase: RecoveryPhase): string[] {
+    const category = PHASE_CATEGORY_MAP[phase];
+
+    const muscleMap: Record<string, string> = {
+        'neck': 'Neck', 'Neck': 'Neck',
+        'shoulders': 'Shoulders', 'Shoulders': 'Shoulders',
+        'upper_back': 'Upper Back', 'Upper Back': 'Upper Back',
+        'lower_back': 'Lower Back', 'Lower Back': 'Lower Back',
+        'glutes': 'Glutes', 'Glutes': 'Glutes',
+        'legs': 'Legs', 'Legs': 'Legs',
+        'hips': 'Hips', 'Hips': 'Hips',
+        'abdomen': 'Abdomen', 'Abdomen': 'Abdomen',
+        'calves': 'Calves', 'Calves': 'Calves',
+        'feet': 'Feet', 'Feet': 'Feet',
+    };
+
+    const muscleGroup = muscleMap[targetMuscle] || targetMuscle;
+
+    let candidates = EXERCISES.filter(
+        e => e.muscleGroup === muscleGroup && e.category === category
+    );
+
+    if (candidates.length < 2) {
+        candidates = EXERCISES.filter(e => e.muscleGroup === muscleGroup);
+    }
+
+    if (candidates.length < 2) {
+        candidates = EXERCISES.filter(e => e.category === category);
+    }
+
+    return candidates.slice(0, 4).map(e => e.id);
 }
 
 // ─── Main Engine ───────────────────────────────────────────────────────────
@@ -130,14 +272,12 @@ export function generateRoadmap(history: HistoryItem[]): RecoveryRoadmap | null 
     const cutoff = now - ANALYSIS_WINDOW_MS;
     const recentCutoff = now - RECENT_WINDOW_MS;
 
-    // Filter to sessions within the analysis window that have pain data
     const relevantSessions = history.filter(
         h => h.date >= cutoff && h.assessment?.painLevel !== undefined
     );
 
     if (relevantSessions.length < 2) return null;
 
-    // Group by muscle and find the one with the most sessions
     const muscleGroups: Record<string, HistoryItem[]> = {};
     relevantSessions.forEach(session => {
         const muscle = session.muscleGroup;
@@ -145,7 +285,6 @@ export function generateRoadmap(history: HistoryItem[]): RecoveryRoadmap | null 
         muscleGroups[muscle].push(session);
     });
 
-    // Find muscle with most sessions (the one needing a roadmap)
     let targetMuscle = '';
     let maxSessions = 0;
     Object.entries(muscleGroups).forEach(([muscle, sessions]) => {
@@ -159,7 +298,6 @@ export function generateRoadmap(history: HistoryItem[]): RecoveryRoadmap | null 
 
     const muscleSessions = muscleGroups[targetMuscle].sort((a, b) => a.date - b.date);
 
-    // Calculate pain metrics
     const painLevels = muscleSessions.map(s => ({
         date: s.date,
         level: s.assessment!.painLevel!,
@@ -168,21 +306,21 @@ export function generateRoadmap(history: HistoryItem[]): RecoveryRoadmap | null 
     const avgPainLevel = painLevels.reduce((sum, p) => sum + p.level, 0) / painLevels.length;
     const painTrend = calculatePainTrend(painLevels);
 
-    // Check for recent high pain (≥ 6 in last 2 days)
     const recentHighPain = painLevels.some(
         p => p.date >= recentCutoff && p.level >= 6
     );
 
-    // Calculate day number (from first session in window)
     const firstSessionDate = muscleSessions[0].date;
     const dayNumber = Math.max(1, Math.ceil((now - firstSessionDate) / (24 * 60 * 60 * 1000)));
 
-    // Determine phase
     const daysSinceFirst = dayNumber;
     const currentPhase = determinePhase(avgPainLevel, daysSinceFirst, painTrend, recentHighPain);
 
-    // Build roadmap
     const coachMessage = getCoachMessageKey(currentPhase, painTrend);
+    const weeklyProgress = computeWeeklyProgress(history);
+    const roundedAvg = Math.round(avgPainLevel * 10) / 10;
+    const milestones = computeMilestones(history, dayNumber, painTrend, roundedAvg);
+    const suggestedExerciseIds = selectDailyExercises(targetMuscle, currentPhase);
 
     return {
         targetMuscle,
@@ -194,13 +332,17 @@ export function generateRoadmap(history: HistoryItem[]): RecoveryRoadmap | null 
             muscle: targetMuscle,
             day: dayNumber,
             phase: currentPhase,
-            pain: Math.round(avgPainLevel * 10) / 10,
+            pain: roundedAvg,
         },
         painTrend,
-        avgPainLevel: Math.round(avgPainLevel * 10) / 10,
+        avgPainLevel: roundedAvg,
         difficultyFilter: PHASE_DIFFICULTY_MAP[currentPhase],
         phaseColor: PHASE_COLORS[currentPhase],
         phaseIcon: PHASE_ICONS[currentPhase],
+        weeklyProgress,
+        milestones,
+        suggestedExerciseIds,
+        totalSessions: relevantSessions.length,
     };
 }
 

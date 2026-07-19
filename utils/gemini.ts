@@ -165,3 +165,230 @@ Identify the best exercises from the candidates to form a sequence (up to 4 exer
         return null;
     }
 }
+
+// ─── Shared Gemini API Helper ──────────────────────────────────────────────
+
+async function callGemini(prompt: string, systemInstructions: string): Promise<string | null> {
+    const apiKey = await getGeminiApiKey();
+    if (!apiKey) {
+        console.log('[Gemini] No API key configured.');
+        return null;
+    }
+
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+
+    const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            contents: [{ parts: [{ text: `${systemInstructions}\n\n${prompt}` }] }],
+            generationConfig: { responseMimeType: 'application/json' },
+        }),
+    });
+
+    if (!response.ok) {
+        const errBody = await response.text();
+        console.error('[Gemini] API error:', response.status, errBody);
+        return null;
+    }
+
+    const data = await response.json();
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!text) {
+        console.error('[Gemini] Empty response.');
+        return null;
+    }
+
+    return text.replace(/```json/g, '').replace(/```/g, '').trim();
+}
+
+// ─── AI Coaching Types ─────────────────────────────────────────────────────
+
+export interface CoachingMessage {
+    /** The main coaching message for today */
+    message: string;
+    /** A short motivational quote or tip */
+    tip: string;
+    /** Suggested activity for today: relief | yoga | strength | warmup | posture */
+    suggestedActivity: string;
+    /** Brief reason for the suggestion */
+    activityReason: string;
+}
+
+export interface ChatMessage {
+    role: 'user' | 'coach';
+    content: string;
+    timestamp: number;
+}
+
+export interface WeeklyRecap {
+    /** Summary paragraph of the week */
+    summary: string;
+    /** Key highlights (e.g., "3 sessions completed", "Pain down 20%") */
+    highlights: string[];
+    /** What to focus on next week */
+    nextWeekFocus: string;
+    /** Motivational closing message */
+    motivation: string;
+}
+
+// ─── AI Coaching Functions ─────────────────────────────────────────────────
+
+export interface CoachingContext {
+    painHistory: { muscle: string; painLevel: number; date: string; activityType: string }[];
+    currentPhase: string;
+    painTrend: string;
+    avgPainLevel: number;
+    targetMuscle: string;
+    dayNumber: number;
+    sessionsThisWeek: number;
+    sessionsTotal: number;
+    fitnessLevel: string;
+    language: string;
+}
+
+/**
+ * Generates a personalized daily coaching message using Gemini.
+ * Returns null if API key is missing or call fails.
+ */
+export async function generateCoachingMessage(
+    ctx: CoachingContext
+): Promise<CoachingMessage | null> {
+    try {
+        const system = `You are MuscliKnot's AI Recovery Coach — a warm, knowledgeable physical therapist and personal trainer.
+You provide daily personalized coaching messages based on the user's pain history and recovery progress.
+
+Respond with a single valid JSON object:
+{
+  "message": "A personalized 2-3 sentence coaching message addressing the user's current state. Be empathetic, specific, and actionable. Reference their actual data (muscle group, pain trend, session count). Deliver in language '${ctx.language}'.",
+  "tip": "A 1-sentence recovery tip or motivational note relevant to their phase. Deliver in language '${ctx.language}'.",
+  "suggestedActivity": "One of: relief | yoga | strength | warmup | posture",
+  "activityReason": "A 1-sentence explanation of why this activity is recommended today. Deliver in language '${ctx.language}'."
+}`;
+
+        const prompt = `
+=== USER RECOVERY DATA ===
+Target Muscle: ${ctx.targetMuscle}
+Current Phase: ${ctx.currentPhase} (acute → mobility → strengthening → maintenance)
+Day Number: ${ctx.dayNumber}
+Pain Trend: ${ctx.painTrend} (improving/stable/worsening)
+Average Pain Level: ${ctx.avgPainLevel}/10
+Sessions This Week: ${ctx.sessionsThisWeek}
+Total Sessions: ${ctx.sessionsTotal}
+Fitness Level: ${ctx.fitnessLevel}
+
+=== RECENT PAIN HISTORY (last 14 days) ===
+${ctx.painHistory.map(h => `- ${h.date}: ${h.muscle} — Pain ${h.painLevel}/10 (${h.activityType})`).join('\n') || 'No sessions logged yet.'}
+
+Generate a personalized coaching message for today.`;
+
+        const result = await callGemini(prompt, system);
+        if (!result) return null;
+
+        const parsed: CoachingMessage = JSON.parse(result);
+        if (!parsed.message || !parsed.suggestedActivity) return null;
+
+        return parsed;
+    } catch (error) {
+        console.error('[Gemini] Coaching message error:', error);
+        return null;
+    }
+}
+
+/**
+ * Generates an AI coach chat response for a user question.
+ */
+export async function generateChatResponse(
+    userMessage: string,
+    chatHistory: ChatMessage[],
+    ctx: CoachingContext
+): Promise<string | null> {
+    try {
+        const system = `You are MuscliKnot's AI Recovery Coach. You are having a conversation with a user about their muscle recovery, pain management, and exercise routine.
+
+Rules:
+- Be warm, empathetic, and professional
+- Give evidence-based advice about stretching, strengthening, and pain management
+- Reference the user's actual data when relevant
+- Keep responses concise (2-4 sentences) unless they ask for detail
+- NEVER diagnose medical conditions — recommend seeing a doctor for persistent/severe pain
+- Respond in language: '${ctx.language}'
+- Return valid JSON: { "response": "your response text" }`;
+
+        const recentChat = chatHistory.slice(-6).map(m =>
+            `${m.role === 'user' ? 'User' : 'Coach'}: ${m.content}`
+        ).join('\n');
+
+        const prompt = `
+=== USER RECOVERY PROFILE ===
+Target Muscle: ${ctx.targetMuscle}
+Current Phase: ${ctx.currentPhase}
+Pain Trend: ${ctx.painTrend}
+Average Pain: ${ctx.avgPainLevel}/10
+Sessions This Week: ${ctx.sessionsThisWeek}
+Fitness Level: ${ctx.fitnessLevel}
+
+=== CONVERSATION HISTORY ===
+${recentChat || '(New conversation)'}
+
+User: ${userMessage}
+
+Respond to the user's message.`;
+
+        const result = await callGemini(prompt, system);
+        if (!result) return null;
+
+        const parsed = JSON.parse(result);
+        return parsed.response || null;
+    } catch (error) {
+        console.error('[Gemini] Chat response error:', error);
+        return null;
+    }
+}
+
+/**
+ * Generates a weekly recap of the user's recovery progress.
+ */
+export async function generateWeeklyRecap(
+    ctx: CoachingContext & {
+        sessionsLastWeek: number;
+        painChangePercent: number;
+        musclesWorked: string[];
+    }
+): Promise<WeeklyRecap | null> {
+    try {
+        const system = `You are MuscliKnot's AI Recovery Coach providing a weekly progress summary.
+
+Return valid JSON:
+{
+  "summary": "A 2-3 sentence summary of the user's week — what they accomplished, how their pain changed, and overall progress. Be specific with numbers. Deliver in language '${ctx.language}'.",
+  "highlights": ["highlight 1", "highlight 2", "highlight 3"],
+  "nextWeekFocus": "1-2 sentences about what to focus on next week based on their data. Deliver in language '${ctx.language}'.",
+  "motivation": "A brief motivational closing. Deliver in language '${ctx.language}'."
+}`;
+
+        const prompt = `
+=== WEEKLY STATS ===
+Sessions This Week: ${ctx.sessionsThisWeek}
+Sessions Last Week: ${ctx.sessionsLastWeek}
+Pain Change: ${ctx.painChangePercent > 0 ? '+' : ''}${ctx.painChangePercent}%
+Muscles Worked: ${ctx.musclesWorked.join(', ') || 'None'}
+Current Phase: ${ctx.currentPhase}
+Average Pain: ${ctx.avgPainLevel}/10
+Fitness Level: ${ctx.fitnessLevel}
+Total Sessions All-Time: ${ctx.sessionsTotal}
+
+Generate a weekly recap.`;
+
+        const result = await callGemini(prompt, system);
+        if (!result) return null;
+
+        const parsed: WeeklyRecap = JSON.parse(result);
+        if (!parsed.summary || !Array.isArray(parsed.highlights)) return null;
+
+        return parsed;
+    } catch (error) {
+        console.error('[Gemini] Weekly recap error:', error);
+        return null;
+    }
+}
