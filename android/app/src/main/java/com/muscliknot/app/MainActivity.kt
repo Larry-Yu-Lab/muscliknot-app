@@ -1,4 +1,4 @@
-package com.anonymous.MuscliKnot
+package com.muscliknot.app
 import expo.modules.splashscreen.SplashScreenManager
 
 import android.os.Build
