@@ -285,7 +285,7 @@ export async function sendCoachMessage(
 
     const coachMsg: ChatMessage = {
         role: 'coach',
-        content: response || getDefaultChatResponse(language),
+        content: response || getSmartFallbackResponse(userMessage, roadmap, language),
         timestamp: Date.now(),
     };
     chatHistory.push(coachMsg);
@@ -327,12 +327,41 @@ export async function clearChatHistory(): Promise<void> {
     await AsyncStorage.removeItem(CHAT_HISTORY_KEY).catch(() => {});
 }
 
-function getDefaultChatResponse(language: string): string {
-    const defaults: Record<string, string> = {
-        en: "I'm here to help with your recovery! Could you tell me more about what you'd like to know?",
-        fr: "Je suis là pour vous aider dans votre récupération ! Pourriez-vous me dire plus sur ce que vous aimeriez savoir ?",
-        es: "¡Estoy aquí para ayudarte con tu recuperación! ¿Podrías decirme más sobre lo que te gustaría saber?",
-        de: "Ich bin hier, um dir bei deiner Erholung zu helfen! Könntest du mir mehr darüber erzählen, was du wissen möchtest?",
-    };
-    return defaults[language] || defaults.en;
+function getSmartFallbackResponse(userMessage: string, roadmap: RecoveryRoadmap, language: string): string {
+    const text = userMessage.toLowerCase();
+    const muscle = roadmap.targetMuscle || 'muscles';
+    const phase = roadmap.currentPhase || 'mobility';
+
+    // Sharp / Stinging / Severe Pain
+    if (text.includes('sting') || text.includes('sharp') || text.includes('stab') || text.includes('burn') || text.includes('severe') || text.includes('intense')) {
+        return `A sharp or stinging sensation in your ${muscle} usually points to acute tissue strain or nerve irritation. Please avoid aggressive stretching or hard massage right now. Apply cold therapy for 10-15 minutes, rest the area, and focus on gentle, pain-free mobility. If sharp pain persists, consult a health professional.`;
+    }
+
+    // Neck / Shoulders / Traps
+    if (text.includes('neck') || text.includes('shoulder') || text.includes('trap') || text.includes('headache') || text.includes('cervical')) {
+        return `Neck and upper trap tension is common during stress or prolonged sitting. Try gentle levator scapulae stretches and chin tucks to release tension. Hold each gentle stretch for 20-30 seconds without forcing your head. Keep your chest open and shoulders relaxed.`;
+    }
+
+    // Lower Back / Lumbar / Glutes
+    if (text.includes('back') || text.includes('lumbar') || text.includes('spine') || text.includes('glute') || text.includes('sciatica')) {
+        return `For back and lumbar discomfort, gentle movement like cat-cow poses or child's pose helps restore spinal mobility. Avoid heavy lifting or spinal flexion while in your ${phase} recovery phase. Focus on gentle core engagement and hip mobility.`;
+    }
+
+    // Legs / Knees / Hips / Quadriceps
+    if (text.includes('leg') || text.includes('knee') || text.includes('quad') || text.includes('hamstring') || text.includes('calf') || text.includes('hip') || text.includes('it band')) {
+        return `Lower body tightness responds well to light foam rolling and targeted dynamic stretches. For your ${muscle}, work through 30-second gentle holds for your quads or hip flexors while keeping your breathing steady and relaxed.`;
+    }
+
+    // Tightness / Soreness / Knots
+    if (text.includes('sore') || text.includes('tight') || text.includes('knot') || text.includes('stiff') || text.includes('ache') || text.includes('fatigue')) {
+        return `Muscle knots and tightness are a natural sign of fatigue during recovery. Since you are currently in the ${phase} phase for your ${muscle}, stick with light, controlled stretches and foam rolling. Hydrate well and allow your muscles time to recover.`;
+    }
+
+    // Workout / Exercise inquiries
+    if (text.includes('exercise') || text.includes('workout') || text.includes('stretch') || text.includes('foam roll') || text.includes('massage')) {
+        return `For your current ${phase} phase, focus on slow, controlled stretch movements rather than heavy resistance. Spend 30-60 seconds on targeted trigger points with a foam roller or massage ball to release tight fascia in your ${muscle}.`;
+    }
+
+    // General default contextual response
+    return `I'm tracking your recovery for your ${muscle} (currently in the ${phase} phase). Tell me more about what you're experiencing, like pain intensity, tightness, or specific areas, and I'll tailor the best relief advice for you!`;
 }

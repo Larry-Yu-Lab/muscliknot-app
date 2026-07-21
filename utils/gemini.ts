@@ -26,9 +26,11 @@ interface AssessmentInput {
  */
 export async function getGeminiApiKey(): Promise<string | null> {
     try {
-        return await AsyncStorage.getItem(GEMINI_API_KEY_STORAGE_KEY);
+        const stored = await AsyncStorage.getItem(GEMINI_API_KEY_STORAGE_KEY);
+        if (stored && stored.trim() !== '') return stored.trim();
+        return process.env.EXPO_PUBLIC_GEMINI_API_KEY || null;
     } catch {
-        return null;
+        return process.env.EXPO_PUBLIC_GEMINI_API_KEY || null;
     }
 }
 

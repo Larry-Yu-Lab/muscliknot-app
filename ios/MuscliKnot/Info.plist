@@ -45,6 +45,8 @@
       <key>NSAllowsLocalNetworking</key>
       <true/>
     </dict>
+    <key>ITSAppUsesNonExemptEncryption</key>
+    <false/>
     <key>NSHealthShareUsageDescription</key>
     <string>MuscliKnot uses your activity data and workouts to accurately calculate muscle fatigue and customize your recovery roadmap.</string>
     <key>NSHealthUpdateUsageDescription</key>
