@@ -3,7 +3,8 @@
  * 
  * Orchestrates the AI coaching experience by combining:
  * - Gemini AI for personalized messages (when API key is available)
- * - Recovery Roadmap engine for deterministic fallbacks
+ * - Local Coach Engine for intelligent offline responses (always works)
+ * - Recovery Roadmap engine for deterministic daily coaching
  * - AsyncStorage caching to minimize API calls
  * 
  * Provides the daily coaching message, weekly summaries,
@@ -24,6 +25,7 @@ import {
 import { generateRoadmap, RecoveryRoadmap } from './recoveryRoadmap';
 import { getHistory, HistoryItem } from './storage';
 import { formatLabel } from './i18n';
+import { generateLocalResponse } from './localCoachEngine';
 
 // ─── Cache Keys ────────────────────────────────────────────────────────────
 
@@ -256,6 +258,8 @@ export async function getWeeklyRecapData(
 
 /**
  * Send a message to the AI coach and get a response.
+ * Uses Gemini AI when available, otherwise falls back to the local coach engine
+ * which provides intelligent, context-aware responses offline.
  */
 export async function sendCoachMessage(
     userMessage: string,
@@ -279,13 +283,23 @@ export async function sendCoachMessage(
     };
     chatHistory.push(userMsg);
 
-    // Generate response
-    const ctx = buildCoachingContext(roadmap, history, fitnessLevel, language);
-    const response = await generateChatResponse(userMessage, chatHistory, ctx);
+    // Try Gemini AI first
+    let responseText: string | null = null;
+    try {
+        const ctx = buildCoachingContext(roadmap, history, fitnessLevel, language);
+        responseText = await generateChatResponse(userMessage, chatHistory, ctx);
+    } catch (e) {
+        console.log('[AICoach] Gemini chat failed, using local engine:', e);
+    }
+
+    // Fall back to local coach engine (always produces a response)
+    if (!responseText) {
+        responseText = generateLocalResponse(userMessage, roadmap, history, fitnessLevel);
+    }
 
     const coachMsg: ChatMessage = {
         role: 'coach',
-        content: response || getSmartFallbackResponse(userMessage, roadmap, language),
+        content: responseText,
         timestamp: Date.now(),
     };
     chatHistory.push(coachMsg);
@@ -325,43 +339,4 @@ export async function refreshDailyCoach(): Promise<void> {
  */
 export async function clearChatHistory(): Promise<void> {
     await AsyncStorage.removeItem(CHAT_HISTORY_KEY).catch(() => {});
-}
-
-function getSmartFallbackResponse(userMessage: string, roadmap: RecoveryRoadmap, language: string): string {
-    const text = userMessage.toLowerCase();
-    const muscle = roadmap.targetMuscle || 'muscles';
-    const phase = roadmap.currentPhase || 'mobility';
-
-    // Sharp / Stinging / Severe Pain
-    if (text.includes('sting') || text.includes('sharp') || text.includes('stab') || text.includes('burn') || text.includes('severe') || text.includes('intense')) {
-        return `A sharp or stinging sensation in your ${muscle} usually points to acute tissue strain or nerve irritation. Please avoid aggressive stretching or hard massage right now. Apply cold therapy for 10-15 minutes, rest the area, and focus on gentle, pain-free mobility. If sharp pain persists, consult a health professional.`;
-    }
-
-    // Neck / Shoulders / Traps
-    if (text.includes('neck') || text.includes('shoulder') || text.includes('trap') || text.includes('headache') || text.includes('cervical')) {
-        return `Neck and upper trap tension is common during stress or prolonged sitting. Try gentle levator scapulae stretches and chin tucks to release tension. Hold each gentle stretch for 20-30 seconds without forcing your head. Keep your chest open and shoulders relaxed.`;
-    }
-
-    // Lower Back / Lumbar / Glutes
-    if (text.includes('back') || text.includes('lumbar') || text.includes('spine') || text.includes('glute') || text.includes('sciatica')) {
-        return `For back and lumbar discomfort, gentle movement like cat-cow poses or child's pose helps restore spinal mobility. Avoid heavy lifting or spinal flexion while in your ${phase} recovery phase. Focus on gentle core engagement and hip mobility.`;
-    }
-
-    // Legs / Knees / Hips / Quadriceps
-    if (text.includes('leg') || text.includes('knee') || text.includes('quad') || text.includes('hamstring') || text.includes('calf') || text.includes('hip') || text.includes('it band')) {
-        return `Lower body tightness responds well to light foam rolling and targeted dynamic stretches. For your ${muscle}, work through 30-second gentle holds for your quads or hip flexors while keeping your breathing steady and relaxed.`;
-    }
-
-    // Tightness / Soreness / Knots
-    if (text.includes('sore') || text.includes('tight') || text.includes('knot') || text.includes('stiff') || text.includes('ache') || text.includes('fatigue')) {
-        return `Muscle knots and tightness are a natural sign of fatigue during recovery. Since you are currently in the ${phase} phase for your ${muscle}, stick with light, controlled stretches and foam rolling. Hydrate well and allow your muscles time to recover.`;
-    }
-
-    // Workout / Exercise inquiries
-    if (text.includes('exercise') || text.includes('workout') || text.includes('stretch') || text.includes('foam roll') || text.includes('massage')) {
-        return `For your current ${phase} phase, focus on slow, controlled stretch movements rather than heavy resistance. Spend 30-60 seconds on targeted trigger points with a foam roller or massage ball to release tight fascia in your ${muscle}.`;
-    }
-
-    // General default contextual response
-    return `I'm tracking your recovery for your ${muscle} (currently in the ${phase} phase). Tell me more about what you're experiencing, like pain intensity, tightness, or specific areas, and I'll tailor the best relief advice for you!`;
 }
