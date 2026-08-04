@@ -1,5 +1,5 @@
 # MuscliKnot
-**MuscliKnot** is an physiotherapy app that is designed to help muscle recovery, pain relief, strengthen muscles and more. MuscliKnot is built is React Native and Expo. MuscliKnot allows uses to visualize, track and alleviate muscle pain through interactive anatomy mapping, personalized relief plans and a vast library of exercises. 
+**MuscliKnot**  is a physiotherapy app designed to support muscle recovery, relieve pain, strengthen muscles, and more. Built with React Native and Expo, MuscliKnot allows users to visualize, track, and alleviate muscle pain through interactive anatomy mapping, personalized relief plans, and a vast library of exercises.
 
 ---
 
