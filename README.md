@@ -7,19 +7,19 @@
 
 ### 1.  Interactive Body Visualizer (Home)
 The core feature of the app is an interactive human anatomy model that allows users to pinpoint pain with absolute precision.
-*   **Dual View:** Toggle between **Front** and **Back** muscle views.
-*   **Zoom Control:** Magnifying buttons (+/-) allow users to zoom in/out (up to 2x) on specific body areas for precise selection.
-*   **Smart Pain Mapping:** Users can drag, place, resize, and rotate a "Pain Marker" oval on the body map.
-*   **Muscle Search:** Real-time search functionality to quickly find and map specific body parts (e.g., "Neck", "Lower Back").
-*   **Quick Fix & Recent Plans:** Rapid access to common routines and your last completed sessions directly from the home screen.
+*   **Dual View:** Flip between front and rear muscle groups with a single tap.
+*   **Zoom Control:** Use (+/-) buttons to zoom in up to 2x for a closer look at tighter muscle groups.
+*   **Smart Pain Mapping:** Drag, resize, and rotate an oval marker to match the exact shape and location of your pain.
+*   **Muscle Search:** Type in body parts like "Neck" or "Lower Back" to jump straight to specific muscles.
+*   **Quick Fix & Recent Plans:** Reopen your last session or jump into standard routines right from the main screen.
 
 ### 2.  Activity Selection & Relief
 Once a pain point is selected, users can choose from 5 specialized activity types:
-*   **Find Relief:** Targeted exercises to reduce acute pain.
-*   **Warm Up:** Prepare specific muscles for activity.
-*   **Yoga:** Improve flexibility and balance in the target area.
-*   **Fix Posture:** Correct alignment issues related to the selected muscle.
-*   **Strengthen:** Build long-term muscle resilience.
+*   **Find Relief:** Simple exercises designed to calm acute soreness fast.
+*   **Warm Up:** Quick routines to prime specific muscles before workouts or daily movement.
+*   **Yoga:** Stretches built to improve flexibility and stability around the affected area.
+*   **Fix Posture:** Focused drills to ease strain caused by poor alignment.
+*   **Strengthen:** Resistance movements to build long-term muscle strength and prevent future flare-ups.
 
 ### 3. Intelligent Recommendations
 *   **Assessment Engine:** Dynamic logic that adjusts routines based on pain intensity, duration, and user mobility.
@@ -96,10 +96,10 @@ Tracks and visualizes your recovery journey.
 ##  Database Schema
 
 The application uses a robust PostgreSQL schema via Supabase:
-*   `recovery_knowledge_base`: Central repository for all exercise data across 5 activity types.
-*   `user_history`: Securely stores user recovery sessions and pain assessments.
-*   `user_saved_exercises`: Personalized lists of saved movements for quick recall.
-*   `pain_sessions`: Granular tracking of pain points and their evolution over time.
+*   `recovery_knowledge_base`: Stores exercise content across all 5 activity types.
+*   `user_history`: Logs completed recovery sessions and pain assessments.
+*   `user_saved_exercises`: Tracks bookmarked routines for easy access.
+*   `pain_sessions`: Records specific pain locations and how they change over time.
 
 ---
 
