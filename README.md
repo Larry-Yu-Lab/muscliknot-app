@@ -6,7 +6,7 @@
 ## App Functionality & Features
 
 ### 1.  Interactive Body Visualizer (Home)
-The core feature of the app is an interactive human anatomy model that allows users to pinpoint pain with precision.
+The core feature of the app is an interactive human anatomy model that allows users to pinpoint pain with absolute precision.
 *   **Dual View:** Toggle between **Front** and **Back** muscle views.
 *   **Zoom Control:** Magnifying buttons (+/-) allow users to zoom in/out (up to 2x) on specific body areas for precise selection.
 *   **Smart Pain Mapping:** Users can drag, place, resize, and rotate a "Pain Marker" oval on the body map.
@@ -30,7 +30,7 @@ Once a pain point is selected, users can choose from 5 specialized activity type
 ### 4. Exercise Library & Saved Routines
 A searchable database of all available recovery movements.
 *   **Categorization:** Filter by activity type or specific muscle group.
-*   **Saved Exercises:** Save favorite routines to your personal "Saved" category for instant access.
+*   **Saved Exercises:** Save favourite routines to your personal "Saved" category for instant access.
 *   **Global Search:** Quick search across the entire exercise knowledge base.
 
 ### 5.  Recovery History & Analytics
@@ -44,6 +44,7 @@ Tracks and visualizes your recovery journey.
 *   **Health Vault:** Store injury history and fitness levels for personalized planning.
 *   **Multi-Language Support:** Full localization for **English**, **Spanish**, **French**, and **Chinese (中文)**.
 *   **Dark Mode:** Premium visual experience optimized for muscle mapping.
+*   **Recovery Squad:** Connect with friends and family to share encouragement, keep each other accountable, and spark friendly competition.
 
 ---
 
