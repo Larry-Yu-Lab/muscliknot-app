@@ -1,12 +1,11 @@
-# MuscliKnot 🧘‍♂️💪
-
-**MuscliKnot** is a comprehensive muscle recovery and pain relief application built with **React Native** and **Expo**. It empowers users to visualize, track, and alleviate muscle pain through interactive anatomy mapping, personalized relief plans, and a vast library of exercises.
+# MuscliKnot
+**MuscliKnot** is an physiotherapy app that is designed to help muscle recovery, pain relief, strengthen muscles and more. MuscliKnot is built is React Native and Expo. MuscliKnot allows uses to visualize, track and alleviate muscle pain through interactive anatomy mapping, personalized relief plans and a vast library of exercises. 
 
 ---
 
-## 📱 App Functionality & Features
+## App Functionality & Features
 
-### 1. 🏠 Interactive Body Visualizer (Home)
+### 1.  Interactive Body Visualizer (Home)
 The core feature of the app is an interactive human anatomy model that allows users to pinpoint pain with precision.
 *   **Dual View:** Toggle between **Front** and **Back** muscle views.
 *   **Zoom Control:** Magnifying buttons (+/-) allow users to zoom in/out (up to 2x) on specific body areas for precise selection.
@@ -14,7 +13,7 @@ The core feature of the app is an interactive human anatomy model that allows us
 *   **Muscle Search:** Real-time search functionality to quickly find and map specific body parts (e.g., "Neck", "Lower Back").
 *   **Quick Fix & Recent Plans:** Rapid access to common routines and your last completed sessions directly from the home screen.
 
-### 2. ⚡ Activity Selection & Relief
+### 2.  Activity Selection & Relief
 Once a pain point is selected, users can choose from 5 specialized activity types:
 *   **Find Relief:** Targeted exercises to reduce acute pain.
 *   **Warm Up:** Prepare specific muscles for activity.
@@ -22,25 +21,25 @@ Once a pain point is selected, users can choose from 5 specialized activity type
 *   **Fix Posture:** Correct alignment issues related to the selected muscle.
 *   **Strengthen:** Build long-term muscle resilience.
 
-### 3. 🚑 Intelligent Recommendations
+### 3. Intelligent Recommendations
 *   **Assessment Engine:** Dynamic logic that adjusts routines based on pain intensity, duration, and user mobility.
 *   **Advisory Guidance:** Real-time hints and safety warnings (e.g., "High pain detected — gentle exercises only").
 *   **Step-by-Step Instructions:** Detailed text for **Setup**, **Movement**, and **Holds**.
 *   **Incremental Display:** Progress through relief plans exercise-by-exercise for better focus.
 
-### 4. 📚 Exercise Library & Saved Routines
+### 4. Exercise Library & Saved Routines
 A searchable database of all available recovery movements.
 *   **Categorization:** Filter by activity type or specific muscle group.
 *   **Saved Exercises:** Save favorite routines to your personal "Saved" category for instant access.
 *   **Global Search:** Quick search across the entire exercise knowledge base.
 
-### 5. 📊 Recovery History & Analytics
+### 5.  Recovery History & Analytics
 Tracks and visualizes your recovery journey.
 *   **Stats Overview:** Total sessions, recovery streaks, and most targeted areas.
 *   **Advanced Analytics:** Interactive charts for **Pain Trends**, **Activity Breakdown**, and **Muscle Frequency**.
 *   **Progress Journey:** A visual timeline of every saved session.
 
-### 6. 👤 Profile & Gamification
+### 6. Profile & Gamification
 *   **Athlete Level:** Earn badges and levels as you consistently track your recovery.
 *   **Health Vault:** Store injury history and fitness levels for personalized planning.
 *   **Multi-Language Support:** Full localization for **English**, **Spanish**, **French**, and **Chinese (中文)**.
@@ -48,7 +47,7 @@ Tracks and visualizes your recovery journey.
 
 ---
 
-## 🛠 Tech Stack
+## Tech Stack
 
 *   **Framework:** [React Native](https://reactnative.dev/) (v0.81) via [Expo](https://expo.dev/) (SDK 54).
 *   **Routing:** [Expo Router](https://docs.expo.dev/router/introduction/) (File-based navigation).
@@ -63,7 +62,7 @@ Tracks and visualizes your recovery journey.
 
 ---
 
-## 🚀 Getting Started
+##  Getting Started
 
 1.  **Install Dependencies:**
     ```bash
@@ -81,7 +80,7 @@ Tracks and visualizes your recovery journey.
 
 ---
 
-## 📂 Project Structure
+##  Project Structure
 
 *   `app/(tabs)`: Core navigation screens and activity pages.
 *   `components/`: Reusable UI elements and the `AnatomyMap` logic.
@@ -93,7 +92,7 @@ Tracks and visualizes your recovery journey.
 
 ---
 
-## 🗄️ Database Schema
+##  Database Schema
 
 The application uses a robust PostgreSQL schema via Supabase:
 *   `recovery_knowledge_base`: Central repository for all exercise data across 5 activity types.
