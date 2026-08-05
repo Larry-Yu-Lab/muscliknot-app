@@ -52,6 +52,11 @@ function RootLayoutNav() {
     ...MaterialIcons.font,
   });
 
+  // Hide the native splash screen immediately on mount so only the custom loading screen shows
+  useEffect(() => {
+    SplashScreen.hideAsync().catch(() => {});
+  }, []);
+
   // 1. Load onboarding status once on mount (with timeout safety)
   useEffect(() => {
     let cancelled = false;
