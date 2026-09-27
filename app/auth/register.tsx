@@ -371,8 +371,6 @@ export default function RegisterScreen() {
                     <View style={styles.mainSection}>
                         <TouchableOpacity
                             activeOpacity={1}
-                            onLongPress={__DEV__ ? () => router.push('/auth/signup-success' as any) : undefined}
-                            delayLongPress={800}
                         >
                             <View style={styles.titleBlock}>
                                 <Text style={styles.mainTitle}>{t('registerTitle')}</Text>

@@ -86,42 +86,7 @@ const safePurchases = {
   }
 };
 
-const MOCK_PACKAGES: PurchasesPackage[] = [
-  {
-    identifier: 'mock_monthly',
-    packageType: PACKAGE_TYPE.MONTHLY,
-    product: {
-      identifier: 'muscliknot_pro_monthly',
-      description: 'Unlock full recovery roadmap and AI coach guidance monthly.',
-      title: 'MuscliKnot Pro Monthly',
-      price: 9.99,
-      priceString: '$9.99',
-      currencyCode: 'USD',
-      introPrice: null,
-      discounts: [],
-    } as any,
-    offeringIdentifier: 'default',
-    presentedOfferingContext: null as any,
-    webCheckoutUrl: null,
-  },
-  {
-    identifier: 'mock_annual',
-    packageType: PACKAGE_TYPE.ANNUAL,
-    product: {
-      identifier: 'muscliknot_pro_annual',
-      description: 'Unlock full recovery roadmap and AI coach guidance annually.',
-      title: 'MuscliKnot Pro Annual',
-      price: 59.99,
-      priceString: '$59.99',
-      currencyCode: 'USD',
-      introPrice: null,
-      discounts: [],
-    } as any,
-    offeringIdentifier: 'default',
-    presentedOfferingContext: null as any,
-    webCheckoutUrl: null,
-  }
-];
+
 
 /**
  * Configure the RevenueCat SDK with the active user ID.
@@ -158,18 +123,18 @@ export const configurePurchases = async (userId?: string) => {
 export const getOfferings = async (): Promise<PurchasesPackage[]> => {
   try {
     if (!isPurchasesValid || !(await safePurchases.isConfigured())) {
-      console.log('[Purchases] RevenueCat not configured/available, returning mock packages');
-      return MOCK_PACKAGES;
+      console.log('[Purchases] RevenueCat not configured/available');
+      return [];
     }
     const offerings = await safePurchases.getOfferings();
     if (offerings.current !== null && offerings.current.availablePackages.length !== 0) {
       return offerings.current.availablePackages;
     }
-    console.log('[Purchases] No available packages, falling back to mock packages');
-    return MOCK_PACKAGES;
+    console.log('[Purchases] No available packages');
+    return [];
   } catch (error) {
     console.error('Error fetching offerings from RevenueCat:', error);
-    return MOCK_PACKAGES;
+    return [];
   }
 };
 
@@ -178,9 +143,8 @@ export const getOfferings = async (): Promise<PurchasesPackage[]> => {
  */
 export const purchasePackage = async (rcPackage: PurchasesPackage) => {
   try {
-    if (rcPackage.identifier.startsWith('mock_') || !isPurchasesValid || !(await safePurchases.isConfigured())) {
-      console.log('[Purchases] Simulating purchase success for package:', rcPackage.identifier);
-      return { success: true, customerInfo: {} as any, error: null };
+    if (!isPurchasesValid || !(await safePurchases.isConfigured())) {
+      return { success: false, customerInfo: null, error: 'RevenueCat is not configured.' };
     }
     const { customerInfo } = await safePurchases.purchasePackage(rcPackage);
     const hasPremium = typeof (customerInfo as any).entitlements.active[ENTITLEMENT_ID] !== 'undefined';
@@ -189,8 +153,8 @@ export const purchasePackage = async (rcPackage: PurchasesPackage) => {
     if (error.userCancelled) {
       return { success: false, customerInfo: null, error: 'User cancelled the purchase' };
     }
-    console.warn('[Purchases] RevenueCat purchase failed. Using simulated success fallback to not block the user:', error);
-    return { success: true, customerInfo: {} as any, error: null };
+    console.warn('[Purchases] RevenueCat purchase failed:', error);
+    return { success: false, customerInfo: null, error: error.message || 'Purchase failed.' };
   }
 };
 
@@ -216,15 +180,14 @@ export const checkPremiumStatus = async (): Promise<boolean> => {
 export const restorePurchases = async () => {
   try {
     if (!isPurchasesValid || !(await safePurchases.isConfigured())) {
-      console.log('[Purchases] Restore triggered but not configured, returning mock success');
-      return { success: true, customerInfo: {} as any, error: null };
+      return { success: false, customerInfo: null, error: 'RevenueCat is not configured.' };
     }
     const customerInfo = await safePurchases.restorePurchases();
     const hasPremium = typeof (customerInfo as any).entitlements.active[ENTITLEMENT_ID] !== 'undefined';
     return { success: hasPremium, customerInfo, error: null };
   } catch (error: any) {
-    console.warn('[Purchases] Restore failed, using fallback success:', error);
-    return { success: true, customerInfo: {} as any, error: null };
+    console.warn('[Purchases] Restore failed:', error);
+    return { success: false, customerInfo: null, error: error.message || 'Restore failed.' };
   }
 };
 

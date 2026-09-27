@@ -95,7 +95,6 @@ export default function ProfileScreen() {
     const [isLanguageDropdownOpen, setIsLanguageDropdownOpen] = useState(false);
     const [healthKitEnabled, setHealthKitEnabledState] = useState(false);
     const [todaySteps, setTodaySteps] = useState<number>(0);
-    const [devTapCount, setDevTapCount] = useState(0);
     const [geminiApiKey, setGeminiApiKeyValue] = useState('');
     const [isSavingKey, setIsSavingKey] = useState(false);
     const [promoCode, setPromoCode] = useState('');
@@ -160,26 +159,6 @@ export default function ProfileScreen() {
         } else {
             Alert.alert('Error', 'Failed to clear API key.');
         }
-    };
-
-    const handleDevTap = () => {
-        setDevTapCount(prev => {
-            const next = prev + 1;
-            if (next >= 5) {
-                const newPremium = !user.isPremium;
-                if (!newPremium) {
-                    AsyncStorage.removeItem('user_referral_code');
-                }
-                updateUser({ isPremium: newPremium });
-                Alert.alert(
-                    'Developer Mode',
-                    `Premium membership has been ${newPremium ? 'ENABLED' : 'DISABLED'} for testing.`,
-                    [{ text: 'OK' }]
-                );
-                return 0;
-            }
-            return next;
-        });
     };
 
     // Load persisted HealthKit preference on mount
@@ -432,9 +411,7 @@ export default function ProfileScreen() {
 
                             {/* Name and Status */}
                             <View style={styles.nameSection}>
-                                <TouchableOpacity onPress={handleDevTap} activeOpacity={0.8}>
-                                    <Text style={[styles.userName, { color: colors.text }]}>{user.name}</Text>
-                                </TouchableOpacity>
+                                <Text style={[styles.userName, { color: colors.text }]}>{user.name}</Text>
                                 <View style={styles.statusRow}>
                                     <Text style={[styles.athleteStatus, { color: colors.accent }]}>
                                         {t('statusAthlete')}
