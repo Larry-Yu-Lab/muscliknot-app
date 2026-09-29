@@ -12,6 +12,8 @@ import { Image } from 'expo-image';
 import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
 import { SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, ActivityIndicator } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { SpinWheelModal } from '@/components/SpinWheelModal';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { runOnJS, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
 
@@ -132,7 +134,25 @@ export default function HomeScreen() {
   const [loggedMuscles, setLoggedMuscles] = useState<string[]>([]);
   const [preventionAlerts, setPreventionAlerts] = useState<PreventionAlert[]>([]);
   const [dismissedAlerts, setDismissedAlerts] = useState<string[]>([]);
+  const [isWheelVisible, setIsWheelVisible] = useState(false);
   const startCtx = useSharedValue({ x: 0, y: 0 });
+
+  // 10-second Welcome Spin The Wheel Timer for Free / New Users
+  useEffect(() => {
+    let timer: any;
+    if (!user.isPremium) {
+      AsyncStorage.getItem('has_spun_welcome_wheel').then(hasSpun => {
+        if (hasSpun !== 'true') {
+          timer = setTimeout(() => {
+            setIsWheelVisible(true);
+          }, 10000); // 10 seconds of usage
+        }
+      });
+    }
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
+  }, [user.isPremium]);
 
   const STATIC_QUICK_FIXES: HistoryItem[] = [
     {
@@ -957,6 +977,12 @@ export default function HomeScreen() {
         </ScrollView>
 
       </ScrollView>
+
+      {/* 10-Second Welcome Gift Spin The Wheel Modal */}
+      <SpinWheelModal
+        visible={isWheelVisible}
+        onClose={() => setIsWheelVisible(false)}
+      />
     </SafeAreaView>
   );
 }
