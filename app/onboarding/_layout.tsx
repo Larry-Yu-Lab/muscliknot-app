@@ -18,7 +18,6 @@ export default function OnboardingLayout() {
             <Stack.Screen name="goal-potential" />
             <Stack.Screen name="thank-you" />
             <Stack.Screen name="apple-health" />
-            <Stack.Screen name="rating" />
             <Stack.Screen name="notifications" />
             <Stack.Screen name="referral" />
             <Stack.Screen name="coach" />

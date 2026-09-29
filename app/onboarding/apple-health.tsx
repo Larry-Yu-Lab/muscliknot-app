@@ -63,18 +63,18 @@ export default function AppleHealthScreen() {
                     synced
                         ? t('healthConnectedMsgWithTest')
                         : t('healthConnectedMsg'),
-                    [{ text: t('continue'), onPress: () => router.push('/onboarding/rating') }]
+                    [{ text: t('continue'), onPress: () => router.push('/onboarding/notifications') }]
                 );
             } else {
                 Alert.alert(
                     t('healthSkippedTitle'),
                     t('healthSkippedMsg'),
-                    [{ text: 'OK', onPress: () => router.push('/onboarding/rating') }]
+                    [{ text: 'OK', onPress: () => router.push('/onboarding/notifications') }]
                 );
             }
         } catch (error) {
             console.error('Failed to request HealthKit permissions:', error);
-            router.push('/onboarding/rating');
+            router.push('/onboarding/notifications');
         } finally {
             setLoading(false);
         }
@@ -86,7 +86,7 @@ export default function AppleHealthScreen() {
         } catch (error) {
             console.error('Failed to disable HealthKit preference:', error);
         }
-        router.push('/onboarding/rating');
+        router.push('/onboarding/notifications');
     };
 
     return (
