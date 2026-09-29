@@ -181,66 +181,42 @@ export default function ProfileScreen() {
 
     const handleUpgrade = async () => {
         try {
-            // Present RevenueCat native paywall designed in RevenueCat Dashboard
-            const paywallRes = await presentPaywall();
-
-            if (paywallRes.success) {
-                await updateUser({ isPremium: true });
+            const packages = await getOfferings();
+            if (packages.length === 0) {
                 Alert.alert(
-                    'Success',
-                    paywallRes.result === PAYWALL_RESULT.RESTORED
-                        ? 'Your purchases have been successfully restored! Premium Access is active.'
-                        : 'Congratulations! Your Premium Access has been unlocked.',
+                    'Error',
+                    'No subscription packages found. Please verify your connection or try again later.',
                     [{ text: 'OK' }]
                 );
                 return;
             }
 
-            // If user closed or cancelled the paywall, return smoothly
-            if (paywallRes.result === PAYWALL_RESULT.CANCELLED) {
+            const packageTypeToFind = billingCycle === 'annual' ? 'ANNUAL' : 'MONTHLY';
+            const selectedPackage = packages.find(pkg => pkg.packageType === packageTypeToFind) || packages[0];
+
+            if (!selectedPackage) {
+                Alert.alert(
+                    'Error',
+                    'The selected plan is not available at this moment.',
+                    [{ text: 'OK' }]
+                );
                 return;
             }
 
-            // If paywall UI encountered an error or was not presented, fallback to package purchase
-            if (paywallRes.result === PAYWALL_RESULT.ERROR || paywallRes.result === PAYWALL_RESULT.NOT_PRESENTED) {
-                console.log('[Profile] Paywall presentation fallback triggered:', paywallRes.error);
-                const packages = await getOfferings();
-                if (packages.length === 0) {
-                    Alert.alert(
-                        'Error',
-                        'No subscription packages found. Please verify your connection or try again later.',
-                        [{ text: 'OK' }]
-                    );
-                    return;
-                }
-
-                const packageTypeToFind = billingCycle === 'annual' ? 'ANNUAL' : 'MONTHLY';
-                const selectedPackage = packages.find(pkg => pkg.packageType === packageTypeToFind) || packages[0];
-
-                if (!selectedPackage) {
-                    Alert.alert(
-                        'Error',
-                        'The selected plan is not available at this moment.',
-                        [{ text: 'OK' }]
-                    );
-                    return;
-                }
-
-                const result = await purchasePackage(selectedPackage);
-                if (result.success) {
-                    await updateUser({ isPremium: true });
-                    Alert.alert(
-                        'Success',
-                        'Congratulations! Your Premium Access has been unlocked.',
-                        [{ text: 'OK' }]
-                    );
-                } else if (result.error && result.error !== 'User cancelled the purchase') {
-                    Alert.alert(
-                        'Purchase Failed',
-                        result.error,
-                        [{ text: 'OK' }]
-                    );
-                }
+            const result = await purchasePackage(selectedPackage);
+            if (result.success) {
+                await updateUser({ isPremium: true });
+                Alert.alert(
+                    'Success',
+                    'Congratulations! Your Premium Access has been unlocked.',
+                    [{ text: 'OK' }]
+                );
+            } else if (result.error && result.error !== 'User cancelled the purchase') {
+                Alert.alert(
+                    'Purchase Failed',
+                    result.error,
+                    [{ text: 'OK' }]
+                );
             }
         } catch (error: any) {
             console.error('Failed upgrading:', error);
@@ -277,6 +253,24 @@ export default function ProfileScreen() {
                 [{ text: 'OK' }]
             );
         }
+    };
+
+    const handleDowngradeToFree = async () => {
+        Alert.alert(
+            "Switch to Freemium",
+            "Do you want to switch this account back to the Freemium plan?",
+            [
+                { text: "Cancel", style: "cancel" },
+                {
+                    text: "Switch to Free",
+                    style: "destructive",
+                    onPress: async () => {
+                        await updateUser({ isPremium: false });
+                        Alert.alert("Account Updated", "You are now on the Freemium plan!");
+                    }
+                }
+            ]
+        );
     };
 
     const handleHealthKitToggle = async () => {
@@ -925,6 +919,16 @@ export default function ProfileScreen() {
                                 >
                                     <Text style={{ color: colors.textSecondary, fontSize: 13, textDecorationLine: 'underline', fontWeight: '500' }}>
                                         {t('restorePurchases')}
+                                    </Text>
+                                </TouchableOpacity>
+
+                                <TouchableOpacity 
+                                    style={{ alignSelf: 'center', marginTop: 10, paddingVertical: 6 }}
+                                    onPress={handleDowngradeToFree}
+                                    activeOpacity={0.7}
+                                >
+                                    <Text style={{ color: colors.danger, fontSize: 12, fontWeight: '600' }}>
+                                        Switch to Freemium (Test / Reset)
                                     </Text>
                                 </TouchableOpacity>
                             </View>

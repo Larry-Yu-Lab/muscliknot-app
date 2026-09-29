@@ -86,7 +86,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
                             injuryRecovery: statsData.injury_recovery ?? 0,
                         } : defaultUser.attributes;
 
-                        const isPremiumActive = (statsData ? statsData.is_premium : false) || rcPremium;
+                        const isPremiumActive = statsData ? (statsData.is_premium ?? false) : rcPremium;
 
                         setUser({
                             name: meta.full_name || 'User',
@@ -96,12 +96,6 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
                             stats,
                             attributes,
                         });
-
-                        // Auto-sync database if RevenueCat has premium active but DB doesn't
-                        if (rcPremium && statsData && !statsData.is_premium) {
-                            supabase.from('user_stats').update({ is_premium: true }).eq('user_id', authUser.id).then();
-                            supabase.from('profiles').update({ is_premium: true }).eq('id', authUser.id).then();
-                        }
                     }
                 } catch (e) {
                     console.error('Error fetching user stats:', e);
@@ -157,6 +151,14 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 const updates: any = {};
                 if (data.isPremium !== undefined) {
                     updates.is_premium = data.isPremium;
+                    await supabase
+                        .from('profiles')
+                        .update({ is_premium: data.isPremium })
+                        .eq('id', authUser.id);
+
+                    if (!data.isPremium) {
+                        await AsyncStorage.removeItem('user_referral_code');
+                    }
                 }
                 if (data.stats) {
                     updates.workouts = data.stats.workouts;
