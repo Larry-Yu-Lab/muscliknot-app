@@ -183,6 +183,24 @@ export default function ProfileScreen() {
         try {
             const packages = await getOfferings();
             if (packages.length === 0) {
+                if (__DEV__) {
+                    Alert.alert(
+                        'StoreKit Packages Empty',
+                        'RevenueCat could not fetch product prices from Apple (common in Simulator without a StoreKit configuration).\n\nWould you like to simulate a successful purchase in Dev mode?',
+                        [
+                            { text: 'Cancel', style: 'cancel' },
+                            {
+                                text: 'Simulate Upgrade',
+                                onPress: async () => {
+                                    await updateUser({ isPremium: true });
+                                    Alert.alert('Success', 'Simulated purchase successful! Premium Access is active.');
+                                }
+                            }
+                        ]
+                    );
+                    return;
+                }
+
                 Alert.alert(
                     'Error',
                     'No subscription packages found. Please verify your connection or try again later.',

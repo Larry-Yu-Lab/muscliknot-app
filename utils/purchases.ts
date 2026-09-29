@@ -134,10 +134,20 @@ export const getOfferings = async (): Promise<PurchasesPackage[]> => {
       await configurePurchases();
     }
     const offerings = await safePurchases.getOfferings();
-    if (offerings.current !== null && offerings.current.availablePackages.length !== 0) {
+    console.log('[Purchases] Offerings received:', JSON.stringify(offerings));
+
+    if (offerings.current && offerings.current.availablePackages && offerings.current.availablePackages.length > 0) {
       return offerings.current.availablePackages;
     }
-    console.log('[Purchases] No available packages');
+
+    if (offerings.all) {
+      const defaultOffering = offerings.all['default'] || Object.values(offerings.all)[0];
+      if (defaultOffering && defaultOffering.availablePackages && defaultOffering.availablePackages.length > 0) {
+        return defaultOffering.availablePackages;
+      }
+    }
+
+    console.log('[Purchases] No available packages in offerings');
     return [];
   } catch (error) {
     console.error('Error fetching offerings from RevenueCat:', error);
