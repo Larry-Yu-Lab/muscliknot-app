@@ -13,7 +13,7 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { useFocusEffect, useRouter } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
-import { getOfferings, purchasePackage, restorePurchases } from '@/utils/purchases';
+import { getOfferings, purchasePackage, restorePurchases, presentPaywall, presentCustomerCenter, PAYWALL_RESULT } from '@/utils/purchases';
 import React, { useCallback, useEffect, useState } from 'react';
 import { Alert, Dimensions, Modal, Platform, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import Svg, { Circle, Line, Path } from 'react-native-svg';
@@ -181,45 +181,66 @@ export default function ProfileScreen() {
 
     const handleUpgrade = async () => {
         try {
-            const packages = await getOfferings();
-            if (packages.length === 0) {
-                Alert.alert(
-                    'Error',
-                    'No subscription packages found. Please verify your connection or try again later.',
-                    [{ text: 'OK' }]
-                );
-                return;
-            }
+            // Present RevenueCat native paywall designed in RevenueCat Dashboard
+            const paywallRes = await presentPaywall();
 
-            // Find the package corresponding to selected billing cycle
-            // 'annual' -> PACKAGE_TYPE.ANNUAL, 'monthly' -> PACKAGE_TYPE.MONTHLY
-            // RevenueCat SDK uses 'ANNUAL' and 'MONTHLY' string keys or enum properties
-            const packageTypeToFind = billingCycle === 'annual' ? 'ANNUAL' : 'MONTHLY';
-            const selectedPackage = packages.find(pkg => pkg.packageType === packageTypeToFind) || packages[0];
-
-            if (!selectedPackage) {
-                Alert.alert(
-                    'Error',
-                    'The selected plan is not available at this moment.',
-                    [{ text: 'OK' }]
-                );
-                return;
-            }
-
-            const result = await purchasePackage(selectedPackage);
-            if (result.success) {
+            if (paywallRes.success) {
                 await updateUser({ isPremium: true });
                 Alert.alert(
                     'Success',
-                    'Congratulations! Your Premium Access has been unlocked.',
+                    paywallRes.result === PAYWALL_RESULT.RESTORED
+                        ? 'Your purchases have been successfully restored! Premium Access is active.'
+                        : 'Congratulations! Your Premium Access has been unlocked.',
                     [{ text: 'OK' }]
                 );
-            } else if (result.error && result.error !== 'User cancelled the purchase') {
-                Alert.alert(
-                    'Purchase Failed',
-                    result.error,
-                    [{ text: 'OK' }]
-                );
+                return;
+            }
+
+            // If user closed or cancelled the paywall, return smoothly
+            if (paywallRes.result === PAYWALL_RESULT.CANCELLED) {
+                return;
+            }
+
+            // If paywall UI encountered an error or was not presented, fallback to package purchase
+            if (paywallRes.result === PAYWALL_RESULT.ERROR || paywallRes.result === PAYWALL_RESULT.NOT_PRESENTED) {
+                console.log('[Profile] Paywall presentation fallback triggered:', paywallRes.error);
+                const packages = await getOfferings();
+                if (packages.length === 0) {
+                    Alert.alert(
+                        'Error',
+                        'No subscription packages found. Please verify your connection or try again later.',
+                        [{ text: 'OK' }]
+                    );
+                    return;
+                }
+
+                const packageTypeToFind = billingCycle === 'annual' ? 'ANNUAL' : 'MONTHLY';
+                const selectedPackage = packages.find(pkg => pkg.packageType === packageTypeToFind) || packages[0];
+
+                if (!selectedPackage) {
+                    Alert.alert(
+                        'Error',
+                        'The selected plan is not available at this moment.',
+                        [{ text: 'OK' }]
+                    );
+                    return;
+                }
+
+                const result = await purchasePackage(selectedPackage);
+                if (result.success) {
+                    await updateUser({ isPremium: true });
+                    Alert.alert(
+                        'Success',
+                        'Congratulations! Your Premium Access has been unlocked.',
+                        [{ text: 'OK' }]
+                    );
+                } else if (result.error && result.error !== 'User cancelled the purchase') {
+                    Alert.alert(
+                        'Purchase Failed',
+                        result.error,
+                        [{ text: 'OK' }]
+                    );
+                }
             }
         } catch (error: any) {
             console.error('Failed upgrading:', error);

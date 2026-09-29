@@ -1,5 +1,8 @@
 import { Platform, NativeModules } from 'react-native';
-import Purchases, { LOG_LEVEL, PurchasesPackage, PACKAGE_TYPE } from 'react-native-purchases';
+import Purchases, { LOG_LEVEL, PurchasesPackage, PACKAGE_TYPE, PurchasesOffering } from 'react-native-purchases';
+import RevenueCatUI, { PAYWALL_RESULT } from 'react-native-purchases-ui';
+
+export { RevenueCatUI, PAYWALL_RESULT };
 
 const API_KEY = Platform.select({
   ios: process.env.EXPO_PUBLIC_REVENUECAT_APPLE_API_KEY || '',
@@ -122,9 +125,13 @@ export const configurePurchases = async (userId?: string) => {
  */
 export const getOfferings = async (): Promise<PurchasesPackage[]> => {
   try {
-    if (!isPurchasesValid || !(await safePurchases.isConfigured())) {
-      console.log('[Purchases] RevenueCat not configured/available');
+    if (!isPurchasesValid) {
+      console.log('[Purchases] RevenueCat native modules not available on this platform');
       return [];
+    }
+    if (!(await safePurchases.isConfigured())) {
+      console.log('[Purchases] RevenueCat not configured yet, configuring now...');
+      await configurePurchases();
     }
     const offerings = await safePurchases.getOfferings();
     if (offerings.current !== null && offerings.current.availablePackages.length !== 0) {
@@ -202,5 +209,108 @@ export const logoutPurchases = async () => {
     }
   } catch (error) {
     console.error('Error logging out of RevenueCat:', error);
+  }
+};
+
+/**
+ * Present the RevenueCat Paywall configured on the dashboard.
+ * Shows the paywall modally.
+ */
+export const presentPaywall = async (options?: {
+  offering?: PurchasesOffering;
+  displayCloseButton?: boolean;
+}): Promise<{
+  success: boolean;
+  result: PAYWALL_RESULT;
+  error?: string;
+}> => {
+  try {
+    if (!isPurchasesValid) {
+      console.log('[Purchases] Cannot present paywall: native modules not available on this platform');
+      return { success: false, result: PAYWALL_RESULT.NOT_PRESENTED, error: 'In-app purchases not available on this platform.' };
+    }
+
+    if (!(await safePurchases.isConfigured())) {
+      console.log('[Purchases] RevenueCat not configured yet, initializing now...');
+      await configurePurchases();
+    }
+
+    const paywallResult = await RevenueCatUI.presentPaywall({
+      offering: options?.offering,
+      displayCloseButton: options?.displayCloseButton ?? true,
+    });
+
+    const success =
+      paywallResult === PAYWALL_RESULT.PURCHASED ||
+      paywallResult === PAYWALL_RESULT.RESTORED;
+
+    return { success, result: paywallResult };
+  } catch (error: any) {
+    console.warn('[Purchases] Error presenting paywall:', error);
+    return {
+      success: false,
+      result: PAYWALL_RESULT.ERROR,
+      error: error?.message || 'Failed to display paywall',
+    };
+  }
+};
+
+/**
+ * Present the RevenueCat Paywall ONLY if the user does NOT have the required entitlement.
+ */
+export const presentPaywallIfNeeded = async (options?: {
+  requiredEntitlementIdentifier?: string;
+  offering?: PurchasesOffering;
+  displayCloseButton?: boolean;
+}): Promise<{
+  success: boolean;
+  result: PAYWALL_RESULT;
+  error?: string;
+}> => {
+  try {
+    if (!isPurchasesValid) {
+      console.log('[Purchases] Cannot present paywall: native modules not available on this platform');
+      return { success: false, result: PAYWALL_RESULT.NOT_PRESENTED, error: 'In-app purchases not available on this platform.' };
+    }
+
+    if (!(await safePurchases.isConfigured())) {
+      console.log('[Purchases] RevenueCat not configured yet, initializing now...');
+      await configurePurchases();
+    }
+
+    const entitlementId = options?.requiredEntitlementIdentifier || ENTITLEMENT_ID;
+    const paywallResult = await RevenueCatUI.presentPaywallIfNeeded({
+      requiredEntitlementIdentifier: entitlementId,
+      offering: options?.offering,
+      displayCloseButton: options?.displayCloseButton ?? true,
+    });
+
+    const success =
+      paywallResult === PAYWALL_RESULT.PURCHASED ||
+      paywallResult === PAYWALL_RESULT.RESTORED;
+
+    return { success, result: paywallResult };
+  } catch (error: any) {
+    console.warn('[Purchases] Error presenting paywall if needed:', error);
+    return {
+      success: false,
+      result: PAYWALL_RESULT.ERROR,
+      error: error?.message || 'Failed to display paywall',
+    };
+  }
+};
+
+/**
+ * Present the RevenueCat Customer Center to let users manage/cancel subscriptions.
+ */
+export const presentCustomerCenter = async () => {
+  try {
+    if (!isPurchasesValid || !(await safePurchases.isConfigured())) {
+      console.log('[Purchases] Cannot present customer center: RevenueCat not configured');
+      return;
+    }
+    await RevenueCatUI.presentCustomerCenter();
+  } catch (error) {
+    console.warn('[Purchases] Error presenting customer center:', error);
   }
 };

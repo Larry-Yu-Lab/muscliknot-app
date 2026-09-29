@@ -112,6 +112,9 @@ PODS:
     - libwebp/sharpyuv
   - PurchasesHybridCommon (18.21.0):
     - RevenueCat (= 5.80.3)
+  - PurchasesHybridCommonUI (18.21.0):
+    - PurchasesHybridCommon (= 18.21.0)
+    - RevenueCatUI (= 5.80.3)
   - RCTDeprecation (0.81.5)
   - RCTRequired (0.81.5)
   - RCTTypeSafety (0.81.5):
@@ -1878,6 +1881,8 @@ PODS:
     - ReactNativeDependencies
   - ReactNativeDependencies (0.81.5)
   - RevenueCat (5.80.3)
+  - RevenueCatUI (5.80.3):
+    - RevenueCat (= 5.80.3)
   - RNAppleHealthKit (1.7.0):
     - React
   - RNCAsyncStorage (2.2.0):
@@ -1924,6 +1929,9 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
+  - RNPaywalls (10.4.3):
+    - PurchasesHybridCommonUI (= 18.21.0)
+    - React-Core
   - RNPurchases (10.4.3):
     - PurchasesHybridCommon (= 18.21.0)
     - React-Core
@@ -2271,6 +2279,7 @@ DEPENDENCIES:
   - RNAppleHealthKit (from `../node_modules/react-native-health`)
   - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
+  - RNPaywalls (from `../node_modules/react-native-purchases-ui`)
   - RNPurchases (from `../node_modules/react-native-purchases`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
@@ -2284,7 +2293,9 @@ SPEC REPOS:
     - libdav1d
     - libwebp
     - PurchasesHybridCommon
+    - PurchasesHybridCommonUI
     - RevenueCat
+    - RevenueCatUI
     - SDWebImage
     - SDWebImageAVIFCoder
     - SDWebImageSVGCoder
@@ -2476,6 +2487,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-async-storage/async-storage"
   RNGestureHandler:
     :path: "../node_modules/react-native-gesture-handler"
+  RNPaywalls:
+    :path: "../node_modules/react-native-purchases-ui"
   RNPurchases:
     :path: "../node_modules/react-native-purchases"
   RNReanimated:
@@ -2516,6 +2529,7 @@ SPEC CHECKSUMS:
   libdav1d: 23581a4d8ec811ff171ed5e2e05cd27bad64c39f
   libwebp: 02b23773aedb6ff1fd38cec7a77b81414c6842a8
   PurchasesHybridCommon: 097af88db3cb39b415bef2f3140e6b3324899756
+  PurchasesHybridCommonUI: 860a7cc1cf1d16b7c68cc03923003acf5e84c74c
   RCTDeprecation: 943572d4be82d480a48f4884f670135ae30bf990
   RCTRequired: 8f3cfc90cc25cf6e420ddb3e7caaaabc57df6043
   RCTTypeSafety: 16a4144ca3f959583ab019b57d5633df10b5e97c
@@ -2584,9 +2598,11 @@ SPEC CHECKSUMS:
   ReactCommon: 08810150b1206cc44aecf5f6ae19af32f29151a8
   ReactNativeDependencies: 71ce9c28beb282aa720ea7b46980fff9669f428a
   RevenueCat: 72d1e14966339bf38c41d9b2841ef64c8fd79646
+  RevenueCatUI: d46a19d3a0d95919d2de453427480aea9593e873
   RNAppleHealthKit: 86ef7ab70f762b802f5c5289372de360cca701f9
   RNCAsyncStorage: 3a4f5e2777dae1688b781a487923a08569e27fe4
   RNGestureHandler: 2914750df066d89bf9d8f48a10ad5f0051108ac3
+  RNPaywalls: 619df9b4ea7c284d060d75c6eb1d15efeef6bf3b
   RNPurchases: 33dbce0054a0833a8c20c8d6244e971dfedaa0c3
   RNReanimated: 41f496c18437fd0aa841234917af84e98fd5b9a2
   RNScreens: d8d6f1792f6e7ac12b0190d33d8d390efc0c1845
