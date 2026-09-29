@@ -383,7 +383,9 @@ export default function ProfileScreen() {
                             style={[styles.tabButton, activeTab === 'plans' && { backgroundColor: isDark ? '#333333' : '#white', shadowOpacity: theme === 'light' ? 0.1 : 0 }]}
                             onPress={() => setActiveTab('plans')}
                         >
-                            <Text style={[styles.tabText, { color: activeTab === 'plans' ? colors.text : colors.textSecondary }]}>{t('plansPricing')}</Text>
+                            <Text style={[styles.tabText, { color: activeTab === 'plans' ? colors.text : colors.textSecondary }]}>
+                                {user.isPremium ? t('mySubscription') : t('plansPricing')}
+                            </Text>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -867,6 +869,67 @@ export default function ProfileScreen() {
                             </TouchableOpacity>
                         </View>
                     </>
+                ) : user.isPremium ? (
+                    <View style={[styles.plansContainer, { paddingTop: 20 }]}>
+                        {/* Elite Active Membership Card */}
+                        <View style={styles.planCardWrapper}>
+                            <View style={[styles.eliteCard, { backgroundColor: colors.cardBackground }]}>
+                                <View style={styles.planHeader}>
+                                    <View>
+                                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+                                            <MaterialCommunityIcons name="crown" size={22} color="#f59e0b" />
+                                            <Text style={[styles.planTitleElite, { fontSize: 18, marginBottom: 0 }]}>{t('elitePlan')}</Text>
+                                        </View>
+                                        <Text style={{ color: colors.success, fontWeight: '700', fontSize: 14 }}>
+                                            {t('activeMembership')}
+                                        </Text>
+                                        <Text style={{ color: colors.textSecondary, fontSize: 12, marginTop: 2 }}>
+                                            {t('activeMembershipSub')}
+                                        </Text>
+                                    </View>
+                                    <View style={[styles.bestValueBadge, { backgroundColor: colors.success }]}>
+                                        <Text style={styles.bestValueText}>ACTIVE</Text>
+                                    </View>
+                                </View>
+
+                                <View style={[styles.divider, { backgroundColor: colors.cardBorder }]} />
+
+                                <View style={styles.featuresList}>
+                                    {[
+                                        'featureUnlimitedAI',
+                                        'featureAdvancedMapping',
+                                        'featureFullAnalytics'
+                                    ].map((key, i) => (
+                                        <View key={i} style={styles.featureItem}>
+                                            <MaterialCommunityIcons name="check-decagram" size={20} color={colors.accent} />
+                                            <Text style={[styles.featureText, { color: colors.text }]}>{t(key as any)}</Text>
+                                        </View>
+                                    ))}
+                                </View>
+
+                                <TouchableOpacity 
+                                    style={[styles.eliteButton, { backgroundColor: colors.accent, marginTop: 16 }]}
+                                    onPress={() => presentCustomerCenter()}
+                                    activeOpacity={0.85}
+                                >
+                                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                                        <Ionicons name="settings-outline" size={18} color="#fff" />
+                                        <Text style={styles.eliteButtonText}>{t('manageSubscription')}</Text>
+                                    </View>
+                                </TouchableOpacity>
+
+                                <TouchableOpacity 
+                                    style={{ alignSelf: 'center', marginTop: 16, paddingVertical: 6 }}
+                                    onPress={handleRestorePurchases}
+                                    activeOpacity={0.7}
+                                >
+                                    <Text style={{ color: colors.textSecondary, fontSize: 13, textDecorationLine: 'underline', fontWeight: '500' }}>
+                                        {t('restorePurchases')}
+                                    </Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </View>
                 ) : (
                     <View style={styles.plansContainer}>
                         {/* Billing Toggle */}
@@ -893,9 +956,6 @@ export default function ProfileScreen() {
 
                         {/* Elite Plan Card */}
                         <View style={styles.planCardWrapper}>
-                            {/* Glow Effect only in dark mode or subtle shadow in light */}
-                            <View style={isDark ? styles.eliteGlow : {}} />
-
                             <View style={[styles.eliteCard, { backgroundColor: colors.cardBackground }]}>
                                 <View style={styles.planHeader}>
                                     <View>
@@ -1410,22 +1470,16 @@ const styles = StyleSheet.create({
     planCardWrapper: {
         marginBottom: 20,
     },
-    eliteGlow: {
-        position: 'absolute',
-        top: -20,
-        left: 0,
-        right: 0,
-        height: 100,
-        backgroundColor: 'rgba(249,107,6,0.15)',
-        filter: 'blur(40px)',
-        // Note: blur might not work on all RN versions, usually requires wrapping details or image based glow. 
-        // For simplicity we leave it as a view with opacity.
-    },
     eliteCard: {
         borderRadius: 24,
         padding: 24,
-        borderWidth: 1,
+        borderWidth: 1.5,
         borderColor: '#f96b06',
+        shadowColor: '#f96b06',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.2,
+        shadowRadius: 16,
+        elevation: 6,
     },
     planHeader: {
         flexDirection: 'row',

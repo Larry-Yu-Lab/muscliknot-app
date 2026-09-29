@@ -1,4 +1,4 @@
-import { Platform, NativeModules } from 'react-native';
+import { Platform, NativeModules, Linking } from 'react-native';
 import Purchases, { LOG_LEVEL, PurchasesPackage, PACKAGE_TYPE, PurchasesOffering } from 'react-native-purchases';
 import RevenueCatUI, { PAYWALL_RESULT } from 'react-native-purchases-ui';
 
@@ -302,15 +302,18 @@ export const presentPaywallIfNeeded = async (options?: {
 
 /**
  * Present the RevenueCat Customer Center to let users manage/cancel subscriptions.
+ * Falls back to native Apple subscriptions page if Customer Center is unavailable.
  */
 export const presentCustomerCenter = async () => {
   try {
     if (!isPurchasesValid || !(await safePurchases.isConfigured())) {
-      console.log('[Purchases] Cannot present customer center: RevenueCat not configured');
+      console.log('[Purchases] RevenueCat not configured, opening iOS subscription settings');
+      Linking.openURL('https://apps.apple.com/account/subscriptions');
       return;
     }
     await RevenueCatUI.presentCustomerCenter();
   } catch (error) {
-    console.warn('[Purchases] Error presenting customer center:', error);
+    console.warn('[Purchases] Error presenting customer center, opening iOS subscription settings:', error);
+    Linking.openURL('https://apps.apple.com/account/subscriptions');
   }
 };
