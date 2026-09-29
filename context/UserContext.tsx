@@ -86,7 +86,11 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
                             injuryRecovery: statsData.injury_recovery ?? 0,
                         } : defaultUser.attributes;
 
-                        const isPremiumActive = Boolean((statsData && statsData.is_premium) || rcPremium);
+                        const refCode = await AsyncStorage.getItem('user_referral_code');
+                        const validCodes = ['GIFT2026', 'COACH100', 'KNOTFREE', 'VIPRECOVERY', 'FREEKNOT'];
+                        const hasValidPromo = Boolean(refCode && validCodes.includes(refCode.trim().toUpperCase()));
+
+                        const isPremiumActive = rcPremium || hasValidPromo;
 
                         setUser({
                             name: meta.full_name || 'User',
@@ -97,10 +101,10 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
                             attributes,
                         });
 
-                        // If user has active subscription in StoreKit/RevenueCat, sync database
-                        if (rcPremium && statsData && !statsData.is_premium) {
-                            supabase.from('user_stats').update({ is_premium: true }).eq('user_id', authUser.id).then();
-                            supabase.from('profiles').update({ is_premium: true }).eq('id', authUser.id).then();
+                        // Sync database state whenever active subscription status changes
+                        if (statsData && statsData.is_premium !== isPremiumActive) {
+                            supabase.from('user_stats').update({ is_premium: isPremiumActive }).eq('user_id', authUser.id).then();
+                            supabase.from('profiles').update({ is_premium: isPremiumActive }).eq('id', authUser.id).then();
                         }
                     }
                 } catch (e) {

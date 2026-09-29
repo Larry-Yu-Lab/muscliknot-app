@@ -166,12 +166,15 @@ export const purchasePackage = async (rcPackage: PurchasesPackage) => {
     const { customerInfo } = await safePurchases.purchasePackage(rcPackage);
     const activeEntitlements = (customerInfo as any)?.entitlements?.active || {};
     const activeSubs = (customerInfo as any)?.activeSubscriptions || [];
-    const allPurchased = (customerInfo as any)?.allPurchasedProductIdentifiers || [];
+    const nonSubscriptionTransactions = (customerInfo as any)?.nonSubscriptionTransactions || [];
+    const hasActiveLifetime = nonSubscriptionTransactions.some((t: any) => t.productIdentifier === 'lifetime');
+
     const hasPremium =
       Object.keys(activeEntitlements).length > 0 ||
       typeof activeEntitlements[ENTITLEMENT_ID] !== 'undefined' ||
       activeSubs.length > 0 ||
-      allPurchased.length > 0;
+      hasActiveLifetime;
+
     return { success: hasPremium, customerInfo, error: null };
   } catch (error: any) {
     if (error.userCancelled) {
@@ -193,12 +196,14 @@ export const checkPremiumStatus = async (): Promise<boolean> => {
     const customerInfo = await safePurchases.getCustomerInfo();
     const activeEntitlements = (customerInfo as any)?.entitlements?.active || {};
     const activeSubs = (customerInfo as any)?.activeSubscriptions || [];
-    const allPurchased = (customerInfo as any)?.allPurchasedProductIdentifiers || [];
+    const nonSubscriptionTransactions = (customerInfo as any)?.nonSubscriptionTransactions || [];
+    const hasActiveLifetime = nonSubscriptionTransactions.some((t: any) => t.productIdentifier === 'lifetime');
+
     return (
       Object.keys(activeEntitlements).length > 0 ||
       typeof activeEntitlements[ENTITLEMENT_ID] !== 'undefined' ||
       activeSubs.length > 0 ||
-      allPurchased.length > 0
+      hasActiveLifetime
     );
   } catch (error) {
     console.error('Error checking premium status:', error);
@@ -217,12 +222,15 @@ export const restorePurchases = async () => {
     const customerInfo = await safePurchases.restorePurchases();
     const activeEntitlements = (customerInfo as any)?.entitlements?.active || {};
     const activeSubs = (customerInfo as any)?.activeSubscriptions || [];
-    const allPurchased = (customerInfo as any)?.allPurchasedProductIdentifiers || [];
+    const nonSubscriptionTransactions = (customerInfo as any)?.nonSubscriptionTransactions || [];
+    const hasActiveLifetime = nonSubscriptionTransactions.some((t: any) => t.productIdentifier === 'lifetime');
+
     const hasPremium =
       Object.keys(activeEntitlements).length > 0 ||
       typeof activeEntitlements[ENTITLEMENT_ID] !== 'undefined' ||
       activeSubs.length > 0 ||
-      allPurchased.length > 0;
+      hasActiveLifetime;
+
     return { success: hasPremium, customerInfo, error: null };
   } catch (error: any) {
     console.warn('[Purchases] Restore failed:', error);

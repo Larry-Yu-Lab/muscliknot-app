@@ -43,11 +43,11 @@ serve(async (req) => {
         eventType === "UNCANCELLATION" ||
         eventType === "TRANSFER"
       ) {
-        if (entitlementIds.includes(entitlementId)) {
+        if (entitlementIds.length > 0 || entitlementIds.includes(entitlementId)) {
           isPremium = true;
           shouldUpdate = true;
         }
-      } else if (eventType === "EXPIRATION") {
+      } else if (eventType === "EXPIRATION" || eventType === "REVOCATION") {
         isPremium = false;
         shouldUpdate = true;
       }
