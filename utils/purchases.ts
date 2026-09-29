@@ -164,7 +164,8 @@ export const purchasePackage = async (rcPackage: PurchasesPackage) => {
       return { success: false, customerInfo: null, error: 'RevenueCat is not configured.' };
     }
     const { customerInfo } = await safePurchases.purchasePackage(rcPackage);
-    const hasPremium = typeof (customerInfo as any).entitlements.active[ENTITLEMENT_ID] !== 'undefined';
+    const activeEntitlements = (customerInfo as any)?.entitlements?.active || {};
+    const hasPremium = Object.keys(activeEntitlements).length > 0 || typeof activeEntitlements[ENTITLEMENT_ID] !== 'undefined';
     return { success: hasPremium, customerInfo, error: null };
   } catch (error: any) {
     if (error.userCancelled) {
@@ -184,7 +185,8 @@ export const checkPremiumStatus = async (): Promise<boolean> => {
       return false;
     }
     const customerInfo = await safePurchases.getCustomerInfo();
-    return typeof (customerInfo as any).entitlements.active[ENTITLEMENT_ID] !== 'undefined';
+    const activeEntitlements = (customerInfo as any)?.entitlements?.active || {};
+    return Object.keys(activeEntitlements).length > 0 || typeof activeEntitlements[ENTITLEMENT_ID] !== 'undefined';
   } catch (error) {
     console.error('Error checking premium status:', error);
     return false;
@@ -200,7 +202,8 @@ export const restorePurchases = async () => {
       return { success: false, customerInfo: null, error: 'RevenueCat is not configured.' };
     }
     const customerInfo = await safePurchases.restorePurchases();
-    const hasPremium = typeof (customerInfo as any).entitlements.active[ENTITLEMENT_ID] !== 'undefined';
+    const activeEntitlements = (customerInfo as any)?.entitlements?.active || {};
+    const hasPremium = Object.keys(activeEntitlements).length > 0 || typeof activeEntitlements[ENTITLEMENT_ID] !== 'undefined';
     return { success: hasPremium, customerInfo, error: null };
   } catch (error: any) {
     console.warn('[Purchases] Restore failed:', error);
