@@ -94,8 +94,14 @@
           "displayPrice" : "35.88",
           "familyShareable" : false,
           "groupNumber" : 1,
-          "internalID" : "6471829102",
-          "introductoryOffer" : null,
+          "introductoryOffer" : {
+            "displayPrice" : "0.00",
+            "internalID" : "6471829104",
+            "paymentMode" : "freeTrial",
+            "subscriptionPeriod" : "P1W",
+            "numberOfPeriods" : 1,
+            "type" : "IntroductoryOffer"
+          },
           "localizations" : [
             {
               "description" : "Annual MuscliKnot Pro Subscription",

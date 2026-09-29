@@ -136,12 +136,13 @@ export const getOfferings = async (): Promise<PurchasesPackage[]> => {
     const offerings = await safePurchases.getOfferings();
     console.log('[Purchases] Offerings received:', JSON.stringify(offerings));
 
-    if (offerings.current && offerings.current.availablePackages && offerings.current.availablePackages.length > 0) {
-      return offerings.current.availablePackages;
+    const anyOfferings = offerings as any;
+    if (anyOfferings?.current?.availablePackages && anyOfferings.current.availablePackages.length > 0) {
+      return anyOfferings.current.availablePackages;
     }
 
-    if (offerings.all) {
-      const defaultOffering = offerings.all['default'] || Object.values(offerings.all)[0];
+    if (anyOfferings?.all) {
+      const defaultOffering = anyOfferings.all['default'] || Object.values(anyOfferings.all)[0];
       if (defaultOffering && defaultOffering.availablePackages && defaultOffering.availablePackages.length > 0) {
         return defaultOffering.availablePackages;
       }

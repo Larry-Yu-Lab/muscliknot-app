@@ -137,18 +137,45 @@ export default function HomeScreen() {
   const [isWheelVisible, setIsWheelVisible] = useState(false);
   const startCtx = useSharedValue({ x: 0, y: 0 });
 
-  // 10-second Welcome Spin The Wheel Timer for Free / New Users
+  // 10-second Welcome Spin The Wheel Timer for New Signups with 5-Day Cooldown
   useEffect(() => {
     let timer: any;
-    if (!user.isPremium) {
-      AsyncStorage.getItem('has_spun_welcome_wheel').then(hasSpun => {
-        if (hasSpun !== 'true') {
-          timer = setTimeout(() => {
-            setIsWheelVisible(true);
-          }, 10000); // 10 seconds of usage
+
+    const evaluateWheelTrigger = async () => {
+      if (user.isPremium) return;
+
+      try {
+        // 1. Must be a newly signed up account
+        const isNewSignup = await AsyncStorage.getItem('is_new_signup');
+        if (isNewSignup !== 'true') {
+          return;
         }
-      });
-    }
+
+        // 2. Check 5-day cooldown from last dismissal
+        const lastDismissedStr = await AsyncStorage.getItem('last_wheel_dismiss_timestamp');
+        if (lastDismissedStr) {
+          const lastDismissed = parseInt(lastDismissedStr, 10);
+          const FIVE_DAYS_MS = 5 * 24 * 60 * 60 * 1000;
+          const timeSinceDismiss = Date.now() - lastDismissed;
+          if (timeSinceDismiss < FIVE_DAYS_MS) {
+            // Still in cooldown period (less than 5 days)
+            return;
+          }
+        }
+
+        // 3. Set 10-second usage timer
+        timer = setTimeout(async () => {
+          if (!user.isPremium) {
+            setIsWheelVisible(true);
+          }
+        }, 10000);
+      } catch (err) {
+        console.error('Error evaluating spin wheel trigger:', err);
+      }
+    };
+
+    evaluateWheelTrigger();
+
     return () => {
       if (timer) clearTimeout(timer);
     };
@@ -431,10 +458,24 @@ export default function HomeScreen() {
               <Text style={[styles.greetingTitle, { color: colors.text }]}>{t('greetingHello')}, {user.name.split(' ')[0]}</Text>
             </View>
           </View>
-          <TouchableOpacity style={[styles.notificationButton, { backgroundColor: isDark ? 'rgba(255, 255, 255, 0.05)' : colors.cardBackground, borderColor: colors.cardBorder }]} onPress={() => router.push('/settings' as any)}>
-            <Ionicons name="notifications-outline" size={24} color={colors.text} />
-            <View style={styles.notificationDot} />
-          </TouchableOpacity>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+            {__DEV__ && (
+              <TouchableOpacity
+                style={[
+                  styles.notificationButton,
+                  { backgroundColor: 'rgba(249, 115, 22, 0.15)', borderColor: '#f97316' }
+                ]}
+                onPress={() => setIsWheelVisible(true)}
+                activeOpacity={0.7}
+              >
+                <Ionicons name="gift" size={20} color="#f97316" />
+              </TouchableOpacity>
+            )}
+            <TouchableOpacity style={[styles.notificationButton, { backgroundColor: isDark ? 'rgba(255, 255, 255, 0.05)' : colors.cardBackground, borderColor: colors.cardBorder }]} onPress={() => router.push('/settings' as any)}>
+              <Ionicons name="notifications-outline" size={24} color={colors.text} />
+              <View style={styles.notificationDot} />
+            </TouchableOpacity>
+          </View>
         </View>
         {/* Search */}
         <View style={[styles.searchContainer, { backgroundColor: colors.inputBackground, borderColor: searchError ? '#ef4444' : colors.cardBorder }]}>

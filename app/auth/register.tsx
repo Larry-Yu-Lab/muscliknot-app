@@ -174,6 +174,8 @@ export default function RegisterScreen() {
                                         setLoading(true);
                                         await signInOffline(email.trim(), name.trim());
                                         await AsyncStorage.setItem('onboarding_complete', 'true');
+                                        await AsyncStorage.setItem('is_new_signup', 'true');
+                                        await AsyncStorage.setItem('signup_timestamp', Date.now().toString());
                                         router.replace('/auth/signup-success' as any);
                                     } catch (offlineErr) {
                                         Alert.alert("Error", "Failed to start offline session.");
@@ -233,6 +235,8 @@ export default function RegisterScreen() {
                 } catch (syncError) {
                     console.log('Error syncing preferences:', syncError);
                 }
+                await AsyncStorage.setItem('is_new_signup', 'true');
+                await AsyncStorage.setItem('signup_timestamp', Date.now().toString());
                 router.replace('/auth/signup-success' as any);
             } else {
                 Alert.alert(

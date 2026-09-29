@@ -205,6 +205,7 @@ export default function LoginScreen() {
                     // verified - proceed even if sync fails
                 }
 
+                await AsyncStorage.setItem('is_new_signup', 'false');
                 router.replace('/auth/login-welcome' as any);
             }
         } catch (e: any) {
