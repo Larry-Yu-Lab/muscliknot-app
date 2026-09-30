@@ -38,4 +38,9 @@ yarn-error.*
 
 app-example
 
+# build artifacts
+build/
+*.xcarchive
+*.dSYM
+
 # generated native folders are now tracked for Xcode development
