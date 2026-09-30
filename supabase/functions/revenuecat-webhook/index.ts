@@ -40,13 +40,13 @@ serve(async (req) => {
       if (
         eventType === "INITIAL_PURCHASE" ||
         eventType === "RENEWAL" ||
+        eventType === "PRODUCT_CHANGE" ||
+        eventType === "NON_RENEWING_PURCHASE" ||
         eventType === "UNCANCELLATION" ||
         eventType === "TRANSFER"
       ) {
-        if (entitlementIds.length > 0 || entitlementIds.includes(entitlementId)) {
-          isPremium = true;
-          shouldUpdate = true;
-        }
+        isPremium = true;
+        shouldUpdate = true;
       } else if (eventType === "EXPIRATION" || eventType === "REVOCATION") {
         isPremium = false;
         shouldUpdate = true;
