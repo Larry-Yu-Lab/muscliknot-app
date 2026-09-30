@@ -446,7 +446,8 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent} style={{ flex: 1, width: '100%' }}>
-        <View style={styles.innerContainer}>
+        <View style={styles.outerAligner}>
+          <View style={styles.innerContainer}>
 
         {/* Header */}
         <View style={[styles.header, { backgroundColor: colors.headerBackground }]}>
@@ -1020,6 +1021,7 @@ export default function HomeScreen() {
         </ScrollView>
 
         </View>
+        </View>
       </ScrollView>
 
       {/* 10-Second Welcome Gift Spin The Wheel Modal */}
@@ -1038,8 +1040,12 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingBottom: scale(100),
     width: '100%',
-    alignItems: 'center',
     flexGrow: 1,
+  },
+  outerAligner: {
+    width: '100%',
+    alignItems: 'center',
+    flex: 1,
   },
   innerContainer: {
     width: '100%',

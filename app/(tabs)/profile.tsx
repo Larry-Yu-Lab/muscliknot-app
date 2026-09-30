@@ -371,7 +371,8 @@ export default function ProfileScreen() {
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent} style={styles.scrollViewStyle}>
-                <View style={styles.innerContainer}>
+                <View style={styles.outerAligner}>
+                    <View style={styles.innerContainer}>
 
                 {/* Header */}
                 <View style={[styles.header, { backgroundColor: colors.headerBackground }]}>
@@ -1180,6 +1181,7 @@ export default function ProfileScreen() {
                     </View>
                 )}
                 </View>
+                </View>
             </ScrollView>
 
             <Modal
@@ -1242,8 +1244,12 @@ const styles = StyleSheet.create({
     scrollContent: {
         paddingBottom: scale(120),
         width: '100%',
-        alignItems: 'center',
         flexGrow: 1,
+    },
+    outerAligner: {
+        width: '100%',
+        alignItems: 'center',
+        flex: 1,
     },
     innerContainer: {
         width: '100%',

@@ -309,7 +309,8 @@ export default function SquadsScreen() {
                     ) : undefined
                 }
             >
-                <View style={styles.innerContainer}>
+                <View style={styles.outerAligner}>
+                    <View style={styles.innerContainer}>
                 {/* Header */}
                 <View style={styles.header}>
                     <TouchableOpacity style={styles.headerBtn} onPress={() => router.back()}>
@@ -471,6 +472,7 @@ export default function SquadsScreen() {
                     </>
                 )}
                 </View>
+                </View>
             </ScrollView>
         </SafeAreaView>
     );
@@ -478,7 +480,8 @@ export default function SquadsScreen() {
 
 const styles = StyleSheet.create({
     container: { flex: 1 },
-    scrollContent: { paddingBottom: scale(100), width: '100%', alignItems: 'center', flexGrow: 1 },
+    scrollContent: { paddingBottom: scale(100), width: '100%', flexGrow: 1 },
+    outerAligner: { width: '100%', alignItems: 'center', flex: 1 },
     innerContainer: { width: '100%', ...tabletContainerStyle },
     loadingContainer: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingTop: 200 },
     header: {

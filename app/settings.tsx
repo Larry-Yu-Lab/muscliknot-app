@@ -68,7 +68,8 @@ export default function SettingsScreen() {
             </View>
 
             <ScrollView contentContainerStyle={styles.scrollContent} style={{ flex: 1, width: '100%' }} showsVerticalScrollIndicator={false}>
-                <View style={styles.innerContainer}>
+                <View style={styles.outerAligner}>
+                    <View style={styles.innerContainer}>
                 {/* Preferences */}
                 <View style={styles.section}>
                     <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>{t('preferences').toUpperCase()}</Text>
@@ -260,6 +261,7 @@ export default function SettingsScreen() {
                     </TouchableOpacity>
                 </View>
                 </View>
+                </View>
             </ScrollView>
         </SafeAreaView>
     );
@@ -295,8 +297,12 @@ const styles = StyleSheet.create({
         paddingTop: scale(24),
         paddingBottom: scale(40),
         width: '100%',
-        alignItems: 'center',
         flexGrow: 1,
+    },
+    outerAligner: {
+        width: '100%',
+        alignItems: 'center',
+        flex: 1,
     },
     innerContainer: {
         width: '100%',

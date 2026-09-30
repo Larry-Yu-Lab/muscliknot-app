@@ -355,7 +355,8 @@ export default function RegisterScreen() {
                     showsVerticalScrollIndicator={false}
                     keyboardShouldPersistTaps="handled"
                 >
-                    <View style={styles.innerContainer}>
+                    <View style={styles.outerAligner}>
+                        <View style={styles.innerContainer}>
                     {/* Header */}
                     <View style={styles.headerRow}>
                         <TouchableOpacity
@@ -532,6 +533,7 @@ export default function RegisterScreen() {
                         </View>
                     </View>
                     </View>
+                    </View>
                 </ScrollView>
             </KeyboardAvoidingView>
         </SafeAreaView>
@@ -564,10 +566,14 @@ const styles = StyleSheet.create({
     scrollContent: {
         flexGrow: 1,
         width: '100%',
-        alignItems: 'center',
         paddingHorizontal: scale(24),
         paddingTop: scale(16),
         paddingBottom: scale(24),
+    },
+    outerAligner: {
+        width: '100%',
+        alignItems: 'center',
+        flex: 1,
     },
     innerContainer: {
         width: '100%',
