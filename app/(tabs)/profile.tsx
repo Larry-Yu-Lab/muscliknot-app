@@ -14,6 +14,7 @@ import { Image } from 'expo-image';
 import { useFocusEffect, useRouter } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import { getOfferings, purchasePackage, restorePurchases, presentPaywall, presentCustomerCenter, PAYWALL_RESULT } from '@/utils/purchases';
+import { scale, scaleFont, tabletContainerStyle } from '@/utils/responsive';
 import React, { useCallback, useEffect, useState } from 'react';
 import { Alert, Dimensions, Modal, Platform, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import Svg, { Circle, Line, Path } from 'react-native-svg';
@@ -369,7 +370,8 @@ export default function ProfileScreen() {
 
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent} style={styles.scrollViewStyle}>
+                <View style={styles.innerContainer}>
 
                 {/* Header */}
                 <View style={[styles.header, { backgroundColor: colors.headerBackground }]}>
@@ -1177,7 +1179,7 @@ export default function ProfileScreen() {
                         </TouchableOpacity>
                     </View>
                 )}
-
+                </View>
             </ScrollView>
 
             <Modal
@@ -1233,8 +1235,19 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
     },
+    scrollViewStyle: {
+        flex: 1,
+        width: '100%',
+    },
     scrollContent: {
-        paddingBottom: 120,
+        paddingBottom: scale(120),
+        width: '100%',
+        alignItems: 'center',
+        flexGrow: 1,
+    },
+    innerContainer: {
+        width: '100%',
+        ...tabletContainerStyle,
     },
 
     // Header

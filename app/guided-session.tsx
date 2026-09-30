@@ -7,6 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { scale, scaleFont, tabletContainerStyle } from '@/utils/responsive';
 import {
     Dimensions,
     Platform,
@@ -517,29 +518,30 @@ const styles = StyleSheet.create({
     content: {
         flex: 1,
         justifyContent: 'center',
-        paddingHorizontal: 24,
+        paddingHorizontal: scale(24),
+        ...tabletContainerStyle,
     },
 
     // Rest
     restContainer: {
         alignItems: 'center',
-        gap: 24,
+        gap: scale(24),
     },
     restLabel: {
-        fontSize: 14,
+        fontSize: scaleFont(14),
         fontWeight: '800',
         letterSpacing: 4,
         textTransform: 'uppercase',
     },
     nextUpLabel: {
-        fontSize: 12,
+        fontSize: scaleFont(12),
         fontWeight: '700',
         letterSpacing: 2,
         textTransform: 'uppercase',
         marginTop: 8,
     },
     nextExerciseName: {
-        fontSize: 20,
+        fontSize: scaleFont(20),
         fontWeight: '800',
         textAlign: 'center',
     },
@@ -547,7 +549,7 @@ const styles = StyleSheet.create({
     // Exercise
     exerciseContainer: {
         alignItems: 'center',
-        gap: 20,
+        gap: scale(20),
     },
     videoWrapper: {
         width: '100%',
@@ -557,17 +559,17 @@ const styles = StyleSheet.create({
     },
     exerciseInfo: {
         alignItems: 'center',
-        gap: 8,
-        paddingHorizontal: 16,
+        gap: scale(8),
+        paddingHorizontal: scale(16),
     },
     exerciseName: {
-        fontSize: 24,
+        fontSize: scaleFont(24),
         fontWeight: '800',
         textAlign: 'center',
     },
     exerciseDesc: {
-        fontSize: 14,
-        lineHeight: 20,
+        fontSize: scaleFont(14),
+        lineHeight: scaleFont(20),
         textAlign: 'center',
         fontWeight: '500',
     },
@@ -575,7 +577,7 @@ const styles = StyleSheet.create({
         marginTop: 8,
     },
     timerText: {
-        fontSize: 36,
+        fontSize: scaleFont(36),
         fontWeight: '800',
         color: '#fff',
         letterSpacing: 2,
@@ -586,10 +588,11 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: 32,
-        paddingVertical: 20,
-        paddingBottom: 32,
+        gap: scale(32),
+        paddingVertical: scale(20),
+        paddingBottom: scale(32),
         borderTopWidth: 1,
+        ...tabletContainerStyle,
     },
     controlBtn: {
         width: 56,

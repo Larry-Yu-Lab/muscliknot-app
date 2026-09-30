@@ -4,6 +4,7 @@ import { useAuth } from '@/context/AuthContext';
 import { usePreferences } from '@/context/PreferencesContext';
 import { getTranslation, LANGUAGES } from '@/utils/i18n';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
+import { scale, scaleFont, tabletContainerStyle } from '@/utils/responsive';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import { Alert, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -66,7 +67,8 @@ export default function SettingsScreen() {
                 <View style={styles.backButton} />
             </View>
 
-            <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+            <ScrollView contentContainerStyle={styles.scrollContent} style={{ flex: 1, width: '100%' }} showsVerticalScrollIndicator={false}>
+                <View style={styles.innerContainer}>
                 {/* Preferences */}
                 <View style={styles.section}>
                     <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>{t('preferences').toUpperCase()}</Text>
@@ -257,6 +259,7 @@ export default function SettingsScreen() {
                         <Text style={[styles.logoutText, { color: '#ef4444' }]}>{t('deleteAccount').toUpperCase()}</Text>
                     </TouchableOpacity>
                 </View>
+                </View>
             </ScrollView>
         </SafeAreaView>
     );
@@ -270,26 +273,34 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingHorizontal: 8,
-        paddingVertical: 12,
+        paddingHorizontal: scale(8),
+        paddingVertical: scale(12),
         borderBottomWidth: 1,
         borderBottomColor: 'rgba(255,255,255,0.05)',
+        ...tabletContainerStyle,
     },
     backButton: {
-        width: 44,
-        height: 44,
+        width: scale(44),
+        height: scale(44),
         alignItems: 'center',
         justifyContent: 'center',
     },
     headerTitle: {
-        fontSize: 18,
+        fontSize: scaleFont(18),
         fontWeight: '800',
         letterSpacing: -0.5,
     },
     scrollContent: {
-        paddingHorizontal: 16,
-        paddingTop: 24,
-        paddingBottom: 40,
+        paddingHorizontal: scale(16),
+        paddingTop: scale(24),
+        paddingBottom: scale(40),
+        width: '100%',
+        alignItems: 'center',
+        flexGrow: 1,
+    },
+    innerContainer: {
+        width: '100%',
+        ...tabletContainerStyle,
     },
     section: {
         marginBottom: 24,

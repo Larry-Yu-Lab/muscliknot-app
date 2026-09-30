@@ -11,6 +11,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
+import { scale, scaleFont, tabletContainerStyle } from '@/utils/responsive';
 import { SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, ActivityIndicator } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SpinWheelModal } from '@/components/SpinWheelModal';
@@ -444,7 +445,8 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent} style={{ flex: 1, width: '100%' }}>
+        <View style={styles.innerContainer}>
 
         {/* Header */}
         <View style={[styles.header, { backgroundColor: colors.headerBackground }]}>
@@ -1017,6 +1019,7 @@ export default function HomeScreen() {
           )}
         </ScrollView>
 
+        </View>
       </ScrollView>
 
       {/* 10-Second Welcome Gift Spin The Wheel Modal */}
@@ -1033,38 +1036,45 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingBottom: 100, // Matching pb-24
+    paddingBottom: scale(100),
+    width: '100%',
+    alignItems: 'center',
+    flexGrow: 1,
+  },
+  innerContainer: {
+    width: '100%',
+    ...tabletContainerStyle,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 24,
-    paddingTop: 24,
-    paddingBottom: 8,
+    paddingHorizontal: scale(24),
+    paddingTop: scale(24),
+    paddingBottom: scale(8),
   },
   headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: scale(12),
   },
   avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: scale(40),
+    height: scale(40),
+    borderRadius: scale(20),
     borderWidth: 2,
     borderColor: 'rgba(249, 115, 22, 0.3)', // primary/30
   },
   greetingSub: {
     color: '#71717a', // zinc-500
-    fontSize: 12,
+    fontSize: scaleFont(12),
     fontWeight: '500',
   },
   greetingTitle: {
     color: '#fff',
-    fontSize: 18,
+    fontSize: scaleFont(18),
     fontWeight: '700',
-    lineHeight: 22,
+    lineHeight: scaleFont(22),
   },
   notificationButton: {
     width: 40,

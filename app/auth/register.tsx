@@ -7,6 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
+import { scale, scaleFont, tabletContainerStyle } from '@/utils/responsive';
 import {
     ActivityIndicator,
     Alert,
@@ -350,9 +351,11 @@ export default function RegisterScreen() {
             >
                 <ScrollView
                     contentContainerStyle={styles.scrollContent}
+                    style={{ flex: 1, width: '100%' }}
                     showsVerticalScrollIndicator={false}
                     keyboardShouldPersistTaps="handled"
                 >
+                    <View style={styles.innerContainer}>
                     {/* Header */}
                     <View style={styles.headerRow}>
                         <TouchableOpacity
@@ -528,6 +531,7 @@ export default function RegisterScreen() {
                             </View>
                         </View>
                     </View>
+                    </View>
                 </ScrollView>
             </KeyboardAvoidingView>
         </SafeAreaView>
@@ -559,92 +563,99 @@ const styles = StyleSheet.create({
     },
     scrollContent: {
         flexGrow: 1,
-        paddingHorizontal: 24,
-        paddingTop: 16,
-        paddingBottom: 24,
+        width: '100%',
+        alignItems: 'center',
+        paddingHorizontal: scale(24),
+        paddingTop: scale(16),
+        paddingBottom: scale(24),
+    },
+    innerContainer: {
+        width: '100%',
+        flex: 1,
+        ...tabletContainerStyle,
     },
     headerRow: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingVertical: 12,
+        paddingVertical: scale(12),
     },
     backButton: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
+        width: scale(40),
+        height: scale(40),
+        borderRadius: scale(20),
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: 'rgba(255,255,255,0.0)',
     },
     stepText: {
         color: '#fff',
-        fontSize: 18,
+        fontSize: scaleFont(18),
         fontWeight: 'bold',
         letterSpacing: 0.5,
     },
     mainSection: {
-        marginTop: 10,
+        marginTop: scale(10),
     },
     titleBlock: {
-        marginBottom: 16,
+        marginBottom: scale(16),
     },
     mainTitle: {
         color: '#fff',
-        fontSize: 28,
+        fontSize: scaleFont(28),
         fontWeight: 'bold',
         letterSpacing: -0.5,
-        marginBottom: 6,
-        lineHeight: 34,
+        marginBottom: scale(6),
+        lineHeight: scaleFont(34),
     },
     subtitle: {
-        fontSize: 15,
-        lineHeight: 22,
+        fontSize: scaleFont(15),
+        lineHeight: scaleFont(22),
         fontWeight: '400',
     },
     formContainer: {
-        gap: 12,
+        gap: scale(12),
     },
     inputGroup: {
-        gap: 6,
+        gap: scale(6),
     },
     label: {
-        fontSize: 14,
+        fontSize: scaleFont(14),
         fontWeight: '500',
-        paddingHorizontal: 4,
+        paddingHorizontal: scale(4),
     },
     glassInput: {
         flexDirection: 'row',
         alignItems: 'center',
-        height: 54,
-        borderRadius: 12,
+        height: scale(54),
+        borderRadius: scale(12),
         borderWidth: 1,
-        paddingHorizontal: 16,
+        paddingHorizontal: scale(16),
     },
     inputIcon: {
-        marginRight: 12,
+        marginRight: scale(12),
     },
     textInput: {
         flex: 1,
         color: '#fff',
-        fontSize: 16,
+        fontSize: scaleFont(16),
         height: '100%',
     },
     validationText: {
-        fontSize: 13,
+        fontSize: scaleFont(13),
         fontWeight: '600',
-        marginLeft: 4,
-        marginTop: 2,
+        marginLeft: scale(4),
+        marginTop: scale(2),
     },
     footerContainer: {
         marginTop: 'auto',
-        paddingTop: 20,
-        paddingBottom: 10,
-        gap: 16,
+        paddingTop: scale(20),
+        paddingBottom: scale(10),
+        gap: scale(16),
     },
     createButton: {
-        height: 52,
-        borderRadius: 12,
+        height: scale(52),
+        borderRadius: scale(12),
         alignItems: 'center',
         justifyContent: 'center',
         shadowColor: '#f97316',
@@ -655,17 +666,17 @@ const styles = StyleSheet.create({
     },
     createButtonText: {
         color: '#fff',
-        fontSize: 16,
+        fontSize: scaleFont(16),
         fontWeight: 'bold',
     },
     termsContainer: {
         alignItems: 'center',
-        gap: 12,
+        gap: scale(12),
     },
     termsText: {
-        fontSize: 13,
+        fontSize: scaleFont(13),
         textAlign: 'center',
-        lineHeight: 18,
+        lineHeight: scaleFont(18),
     },
     loginRow: {
         flexDirection: 'row',
@@ -683,7 +694,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        marginVertical: 2,
+        marginVertical: scale(2),
     },
     dividerLine: {
         flex: 1,
@@ -692,13 +703,13 @@ const styles = StyleSheet.create({
     },
     dividerText: {
         color: 'rgba(255, 255, 255, 0.3)',
-        fontSize: 14,
+        fontSize: scaleFont(14),
         fontWeight: '600',
-        marginHorizontal: 16,
+        marginHorizontal: scale(16),
     },
     googleButton: {
-        height: 52,
-        borderRadius: 12,
+        height: scale(52),
+        borderRadius: scale(12),
         borderWidth: 1,
         borderColor: 'rgba(255, 255, 255, 0.15)',
         backgroundColor: 'rgba(255, 255, 255, 0.03)',
@@ -713,27 +724,27 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     googleIcon: {
-        marginRight: 12,
+        marginRight: scale(12),
     },
     googleButtonText: {
         color: '#fff',
-        fontSize: 16,
+        fontSize: scaleFont(16),
         fontWeight: 'bold',
     },
     popularBadge: {
         position: 'absolute',
         top: -10,
-        right: 16,
+        right: scale(16),
         backgroundColor: '#f97316',
-        paddingHorizontal: 8,
-        paddingVertical: 3,
+        paddingHorizontal: scale(8),
+        paddingVertical: scale(3),
         borderRadius: 6,
         borderWidth: 1,
         borderColor: '#23170f',
     },
     popularBadgeText: {
         color: '#fff',
-        fontSize: 9,
+        fontSize: scaleFont(10),
         fontWeight: '900',
         letterSpacing: 0.5,
     },

@@ -12,6 +12,7 @@ import { Image } from 'expo-image';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as React from 'react';
 import { useState } from 'react';
+import { scale, scaleFont, tabletContainerStyle } from '@/utils/responsive';
 import { Alert, Platform, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View, Dimensions, ActivityIndicator } from 'react-native';
 import YoutubePlayer from 'react-native-youtube-iframe';
 import Animated, { interpolateColor, useAnimatedStyle, useSharedValue, withSequence, withSpring, withTiming } from 'react-native-reanimated';
@@ -600,7 +601,8 @@ export default function FindReliefScreen() {
 
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent} style={{ flex: 1, width: '100%' }}>
+                <View style={styles.innerContainer}>
                 {/* Header */}
                 <View style={[styles.header, { backgroundColor: colors.headerBackground }]}>
                     <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
@@ -850,6 +852,7 @@ export default function FindReliefScreen() {
                         </View>
                     )}
                 </View>
+                </View>
             </ScrollView>
 
             {/* Sticky complete button */}
@@ -885,17 +888,18 @@ export default function FindReliefScreen() {
 
 const styles = StyleSheet.create({
     container: { flex: 1 },
-    scrollContent: { paddingBottom: 110 },
+    scrollContent: { paddingBottom: scale(110), width: '100%', alignItems: 'center', flexGrow: 1 },
+    innerContainer: { width: '100%', ...tabletContainerStyle },
     header: {
         flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-        paddingHorizontal: 16, paddingVertical: 12,
+        paddingHorizontal: scale(16), paddingVertical: scale(12),
     },
-    backButton: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
-    headerTitle: { fontSize: 17, fontWeight: '800', textAlign: 'center' },
-    headerSubtitle: { color: 'rgba(255,255,255,0.6)', fontSize: 13, fontWeight: '600', textAlign: 'center', marginTop: 2 },
-    headerSpacer: { width: 44 },
+    backButton: { width: scale(44), height: scale(44), alignItems: 'center', justifyContent: 'center' },
+    headerTitle: { fontSize: scaleFont(17), fontWeight: '800', textAlign: 'center' },
+    headerSubtitle: { color: 'rgba(255,255,255,0.6)', fontSize: scaleFont(13), fontWeight: '600', textAlign: 'center', marginTop: 2 },
+    headerSpacer: { width: scale(44) },
     videoContainer: {
-        marginHorizontal: 16, marginTop: 8, aspectRatio: 16 / 9,
+        marginHorizontal: scale(16), marginTop: scale(8), aspectRatio: 16 / 9,
         borderRadius: 16, overflow: 'hidden', backgroundColor: '#18181b',
         position: 'relative',
     },
@@ -904,43 +908,44 @@ const styles = StyleSheet.create({
     playButton: {
         position: 'absolute', top: '50%', left: '50%',
         transform: [{ translateX: -28 }, { translateY: -28 }],
-        width: 56, height: 56, borderRadius: 28,
+        width: scale(56), height: scale(56), borderRadius: scale(28),
         alignItems: 'center', justifyContent: 'center', backgroundColor: '#FF9D42',
     },
-    badgeRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, paddingHorizontal: 16, marginTop: 14 },
+    badgeRow: { flexDirection: 'row', flexWrap: 'wrap', gap: scale(8), paddingHorizontal: scale(16), marginTop: scale(14) },
     badge: {
-        flexDirection: 'row', alignItems: 'center', gap: 6,
-        paddingHorizontal: 12, paddingVertical: 8, borderRadius: 11, borderWidth: 1,
+        flexDirection: 'row', alignItems: 'center', gap: scale(6),
+        paddingHorizontal: scale(12), paddingVertical: scale(8), borderRadius: 11, borderWidth: 1,
     },
-    badgeText: { fontSize: 13, fontWeight: '700' },
-    advisoryContainer: { paddingHorizontal: 16, marginTop: 10 },
+    badgeText: { fontSize: scaleFont(13), fontWeight: '700' },
+    advisoryContainer: { paddingHorizontal: scale(16), marginTop: scale(10) },
     advisoryBanner: {
-        flexDirection: 'row', gap: 12, padding: 14,
+        flexDirection: 'row', gap: scale(12), padding: scale(14),
         borderRadius: 13, borderWidth: 1.5, alignItems: 'flex-start',
     },
-    advisoryTitle: { fontSize: 12, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 0.7, marginBottom: 3 },
-    advisoryText: { fontSize: 13, lineHeight: 19, fontWeight: '500' },
-    exerciseSection: { paddingHorizontal: 16, marginTop: 18 },
-    sectionTitle: { fontSize: 17, fontWeight: '800', marginBottom: 14 },
+    advisoryTitle: { fontSize: scaleFont(12), fontWeight: '800', textTransform: 'uppercase', letterSpacing: 0.7, marginBottom: 3 },
+    advisoryText: { fontSize: scaleFont(13), lineHeight: scaleFont(19), fontWeight: '500' },
+    exerciseSection: { paddingHorizontal: scale(16), marginTop: scale(18) },
+    sectionTitle: { fontSize: scaleFont(17), fontWeight: '800', marginBottom: scale(14) },
     bottomBar: {
         position: 'absolute', bottom: 0, left: 0, right: 0,
-        paddingHorizontal: 16, paddingTop: 10, paddingBottom: 16, borderTopWidth: 1,
+        paddingHorizontal: scale(16), paddingTop: scale(10), paddingBottom: scale(16), borderTopWidth: 1,
+        ...tabletContainerStyle,
     },
     bottomBarButtons: {
         flexDirection: 'row',
-        gap: 10,
+        gap: scale(10),
         alignItems: 'center',
     },
     guidedBtn: {
-        height: 48, borderRadius: 12, borderWidth: 1.5,
+        height: scale(48), borderRadius: 12, borderWidth: 1.5,
         flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-        gap: 6, paddingHorizontal: 16,
+        gap: scale(6), paddingHorizontal: scale(16),
     },
-    guidedBtnText: { fontSize: 14, fontWeight: '800' },
+    guidedBtnText: { fontSize: scaleFont(14), fontWeight: '800' },
     completeBtn: {
-        height: 48, borderRadius: 12, alignItems: 'center', justifyContent: 'center',
+        height: scale(48), borderRadius: 12, alignItems: 'center', justifyContent: 'center',
     },
-    completeBtnText: { color: '#000', fontSize: 16, fontWeight: '900', letterSpacing: 1.5 },
+    completeBtnText: { color: '#000', fontSize: scaleFont(16), fontWeight: '900', letterSpacing: 1.5 },
     moreButton: {
         flexDirection: 'row',
         alignItems: 'center',

@@ -100,6 +100,8 @@ export default function LoginWelcomeScreen() {
     );
 }
 
+import { scale, scaleFont, tabletContainerStyle } from '@/utils/responsive';
+
 const styles = StyleSheet.create({
     container: {
         flex: 1,
@@ -118,19 +120,20 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingHorizontal: 16,
-        paddingVertical: 12,
+        paddingHorizontal: scale(16),
+        paddingVertical: scale(12),
         zIndex: 10,
+        ...tabletContainerStyle,
     },
     headerTitle: {
         color: 'rgba(255,255,255,0.8)',
-        fontSize: 14,
+        fontSize: scaleFont(14),
         fontWeight: '600',
         letterSpacing: 2,
     },
     closeButton: {
-        width: 48,
-        height: 48,
+        width: scale(48),
+        height: scale(48),
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -138,9 +141,10 @@ const styles = StyleSheet.create({
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
-        paddingHorizontal: 24,
-        gap: 48,
+        paddingHorizontal: scale(24),
+        gap: scale(48),
         zIndex: 10,
+        ...tabletContainerStyle,
     },
     iconContainer: {
         position: 'relative',
@@ -149,15 +153,15 @@ const styles = StyleSheet.create({
     },
     iconGlow: {
         position: 'absolute',
-        width: 200,
-        height: 200,
-        borderRadius: 100,
+        width: scale(200),
+        height: scale(200),
+        borderRadius: scale(100),
         backgroundColor: 'rgba(250,204,21,0.2)',
     },
     glassCircle: {
-        width: 160,
-        height: 160,
-        borderRadius: 80,
+        width: scale(160),
+        height: scale(160),
+        borderRadius: scale(80),
         backgroundColor: 'rgba(255,255,255,0.05)',
         borderWidth: 1,
         borderColor: 'rgba(255,255,255,0.1)',
@@ -169,9 +173,9 @@ const styles = StyleSheet.create({
         shadowRadius: 40,
     },
     yellowCircle: {
-        width: 96,
-        height: 96,
-        borderRadius: 48,
+        width: scale(96),
+        height: scale(96),
+        borderRadius: scale(48),
         backgroundColor: '#facc15',
         alignItems: 'center',
         justifyContent: 'center',
@@ -182,31 +186,32 @@ const styles = StyleSheet.create({
     },
     textContainer: {
         alignItems: 'center',
-        gap: 16,
+        gap: scale(16),
     },
     title: {
-        fontSize: 36,
+        fontSize: scaleFont(36),
         fontWeight: '800',
         color: '#fff',
         textAlign: 'center',
-        lineHeight: 44,
+        lineHeight: scaleFont(44),
     },
     subtitle: {
-        fontSize: 18,
+        fontSize: scaleFont(18),
         color: 'rgba(255,255,255,0.7)',
         textAlign: 'center',
-        lineHeight: 26,
-        maxWidth: 300,
+        lineHeight: scaleFont(26),
+        maxWidth: scale(340),
     },
     bottom: {
-        paddingHorizontal: 24,
-        paddingBottom: 48,
+        paddingHorizontal: scale(24),
+        paddingBottom: scale(48),
         zIndex: 10,
+        ...tabletContainerStyle,
     },
     button: {
         backgroundColor: '#f97316',
-        height: 56,
-        borderRadius: 16,
+        height: scale(56),
+        borderRadius: scale(16),
         alignItems: 'center',
         justifyContent: 'center',
         shadowColor: '#f97316',
@@ -216,7 +221,7 @@ const styles = StyleSheet.create({
     },
     buttonText: {
         color: '#fff',
-        fontSize: 18,
+        fontSize: scaleFont(18),
         fontWeight: '700',
     },
     topGradient: {

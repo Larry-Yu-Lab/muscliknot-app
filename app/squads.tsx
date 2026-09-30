@@ -9,6 +9,7 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
+import { scale, scaleFont, tabletContainerStyle } from '@/utils/responsive';
 import {
     ActivityIndicator,
     Alert,
@@ -297,6 +298,7 @@ export default function SquadsScreen() {
             <ScrollView
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={styles.scrollContent}
+                style={{ flex: 1, width: '100%' }}
                 refreshControl={
                     squad ? (
                         <RefreshControl
@@ -307,6 +309,7 @@ export default function SquadsScreen() {
                     ) : undefined
                 }
             >
+                <View style={styles.innerContainer}>
                 {/* Header */}
                 <View style={styles.header}>
                     <TouchableOpacity style={styles.headerBtn} onPress={() => router.back()}>
@@ -467,6 +470,7 @@ export default function SquadsScreen() {
                         </TouchableOpacity>
                     </>
                 )}
+                </View>
             </ScrollView>
         </SafeAreaView>
     );
@@ -474,7 +478,8 @@ export default function SquadsScreen() {
 
 const styles = StyleSheet.create({
     container: { flex: 1 },
-    scrollContent: { paddingBottom: 100 },
+    scrollContent: { paddingBottom: scale(100), width: '100%', alignItems: 'center', flexGrow: 1 },
+    innerContainer: { width: '100%', ...tabletContainerStyle },
     loadingContainer: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingTop: 200 },
     header: {
         flexDirection: 'row',
