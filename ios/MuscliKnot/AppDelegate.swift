@@ -1,4 +1,4 @@
-import Expo
+1import Expo
 import React
 import ReactAppDependencyProvider
 

@@ -151,7 +151,7 @@ const Timeline = ({ t }: { t: (key: any) => string }) => (
                     <Ionicons name="notifications" size={12} color="#23170f" />
                 </View>
                 <Text style={styles.timelineLabel}>{t('day12')}</Text>
-    <Text style={styles.timelineSub}>{t('reminder')}</Text>
+                <Text style={styles.timelineSub}>{t('reminder')}</Text>
             </View>
 
             {/* Line */}
@@ -361,14 +361,14 @@ export default function SignupSuccessScreen() {
                             <View style={styles.reassuranceCard}>
                                 <Ionicons name="card-outline" size={20} color="rgba(255,255,255,0.6)" />
                                 <Text style={styles.reassuranceText}>{t('noChargeToday')}</Text>
-    </View>
-    <View style={styles.reassuranceCard}>
-        <Ionicons name="close-circle-outline" size={20} color="rgba(255,255,255,0.6)" />
-        <Text style={styles.reassuranceText}>{t('cancelAnytime')}</Text>
-    </View>
-    <View style={styles.reassuranceCard}>
-        <Ionicons name="notifications-outline" size={20} color="rgba(255,255,255,0.6)" />
-        <Text style={styles.reassuranceText}>{t('reminderOnDay12')}</Text>
+                            </View>
+                            <View style={styles.reassuranceCard}>
+                                <Ionicons name="close-circle-outline" size={20} color="rgba(255,255,255,0.6)" />
+                                <Text style={styles.reassuranceText}>{t('cancelAnytime')}</Text>
+                            </View>
+                            <View style={styles.reassuranceCard}>
+                                <Ionicons name="notifications-outline" size={20} color="rgba(255,255,255,0.6)" />
+                                <Text style={styles.reassuranceText}>{t('reminderOnDay12')}</Text>
                             </View>
                         </View>
                     </>

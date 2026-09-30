@@ -111,7 +111,6 @@ export default function LoginScreen() {
 
         if (!isValid) return;
 
-        console.log('Attempting to sign in with:', email);
         if (!supabase) {
             Alert.alert(
                 "Connection Error",
@@ -241,6 +240,33 @@ export default function LoginScreen() {
             }
         } finally {
             setLoading(false);
+        }
+    }
+
+    async function handleForgotPassword() {
+        if (!email) {
+            Alert.alert('Email Required', 'Please enter your email address above, then tap Forgot Password.');
+            return;
+        }
+        if (!supabase) {
+            Alert.alert('Unavailable', 'Password reset is not available in offline mode.');
+            return;
+        }
+        try {
+            const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+                redirectTo: 'muscliknot://reset-password',
+            });
+            if (error) {
+                Alert.alert('Error', error.message);
+            } else {
+                Alert.alert(
+                    'Reset Email Sent',
+                    `A password reset link has been sent to ${email.trim()}. Please check your inbox.`,
+                    [{ text: 'OK' }]
+                );
+            }
+        } catch (e) {
+            Alert.alert(t('error') || 'Error', t('unexpectedError'));
         }
     }
 
@@ -404,6 +430,18 @@ export default function LoginScreen() {
                                     <Text style={[styles.validationText, { color: THEME.successText }]}>{passwordSuccess}</Text>
                                 ) : null}
                             </View>
+
+                            {/* Forgot Password */}
+                            <TouchableOpacity
+                                onPress={handleForgotPassword}
+                                style={{ alignSelf: 'flex-end', marginTop: 4, paddingVertical: 4 }}
+                                activeOpacity={0.7}
+                            >
+                                <Text style={{ color: THEME.primary, fontSize: 13, fontWeight: '600' }}>
+                                    Forgot Password?
+                                </Text>
+                            </TouchableOpacity>
+
                         </View>
                     </View>
 

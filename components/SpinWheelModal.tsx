@@ -85,7 +85,7 @@ const SLICES: WheelSlice[] = [
         color: '#10b981',
         textColor: '#ffffff',
         discountPlan: 'annual',
-        priceDisplay: '13 Months for 12',
+        priceDisplay: '13 Months for the Price of 12',
         originalPrice: '$35.88/yr',
         badgeText: '🎁 1 MONTH BONUS'
     },

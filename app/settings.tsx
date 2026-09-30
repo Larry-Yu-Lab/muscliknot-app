@@ -6,7 +6,9 @@ import { getTranslation, LANGUAGES } from '@/utils/i18n';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React from 'react';
-import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { supabase } from '@/utils/supabase';
 
 interface SettingsRowProps {
     icon: string;
@@ -45,7 +47,7 @@ const SettingsRow = ({ icon, label, rightLabel, showChevron = true, showExpand =
 
 export default function SettingsScreen() {
     const router = useRouter();
-    const { signOut } = useAuth();
+    const { signOut, user } = useAuth();
     const { theme, toggleTheme, language, setLanguage, notificationsEnabled, toggleNotifications, equipment } = usePreferences();
     const colors = Colors[theme];
     const isDark = theme === 'dark';
@@ -191,7 +193,7 @@ export default function SettingsScreen() {
                     <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>{t('healthPrivacy').toUpperCase()}</Text>
                     <View style={[styles.glassCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
                         <SettingsRow icon="file-download" label={t('dataExport')} />
-                        <SettingsRow icon="shield" label={t('privacyPolicy')} />
+                        <SettingsRow icon="shield" label={t('privacyPolicy')} onPress={() => router.push('/privacy' as any)} />
                         <SettingsRow icon="health-and-safety" label={t('manageHealthRecords')} isLast={true} />
                     </View>
                 </View>
@@ -206,18 +208,55 @@ export default function SettingsScreen() {
                     </View>
                 </View>
 
-                {/* Logout */}
-                <TouchableOpacity
-                    style={styles.logoutButton}
-                    activeOpacity={0.7}
-                    onPress={async () => {
-                        await signOut();
-                        router.replace('/auth/login' as any);
-                    }}
-                >
-                    <MaterialIcons name="logout" size={20} color="#ef4444" />
-                    <Text style={styles.logoutText}>{t('logout').toUpperCase()}</Text>
-                </TouchableOpacity>
+                {/* Logout & Account Actions */}
+                <View style={{ gap: 10, marginTop: 24, marginBottom: 40 }}>
+                    <TouchableOpacity
+                        style={styles.logoutButton}
+                        activeOpacity={0.7}
+                        onPress={async () => {
+                            await signOut();
+                            router.replace('/auth/login' as any);
+                        }}
+                    >
+                        <MaterialIcons name="logout" size={20} color="#ef4444" />
+                        <Text style={styles.logoutText}>{t('logout').toUpperCase()}</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        style={[styles.logoutButton, { backgroundColor: 'transparent', borderWidth: 1, borderColor: 'rgba(239,68,68,0.3)' }]}
+                        activeOpacity={0.7}
+                        onPress={() => {
+                            Alert.alert(
+                                t('deleteAccountConfirmTitle'),
+                                t('deleteAccountConfirmMsg'),
+                                [
+                                    { text: t('cancel'), style: 'cancel' },
+                                    {
+                                        text: t('deleteAccount'),
+                                        style: 'destructive',
+                                        onPress: async () => {
+                                            try {
+                                                if (user?.id && supabase) {
+                                                    await supabase.from('profiles').delete().eq('id', user.id);
+                                                    await supabase.from('user_stats').delete().eq('user_id', user.id);
+                                                }
+                                                await AsyncStorage.clear();
+                                                await signOut();
+                                                router.replace('/auth/login' as any);
+                                            } catch (e) {
+                                                await signOut();
+                                                router.replace('/auth/login' as any);
+                                            }
+                                        }
+                                    }
+                                ]
+                            );
+                        }}
+                    >
+                        <MaterialIcons name="delete-forever" size={20} color="#ef4444" />
+                        <Text style={[styles.logoutText, { color: '#ef4444' }]}>{t('deleteAccount').toUpperCase()}</Text>
+                    </TouchableOpacity>
+                </View>
             </ScrollView>
         </SafeAreaView>
     );

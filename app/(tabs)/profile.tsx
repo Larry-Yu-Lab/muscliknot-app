@@ -105,7 +105,7 @@ export default function ProfileScreen() {
         if (!trimmedCode) return;
 
         const tiers: Record<string, string> = {
-            'KNOTFREE': 'Lifetime',
+            'KNOTFREE': '1-Year',
             'FREEKNOT': '1-Month',
             'GIFT2026': '3-Month',
             'COACH100': '1-Year',
@@ -866,10 +866,22 @@ export default function ProfileScreen() {
                         {/* Account Actions */}
                         <View style={styles.settingsSection}>
                             <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>{t('account')}</Text>
+
                             <TouchableOpacity
                                 style={[
                                     styles.logoutButton,
-                                    { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }
+                                    { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder, marginBottom: 10 }
+                                ]}
+                                onPress={() => router.push('/privacy' as any)}
+                            >
+                                <Ionicons name="shield-checkmark-outline" size={20} color={colors.accent} />
+                                <Text style={[styles.logoutText, { color: colors.text }]}>{t('privacyPolicy')}</Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity
+                                style={[
+                                    styles.logoutButton,
+                                    { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder, marginBottom: 10 }
                                 ]}
                                 onPress={async () => {
                                     await signOut();
@@ -878,6 +890,39 @@ export default function ProfileScreen() {
                             >
                                 <Ionicons name="log-out-outline" size={20} color={colors.danger} />
                                 <Text style={[styles.logoutText, { color: colors.danger }]}>{t('logout')}</Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity
+                                style={[
+                                    styles.logoutButton,
+                                    { backgroundColor: 'transparent', borderColor: 'rgba(239,68,68,0.3)', borderWidth: 1 }
+                                ]}
+                                onPress={() => {
+                                    Alert.alert(
+                                        t('deleteAccountConfirmTitle'),
+                                        t('deleteAccountConfirmMsg'),
+                                        [
+                                            { text: t('cancel'), style: 'cancel' },
+                                            {
+                                                text: t('deleteAccount'),
+                                                style: 'destructive',
+                                                onPress: async () => {
+                                                    try {
+                                                        await AsyncStorage.clear();
+                                                        await signOut();
+                                                        router.replace('/auth/login' as any);
+                                                    } catch (e) {
+                                                        await signOut();
+                                                        router.replace('/auth/login' as any);
+                                                    }
+                                                }
+                                            }
+                                        ]
+                                    );
+                                }}
+                            >
+                                <Ionicons name="trash-outline" size={20} color={colors.danger} />
+                                <Text style={[styles.logoutText, { color: colors.danger }]}>{t('deleteAccount')}</Text>
                             </TouchableOpacity>
                         </View>
                     </>
@@ -940,15 +985,17 @@ export default function ProfileScreen() {
                                     </Text>
                                 </TouchableOpacity>
 
-                                <TouchableOpacity 
-                                    style={{ alignSelf: 'center', marginTop: 10, paddingVertical: 6 }}
-                                    onPress={handleDowngradeToFree}
-                                    activeOpacity={0.7}
-                                >
-                                    <Text style={{ color: colors.danger, fontSize: 12, fontWeight: '600' }}>
-                                        Switch to Freemium (Test / Reset)
-                                    </Text>
-                                </TouchableOpacity>
+                                {__DEV__ && (
+                                    <TouchableOpacity 
+                                        style={{ alignSelf: 'center', marginTop: 10, paddingVertical: 6 }}
+                                        onPress={handleDowngradeToFree}
+                                        activeOpacity={0.7}
+                                    >
+                                        <Text style={{ color: colors.danger, fontSize: 12, fontWeight: '600' }}>
+                                            Switch to Freemium (Test / Reset)
+                                        </Text>
+                                    </TouchableOpacity>
+                                )}
                             </View>
                         </View>
                     </View>

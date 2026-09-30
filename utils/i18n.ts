@@ -181,10 +181,14 @@ export const translations = {
         darkMode: 'Dark Mode',
         language: 'Language',
         logout: 'Logout',
+        deleteAccount: 'Delete Account',
+        deleteAccountConfirmTitle: 'Delete Account?',
+        deleteAccountConfirmMsg: 'Are you sure you want to delete your account? All your pain tracking history, custom plans, and personal data will be permanently removed. This action cannot be undone.',
         dashboard: 'DASHBOARD',
         appleHealth: 'Apple Health',
         recoverySquad: 'Recovery Squad',
         guidedSession: 'Guided Session',
+        guidedMode: 'Guided Mode',
         weeklySummary: 'Weekly Summary',
         bodyHeatmap: 'Body Heatmap',
         thisWeek: 'This Week',
@@ -204,7 +208,7 @@ export const translations = {
         insight_start: "Start logging regularly to see more detailed insights.",
 
         // Muscle IDs (for analytics)
-        head: 'Head', neck: 'Neck', traps: 'Shoulders', chest: 'Chest', arms: 'Arms', forearms: 'Forearms', hands: 'Hands', upper_back: 'Upper Back', lower_back: 'Lower Back', abdomen: 'Abdomen', hips: 'Hanches', glutes: 'Glutes', thighs: 'Thighs', knees: 'Knees', calves: 'Calves', ankles: 'Ankles', feet: 'Feet',
+        head: 'Head', neck: 'Neck', traps: 'Shoulders', chest: 'Chest', arms: 'Arms', forearms: 'Forearms', hands: 'Hands', upper_back: 'Upper Back', lower_back: 'Lower Back', abdomen: 'Abdomen', hips: 'Hips', glutes: 'Glutes', thighs: 'Thighs', knees: 'Knees', calves: 'Calves', ankles: 'Ankles', feet: 'Feet',
 
         // Instruction Labels
         PREPARATION: 'Preparation',
@@ -958,6 +962,7 @@ export const translations = {
         appleHealth: '苹果健康',
         recoverySquad: '恢复小队',
         guidedSession: '引导课程',
+        guidedMode: '引导模式',
         weeklySummary: '每周总结',
         bodyHeatmap: '身体热力图',
         thisWeek: '本周',
@@ -2082,6 +2087,7 @@ export const translations = {
         appleHealth: 'Apple Santé',
         recoverySquad: 'Escouade de récupération',
         guidedSession: 'Séance guidée',
+        guidedMode: 'Mode Guidé',
         weeklySummary: 'Résumé hebdomadaire',
         bodyHeatmap: 'Carte thermique corporelle',
         thisWeek: 'Cette semaine',
@@ -3069,6 +3075,7 @@ export const translations = {
         appleHealth: 'Apple Health',
         recoverySquad: 'Escuadrón de recuperación',
         guidedSession: 'Sesión guiada',
+        guidedMode: 'Modo Guiado',
         weeklySummary: 'Resumen semanal',
         bodyHeatmap: 'Mapa térmico corporal',
         thisWeek: 'Esta semana',

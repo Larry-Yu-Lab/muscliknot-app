@@ -869,7 +869,7 @@ export default function FindReliefScreen() {
                         }}
                     >
                         <Ionicons name="play-circle-outline" size={20} color={colors.accent} />
-                        <Text style={[styles.guidedBtnText, { color: colors.accent }]}>{t('guidedMode' as any) || 'Guided'}</Text>
+                        <Text style={[styles.guidedBtnText, { color: colors.accent }]}>{t('guidedMode' as any) || 'Guided Mode'}</Text>
                     </TouchableOpacity>
                     <AnimatedTouchableOpacity
                         style={[styles.completeBtn, { flex: 1 }, animatedButtonStyle]}
