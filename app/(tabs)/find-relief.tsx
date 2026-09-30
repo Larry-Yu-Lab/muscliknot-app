@@ -9,7 +9,7 @@ import { AssessmentData, savePainSession, saveToHistory } from '@/utils/storage'
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { Image } from 'expo-image';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import * as React from 'react';
 import { useState } from 'react';
 import { scale, scaleFont, tabletContainerStyle } from '@/utils/responsive';
@@ -211,7 +211,7 @@ function ExerciseCard({ ex, index, colors, language, expanded, onExpand }: { ex:
                         }}
                     >
                         <Ionicons name="play-outline" size={18} color="#000" style={{ marginRight: 6 }} />
-                        <Text style={cardStyles.videoButtonText}>{t('watchVideo' as any) || 'Watch Video Demo'}</Text>
+                        <Text style={cardStyles.videoButtonText}>{(t('watchVideo' as any) && t('watchVideo' as any) !== 'watchVideo') ? t('watchVideo' as any) : 'Watch Video Demo'}</Text>
                     </TouchableOpacity>
                 </View>
             )}
@@ -598,9 +598,12 @@ export default function FindReliefScreen() {
 
     const bestUrl = getBestVideoUrl();
     const videoId = bestUrl ? extractYoutubeId(bestUrl) : null;
+    const videoWidth = Math.min(windowWidth - scale(32), 680);
+    const videoHeight = Math.round(videoWidth * (9 / 16));
 
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+            <Stack.Screen options={{ headerShown: false }} />
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent} style={{ flex: 1, width: '100%' }}>
                 <View style={styles.innerContainer}>
                 {/* Header */}
@@ -633,7 +636,7 @@ export default function FindReliefScreen() {
                 {videoId && !isLoading ? (
                     <View style={styles.videoContainer}>
                         <YoutubePlayer
-                            height={windowWidth * (9/16)}
+                            height={videoHeight}
                             width="100%"
                             play={false}
                             videoId={videoId}
@@ -929,12 +932,14 @@ const styles = StyleSheet.create({
     bottomBar: {
         position: 'absolute', bottom: 0, left: 0, right: 0,
         paddingHorizontal: scale(16), paddingTop: scale(10), paddingBottom: scale(16), borderTopWidth: 1,
-        ...tabletContainerStyle,
+        alignItems: 'center',
     },
     bottomBarButtons: {
         flexDirection: 'row',
         gap: scale(10),
         alignItems: 'center',
+        width: '100%',
+        ...tabletContainerStyle,
     },
     guidedBtn: {
         height: scale(48), borderRadius: 12, borderWidth: 1.5,

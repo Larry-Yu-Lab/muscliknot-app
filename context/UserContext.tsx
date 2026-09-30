@@ -139,7 +139,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     }
                 }
             } else {
-                logoutPurchases();
+                configurePurchases().catch(err => console.log('Anonymous RevenueCat config error:', err));
                 if (mounted) {
                     setUser(defaultUser);
                 }

@@ -9,7 +9,8 @@ import { triggerPaywallOrUpgrade } from '@/utils/purchases';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { Image } from 'expo-image';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
+import { scale } from '@/utils/responsive';
 import * as React from 'react';
 import { useState } from 'react';
 import { Alert, Platform, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View, Dimensions } from 'react-native';
@@ -119,7 +120,7 @@ function ExerciseCard({ ex, index, colors, language, expanded, onExpand }: { ex:
                         }}
                     >
                         <Ionicons name="play-outline" size={18} color="#000" style={{ marginRight: 6 }} />
-                        <Text style={cardStyles.videoButtonText}>{t('watchVideo' as any) || 'Watch Video Demo'}</Text>
+                        <Text style={cardStyles.videoButtonText}>{(t('watchVideo' as any) && t('watchVideo' as any) !== 'watchVideo') ? t('watchVideo' as any) : 'Watch Video Demo'}</Text>
                     </TouchableOpacity>
                 </View>
             )}
@@ -277,6 +278,8 @@ export default function WarmUpScreen() {
 
     const bestUrl = getBestVideoUrl();
     const videoId = bestUrl ? extractYoutubeId(bestUrl) : null;
+    const videoWidth = Math.min(windowWidth - scale(32), 680);
+    const videoHeight = Math.round(videoWidth * (9 / 16));
 
     const buttonScale = useSharedValue(1);
     const successAnim = useSharedValue(0);
@@ -364,6 +367,7 @@ export default function WarmUpScreen() {
 
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+            <Stack.Screen options={{ headerShown: false }} />
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
                 <View style={[styles.header, { backgroundColor: colors.headerBackground }]}>
                     <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
@@ -375,7 +379,7 @@ export default function WarmUpScreen() {
 
                 {videoId && !isLoading ? (
                     <View style={styles.videoContainer}>
-                        <YoutubePlayer height={windowWidth * (9/16)} width="100%" play={false} videoId={videoId} />
+                        <YoutubePlayer height={videoHeight} width="100%" play={false} videoId={videoId} />
                     </View>
                 ) : (
                     <View style={styles.videoContainer}>
@@ -429,7 +433,7 @@ export default function WarmUpScreen() {
             </ScrollView>
 
             <View style={[styles.bottomBar, { backgroundColor: colors.headerBackground, borderTopColor: colors.cardBorder }]}>
-                <Animated.View style={[{ flex: 1 }, animatedButtonStyle, { borderRadius: 12 }]}>
+                <Animated.View style={[{ width: '100%', maxWidth: 680, alignSelf: 'center' }, animatedButtonStyle, { borderRadius: 12 }]}>
                     <TouchableOpacity style={styles.completeBtn} onPress={handleComplete}>
                         <Text style={styles.completeBtnText}>{t('markAsComplete')}</Text>
                     </TouchableOpacity>
@@ -452,7 +456,7 @@ const styles = StyleSheet.create({
     playButton: { position: 'absolute', top: '50%', left: '50%', transform: [{ translateX: -28 }, { translateY: -28 }], width: 56, height: 56, borderRadius: 28, alignItems: 'center', justifyContent: 'center', backgroundColor: '#FF9D42' },
     exerciseSection: { paddingHorizontal: 16, marginTop: 18 },
     sectionTitle: { fontSize: 17, fontWeight: '800', marginBottom: 14 },
-    bottomBar: { position: 'absolute', bottom: 0, left: 0, right: 0, paddingHorizontal: 16, paddingTop: 10, paddingBottom: 16, borderTopWidth: 1, flexDirection: 'row' },
+    bottomBar: { position: 'absolute', bottom: 0, left: 0, right: 0, paddingHorizontal: 16, paddingTop: 10, paddingBottom: 16, borderTopWidth: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' },
     completeBtn: { height: 48, borderRadius: 12, alignItems: 'center', justifyContent: 'center', width: '100%' },
     completeBtnText: { color: '#000', fontSize: 16, fontWeight: '900', letterSpacing: 1.5 },
     moreButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 12, borderRadius: 12, borderWidth: 1, borderStyle: 'dashed', marginTop: 4, backgroundColor: 'rgba(255,255,255,0.02)' },

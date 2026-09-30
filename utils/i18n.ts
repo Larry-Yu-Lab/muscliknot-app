@@ -199,6 +199,7 @@ export const translations = {
         preventionAlerts: 'Prevention Alerts',
         startPlan: 'Start Plan',
         dismiss: 'Dismiss',
+        watchVideo: 'Watch Video Demo',
 
         // Insights
         insight_streak: "You've been consistent for ${days} days! Keep it up.",

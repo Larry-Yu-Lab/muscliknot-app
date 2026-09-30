@@ -268,47 +268,55 @@ function selectDailyExercises(targetMuscle: string, phase: RecoveryPhase): strin
  * for the most frequently targeted muscle with pain data.
  */
 export function generateRoadmap(history: HistoryItem[]): RecoveryRoadmap | null {
+    if (!history || history.length === 0) return null;
+
     const now = Date.now();
     const cutoff = now - ANALYSIS_WINDOW_MS;
     const recentCutoff = now - RECENT_WINDOW_MS;
 
-    const relevantSessions = history.filter(
-        h => h.date >= cutoff && h.assessment?.painLevel !== undefined
-    );
+    // Filter relevant sessions in 14-day window; fallback to all history if window is empty
+    let relevantSessions = history.filter(h => h.date >= cutoff);
+    if (relevantSessions.length === 0) {
+        relevantSessions = [...history];
+    }
 
-    if (relevantSessions.length < 2) return null;
-
+    // Group sessions by target muscle group
     const muscleGroups: Record<string, HistoryItem[]> = {};
     relevantSessions.forEach(session => {
-        const muscle = session.muscleGroup;
+        const muscle = session.muscleGroup || 'Neck';
         if (!muscleGroups[muscle]) muscleGroups[muscle] = [];
         muscleGroups[muscle].push(session);
     });
 
+    // Pick muscle group with highest session count, defaulting to most recent session
     let targetMuscle = '';
     let maxSessions = 0;
     Object.entries(muscleGroups).forEach(([muscle, sessions]) => {
-        if (sessions.length > maxSessions) {
+        if (sessions.length >= maxSessions) {
             maxSessions = sessions.length;
             targetMuscle = muscle;
         }
     });
 
-    if (!targetMuscle || maxSessions < 2) return null;
+    if (!targetMuscle && history.length > 0) {
+        targetMuscle = history[history.length - 1].muscleGroup || 'Neck';
+    }
 
-    const muscleSessions = muscleGroups[targetMuscle].sort((a, b) => a.date - b.date);
+    if (!targetMuscle) return null;
 
-    const painLevels = muscleSessions.map(s => ({
-        date: s.date,
-        level: s.assessment!.painLevel!,
-    }));
+    const muscleSessions = (muscleGroups[targetMuscle] || [history[history.length - 1]]).sort((a, b) => a.date - b.date);
 
-    const avgPainLevel = painLevels.reduce((sum, p) => sum + p.level, 0) / painLevels.length;
-    const painTrend = calculatePainTrend(painLevels);
+    const painRecords = muscleSessions
+        .filter(s => typeof s.assessment?.painLevel === 'number')
+        .map(s => ({ date: s.date, level: s.assessment!.painLevel! }));
 
-    const recentHighPain = painLevels.some(
-        p => p.date >= recentCutoff && p.level >= 6
-    );
+    const painValues = painRecords.map(p => p.level);
+    const avgPainLevel = painValues.length > 0
+        ? painValues.reduce((sum, p) => sum + p, 0) / painValues.length
+        : 4.0;
+
+    const painTrend = calculatePainTrend(painRecords);
+    const recentHighPain = painRecords.some(p => p.date >= recentCutoff && p.level >= 6);
 
     const firstSessionDate = muscleSessions[0].date;
     const dayNumber = Math.max(1, Math.ceil((now - firstSessionDate) / (24 * 60 * 60 * 1000)));
