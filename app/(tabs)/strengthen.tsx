@@ -5,6 +5,7 @@ import { useUser } from '@/context/UserContext';
 import { getExercisesByActivityType, EXERCISES, Exercise } from '@/data/exercises';
 import { getTranslation } from '@/utils/i18n';
 import { saveToHistory } from '@/utils/storage';
+import { triggerPaywallOrUpgrade } from '@/utils/purchases';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { Image } from 'expo-image';
@@ -154,7 +155,7 @@ export default function StrengthenScreen() {
     const params = useLocalSearchParams();
     const { width: windowWidth } = Dimensions.get('window');
     const { language, theme } = usePreferences();
-    const { user } = useUser();
+    const { user, updateUser } = useUser();
     const t = (key: Parameters<typeof getTranslation>[1]) => getTranslation(language, key);
     const colors = Colors[theme];
     const accentColor = '#10b981';
@@ -356,7 +357,7 @@ export default function StrengthenScreen() {
 
                     <TouchableOpacity
                         style={[styles.lockScreenButton, { backgroundColor: colors.accent || accentColor }]}
-                        onPress={() => router.push('/auth/signup-success' as any)}
+                        onPress={() => triggerPaywallOrUpgrade(updateUser)}
                         activeOpacity={0.85}
                     >
                         <Text style={styles.lockScreenButtonText}>{t('startFreeTrial')}</Text>

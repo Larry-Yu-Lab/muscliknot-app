@@ -1,4 +1,4 @@
-import { Platform, NativeModules, Linking } from 'react-native';
+import { Platform, NativeModules, Linking, Alert } from 'react-native';
 import Purchases, { LOG_LEVEL, PurchasesPackage, PACKAGE_TYPE, PurchasesOffering } from 'react-native-purchases';
 import RevenueCatUI, { PAYWALL_RESULT } from 'react-native-purchases-ui';
 
@@ -358,3 +358,93 @@ export const presentCustomerCenter = async () => {
     Linking.openURL('https://apps.apple.com/account/subscriptions');
   }
 };
+
+/**
+ * Triggers the paywall or upgrade flow for blocked features.
+ * 1. First attempts to present RevenueCat Paywall UI (`presentPaywall()`).
+ * 2. If paywall UI is presented and user purchases or restores, updates user state via `updateUser({ isPremium: true })` and returns { success: true }.
+ * 3. If paywall UI is NOT presented (e.g. RevenueCat native UI missing on platform, paywall not configured on RC dashboard, or simulator without native template),
+ *    falls back to fetching offerings and calling `purchasePackage()`.
+ * 4. In `__DEV__` mode, if offerings are empty, presents a fallback alert allowing simulated upgrade so testing/upgrading works 100% of the time.
+ */
+export const triggerPaywallOrUpgrade = async (
+  updateUser?: (data: { isPremium: boolean }) => Promise<void> | void
+): Promise<{ success: boolean; error?: string }> => {
+  try {
+    // 1. Try native RevenueCat UI paywall
+    const paywallRes = await presentPaywall();
+    if (paywallRes.success) {
+      if (updateUser) {
+        await updateUser({ isPremium: true });
+      }
+      return { success: true };
+    }
+
+    if (paywallRes.result === PAYWALL_RESULT.CANCELLED) {
+      return { success: false, error: 'User cancelled' };
+    }
+
+    // 2. Fallback to direct package purchase if Paywall UI was not presented or returned error
+    const packages = await getOfferings();
+    if (packages.length > 0) {
+      const selectedPackage = packages.find(pkg => pkg.packageType === 'ANNUAL') || packages.find(pkg => pkg.packageType === 'MONTHLY') || packages[0];
+      const purchaseRes = await purchasePackage(selectedPackage);
+      if (purchaseRes.success) {
+        if (updateUser) {
+          await updateUser({ isPremium: true });
+        }
+        Alert.alert(
+          'Success',
+          'Congratulations! Your Premium Access has been unlocked.',
+          [{ text: 'OK' }]
+        );
+        return { success: true };
+      } else if (purchaseRes.error && purchaseRes.error !== 'User cancelled the purchase') {
+        Alert.alert('Purchase Note', purchaseRes.error);
+        return { success: false, error: purchaseRes.error };
+      }
+      return { success: false, error: purchaseRes.error || 'Purchase not completed' };
+    }
+
+    // 3. Fallback for __DEV__ / simulator where native RevenueCat packages/paywall are unconfigured
+    if (__DEV__) {
+      return new Promise((resolve) => {
+        Alert.alert(
+          'StoreKit / Paywall Simulation',
+          'RevenueCat paywall or offerings are not active in this test environment.\n\nWould you like to simulate unlocking Premium Access for testing?',
+          [
+            {
+              text: 'Cancel',
+              style: 'cancel',
+              onPress: () => resolve({ success: false, error: 'Cancelled' })
+            },
+            {
+              text: 'Simulate Upgrade',
+              onPress: async () => {
+                if (updateUser) {
+                  await updateUser({ isPremium: true });
+                }
+                Alert.alert('Success', 'Simulated purchase successful! Premium Access is active.');
+                resolve({ success: true });
+              }
+            }
+          ]
+        );
+      });
+    }
+
+    Alert.alert(
+      'Subscription Error',
+      paywallRes.error || 'No active subscription options found. Please try again later.'
+    );
+    return {
+      success: false,
+      error: paywallRes.error || 'No active subscription options found.'
+    };
+  } catch (err: any) {
+    console.error('Error in triggerPaywallOrUpgrade:', err);
+    Alert.alert('Error', 'An unexpected error occurred while processing upgrade.');
+    return { success: false, error: err?.message || 'Failed to open paywall' };
+  }
+};
+

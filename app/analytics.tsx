@@ -4,6 +4,7 @@ import { useUser } from '@/context/UserContext';
 import { AnalyticsData, DailyDetail, processAnalytics } from '@/utils/analytics';
 import { getTranslation, formatLabel } from '@/utils/i18n';
 import { getHistory } from '@/utils/storage';
+import { triggerPaywallOrUpgrade } from '@/utils/purchases';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
@@ -15,7 +16,7 @@ const { width } = Dimensions.get('window');
 export default function AnalyticsScreen() {
     const router = useRouter();
     const { theme, language } = usePreferences();
-    const { user } = useUser();
+    const { user, updateUser } = useUser();
     const colors = Colors[theme];
     const isDark = theme === 'dark';
     const t = (key: Parameters<typeof getTranslation>[1], params?: Record<string, string>) => getTranslation(language, key, params);
@@ -80,7 +81,7 @@ export default function AnalyticsScreen() {
 
                 <TouchableOpacity
                     style={[styles.lockScreenButton, { backgroundColor: colors.accent }]}
-                    onPress={() => router.push('/auth/signup-success' as any)}
+                    onPress={() => triggerPaywallOrUpgrade(updateUser)}
                     activeOpacity={0.85}
                 >
                     <Text style={styles.lockScreenButtonText}>{t('startFreeTrial')}</Text>

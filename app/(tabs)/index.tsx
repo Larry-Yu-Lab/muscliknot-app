@@ -7,6 +7,7 @@ import { generatePreventionAlerts, PreventionAlert } from '@/utils/preventionEng
 import { generateRoadmap, phaseLabelKey, RecoveryRoadmap } from '@/utils/recoveryRoadmap';
 import { getHistory, HistoryItem } from '@/utils/storage';
 import { getDailyCoach, refreshDailyCoach, DailyCoachData } from '@/utils/aiCoach';
+import { triggerPaywallOrUpgrade } from '@/utils/purchases';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { useFocusEffect, useRouter } from 'expo-router';
@@ -116,7 +117,7 @@ const DraggableOval = ({ initialX, initialY, initialWidth, initialHeight, initia
 export default function HomeScreen() {
   const router = useRouter();
   const { language, theme } = usePreferences();
-  const { user } = useUser();
+  const { user, updateUser } = useUser();
   const t = (key: Parameters<typeof getTranslation>[1], params?: Record<string, string>) => getTranslation(language, key, params);
   const colors = Colors[theme];
   const isDark = theme === 'dark';
@@ -616,7 +617,7 @@ export default function HomeScreen() {
                     <Text style={[styles.lockSubtitle, { color: colors.textSecondary }]}>{t('indexCoachLockSubtitle')}</Text>
                     <TouchableOpacity
                       style={[styles.lockButton, { backgroundColor: colors.accent }]}
-                      onPress={() => router.push('/auth/signup-success' as any)}
+                      onPress={() => triggerPaywallOrUpgrade(updateUser)}
                       activeOpacity={0.85}
                     >
                       <Text style={styles.lockButtonText}>{t('indexCoachLockBtn')}</Text>

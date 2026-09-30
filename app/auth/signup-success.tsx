@@ -215,6 +215,7 @@ export default function SignupSuccessScreen() {
                     if (trialPackage) {
                         const result = await purchasePackage(trialPackage);
                         if (result.success) {
+                            await updateUser({ isPremium: true });
                             Alert.alert(
                                 'Trial Started',
                                 'Your free trial has started successfully!',
