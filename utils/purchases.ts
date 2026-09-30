@@ -266,9 +266,9 @@ export const presentPaywall = async (options?: {
   error?: string;
 }> => {
   try {
-    if (!isPurchasesValid) {
-      console.log('[Purchases] Cannot present paywall: native modules not available on this platform');
-      return { success: false, result: PAYWALL_RESULT.NOT_PRESENTED, error: 'In-app purchases not available on this platform.' };
+    if (!isPurchasesValid || !API_KEY || API_KEY.trim().length === 0) {
+      console.log('[Purchases] Cannot present paywall: API key or native modules not available');
+      return { success: false, result: PAYWALL_RESULT.NOT_PRESENTED, error: 'In-app purchases not configured.' };
     }
 
     if (!(await safePurchases.isConfigured())) {
@@ -371,21 +371,38 @@ export const triggerPaywallOrUpgrade = async (
   updateUser?: (data: { isPremium: boolean }) => Promise<void> | void
 ): Promise<{ success: boolean; error?: string }> => {
   try {
-    // 1. Try native RevenueCat UI paywall
-    const paywallRes = await presentPaywall();
-    if (paywallRes.success) {
-      if (updateUser) {
-        await updateUser({ isPremium: true });
+    const hasValidKey = !!API_KEY && API_KEY.trim().length > 0;
+
+    // 1. Try to fetch offerings first to see if RevenueCat is live with products
+    let packages: PurchasesPackage[] = [];
+    if (hasValidKey) {
+      try {
+        packages = await getOfferings();
+      } catch (e) {
+        console.log('[Purchases] Could not fetch offerings:', e);
       }
-      return { success: true };
     }
 
-    if (paywallRes.result === PAYWALL_RESULT.CANCELLED) {
-      return { success: false, error: 'User cancelled' };
+    // 2. If API Key is configured AND offerings exist, try native RevenueCat UI paywall
+    if (hasValidKey && packages.length > 0) {
+      try {
+        const paywallRes = await presentPaywall();
+        if (paywallRes.success) {
+          if (updateUser) {
+            await updateUser({ isPremium: true });
+          }
+          return { success: true };
+        }
+
+        if (paywallRes.result === PAYWALL_RESULT.CANCELLED) {
+          return { success: false, error: 'User cancelled' };
+        }
+      } catch (paywallErr) {
+        console.warn('[Purchases] Native paywall failed or unconfigured, falling back to direct purchase:', paywallErr);
+      }
     }
 
-    // 2. Fallback to direct package purchase if Paywall UI was not presented or returned error
-    const packages = await getOfferings();
+    // 3. Fallback: Direct package purchase if Paywall UI is unconfigured in RevenueCat Dashboard
     if (packages.length > 0) {
       const selectedPackage = packages.find(pkg => pkg.packageType === 'ANNUAL') || packages.find(pkg => pkg.packageType === 'MONTHLY') || packages[0];
       const purchaseRes = await purchasePackage(selectedPackage);
@@ -406,7 +423,7 @@ export const triggerPaywallOrUpgrade = async (
       return { success: false, error: purchaseRes.error || 'Purchase not completed' };
     }
 
-    // 3. Fallback for __DEV__ / simulator where native RevenueCat packages/paywall are unconfigured
+    // 4. Fallback for __DEV__ / simulator / unconfigured environment
     if (__DEV__) {
       return new Promise((resolve) => {
         Alert.alert(
@@ -434,12 +451,12 @@ export const triggerPaywallOrUpgrade = async (
     }
 
     Alert.alert(
-      'Subscription Error',
-      paywallRes.error || 'No active subscription options found. Please try again later.'
+      'Subscription Service',
+      'In-app subscriptions are currently being updated. Please try again shortly or contact support.'
     );
     return {
       success: false,
-      error: paywallRes.error || 'No active subscription options found.'
+      error: 'No active subscription options found.'
     };
   } catch (err: any) {
     console.error('Error in triggerPaywallOrUpgrade:', err);
