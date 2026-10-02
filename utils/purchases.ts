@@ -59,6 +59,35 @@ const safePurchases = {
       throw e;
     }
   },
+  getProducts: async (productIdentifiers: string[]) => {
+    if (!isPurchasesValid) return [];
+    try {
+      return await Purchases.getProducts(productIdentifiers);
+    } catch (e) {
+      console.log('[Purchases] getProducts failed:', e);
+      return [];
+    }
+  },
+  purchaseStoreProduct: async (product: any) => {
+    if (!isPurchasesValid) {
+      return { customerInfo: { entitlements: { active: {} } } };
+    }
+    try {
+      return await Purchases.purchaseStoreProduct(product);
+    } catch (e) {
+      throw e;
+    }
+  },
+  purchaseProduct: async (productIdentifier: string) => {
+    if (!isPurchasesValid) {
+      return { customerInfo: { entitlements: { active: {} } } };
+    }
+    try {
+      return await Purchases.purchaseProduct(productIdentifier);
+    } catch (e) {
+      throw e;
+    }
+  },
   getCustomerInfo: async () => {
     if (!isPurchasesValid) {
       return { entitlements: { active: {} } };
@@ -148,7 +177,22 @@ export const getOfferings = async (): Promise<PurchasesPackage[]> => {
       }
     }
 
-    console.log('[Purchases] No available packages in offerings');
+    console.log('[Purchases] No available packages in offerings, checking local StoreKit products...');
+    try {
+      const storeProducts = await safePurchases.getProducts(['yearly', 'monthly', 'lifetime']);
+      if (storeProducts && storeProducts.length > 0) {
+        console.log('[Purchases] Loaded fallback StoreKit products:', storeProducts.map((p: any) => p.identifier));
+        return storeProducts.map((prod: any) => ({
+          identifier: prod.identifier,
+          packageType: prod.identifier.includes('year') ? PACKAGE_TYPE.ANNUAL : (prod.identifier.includes('month') ? PACKAGE_TYPE.MONTHLY : PACKAGE_TYPE.CUSTOM),
+          product: prod,
+          offeringIdentifier: 'storekit_fallback'
+        })) as any;
+      }
+    } catch (storeKitFetchErr) {
+      console.log('[Purchases] Fallback StoreKit products check failed:', storeKitFetchErr);
+    }
+
     return [];
   } catch (error) {
     console.error('Error fetching offerings from RevenueCat:', error);
@@ -164,7 +208,19 @@ export const purchasePackage = async (rcPackage: PurchasesPackage) => {
     if (!isPurchasesValid || !(await safePurchases.isConfigured())) {
       return { success: false, customerInfo: null, error: 'RevenueCat is not configured.' };
     }
-    const { customerInfo } = await safePurchases.purchasePackage(rcPackage);
+    let customerInfo: any;
+    try {
+      const res = await safePurchases.purchasePackage(rcPackage);
+      customerInfo = res.customerInfo;
+    } catch (purchasePkgErr: any) {
+      if (rcPackage.product) {
+        console.log('[Purchases] purchasePackage failed, attempting direct purchaseStoreProduct...');
+        const res = await safePurchases.purchaseStoreProduct(rcPackage.product);
+        customerInfo = res.customerInfo;
+      } else {
+        throw purchasePkgErr;
+      }
+    }
     const activeEntitlements = (customerInfo as any)?.entitlements?.active || {};
     const activeSubs = (customerInfo as any)?.activeSubscriptions || [];
     const allPurchased = (customerInfo as any)?.allPurchasedProductIdentifiers || [];
@@ -427,6 +483,33 @@ export const triggerPaywallOrUpgrade = async (
         return { success: false, error: purchaseRes.error };
       }
       return { success: false, error: purchaseRes.error || 'Purchase not completed' };
+    }
+
+    // 3b. Fallback: Direct StoreKit query if offerings array was empty (Xcode .storekit / local products)
+    if (isPurchasesValid) {
+      try {
+        console.log('[Purchases] Offerings empty, querying StoreKit directly for local products...');
+        const storeProducts = await safePurchases.getProducts(['yearly', 'monthly', 'lifetime']);
+        if (storeProducts && storeProducts.length > 0) {
+          const targetProduct = storeProducts.find((p: any) => p.identifier === 'yearly') || storeProducts[0];
+          console.log('[Purchases] Launching native Apple purchase sheet for:', targetProduct.identifier);
+          const { customerInfo } = await safePurchases.purchaseStoreProduct(targetProduct);
+          if (updateUser) {
+            await updateUser({ isPremium: true });
+          }
+          Alert.alert(
+            'Success',
+            'Congratulations! Your Premium Access has been unlocked.',
+            [{ text: 'OK' }]
+          );
+          return { success: true };
+        }
+      } catch (storeKitErr: any) {
+        if (storeKitErr?.userCancelled) {
+          return { success: false, error: 'User cancelled' };
+        }
+        console.log('[Purchases] Direct StoreKit purchase failed or not available:', storeKitErr);
+      }
     }
 
     // 4. Fallback for __DEV__ / simulator / unconfigured environment
