@@ -13,7 +13,7 @@ import { Image } from 'expo-image';
 import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
 import { scale, scaleFont, tabletContainerStyle } from '@/utils/responsive';
-import { SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, ActivityIndicator } from 'react-native';
+import { Alert, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, ActivityIndicator } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SpinWheelModal } from '@/components/SpinWheelModal';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
@@ -617,7 +617,12 @@ export default function HomeScreen() {
                     <Text style={[styles.lockSubtitle, { color: colors.textSecondary }]}>{t('indexCoachLockSubtitle')}</Text>
                     <TouchableOpacity
                       style={[styles.lockButton, { backgroundColor: colors.accent }]}
-                      onPress={() => triggerPaywallOrUpgrade(updateUser)}
+                      onPress={async () => {
+                          const result = await triggerPaywallOrUpgrade(updateUser);
+                          if (result.error === 'NO_PACKAGES') {
+                              Alert.alert('Upgrade Unavailable', 'Subscription packages could not be loaded right now. Please check your connection and try again.', [{ text: 'OK' }]);
+                          }
+                      }}
                       activeOpacity={0.85}
                     >
                       <Text style={styles.lockButtonText}>{t('indexCoachLockBtn')}</Text>

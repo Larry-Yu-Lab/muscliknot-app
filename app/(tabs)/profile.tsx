@@ -13,10 +13,10 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { useFocusEffect, useRouter } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
-import { getOfferings, purchasePackage, restorePurchases, presentPaywall, presentCustomerCenter, PAYWALL_RESULT } from '@/utils/purchases';
+import { getOfferings, purchasePackage, restorePurchases, presentPaywall, presentCustomerCenter, triggerPaywallOrUpgrade, PAYWALL_RESULT } from '@/utils/purchases';
 import { scale, scaleFont, tabletContainerStyle } from '@/utils/responsive';
 import React, { useCallback, useEffect, useState } from 'react';
-import { Alert, Dimensions, Modal, Platform, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, Animated, Dimensions, Modal, Platform, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import Svg, { Circle, Line, Path } from 'react-native-svg';
 
 const { width } = Dimensions.get('window');
@@ -100,6 +100,7 @@ export default function ProfileScreen() {
     const [isSavingKey, setIsSavingKey] = useState(false);
     const [promoCode, setPromoCode] = useState('');
     const [isApplyingPromo, setIsApplyingPromo] = useState(false);
+    const [isUpgradeModalVisible, setIsUpgradeModalVisible] = useState(false);
 
     const handleApplyPromoCode = async () => {
         const trimmedCode = promoCode.trim().toUpperCase();
@@ -181,67 +182,15 @@ export default function ProfileScreen() {
     };
 
     const handleUpgrade = async () => {
-        try {
-            const packages = await getOfferings();
-            if (packages.length === 0) {
-                if (__DEV__) {
-                    Alert.alert(
-                        'StoreKit Packages Empty',
-                        'RevenueCat could not fetch product prices from Apple (common in Simulator without a StoreKit configuration).\n\nWould you like to simulate a successful purchase in Dev mode?',
-                        [
-                            { text: 'Cancel', style: 'cancel' },
-                            {
-                                text: 'Simulate Upgrade',
-                                onPress: async () => {
-                                    await updateUser({ isPremium: true });
-                                    Alert.alert('Success', 'Simulated purchase successful! Premium Access is active.');
-                                }
-                            }
-                        ]
-                    );
-                    return;
-                }
-
-                Alert.alert(
-                    'Error',
-                    'No subscription packages found. Please verify your connection or try again later.',
-                    [{ text: 'OK' }]
-                );
-                return;
-            }
-
-            const packageTypeToFind = billingCycle === 'annual' ? 'ANNUAL' : 'MONTHLY';
-            const selectedPackage = packages.find(pkg => pkg.packageType === packageTypeToFind) || packages[0];
-
-            if (!selectedPackage) {
-                Alert.alert(
-                    'Error',
-                    'The selected plan is not available at this moment.',
-                    [{ text: 'OK' }]
-                );
-                return;
-            }
-
-            const result = await purchasePackage(selectedPackage);
-            if (result.success) {
-                await updateUser({ isPremium: true });
-                Alert.alert(
-                    'Success',
-                    'Congratulations! Your Premium Access has been unlocked.',
-                    [{ text: 'OK' }]
-                );
-            } else if (result.error && result.error !== 'User cancelled the purchase') {
-                Alert.alert(
-                    'Purchase Failed',
-                    result.error,
-                    [{ text: 'OK' }]
-                );
-            }
-        } catch (error: any) {
-            console.error('Failed upgrading:', error);
+        setIsUpgradeModalVisible(false);
+        const result = await triggerPaywallOrUpgrade(updateUser);
+        if (result.success) {
+            // Premium was unlocked via paywall/simulation
+        } else if (result.error === 'NO_PACKAGES') {
+            // RevenueCat offerings unavailable — show clear message
             Alert.alert(
-                'Error',
-                'An unexpected error occurred. Please try again.',
+                'Upgrade Unavailable',
+                'Subscription packages could not be loaded right now. Please check your internet connection and try again.',
                 [{ text: 'OK' }]
             );
         }
@@ -1061,7 +1010,7 @@ export default function ProfileScreen() {
                                 </View>
                                 <TouchableOpacity 
                                     style={[styles.eliteButton, { backgroundColor: colors.accent }]}
-                                    onPress={handleUpgrade}
+                                    onPress={() => setIsUpgradeModalVisible(true)}
                                 >
                                     <Text style={styles.eliteButtonText}>
                                         {billingCycle === 'annual' ? t('upgradeSave') : t('upgradeElite')}
@@ -1228,6 +1177,113 @@ export default function ProfileScreen() {
                         </TouchableOpacity>
                     </View>
                 </Pressable>
+            </Modal>
+
+            {/* Elite Upgrade Paywall Modal */}
+            <Modal
+                visible={isUpgradeModalVisible}
+                transparent={true}
+                animationType="slide"
+                onRequestClose={() => setIsUpgradeModalVisible(false)}
+            >
+                <View style={paywallStyles.overlay}>
+                    <View style={[paywallStyles.container, { backgroundColor: colors.background }]}>
+                        {/* Close Button */}
+                        <TouchableOpacity
+                            style={paywallStyles.closeButton}
+                            onPress={() => setIsUpgradeModalVisible(false)}
+                        >
+                            <Ionicons name="close" size={24} color={colors.textSecondary} />
+                        </TouchableOpacity>
+
+                        <ScrollView
+                            showsVerticalScrollIndicator={false}
+                            contentContainerStyle={paywallStyles.scrollContent}
+                        >
+                            {/* Icon */}
+                            <View style={paywallStyles.iconSection}>
+                                <View style={[paywallStyles.iconGlow, { backgroundColor: colors.accent + '15' }]} />
+                                <View style={paywallStyles.iconCircle}>
+                                    <MaterialCommunityIcons name="crown" size={36} color={colors.accent} />
+                                </View>
+                            </View>
+
+                            {/* Title */}
+                            <Text style={[paywallStyles.title, { color: colors.text }]}>
+                                {t('elitePlan')}
+                            </Text>
+                            <Text style={[paywallStyles.subtitle, { color: colors.textSecondary }]}>
+                                {t('analyticsLockSubtitle' as any) || 'Unlock the full power of MuscliKnot with advanced AI coaching, detailed analytics, and personalized recovery.'}
+                            </Text>
+
+                            {/* Price */}
+                            <View style={[paywallStyles.priceCard, { backgroundColor: colors.cardBackground, borderColor: colors.accent + '40' }]}>
+                                <View style={paywallStyles.priceRow}>
+                                    <Text style={[paywallStyles.priceAmount, { color: colors.text }]}>
+                                        {billingCycle === 'annual' ? '$2.99' : '$3.99'}
+                                    </Text>
+                                    <Text style={[paywallStyles.pricePeriod, { color: colors.textSecondary }]}>
+                                        {t('monthAbbr')}
+                                    </Text>
+                                </View>
+                                {billingCycle === 'annual' && (
+                                    <View style={[paywallStyles.savingsBadge, { backgroundColor: colors.success + '20' }]}>
+                                        <Text style={[paywallStyles.savingsText, { color: colors.success }]}>
+                                            {t('save20')}
+                                        </Text>
+                                    </View>
+                                )}
+                            </View>
+
+                            {/* Feature Bullets */}
+                            <View style={paywallStyles.featureList}>
+                                {[
+                                    { icon: 'sparkles' as const, text: t('featureUnlimitedAI') },
+                                    { icon: 'body' as const, text: t('featureAdvancedMapping') },
+                                    { icon: 'analytics' as const, text: t('featureFullAnalytics') },
+                                    { icon: 'fitness' as const, text: t('featureWeeklyReports') },
+                                ].map((item, idx) => (
+                                    <View key={idx} style={paywallStyles.featureRow}>
+                                        <View style={[paywallStyles.featureCheck, { backgroundColor: colors.accent + '15' }]}>
+                                            <Ionicons name={"checkmark" as any} size={14} color={colors.accent} />
+                                        </View>
+                                        <Text style={[paywallStyles.featureText, { color: colors.text }]}>{item.text}</Text>
+                                    </View>
+                                ))}
+                            </View>
+
+                            {/* CTA Button */}
+                            <TouchableOpacity
+                                style={[paywallStyles.ctaButton, { backgroundColor: colors.accent }]}
+                                onPress={handleUpgrade}
+                                activeOpacity={0.85}
+                            >
+                                <Text style={paywallStyles.ctaText}>{t('startFreeTrial')}</Text>
+                            </TouchableOpacity>
+
+                            {/* Restore link */}
+                            <TouchableOpacity
+                                style={paywallStyles.restoreLink}
+                                onPress={() => {
+                                    setIsUpgradeModalVisible(false);
+                                    handleRestorePurchases();
+                                }}
+                            >
+                                <Text style={[paywallStyles.restoreText, { color: colors.textSecondary }]}>
+                                    {t('restorePurchases' as any) || 'Restore Purchases'}
+                                </Text>
+                            </TouchableOpacity>
+
+                            {/* Fine print */}
+                            <Text style={[paywallStyles.finePrint, { color: colors.textSecondary }]}>
+                                {billingCycle === 'annual'
+                                    ? t('footerNoteAnnual')
+                                    : t('footerNoteMonthly')
+                                }
+                            </Text>
+                        </ScrollView>
+                    </View>
+                </View>
             </Modal>
         </SafeAreaView>
     );
@@ -1866,5 +1922,165 @@ const styles = StyleSheet.create({
     modalCloseText: {
         fontSize: 15,
         fontWeight: '700',
+    },
+});
+
+const paywallStyles = StyleSheet.create({
+    overlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.6)',
+        justifyContent: 'flex-end',
+    },
+    container: {
+        borderTopLeftRadius: 28,
+        borderTopRightRadius: 28,
+        maxHeight: '92%',
+        paddingTop: 16,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: -4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 12,
+        elevation: 10,
+    },
+    closeButton: {
+        position: 'absolute',
+        top: 16,
+        right: 16,
+        zIndex: 10,
+        width: 36,
+        height: 36,
+        borderRadius: 18,
+        backgroundColor: 'rgba(255,255,255,0.05)',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    scrollContent: {
+        alignItems: 'center',
+        paddingHorizontal: 24,
+        paddingTop: 32,
+        paddingBottom: 48,
+    },
+    iconSection: {
+        position: 'relative',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: 20,
+    },
+    iconGlow: {
+        position: 'absolute',
+        width: 140,
+        height: 140,
+        borderRadius: 70,
+    },
+    iconCircle: {
+        width: 80,
+        height: 80,
+        borderRadius: 40,
+        backgroundColor: 'rgba(255,255,255,0.03)',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.08)',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    title: {
+        fontSize: 26,
+        fontWeight: '800',
+        textAlign: 'center',
+        marginBottom: 12,
+        letterSpacing: 1,
+    },
+    subtitle: {
+        fontSize: 15,
+        textAlign: 'center',
+        lineHeight: 22,
+        paddingHorizontal: 8,
+        marginBottom: 24,
+    },
+    priceCard: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 12,
+        paddingVertical: 16,
+        paddingHorizontal: 24,
+        borderRadius: 16,
+        borderWidth: 1,
+        marginBottom: 28,
+    },
+    priceRow: {
+        flexDirection: 'row',
+        alignItems: 'baseline',
+        gap: 4,
+    },
+    priceAmount: {
+        fontSize: 32,
+        fontWeight: '900',
+    },
+    pricePeriod: {
+        fontSize: 14,
+        fontWeight: '600',
+    },
+    savingsBadge: {
+        paddingHorizontal: 10,
+        paddingVertical: 4,
+        borderRadius: 10,
+    },
+    savingsText: {
+        fontSize: 11,
+        fontWeight: '800',
+    },
+    featureList: {
+        width: '100%',
+        gap: 14,
+        marginBottom: 32,
+    },
+    featureRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
+    },
+    featureCheck: {
+        width: 28,
+        height: 28,
+        borderRadius: 14,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    featureText: {
+        fontSize: 15,
+        fontWeight: '600',
+    },
+    ctaButton: {
+        width: '100%',
+        maxWidth: 320,
+        height: 54,
+        borderRadius: 16,
+        alignItems: 'center',
+        justifyContent: 'center',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.25,
+        shadowRadius: 10,
+        elevation: 6,
+        marginBottom: 16,
+    },
+    ctaText: {
+        color: '#000',
+        fontSize: 16,
+        fontWeight: '900',
+    },
+    restoreLink: {
+        paddingVertical: 8,
+        marginBottom: 16,
+    },
+    restoreText: {
+        fontSize: 13,
+        textDecorationLine: 'underline',
+        fontWeight: '500',
+    },
+    finePrint: {
+        fontSize: 10,
+        textAlign: 'center',
+        lineHeight: 14,
+        paddingHorizontal: 16,
     },
 });

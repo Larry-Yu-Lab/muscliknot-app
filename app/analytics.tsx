@@ -8,7 +8,7 @@ import { triggerPaywallOrUpgrade } from '@/utils/purchases';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { Dimensions, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Dimensions, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Svg, { Circle, Line, Path, Rect, Text as SvgText } from 'react-native-svg';
 
 const { width } = Dimensions.get('window');
@@ -81,7 +81,12 @@ export default function AnalyticsScreen() {
 
                 <TouchableOpacity
                     style={[styles.lockScreenButton, { backgroundColor: colors.accent }]}
-                    onPress={() => triggerPaywallOrUpgrade(updateUser)}
+                    onPress={async () => {
+                        const result = await triggerPaywallOrUpgrade(updateUser);
+                        if (result.error === 'NO_PACKAGES') {
+                            Alert.alert('Upgrade Unavailable', 'Subscription packages could not be loaded right now. Please check your connection and try again.', [{ text: 'OK' }]);
+                        }
+                    }}
                     activeOpacity={0.85}
                 >
                     <Text style={styles.lockScreenButtonText}>{t('startFreeTrial')}</Text>

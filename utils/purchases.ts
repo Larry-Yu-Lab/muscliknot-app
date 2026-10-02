@@ -456,13 +456,11 @@ export const triggerPaywallOrUpgrade = async (
       });
     }
 
-    Alert.alert(
-      'Subscription Service',
-      'In-app subscriptions are currently being updated. Please try again shortly or contact support.'
-    );
+    // Production: offerings unavailable — let the caller handle the UI
+    // instead of showing a confusing "being updated" message.
     return {
       success: false,
-      error: 'No active subscription options found.'
+      error: 'NO_PACKAGES',
     };
   } catch (err: any) {
     console.error('Error in triggerPaywallOrUpgrade:', err);

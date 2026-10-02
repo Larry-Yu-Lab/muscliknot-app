@@ -355,7 +355,12 @@ export default function WarmUpScreen() {
 
                     <TouchableOpacity
                         style={[styles.lockScreenButton, { backgroundColor: colors.accent }]}
-                        onPress={() => triggerPaywallOrUpgrade(updateUser)}
+                        onPress={async () => {
+                            const result = await triggerPaywallOrUpgrade(updateUser);
+                            if (result.error === 'NO_PACKAGES') {
+                                Alert.alert('Upgrade Unavailable', 'Subscription packages could not be loaded right now. Please check your connection and try again.', [{ text: 'OK' }]);
+                            }
+                        }}
                         activeOpacity={0.85}
                     >
                         <Text style={styles.lockScreenButtonText}>{t('startFreeTrial')}</Text>
