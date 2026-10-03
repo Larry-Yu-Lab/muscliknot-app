@@ -46,6 +46,7 @@ const safePurchases = {
     try {
       return await Purchases.getOfferings();
     } catch (e) {
+      console.warn('[Purchases] Purchases.getOfferings() failed:', e);
       return { current: null };
     }
   },
@@ -179,12 +180,12 @@ export const getOfferings = async (): Promise<PurchasesPackage[]> => {
 
     console.log('[Purchases] No available packages in offerings, checking local StoreKit products...');
     try {
-      const storeProducts = await safePurchases.getProducts(['yearly', 'monthly', 'lifetime']);
+      const storeProducts = await safePurchases.getProducts(['annually', 'yearly', 'monthly', 'lifetime']);
       if (storeProducts && storeProducts.length > 0) {
         console.log('[Purchases] Loaded fallback StoreKit products:', storeProducts.map((p: any) => p.identifier));
         return storeProducts.map((prod: any) => ({
           identifier: prod.identifier,
-          packageType: prod.identifier.includes('year') ? PACKAGE_TYPE.ANNUAL : (prod.identifier.includes('month') ? PACKAGE_TYPE.MONTHLY : PACKAGE_TYPE.CUSTOM),
+          packageType: (prod.identifier.includes('year') || prod.identifier.includes('annual')) ? PACKAGE_TYPE.ANNUAL : (prod.identifier.includes('month') ? PACKAGE_TYPE.MONTHLY : PACKAGE_TYPE.CUSTOM),
           product: prod,
           offeringIdentifier: 'storekit_fallback'
         })) as any;
@@ -489,9 +490,9 @@ export const triggerPaywallOrUpgrade = async (
     if (isPurchasesValid) {
       try {
         console.log('[Purchases] Offerings empty, querying StoreKit directly for local products...');
-        const storeProducts = await safePurchases.getProducts(['yearly', 'monthly', 'lifetime']);
+        const storeProducts = await safePurchases.getProducts(['annually', 'yearly', 'monthly', 'lifetime']);
         if (storeProducts && storeProducts.length > 0) {
-          const targetProduct = storeProducts.find((p: any) => p.identifier === 'yearly') || storeProducts[0];
+          const targetProduct = storeProducts.find((p: any) => p.identifier === 'annually' || p.identifier === 'yearly') || storeProducts[0];
           console.log('[Purchases] Launching native Apple purchase sheet for:', targetProduct.identifier);
           const { customerInfo } = await safePurchases.purchaseStoreProduct(targetProduct);
           if (updateUser) {
