@@ -467,8 +467,8 @@ const styles = StyleSheet.create({
     exerciseSection: { paddingHorizontal: 16, marginTop: 18 },
     sectionTitle: { fontSize: 17, fontWeight: '800', marginBottom: 14 },
     bottomBar: { position: 'absolute', bottom: 0, left: 0, right: 0, paddingHorizontal: 16, paddingTop: 10, paddingBottom: 16, borderTopWidth: 1, alignItems: 'center', justifyContent: 'center' },
-    completeBtn: { height: 48, borderRadius: 12, alignItems: 'center', justifyContent: 'center', width: '100%' },
-    completeBtnText: { color: '#000', fontSize: 16, fontWeight: '900', letterSpacing: 1.5 },
+    completeBtn: { minHeight: 48, paddingVertical: 12, paddingHorizontal: 16, borderRadius: 12, alignItems: 'center', justifyContent: 'center', width: '100%' },
+    completeBtnText: { color: '#000', fontSize: 15, fontWeight: '900', letterSpacing: 0.5, flexShrink: 1, textAlign: 'center' },
     moreButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 12, borderRadius: 12, borderWidth: 1, borderStyle: 'dashed', marginTop: 4, backgroundColor: 'rgba(255,255,255,0.02)' },
     moreButtonText: { fontSize: 14, fontWeight: '700' },
 

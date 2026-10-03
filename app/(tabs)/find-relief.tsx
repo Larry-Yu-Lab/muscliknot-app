@@ -948,9 +948,9 @@ const styles = StyleSheet.create({
     },
     guidedBtnText: { fontSize: scaleFont(14), fontWeight: '800' },
     completeBtn: {
-        height: scale(48), borderRadius: 12, alignItems: 'center', justifyContent: 'center',
+        minHeight: scale(48), paddingVertical: scale(12), paddingHorizontal: scale(16), borderRadius: 12, alignItems: 'center', justifyContent: 'center',
     },
-    completeBtnText: { color: '#000', fontSize: scaleFont(16), fontWeight: '900', letterSpacing: 1.5 },
+    completeBtnText: { color: '#000', fontSize: scaleFont(15), fontWeight: '900', letterSpacing: 0.5, flexShrink: 1, textAlign: 'center' },
     moreButton: {
         flexDirection: 'row',
         alignItems: 'center',

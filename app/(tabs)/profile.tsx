@@ -414,15 +414,15 @@ export default function ProfileScreen() {
                         {/* Stats Cards */}
                         <View style={styles.statsContainer}>
                             <View style={[styles.statCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
-                                <Text style={[styles.statLabel, { color: colors.text }]}>{t('workouts')}</Text>
+                                <Text style={[styles.statLabel, { color: colors.text }]} numberOfLines={1} adjustsFontSizeToFit>{t('workouts')}</Text>
                                 <Text style={[styles.statValue, { color: colors.text }]}>{stats.workouts}</Text>
                             </View>
                             <View style={[styles.statCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
-                                <Text style={[styles.statLabel, { color: colors.text }]}>{t('recovery')}</Text>
+                                <Text style={[styles.statLabel, { color: colors.text }]} numberOfLines={1} adjustsFontSizeToFit>{t('recovery')}</Text>
                                 <Text style={[styles.statValueOrange, { color: colors.accent }]}>{stats.recovery}%</Text>
                             </View>
                             <View style={[styles.statCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
-                                <Text style={[styles.statLabel, { color: colors.text }]}>{t('streak')}</Text>
+                                <Text style={[styles.statLabel, { color: colors.text }]} numberOfLines={1} adjustsFontSizeToFit>{t('streak')}</Text>
                                 <Text style={[styles.statValueOrange, { color: colors.accent }]}>{stats.streak}d</Text>
                             </View>
                         </View>
@@ -1424,15 +1424,17 @@ const styles = StyleSheet.create({
         flex: 1,
         borderWidth: 1,
         borderRadius: 16,
-        padding: 16,
+        paddingVertical: 12,
+        paddingHorizontal: 4,
         alignItems: 'center',
         justifyContent: 'center',
     },
     statLabel: {
         fontSize: 10,
         fontWeight: '800',
-        letterSpacing: 2,
+        letterSpacing: 0.5,
         marginBottom: 4,
+        textAlign: 'center',
     },
     statValue: {
         fontSize: 30,
