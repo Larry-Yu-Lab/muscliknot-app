@@ -61,7 +61,7 @@
          </BuildableReference>
       </BuildableProductRunnable>
       <StoreKitConfigurationFileReference
-         identifier = "../product store kit.storekit">
+         identifier = "../MuscliKnot/storekit(111).storekit">
       </StoreKitConfigurationFileReference>
    </LaunchAction>
    <ProfileAction

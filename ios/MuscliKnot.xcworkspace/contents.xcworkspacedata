@@ -13,4 +13,10 @@
    <FileRef
       location = "group:product store kit.storekit">
    </FileRef>
+   <FileRef
+      location = "group:MuscliKnot/product store kit.storekit">
+   </FileRef>
+   <FileRef
+      location = "group:MuscliKnot/storekit(111).storekit">
+   </FileRef>
 </Workspace>
