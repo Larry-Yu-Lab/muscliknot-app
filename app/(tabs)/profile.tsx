@@ -1010,7 +1010,7 @@ export default function ProfileScreen() {
                                 </View>
                                 <TouchableOpacity 
                                     style={[styles.eliteButton, { backgroundColor: colors.accent }]}
-                                    onPress={() => setIsUpgradeModalVisible(true)}
+                                    onPress={handleUpgrade}
                                 >
                                     <Text style={styles.eliteButtonText}>
                                         {billingCycle === 'annual' ? t('upgradeSave') : t('upgradeElite')}
