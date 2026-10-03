@@ -1372,7 +1372,9 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   roadmapCTA: {
-    height: 44,
+    minHeight: 44,
+    paddingVertical: 10,
+    paddingHorizontal: 8,
     borderRadius: 12,
     flexDirection: 'row',
     alignItems: 'center',
@@ -1382,9 +1384,11 @@ const styles = StyleSheet.create({
   },
   roadmapCTAText: {
     color: '#000',
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: '800',
     letterSpacing: 0.5,
+    flexShrink: 1,
+    textAlign: 'center',
   },
   aiBadge: {
     backgroundColor: 'rgba(249, 115, 22, 0.15)',
@@ -1440,10 +1444,13 @@ const styles = StyleSheet.create({
   statLabel: {
     fontSize: 12,
     fontWeight: '700',
+    flexShrink: 1,
+    marginRight: 8,
   },
   statValue: {
     fontSize: 12,
     fontWeight: '800',
+    flexShrink: 0,
   },
   progressBarBg: {
     height: 6,
