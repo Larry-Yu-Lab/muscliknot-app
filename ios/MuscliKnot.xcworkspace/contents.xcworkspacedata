@@ -19,4 +19,7 @@
    <FileRef
       location = "group:MuscliKnot/storekit(111).storekit">
    </FileRef>
+   <FileRef
+      location = "group:MuscliKnot/storekit(222).storekit">
+   </FileRef>
 </Workspace>
